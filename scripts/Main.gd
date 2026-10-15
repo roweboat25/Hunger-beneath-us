@@ -5,6 +5,7 @@ var dialogue: DialogueBox
 var psyon: PsyonWindow
 var closeup: CloseUp
 var iface: InterfaceView
+var city_map: CityMap
 var filter: GlassesFilter
 var map: MapScene
 var player: Player
@@ -45,6 +46,8 @@ func _ready() -> void:
 	_ui.add_child(closeup)
 	iface = InterfaceView.new()
 	_ui.add_child(iface)
+	city_map = CityMap.new()
+	_ui.add_child(city_map)
 	psyon = PsyonWindow.new()
 	_ui.add_child(psyon)
 	dialogue = DialogueBox.new()
@@ -152,6 +155,7 @@ func load_map(path: String) -> void:
 		await map.tree_exited
 	map = load(path).instantiate()
 	map.main = self
+	Game.current_map = String(map.name)
 	add_child(map)
 	move_child(map, 0)
 	set_ambient(map.ambient)
@@ -171,6 +175,9 @@ func load_map(path: String) -> void:
 		cam.reset_smoothing()
 	await fade_in()
 	map.start()
+	if String(map.name) in World.STREETS and not Game.has_flag("keys_hinted"):
+		Game.set_flag("keys_hinted")
+		_show_toast("Tab: city map  ·  L: case file  ·  F: scan  ·  G: frames  ·  M: scenes")
 	if not _shot_path.is_empty():
 		# dev: --shot=path.png saves a frame of this map and quits; --scan=id shows that thing's card first
 		await get_tree().create_timer(5.0).timeout
@@ -188,6 +195,9 @@ func load_map(path: String) -> void:
 				var pz: Array = Game.puzzle_for(pid, "VOLTX FILTRATION UNIT 7")
 				iface.run(parts[0], pz[1])
 				await get_tree().create_timer(1.6).timeout
+			elif arg == "--citymap":
+				city_map.open()
+				await get_tree().create_timer(0.3).timeout
 			elif arg == "--board":
 				_log_panel.show()
 				_refresh_board()
@@ -235,7 +245,7 @@ func _title_screen() -> void:
 	sub.size = Vector2(640, 16)
 	layer.add_child(sub)
 	var prompt := Label.new()
-	prompt.text = "press Enter"
+	prompt.text = "press Enter   ·   in game: Tab city map, L case file, M scenes"
 	prompt.add_theme_font_size_override("font_size", 9)
 	prompt.add_theme_color_override("font_color", Color("f5d6a0"))
 	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -544,16 +554,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		closeup.hide_view()
 		Game.input_locked = false
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible:
+	elif event.is_action_pressed("city_map") and not city_map.visible and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and map:
+		if _log_panel.visible:
+			_log_panel.hide()
+		city_map.open()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible:
 		if _log_panel.visible:
 			_log_panel.hide()
 		_menu.open()
-	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible:
+	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible:
 		_log_panel.visible = not _log_panel.visible
 		Game.input_locked = _log_panel.visible
 		if _log_panel.visible:
 			_refresh_board()
-	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not _log_panel.visible:
+	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not _log_panel.visible:
 		var target: Node = player.nearest_interactable()
 		map.scan(target)
 	elif _log_panel.visible and event is InputEventKey and event.pressed and not event.echo:

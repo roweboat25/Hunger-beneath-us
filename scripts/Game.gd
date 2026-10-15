@@ -190,11 +190,11 @@ const CASES := {
 	"dorner": {"title": "Dorner", "subtitle": "Phillip Dorner, missing", "unlock": "warroom1_done",
 		"notice": "TURAN (private): Dorner hasn't checked in. His flat's in Lamplight, the far tower. Quietly, Carl.",
 		"steps": [
-			["flat", "Dorner's flat. Lamplight, the far tower, east end of the street."],
-			["frames", "His Psyon is still running. It won't talk until you say her name."],
-			["charger", "His car. The charge post on the Spine, by the lot, keeps a log."],
-			["vigil", "Fargona Avenue, the steps off Park Avenue. The vigil. Find him."],
-			["choice", "Decide what Turan hears."]],
+			["flat", "Dorner's flat. Lamplight, the far tower, east end of the street.", "DornerFlat"],
+			["frames", "His Psyon is still running. It won't talk until you say her name.", "DornerFlat"],
+			["charger", "His car. The charge post on the Spine, by the lot, keeps a log.", "Spine"],
+			["vigil", "Fargona Avenue, the steps off Park Avenue. The vigil. Find him.", "Fargona"],
+			["choice", "Decide what Turan hears.", "Fargona"]],
 		"outcomes": {
 			"reported": "Found Dorner at the digital vigil on Fargona Avenue, bargaining with Psyon for his wife. Reported it to Turan. He's on a wellness flag by morning.",
 			"covered": "Found Dorner at the vigil on Fargona Avenue. Told Turan he'd gone to his sister's. Psyon had told him Cheyenne was in the tower.",
