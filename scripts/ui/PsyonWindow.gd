@@ -16,9 +16,10 @@ const TYPE_SPEED := 40.0
 var forked := true
 var _panel: PanelContainer
 var _log: RichTextLabel
-var _input: LineEdit
+var _line: LineEdit
 var _image: TextureRect
 var _status: Label
+var _hint: Label
 var _breath: AudioStreamPlayer
 var _render_img: Image
 var _render_tex: ImageTexture
@@ -44,8 +45,8 @@ func _build() -> void:
 	_panel.custom_minimum_size = Vector2(300, 190)
 	_panel.offset_left = -150
 	_panel.offset_right = 150
-	_panel.offset_top = -95
-	_panel.offset_bottom = 95
+	_panel.offset_top = -131
+	_panel.offset_bottom = 49
 	var style := StyleBoxTexture.new()
 	style.texture = load("res://assets/ui/panel_dark.png")
 	style.texture_margin_left = 4
@@ -98,11 +99,17 @@ func _build() -> void:
 	_image.hide()
 	body.add_child(_image)
 
-	_input = LineEdit.new()
-	_input.placeholder_text = "Type to Psyon. Esc closes the laptop."
-	_input.add_theme_font_size_override("font_size", 9)
-	_input.text_submitted.connect(_on_submit)
-	col.add_child(_input)
+	_line = LineEdit.new()
+	_line.placeholder_text = "..."
+	_line.add_theme_font_size_override("font_size", 9)
+	_line.text_submitted.connect(_on_submit)
+	col.add_child(_line)
+	_hint = Label.new()
+	_hint.text = "Type a reply to Psyon and press Enter"
+	_hint.add_theme_font_size_override("font_size", 8)
+	_hint.add_theme_color_override("font_color", Color("f5d6a0"))
+	_hint.hide()
+	col.add_child(_hint)
 
 
 func open(is_forked := true, status := "") -> void:
@@ -115,35 +122,53 @@ func open(is_forked := true, status := "") -> void:
 	_status.text = status
 	show()
 	_accepting = false
-	_input.editable = false
+	_line.editable = false
+	_line.release_focus()
 
 
 ## Let the player type. Resolves when they submit a line.
 func accept_input() -> void:
 	_accepting = true
-	_input.editable = true
-	_input.grab_focus()
+	_line.editable = true
+	_line.placeholder_text = "Type here..."
+	_hint.show()
+	_line.grab_focus()
+
+
+## An empty line or Esc still sends something, so the story never stalls
+## on a player who does not know what to type.
+const DEFAULT_LINES := ["Hello?", "Who is this?", "What do you want?"]
+var _defaults_used := 0
 
 
 func _on_submit(text: String) -> void:
-	if not _accepting or text.strip_edges().is_empty():
+	if not _accepting:
 		return
+	if text.strip_edges().is_empty():
+		text = DEFAULT_LINES[_defaults_used % DEFAULT_LINES.size()]
+		_defaults_used += 1
 	_accepting = false
-	_input.editable = false
-	_input.text = ""
-	_log.append_text("[color=7fe0c0]> " + text.strip_edges() + "[/color]\n")
+	_line.editable = false
+	_line.placeholder_text = "..."
+	_hint.hide()
+	_line.text = ""
+	# Give the keyboard back to the dialogue box.
+	_line.release_focus()
+	_log.push_color(Color("7fe0c0"))
+	_log.add_text("> " + text.strip_edges() + "\n")
+	_log.pop()
 	message_sent.emit(text.strip_edges())
 
 
 ## Type a line from the machine, character by character.
 func machine_says(text: String, color := "e8ecef") -> void:
-	_log.append_text("[color=" + color + "]")
-	var shown := ""
+	# Tags cannot span append_text calls, so push a colour and add plain text.
+	_log.push_color(Color(color))
 	for i in text.length():
-		shown += text[i]
-		_log.append_text(text[i])
+		_log.add_text(text[i])
 		await get_tree().create_timer(1.0 / TYPE_SPEED).timeout
-	_log.append_text("[/color]\n")
+	_log.pop()
+	_log.add_text("\n")
 
 
 ## Reveal an image pixel by pixel, the way early AI image generation did.
@@ -184,13 +209,15 @@ func clear_image() -> void:
 func close() -> void:
 	hide()
 	_accepting = false
+	_line.release_focus()
 	Game.input_locked = false
 	closed.emit()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if visible and _accepting and event.is_action_pressed("cancel"):
-		close()
+		# Esc sends the line as typed (or a default) instead of trapping the player.
+		_on_submit(_line.text)
 		get_viewport().set_input_as_handled()
 
 

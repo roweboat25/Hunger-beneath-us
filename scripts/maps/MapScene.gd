@@ -4,7 +4,7 @@ class_name MapScene
 ## the chapter it covers. Main wires interactables to `on_interact`.
 
 ## Pixel size of the map, used to clamp the camera.
-@export var map_size := Vector2i(480, 272)
+@export var map_size := Vector2i(960, 544)
 
 var main: Node
 ## Ambient light for the map. Main applies it with a CanvasModulate.
@@ -41,17 +41,26 @@ func npc(id: String) -> NPC:
 	return null
 
 
-## Swap one tile on the Objects layer (e.g. remove a prop after it is taken).
-func set_object_tile(cell: Vector2i, atlas: Vector2i) -> void:
-	var objects: TileMapLayer = get_node_or_null("Objects")
-	if objects:
-		objects.set_cell(cell, 0, atlas)
+## Props placed by tools/gen_maps.py with an id can be shown, hidden or removed.
+func prop(id: String) -> Sprite2D:
+	var actors := get_node_or_null("Actors")
+	if actors:
+		for node in actors.get_children():
+			if node is Sprite2D and node.get_meta("prop_id", "") == id:
+				return node
+	return null
 
 
-func erase_object_tile(cell: Vector2i) -> void:
-	var objects: TileMapLayer = get_node_or_null("Objects")
-	if objects:
-		objects.erase_cell(cell)
+func show_prop(id: String, shown := true) -> void:
+	var p := prop(id)
+	if p:
+		p.visible = shown
+
+
+func remove_prop(id: String) -> void:
+	var p := prop(id)
+	if p:
+		p.queue_free()
 
 
 ## Short pause that the autoplay can skip through.

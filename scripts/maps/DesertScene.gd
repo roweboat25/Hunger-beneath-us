@@ -63,7 +63,7 @@ func _approach() -> void:
 	if not _sedan_done:
 		await ui.think("The sedan first. If Lynx was out here, the car would say so.")
 		ui.close()
-		player.position += Vector2(-24, 0)
+		player.position += Vector2(-48, 0)
 		return
 	_at_door = true
 	Game.input_locked = true
@@ -88,7 +88,7 @@ func _approach() -> void:
 	ui.close()
 	Game.add_connection(2.0, "bowed")
 	await main.filter.flash(0.2)
-	set_object_tile(Vector2i(33, 8), Vector2i(7, 5))
+	show_prop("cave_door", false)
 	await ui.think("The door slid open.")
 	ui.close()
 	main.filter.set_hud_text("ORA  ·  ???  ·  walk in")

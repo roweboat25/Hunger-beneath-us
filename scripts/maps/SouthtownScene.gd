@@ -17,7 +17,7 @@ func start() -> void:
 	_eye_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_eye_sprite.scale = Vector2(3, 3)
 	_eye_sprite.modulate = Color(0.05, 0.05, 0.06, 0.9)
-	_eye_sprite.position = Vector2(44 * 16 + 8, 9 * 16 + 8)
+	_eye_sprite.position = Vector2(44 * 32 + 16, 9 * 32 + 16)
 	_eye_sprite.z_index = 1
 	add_child(_eye_sprite)
 	await main.show_title("Southwest Station", "Southtown, the industrial core")
@@ -114,7 +114,7 @@ func _overpass() -> void:
 	if not _met_lynx:
 		await ui.think("Lynx was still waiting at the station.")
 		ui.close()
-		player.position += Vector2(-24, 0)
+		player.position += Vector2(-48, 0)
 		return
 	Game.input_locked = true
 	await ui.think("Beneath the overpass, an encampment. Utterly deserted. Tattered plastic tarps flapped listlessly. Scorched, overturned barrel stoves lay like fallen monoliths.")

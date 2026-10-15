@@ -37,7 +37,7 @@ func _build() -> void:
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	_panel.offset_left = 8
 	_panel.offset_right = -8
-	_panel.offset_top = -82
+	_panel.offset_top = -122
 	_panel.offset_bottom = -6
 	var style := StyleBoxTexture.new()
 	style.texture = load("res://assets/ui/panel.png")
@@ -66,7 +66,7 @@ func _build() -> void:
 	frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(frame)
 	_portrait = TextureRect.new()
-	_portrait.custom_minimum_size = Vector2(64, 64)
+	_portrait.custom_minimum_size = Vector2(96, 96)
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP
 	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	frame.add_child(_portrait)
@@ -78,7 +78,7 @@ func _build() -> void:
 
 	_name = Label.new()
 	_name.add_theme_color_override("font_color", Color("7fe0c0"))
-	_name.add_theme_font_size_override("font_size", 10)
+	_name.add_theme_font_size_override("font_size", 13)
 	_name.add_theme_color_override("font_shadow_color", Color("050608"))
 	_name.add_theme_constant_override("shadow_offset_x", 1)
 	_name.add_theme_constant_override("shadow_offset_y", 1)
@@ -89,7 +89,7 @@ func _build() -> void:
 	_text.scroll_active = false
 	_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for f in ["normal_font_size", "italics_font_size", "bold_font_size", "bold_italics_font_size"]:
-		_text.add_theme_font_size_override(f, 10)
+		_text.add_theme_font_size_override(f, 13)
 	_text.add_theme_color_override("default_color", Color("e8ecef"))
 	_text.add_theme_color_override("font_shadow_color", Color("050608"))
 	_text.add_theme_constant_override("shadow_offset_x", 1)
@@ -166,7 +166,7 @@ func choose(options: Array) -> int:
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.flat = true
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 10)
+		b.add_theme_font_size_override("font_size", 12)
 		b.add_theme_color_override("font_shadow_color", Color("050608"))
 		b.add_theme_constant_override("shadow_offset_x", 1)
 		b.add_theme_constant_override("shadow_offset_y", 1)

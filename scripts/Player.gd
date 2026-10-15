@@ -1,10 +1,11 @@
 extends CharacterBody2D
 class_name Player
 ## Carl. Four-direction walking, a facing-sensitive interact zone, and the
-## glasses toggle. The sprite sheet is 4 columns (frames) by 4 rows
-## (down, left, right, up), 16x24 each.
+## glasses toggle. The sprite sheet is 9 columns (idle, then 8 walk frames)
+## by 4 rows (down, left, right, up), 64x64 each, with the feet at the origin.
 
-@export var speed := 70.0
+@export var speed := 112.0
+const COLS := 9
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var zone: Area2D = $InteractZone
@@ -23,7 +24,7 @@ func _ready() -> void:
 	add_to_group("player")
 	var shadow := Sprite2D.new()
 	shadow.texture = load("res://assets/sprites/shadow.png")
-	shadow.position = Vector2(0, 2)
+	shadow.position = Vector2(0, -2)
 	shadow.z_index = -1
 	add_child(shadow)
 	move_child(shadow, 0)
@@ -44,7 +45,7 @@ func _physics_process(delta: float) -> void:
 			facing = Vector2.RIGHT if dir.x > 0.0 else Vector2.LEFT
 		else:
 			facing = Vector2.DOWN if dir.y > 0.0 else Vector2.UP
-		zone.position = facing * 12.0
+		zone.position = facing * 22.0 + Vector2(0, -8)
 	velocity = dir.normalized() * speed
 	move_and_slide()
 	_animate(delta, dir.length() > 0.0)
@@ -56,8 +57,8 @@ func _physics_process(delta: float) -> void:
 
 func _animate(delta: float, moving: bool) -> void:
 	if moving:
-		_anim_time += delta * 8.0
-		_frame = int(_anim_time) % 4
+		_anim_time += delta * 12.0
+		_frame = 1 + int(_anim_time) % 8
 	else:
 		_anim_time = 0.0
 		_frame = 0
@@ -65,7 +66,7 @@ func _animate(delta: float, moving: bool) -> void:
 
 
 func _apply_frame(_moving: bool) -> void:
-	sprite.frame = ROW[facing] * 4 + _frame
+	sprite.frame = ROW[facing] * COLS + _frame
 
 
 func _try_interact() -> void:
@@ -88,5 +89,5 @@ func face_toward(target: Vector2) -> void:
 		facing = Vector2.RIGHT if d.x > 0.0 else Vector2.LEFT
 	else:
 		facing = Vector2.DOWN if d.y > 0.0 else Vector2.UP
-	zone.position = facing * 12.0
+	zone.position = facing * 22.0 + Vector2(0, -8)
 	_apply_frame(false)

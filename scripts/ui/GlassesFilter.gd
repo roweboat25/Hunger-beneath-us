@@ -39,7 +39,7 @@ func _ready() -> void:
 	corner.texture = load("res://assets/ui/eye_glyph.png")
 	corner.modulate = Color("7fe0c0", 0.0)
 	corner.name = "Glyph"
-	corner.position = Vector2(480 - 40, 4)
+	corner.position = Vector2(640 - 40, 4)
 	_hud.add_child(corner)
 
 	Game.glasses_toggled.connect(_on_toggled)

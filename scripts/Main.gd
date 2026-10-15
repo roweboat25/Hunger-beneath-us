@@ -8,6 +8,8 @@ var map: MapScene
 var player: Player
 
 var _ui: CanvasLayer
+var _start_tile := Vector2i(-1, -1)
+var _shot_path := ""
 var _toast: Label
 var _title: Control
 var _title_label: Label
@@ -27,10 +29,11 @@ func _ready() -> void:
 	_ui.layer = 20
 	add_child(_ui)
 
-	dialogue = DialogueBox.new()
-	_ui.add_child(dialogue)
+	# The laptop window goes under the dialogue box so narration stays readable.
 	psyon = PsyonWindow.new()
 	_ui.add_child(psyon)
+	dialogue = DialogueBox.new()
+	_ui.add_child(dialogue)
 
 	_toast = Label.new()
 	_toast.add_theme_font_size_override("font_size", 8)
@@ -57,7 +60,7 @@ func _ready() -> void:
 	_glyph.texture = load("res://assets/ui/eye_glyph_red.png")
 	_glyph.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_glyph.scale = Vector2(3, 3)
-	_glyph.position = Vector2(240 - 48, 135 - 48)
+	_glyph.position = Vector2(320 - 48, 180 - 48)
 	_glyph.modulate.a = 0.0
 	fade_layer.add_child(_glyph)
 
@@ -66,15 +69,25 @@ func _ready() -> void:
 
 	var first := "res://scenes/maps/Apartment.tscn"
 	var skip_title := "--autoplay" in OS.get_cmdline_user_args()
-	for arg in OS.get_cmdline_user_args():
+	var start_tile := Vector2i(-1, -1)
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if OS.has_feature("web"):
+		# dev shortcuts: index.html?map=Park&at=12,5
+		var search: String = str(JavaScriptBridge.eval("window.location.search", true))
+		for part in search.trim_prefix("?").split("&"):
+			args.append("--" + part)
+	for arg in args:
 		if arg.begins_with("--map="):
 			first = "res://scenes/maps/" + arg.trim_prefix("--map=") + ".tscn"
-	if OS.has_feature("web"):
-		# dev shortcut: index.html?map=Park
-		var search: String = str(JavaScriptBridge.eval("window.location.search", true))
-		if search.begins_with("?map="):
-			first = "res://scenes/maps/" + search.trim_prefix("?map=").get_slice("&", 0) + ".tscn"
 			skip_title = true
+		elif arg.begins_with("--at="):
+			var xy := arg.trim_prefix("--at=").split(",")
+			if xy.size() == 2:
+				start_tile = Vector2i(int(xy[0]), int(xy[1]))
+	_start_tile = start_tile
+	for arg in args:
+		if arg.begins_with("--shot="):
+			_shot_path = arg.trim_prefix("--shot=")
 	if not skip_title:
 		await _title_screen()
 	await load_map(first)
@@ -92,7 +105,10 @@ func load_map(path: String) -> void:
 	add_child(map)
 	move_child(map, 0)
 	set_ambient(map.ambient)
-	player = map.get_node_or_null("Player")
+	player = map.get_node_or_null("Actors/Player")
+	if player and _start_tile.x >= 0:
+		player.position = Vector2(_start_tile * 32) + Vector2(16, 28)
+		_start_tile = Vector2i(-1, -1)
 	for node in get_tree().get_nodes_in_group("interactable"):
 		if node.is_inside_tree() and map.is_ancestor_of(node):
 			node.interacted.connect(map.on_interact)
@@ -105,6 +121,11 @@ func load_map(path: String) -> void:
 		cam.reset_smoothing()
 	await fade_in()
 	map.start()
+	if not _shot_path.is_empty():
+		# dev: --shot=path.png saves a frame of this map and quits
+		await get_tree().create_timer(6.0).timeout
+		get_viewport().get_texture().get_image().save_png(_shot_path)
+		get_tree().quit()
 
 
 func set_ambient(c: Color) -> void:
@@ -120,10 +141,13 @@ func _title_screen() -> void:
 	var bg := TextureRect.new()
 	bg.texture = load("res://assets/ui/title.png")
 	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.size = Vector2(640, 360)
 	layer.add_child(bg)
 	var name_label := Label.new()
 	name_label.text = "THE HUNGER BENEATH US"
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 28)
 	name_label.add_theme_color_override("font_color", Color("7fe0c0"))
 	name_label.add_theme_color_override("font_shadow_color", Color("0b0e1a"))
 	name_label.add_theme_constant_override("shadow_offset_x", 2)
@@ -131,24 +155,24 @@ func _title_screen() -> void:
 	name_label.add_theme_constant_override("outline_size", 4)
 	name_label.add_theme_color_override("font_outline_color", Color("0b0e1a"))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.position = Vector2(0, 112)
-	name_label.size = Vector2(480, 34)
+	name_label.position = Vector2(0, 150)
+	name_label.size = Vector2(640, 40)
 	layer.add_child(name_label)
 	var sub := Label.new()
 	sub.text = "a Psyonic Integrations case file"
 	sub.add_theme_font_size_override("font_size", 9)
 	sub.add_theme_color_override("font_color", Color("b9c2c9"))
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.position = Vector2(0, 148)
-	sub.size = Vector2(480, 14)
+	sub.position = Vector2(0, 196)
+	sub.size = Vector2(640, 16)
 	layer.add_child(sub)
 	var prompt := Label.new()
 	prompt.text = "press Enter"
 	prompt.add_theme_font_size_override("font_size", 9)
 	prompt.add_theme_color_override("font_color", Color("f5d6a0"))
 	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt.position = Vector2(0, 244)
-	prompt.size = Vector2(480, 14)
+	prompt.position = Vector2(0, 326)
+	prompt.size = Vector2(640, 16)
 	layer.add_child(prompt)
 	var blink := create_tween().set_loops()
 	blink.tween_property(prompt, "modulate:a", 0.15, 0.7)
@@ -273,6 +297,8 @@ func show_title(text: String, sub := "", hold := 2.0) -> void:
 	Game.input_locked = true
 	_title_label.text = text
 	_title_sub.text = sub
+	_title.size = get_viewport().get_visible_rect().size
+	_title.position = Vector2.ZERO
 	_title.show()
 	var t := create_tween()
 	t.tween_property(_title, "modulate:a", 1.0, 0.5)

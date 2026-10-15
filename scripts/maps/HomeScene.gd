@@ -323,9 +323,9 @@ func _ezra_second() -> void:
 func _ritual() -> void:
 	_ritual_done = true
 	Game.input_locked = true
-	player.face_toward(Vector2(23 * 16 + 8, 5 * 16 + 8))
-	set_object_tile(Vector2i(23, 5), Vector2i(4, 5))
-	set_object_tile(Vector2i(23, 4), Vector2i(5, 5))
+	player.face_toward(Vector2(23 * 32 + 16, 5 * 32 + 16))
+	show_prop("ritual_circle")
+	show_prop("ritual_tablet")
 	await ui.think("A soft sound drifted down the hall. Mira, talking to someone. Not in conversation. With a distinct, measured rhythm.")
 	await ui.say("Mira", "The art you lost will speak through me, / The name you wore, the things you dream...", "mira")
 	await ui.think("She sat on the floor, cross-legged, her back to me, her gaze fixed on a circle at the foot of her bed. Sticks. Thin, brittle, snapped clean. Two inner rings. Exactly like Dufredy's ceiling.")
@@ -359,14 +359,14 @@ func _ritual() -> void:
 		Game.add_trust("mira", -2)
 		Game.set_flag("tablet_smashed")
 		Game.log_entry("Smashed Mira's tablet. Destroyed the second forked build myself.")
-		erase_object_tile(Vector2i(23, 4))
+		show_prop("ritual_tablet", false)
 	else:
 		await ui.think("I shoved the tablet into my coat. Mira wailed anyway. To her it was the same thing.")
 		Game.add_trust("mira", -1)
 		Game.add_connection(1.0, "kept the tablet")
 		Game.add_evidence("Mira's tablet")
 		Game.set_flag("tablet_kept")
-		erase_object_tile(Vector2i(23, 4))
+		show_prop("ritual_tablet", false)
 	await ui.think("Monica appeared in the doorway, her face a portrait of shock. Stripped bare of my composure, I had no words.")
 	await ui.think("The floor rushed up to meet me.")
 	ui.close()

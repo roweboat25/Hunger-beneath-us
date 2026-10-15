@@ -181,7 +181,7 @@ func _elevator_day1() -> void:
 		await ui.think("Behind me, soft footsteps.")
 		await ui.say("Lynx", "Carl.", "lynx")
 		ui.close()
-		lynx.position = player.position + Vector2(-20, 0)
+		lynx.position = player.position + Vector2(-40, 0)
 		lynx.face("right")
 		await ui.say("Lynx", "Take it. Might jog something loose when he sees it.", "lynx")
 		await ui.think("She held out Dufredy's laptop, matte black, faintly warm, like it had just been thinking. She didn't let go right away.")

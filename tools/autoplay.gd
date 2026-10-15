@@ -53,10 +53,16 @@ func _live_interactables(map: Node) -> Array:
 	var holder: Node = map.get_node_or_null("Interactables")
 	if holder == null:
 		return out
+	var children: Array = holder.get_children()
+	var actors: Node = map.get_node_or_null("Actors")
+	if actors:
+		for node in actors.get_children():
+			if node is NPC:
+				children.append(node)
 	# plain triggers first, people last, exits very last
 	var exits := []
 	var people := []
-	for node in holder.get_children():
+	for node in children:
 		if node is NPC:
 			people.append(node)
 		elif node.id == "exit" or node.id == "door" and String(map.name) == "Desert":
@@ -68,8 +74,8 @@ func _live_interactables(map: Node) -> Array:
 
 ## A real interact press on the apartment laptop, through the player's zone.
 func _laptop_keypress() -> void:
-	main.player.global_position = Vector2(28 * 16 + 8, 5 * 16 + 8)
-	main.player.face_toward(Vector2(28 * 16 + 8, 4 * 16 + 8))
+	main.player.global_position = Vector2(28 * 32 + 16, 6 * 32 + 28)
+	main.player.face_toward(Vector2(28 * 32 + 16, 5 * 32 + 16))
 	await get_tree().create_timer(0.3).timeout
 	Input.action_press("interact")
 	await get_tree().process_frame

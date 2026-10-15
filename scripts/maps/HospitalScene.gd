@@ -30,7 +30,7 @@ func on_interact(id: String) -> void:
 			if not _nurse_done:
 				await ui.think("The nurse was still finishing his chart. I'd wait for her.")
 				ui.close()
-				player.position += Vector2(-20, 0)
+				player.position += Vector2(-40, 0)
 			elif not _interviewed:
 				await ui.think("The blinds were drawn tight, cloaking the room in a dim, cave-like gloom. Thick gauze pressed into the empty hollows of his eye sockets. And there it was. The smile.")
 				ui.close()
@@ -55,7 +55,7 @@ func _bot() -> void:
 	ui.close()
 	_checked_in = true
 	var nurse := npc("nurse")
-	nurse.position = Vector2(11 * 16 + 8, 8 * 16 + 8)
+	nurse.position = Vector2(11 * 32 + 16, 8 * 32 + 28)
 	nurse.face("left")
 	main.filter.set_hud_text("ORA  ·  SalTech  ·  the nurse will walk you in")
 
@@ -83,7 +83,7 @@ func _nurse() -> void:
 	await ui.say("Carl", "That would be best.", "carl")
 	ui.close()
 	_nurse_done = true
-	nurse.position = Vector2(17 * 16 + 8, 7 * 16 + 8)
+	nurse.position = Vector2(16 * 32 + 16, 7 * 32 + 28)
 	nurse.face("up")
 	Game.log_entry("Nurse: Dufredy sedated, smiling, no visitors. Hasn't spoken to FreudBot.")
 	main.filter.set_hud_text("ORA  ·  SalTech  ·  room at the end of the corridor")

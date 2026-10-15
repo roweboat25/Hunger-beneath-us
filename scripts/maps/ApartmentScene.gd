@@ -135,6 +135,7 @@ func _laptop_sequence() -> void:
 	Game.set_flag("laptop_bagged")
 	Game.log_entry("Forked Psyon on the laptop. Spoke first. Generated the room, then the eye, then my name.")
 	remove_interactable("laptop")
+	remove_prop("laptop")
 	# Objects layer: swap the laptop tile for a bare desk.
 	var objects: TileMapLayer = get_node_or_null("Objects")
 	if objects:
