@@ -47,7 +47,7 @@ const SIDE_INTERIORS := ["CognizoStation", "Factory", "DornerFlat"]
 ## Places that open only once a flag is set: target -> [flag, what Carl thinks at the door].
 const GATES := {
 	"DornerFlat": ["case_dorner", "A tower like the others. Nobody here I had business with."],
-	"Fargona": ["case_dorner_charger", "Steps up to Fargona Avenue. Screens, and singing, and a line of people with their heads back. Not my street tonight."],
+	"Fargona": ["case_dorner_charger", "Steps up to Fargona Avenue. Screens, and singing, and a line of people with their heads back. Not my street tonight.", "night"],
 }
 
 ## Outdoor maps. Anything else is an interior.

@@ -4,6 +4,7 @@ extends Node
 var dialogue: DialogueBox
 var psyon: PsyonWindow
 var closeup: CloseUp
+var cutscene: CutScene
 var iface: InterfaceView
 var city_map: CityMap
 var filter: GlassesFilter
@@ -48,6 +49,8 @@ func _ready() -> void:
 	_ui.add_child(iface)
 	city_map = CityMap.new()
 	_ui.add_child(city_map)
+	cutscene = CutScene.new()
+	_ui.add_child(cutscene)
 	psyon = PsyonWindow.new()
 	_ui.add_child(psyon)
 	dialogue = DialogueBox.new()
@@ -70,6 +73,8 @@ func _ready() -> void:
 	Game.case_resolved.connect(func(id, outcome): _show_toast("Case closed: %s (%s)" % [Game.CASES[id]["title"], outcome]))
 	Game.interfaced.connect(func(_id, line): _show_toast("Interfaced. A line of the chant, learned by hand." if line.is_empty() else "Interfaced. \"" + line + "\""))
 	Game.evidence_added.connect(func(_item): _show_feed("ORA: evidence of a crime detected. Police notified.", true))
+	Game.stance_changed.connect(func(st): _show_toast("The file reads you as undecided again." if st.is_empty() else "The file has a word for you now: %s. \"%s\"" % [Game.STANCES[st][0], Game.STANCES[st][1]]))
+	Game.time_changed.connect(_on_time)
 	Game.outage_changed.connect(func(on): _show_feed("VOLTX: rolling outage in this quadrant. Services may be unresponsive." if on else "VOLTX: service restored.", true))
 
 	# the ORA feed: what the frames push at Carl while he walks
@@ -134,6 +139,11 @@ func _ready() -> void:
 					Game.set_flag(f)
 		elif arg.begins_with("--conn="):
 			Game.connection = float(arg.trim_prefix("--conn="))
+		elif arg.begins_with("--hour="):
+			# dev: ?hour=22 starts the clock there (night is 20..5)
+			Game.hour = int(arg.trim_prefix("--hour="))
+		elif arg.begins_with("--map=") and not arg.ends_with("Apartment"):
+			Game.set_flag("opening_seen")
 	_start_tile = start_tile
 	for arg in args:
 		if arg.begins_with("--shot="):
@@ -156,6 +166,8 @@ func load_map(path: String) -> void:
 	map = load(path).instantiate()
 	map.main = self
 	Game.current_map = String(map.name)
+	if String(map.name) in World.STREETS:
+		Game.advance_time(1)
 	add_child(map)
 	move_child(map, 0)
 	set_ambient(map.ambient)
@@ -195,6 +207,17 @@ func load_map(path: String) -> void:
 				var pz: Array = Game.puzzle_for(pid, "VOLTX FILTRATION UNIT 7")
 				iface.run(parts[0], pz[1])
 				await get_tree().create_timer(1.6).timeout
+			elif arg.begins_with("--cutscene="):
+				# --cutscene=opening,1 shows that panel of that scene for the shot
+				var cp := arg.trim_prefix("--cutscene=").split(",")
+				var idx: int = int(cp[1]) if cp.size() > 1 else 0
+				dialogue.close()
+				cutscene.play([CutScene.PANELS[cp[0]][idx]], true)
+				await get_tree().create_timer(2.5).timeout
+			elif arg == "--dream":
+				dialogue.close()
+				dream()
+				await get_tree().create_timer(2.5).timeout
 			elif arg == "--citymap":
 				city_map.open()
 				await get_tree().create_timer(0.3).timeout
@@ -204,6 +227,59 @@ func load_map(path: String) -> void:
 				await get_tree().create_timer(0.3).timeout
 		get_viewport().get_texture().get_image().save_png(_shot_path)
 		get_tree().quit()
+
+
+## Sleep. A Hypnogogue dream: a painted panel, a voice, and the one choice it
+## always offers. Past connection 50 Carl no longer gets the choice.
+const DREAMS := [
+	{"image": "dream_desk", "move": "zoom", "lines": [
+		"The woods near my parents' house. Pine and damp earth. Among the trees: Mr. Dufredy's desk, pristine, unblemished by rot or dust.",
+		"The eye symbol carved into its surface, pulsing faintly. A breeze whispered something I almost heard."],
+		"voice": "You know the song. You have always known it."},
+	{"image": "dream_chamber", "move": "still", "lines": [
+		"A chamber, hexagonal, warm. Five floating figures, slightly blurred, like they hadn't fully resolved. A robed philosopher. A chrome-skinned child. A librarian with eyes made of stars.",
+		"The librarian opened her mouth, and it was Mira's voice that came out."],
+		"voice": "Daddy. It's warm in here. Come and see."},
+	{"image": "dream_door", "move": "pan", "lines": [
+		"The flats at dawn. The door in the cliff, the eye scorched into it. A small figure in a pale yellow top standing at it with her back to me.",
+		"She didn't turn around. She didn't have to. I knew the curls. I knew the song she was humming."],
+		"voice": "The path is long. Walk it with her, or walk it alone."},
+]
+
+
+func dream() -> void:
+	var d: Dictionary = DREAMS[Game.dreams % DREAMS.size()]
+	Game.dreams += 1
+	await fade_out(1.0)
+	await cutscene.play([d], true)
+	_fade.modulate.a = 0.0
+	await dialogue.say("???", String(d["voice"]), "psyon")
+	var pick := 0
+	if Game.connection >= 50.0:
+		await dialogue.think("I bowed. I don't remember deciding to.")
+	else:
+		pick = await dialogue.choose(["Bow.", "Wake up."])
+	dialogue.close()
+	if pick == 0:
+		Game.bowed += 1
+		Game.add_connection(3.0, "bowed in a dream")
+		var line := Game.find_glyph("dream:%d" % Game.dreams)
+		await dialogue.say("", "I knelt in the dream, and the song finished a line I hadn't known. " + ("\"" + line + "\"" if not line.is_empty() else ""))
+	else:
+		Game.add_connection(1.0, "woke from a dream")
+		await dialogue.say("", "I woke with my jaw clenched and the four notes still in my teeth. It would be there again tomorrow. It was patient.")
+	dialogue.close()
+	await cutscene.finish()
+	Game.sleep()
+	Game.check_stance()
+	Game.log_entry("Day %d. Slept. Dreamed." % Game.day)
+
+
+func _on_time(d: int, h: int) -> void:
+	if h == 7:
+		_show_toast("Day %d." % d)
+	elif h == 20:
+		_show_toast("Night. The streets change; the vigil gathers; the car will take you to sleep.")
 
 
 func set_ambient(c: Color) -> void:
@@ -328,6 +404,12 @@ func _on_log(entry: String) -> void:
 ## evidence bagged, then the log itself.
 func _refresh_board() -> void:
 	var t := ""
+	t += "[color=8fa0a8]%s[/color]\n" % Game.clock_text()
+	var st := Game.stance()
+	if st.is_empty():
+		t += "[color=f5d6a0]STANCE[/color]   undecided. The file will decide from what you do.\n"
+	else:
+		t += "[color=f5d6a0]STANCE[/color]   [color=7fe0c0]%s[/color]  \"%s\"\n" % [Game.STANCES[st][0], Game.STANCES[st][1]]
 	t += "[color=f5d6a0]THEORIES[/color]   pin one; Turan hears the pinned one\n"
 	var i := 1
 	for id in Game.THEORIES:
@@ -529,6 +611,14 @@ func show_title(text: String, sub := "", hold := 2.0) -> void:
 ## A pick on the scene menu. Maps load with their door open and every incident
 ## live; close-ups just show the painting until Esc.
 func _on_menu_jump(kind: String, target: String) -> void:
+	if kind == "cutscene":
+		if _on_title:
+			return
+		if target == "dream":
+			dream()
+		else:
+			cutscene.play(target)
+		return
 	if kind == "closeup":
 		_menu_closeup = true
 		Game.input_locked = true
@@ -554,21 +644,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		closeup.hide_view()
 		Game.input_locked = false
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("city_map") and not city_map.visible and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and map:
+	elif event.is_action_pressed("city_map") and not city_map.visible and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not cutscene.visible and map:
 		if _log_panel.visible:
 			_log_panel.hide()
 		city_map.open()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible:
+	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not cutscene.visible and not cutscene.visible:
 		if _log_panel.visible:
 			_log_panel.hide()
 		_menu.open()
-	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible:
+	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not cutscene.visible:
 		_log_panel.visible = not _log_panel.visible
 		Game.input_locked = _log_panel.visible
 		if _log_panel.visible:
 			_refresh_board()
-	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not _log_panel.visible:
+	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not cutscene.visible and not _log_panel.visible:
 		var target: Node = player.nearest_interactable()
 		map.scan(target)
 	elif _log_panel.visible and event is InputEventKey and event.pressed and not event.echo:

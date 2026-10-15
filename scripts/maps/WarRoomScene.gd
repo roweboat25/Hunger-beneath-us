@@ -109,6 +109,18 @@ func _turan_day1() -> void:
 	await ui.say("Turan", "This shifts culpability. Rogue handler. Outside interference. We need video. Anything. Find that masked freak.", "turan")
 	await ui.say("Forner", "The surveillance outages in that quadrant may complicate things. I'll see what I can recover. Might be fragments. Might be noise.", "forner")
 	await ui.say("Turan", "Find it. This is our out.", "turan")
+	var stand := await ui.choose(["Understood.", "Find someone else for the video. I'm working the case, not the spin."])
+	if stand == 1:
+		await ui.say("Carl", "Find someone else for the video. I'm working the case, not the spin.", "carl")
+		await ui.think("The room went quiet the way rooms do when someone has said a true thing in the wrong building.")
+		await ui.say("Turan", "You'll do it, Carl. But I'll remember you said that, and so will your file.", "turan")
+		await ui.say("Forner", "He'll do it.", "forner")
+		Game.set_flag("refused_turan")
+		Game.add_trust("turan", -1)
+		Game.add_pressure(12)
+		Game.log_entry("Refused Turan's spin to her face. She said my file would remember.")
+	else:
+		await ui.say("Carl", "Understood.", "carl")
 	await _file_theory()
 	ui.close()
 	_reported = true

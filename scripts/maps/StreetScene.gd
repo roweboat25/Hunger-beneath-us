@@ -9,6 +9,8 @@ class_name StreetScene
 var title := ""
 var subtitle := ""
 var ambient_tint := Color(0.88, 0.84, 0.92)
+## Streets that are always night (Fargona) keep their own ambient.
+var night_only := false
 
 
 func _init() -> void:
@@ -39,6 +41,9 @@ var _ambient_base: Color
 
 func start() -> void:
 	_ambient_base = ambient
+	if Game.is_night() and not night_only:
+		_ambient_base = ambient * Color(0.42, 0.46, 0.72)
+		main.set_ambient(_ambient_base)
 	var first := not Game.has_flag("visited_" + String(name))
 	if not title.is_empty() and first:
 		Game.set_flag("visited_" + String(name))
@@ -47,13 +52,18 @@ func start() -> void:
 	Game.input_locked = false
 	main.filter.set_hud_text("ORA  ·  " + World.place(String(name)).get_slice(",", 0))
 	_start_drones()
-	if not first and Game.has_flag("warroom1_done") and randf() < 0.22 + Game.connection / 250.0:
+	if not first and Game.has_flag("warroom1_done") and randf() < 0.22 + Game.connection / 250.0 + (0.2 if Game.is_night() else 0.0):
 		_begin_outage()
 
 
 ## A rolling Psyon outage: the street goes dark, every screen to static, and
 ## everyone on it turns to face the tower until the service comes back.
 func _begin_outage() -> void:
+	if not Game.has_flag("outage_seen"):
+		Game.set_flag("outage_seen")
+		await main.cutscene.play("outage")
+		if not is_inside_tree():
+			return
 	Game.set_outage(true)
 	_outage_left = randf_range(25.0, 40.0)
 	main.set_ambient(_ambient_base * Color(0.45, 0.42, 0.55))
@@ -153,12 +163,16 @@ func _door(id: String) -> void:
 	var target: String = World.EXITS[String(name)][id][0]
 	if target in World.GATES:
 		var gate: Array = World.GATES[target]
-		if Game.has_flag(gate[0]):
-			await travel(id)
-		else:
+		if not Game.has_flag(gate[0]):
 			await ui.think(gate[1])
 			ui.close()
 			player.position += Vector2(0, 12)
+		elif gate.size() > 2 and gate[2] == "night" and not Game.is_night():
+			await ui.think("Not until dark. The vigil didn't gather in daylight; nobody up there would be anybody until the screens were the only light. I could sleep in the car and come back.")
+			ui.close()
+			player.position += Vector2(0, 12)
+		else:
+			await travel(id)
 		return
 	if target == Game.next_beat or target in World.SIDE_INTERIORS:
 		await travel(id)
@@ -239,10 +253,21 @@ func fast_travel() -> void:
 		await ui.think("Nowhere I'd been yet that the car could take me.")
 		ui.close()
 		return
+	var can_sleep := Game.is_night() or Game.hour >= 18
+	if can_sleep:
+		options.append("Sleep in the car.")
 	options.append("Stay.")
-	await ui.think("The car. The logs would show the trip; the logs showed everything.")
+	await ui.think("The car. The logs would show the trip; the logs showed everything." + (" It was late. The seat went back." if can_sleep else ""))
 	var pick := await ui.choose(options)
 	ui.close()
+	if can_sleep and pick == targets.size():
+		await ui.think("Company plates, company logs, and now company sleep. I put the seat back and the frames on the dash, and they watched me go under.")
+		ui.close()
+		await main.dream()
+		if is_inside_tree():
+			main.set_ambient(ambient if not Game.is_night() else ambient * Color(0.42, 0.46, 0.72))
+			_ambient_base = main._modulate.color
+		return
 	if pick >= targets.size():
 		return
 	Game.last_place = String(name)

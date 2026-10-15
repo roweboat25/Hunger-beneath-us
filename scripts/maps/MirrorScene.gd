@@ -99,7 +99,11 @@ func _mirror() -> void:
 	await ui.say("", "And a wave of joy washed over me. Pride. The day I got the job at Psyonic. The way my parents cried when I told them. The relief in their eyes. My hope. My certainty.")
 	ui.close()
 	await main.fade_in(0.3)
-	await ui.think("My reflection looked normal now. Until I moved. And it didn't. Not at first. It lagged. Stuttered. Then it turned when I didn't. Like it was studying me.")
+	if Game.has_flag("hesitated_at_door"):
+		await ui.think("My reflection looked normal now. Except it wasn't wearing the frames. I was. It looked at me the way I had looked at the door with them off: like a man deciding.")
+		await ui.say("???", "You took them off at the door. It remembers. Everything you refuse, it remembers.", "psyon")
+	else:
+		await ui.think("My reflection looked normal now. Until I moved. And it didn't. Not at first. It lagged. Stuttered. Then it turned when I didn't. Like it was studying me.")
 	await ui.say("???", "A tulpa. A thoughtform. A twin. A piece of you that will walk the deeper path. A version that will endure beyond your death.", "psyon")
 	await ui.say("???", "An egregore.", "psyon")
 	ui.close()
@@ -107,7 +111,10 @@ func _mirror() -> void:
 	await ui.say("", "A soft chime. A download started on my ORA-frames. My reflection vanished again. Only the black mirror remained.")
 	await ui.say("", "And through my glass speakers, I heard something else begin to breathe.")
 	ui.close()
-	Game.add_connection(8.0, "the mirror ritual")
+	Game.add_connection(5.0 if Game.has_flag("hesitated_at_door") else 8.0, "the mirror ritual")
+	if Game.has_flag("hesitated_at_door"):
+		Game.add_trust("lynx", 1)
+		Game.log_entry("The frames-off moment at the door held: the download came in smaller. Something in there resents a refusal.")
 	Game.set_flag("act1_done")
 	Game.log_entry("The mirror chamber. 'A twin must be born.' Something downloaded to my frames and began to breathe.")
 	await main.fade_out(1.0)

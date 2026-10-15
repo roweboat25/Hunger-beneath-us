@@ -7,6 +7,7 @@ var _eye: Sprite2D
 
 func _init() -> void:
 	title = "Fargona Avenue"
+	night_only = true
 	subtitle = "The digital vigil"
 	ambient = Color(0.5, 0.46, 0.68)
 

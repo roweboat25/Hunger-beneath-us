@@ -69,9 +69,20 @@ func _say_line(id: String) -> void:
 			await ui.say(String(node.get_meta("speaker")), String(node.get_meta("say")))
 		else:
 			await ui.say("", String(node.get_meta("say")))
+		var st := Game.stance()
+		if not st.is_empty() and randf() < 0.3:
+			await ui.say("", STANCE_LINES[st][randi() % STANCE_LINES[st].size()])
 	else:
 		await ui.think(String(node.get_meta("say")))
 	ui.close()
+
+
+## What people on the street add once the file has a word for Carl.
+const STANCE_LINES := {
+	"company": ["You're one of theirs. I can see the badge from here. Tell them the lamps are still out on Fargona.", "Company man. My cousin had a wellness flag too. Nobody's seen him since the tower sent a car."],
+	"investigator": ["You're the one asking questions. Careful who hears you ask them.", "They say there's an investigator going round who doesn't file everything. Is that you? Good."],
+	"sleeper": ["You look tired. Have you been dreaming? You hum it when you walk, you know.", "I saw you bow on the Spine. Don't be ashamed. Everyone bows eventually."],
+}
 
 
 func interactable(id: String) -> Node:

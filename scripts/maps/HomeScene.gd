@@ -262,6 +262,9 @@ func _couch() -> void:
 	await ui.say("", "A breeze whispered something I almost heard. A fragmented melody. A promise. And then I woke.")
 	ui.close()
 	Game.add_connection(1.0, "dreamed of the desk")
+	Game.dreams = maxi(Game.dreams, 1)
+	Game.sleep()
+	Game.add_pressure(-3)
 	await ui.say("", "Nearly 7 AM. Monica was snoring next to me; it must have been a very late night. I needed to head to Integrations HQ and report to Turan.")
 	ui.close()
 	_slept = true

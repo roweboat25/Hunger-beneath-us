@@ -19,6 +19,8 @@ signal outage_changed(on: bool)
 signal case_opened(id: String)
 signal case_resolved(id: String, outcome: String)
 signal interfaced(id: String, line: String)
+signal time_changed(day: int, hour: int)
+signal stance_changed(stance: String)
 
 ## 0..100. Shown to the player exactly once, in the palm-spike trial.
 var connection: float = 0.0
@@ -53,6 +55,15 @@ var outage := false
 var cases := {}
 ## Machines Carl has jacked into, in order.
 var interfaces: Array[String] = []
+## The clock. Every street Carl walks onto costs an hour; sleeping starts the
+## next day at seven. Night changes the streets, the vigil and the outages.
+var day := 1
+var hour := 21
+## Dreams Carl has had, and how many times he bowed in them.
+var dreams := 0
+var bowed := 0
+## The stance the case file has earned him, recomputed as he acts.
+var stance_now := ""
 var _rng := RandomNumberGenerator.new()
 
 
@@ -267,6 +278,7 @@ func theory_progress(id: String) -> int:
 func set_theory(id: String) -> void:
 	theory = id
 	theory_changed.emit(id)
+	check_stance()
 
 
 ## A thing identified with the frames. Returns true the first time.
@@ -321,6 +333,7 @@ func resolve_incident(id: String, outcome: String) -> void:
 			add_trust("turan", 1)
 			log_entry(inc["log_fix"])
 	incident_resolved.emit(id, outcome)
+	check_stance()
 
 
 func incidents_closed() -> int:
@@ -340,6 +353,7 @@ func interface_solved(id: String) -> String:
 	add_connection(5.0, "interfaced " + id)
 	var line := find_glyph("iface:" + id)
 	interfaced.emit(id, line)
+	check_stance()
 	return line
 
 
@@ -393,6 +407,7 @@ func resolve_case(id: String, outcome: String) -> void:
 	cases[id] = outcome
 	log_entry(CASES[id]["outcomes"][outcome])
 	case_resolved.emit(id, outcome)
+	check_stance()
 
 
 func cases_closed() -> int:
@@ -426,6 +441,7 @@ func set_flag(flag: String, value := true) -> void:
 	flag_set.emit(flag)
 	check_incidents()
 	check_cases()
+	check_stance()
 
 
 func has_flag(flag: String) -> bool:
@@ -464,3 +480,84 @@ func toggle_glasses() -> void:
 ## How corrupted the world looks with the glasses on. 0..1.
 func corruption() -> float:
 	return connection / 100.0
+
+
+# ------------------------------------------------------------------- time
+func is_night() -> bool:
+	return hour >= 20 or hour < 6
+
+
+func advance_time(hours := 1) -> void:
+	hour += hours
+	while hour >= 24:
+		hour -= 24
+		day += 1
+	time_changed.emit(day, hour)
+
+
+## Sleep: the next morning, at seven. Another day with no report costs patience.
+func sleep() -> void:
+	day += 1
+	hour = 7
+	add_pressure(3)
+	time_changed.emit(day, hour)
+
+
+func clock_text() -> String:
+	return "Day %d  ·  %02d:00%s" % [day, hour, "  ·  night" if is_night() else ""]
+
+
+# ----------------------------------------------------------------- stance
+const STANCES := {
+	"company": ["company man", "Protect the brand."],
+	"investigator": ["investigator", "Find out what happened to him."],
+	"sleeper": ["sleeper", "Bow."],
+}
+
+
+## Which way Carl has leaned, read off what he has actually done. Empty until
+## one way is clearly ahead.
+func stance() -> String:
+	var score := {"company": 0, "investigator": 0, "sleeper": 0}
+	for id in incidents:
+		match incidents[id]:
+			"reported": score["company"] += 1
+			"ran": score["investigator"] += 1
+			"buried": score["sleeper"] += 1
+	match cases.get("dorner", ""):
+		"reported": score["company"] += 1
+		"walked": score["investigator"] += 1
+		"covered": score["sleeper"] += 1
+	if has_flag("told_turan_name"): score["company"] += 1
+	if has_flag("told_lynx_name"): score["investigator"] += 1
+	if has_flag("refused_turan"): score["investigator"] += 1
+	if has_flag("called_monica"): score["investigator"] += 1
+	if has_flag("hesitated_at_door"): score["investigator"] += 1
+	score["sleeper"] += interfaces.size() + bowed
+	match theory:
+		"drugs": score["company"] += 1
+		"hacker": score["investigator"] += 1
+		"beneath": score["sleeper"] += 1
+	var best := ""
+	var best_n := 1
+	var tie := false
+	for k in score:
+		if score[k] > best_n:
+			best = k
+			best_n = score[k]
+			tie = false
+		elif score[k] == best_n and not best.is_empty():
+			tie = true
+	return "" if tie else best
+
+
+func stance_line() -> String:
+	var s := stance()
+	return "" if s.is_empty() else STANCES[s][1]
+
+
+func check_stance() -> void:
+	var s := stance()
+	if s != stance_now:
+		stance_now = s
+		stance_changed.emit(s)

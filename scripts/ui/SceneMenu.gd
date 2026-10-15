@@ -18,11 +18,12 @@ const COLUMNS := [
 		["Canal Walk", "map", "CanalWalk"], ["Underpass", "map", "Underpass"], ["Flyover", "map", "Flyover"],
 		["Hill Road", "map", "HillRoad"], ["Rail Cut", "map", "RailCut"], ["Park Avenue", "map", "ParkAve"],
 		["Restricted Road", "map", "RestrictedRoad"]]],
-	["CLOSE-UPS", [
+	["CLOSE-UPS, CUT SCENES", [
 		["Dufredy's desk", "closeup", "apartment_desk"], ["The bedroom floor", "closeup", "apartment_eyes"],
 		["The ceiling", "closeup", "apartment_ceiling"], ["Mira's room", "closeup", "home_ritual"],
 		["Room 108", "closeup", "hospital_dufredy"], ["Lynx's bed", "closeup", "lynx_laptop"],
-		["The door", "closeup", "desert_door"], ["The mirror", "closeup", "mirror"]]],
+		["The door", "closeup", "desert_door"], ["The mirror", "closeup", "mirror"],
+		["Cut scene: the opening", "cutscene", "opening"], ["Cut scene: the outage", "cutscene", "outage"], ["Cut scene: a dream", "cutscene", "dream"]]],
 ]
 
 var _root: Control

@@ -23,6 +23,9 @@ func _init() -> void:
 
 
 func start() -> void:
+	if not Game.has_flag("opening_seen"):
+		Game.set_flag("opening_seen")
+		await main.cutscene.play("opening")
 	await main.show_title("Chapter 1", "The House of Harold Dufredy")
 	await ui.think("The smell hit first. Something between melting plastic, meat left too long in the sun, and wet carpet.")
 	await ui.say("ORA", "Environmental scan initiated. Proceed with your investigation, Mr. Drake.", "ora")

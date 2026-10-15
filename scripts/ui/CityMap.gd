@@ -120,7 +120,7 @@ func _draw_map() -> void:
 	for y in range(0, 360, 4):
 		c.draw_line(Vector2(0, y), Vector2(640, y), Color(0, 0, 0, 0.2), 1.0)
 	c.draw_string(font, Vector2(10, 20), "SILICO  ·  ORA city map", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, TEAL)
-	c.draw_string(font, Vector2(400, 20), "Tab or Esc closes", HORIZONTAL_ALIGNMENT_RIGHT, 230, 9, Color("b9c2c9"))
+	c.draw_string(font, Vector2(400, 20), Game.clock_text() + "   ·   Tab or Esc closes", HORIZONTAL_ALIGNMENT_RIGHT, 230, 9, Color("b9c2c9"))
 	var here := String(Game.current_map)
 	var goal := Game.next_beat
 	var route: Array = route_maps(here, goal) if here in LAYOUT and goal in LAYOUT else []

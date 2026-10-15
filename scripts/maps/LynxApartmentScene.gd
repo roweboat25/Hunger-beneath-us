@@ -153,4 +153,16 @@ func _try_leave() -> void:
 	ui.close()
 	Game.set_flag("lynx_apartment_done")
 	Game.next_beat = "Desert"
+	var go := await ui.choose(["Drive to the flats.", "Call Monica first."])
+	if go == 1:
+		await ui.say("Carl", "Monica. It's me. I'm going out to the flats, Lynx's car is out there. If I'm not back by morning, call Emmet, not the company.", "carl")
+		await ui.say("Monica", "Carl. Mira's asleep on the floor of her room again. In the circle. She says you're coming home a different way.", "monica")
+		await ui.say("Carl", "Tell her I'm coming home. Just that.", "carl")
+		await ui.think("The call cost me the twenty minutes the company would ask about. It bought me the only voice in Silico that wasn't through the frames.")
+		ui.close()
+		Game.set_flag("called_monica")
+		Game.add_trust("monica", 1)
+		Game.add_pressure(5)
+		Game.log_entry("Called Monica before the flats. Mira is sleeping in the circle. 'Coming home a different way.'")
+	ui.close()
 	await travel("drive")
