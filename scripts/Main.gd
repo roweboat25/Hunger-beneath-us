@@ -3,6 +3,7 @@ extends Node
 
 var dialogue: DialogueBox
 var psyon: PsyonWindow
+var closeup: CloseUp
 var filter: GlassesFilter
 var map: MapScene
 var player: Player
@@ -29,7 +30,9 @@ func _ready() -> void:
 	_ui.layer = 20
 	add_child(_ui)
 
-	# The laptop window goes under the dialogue box so narration stays readable.
+	# Close-up view under the laptop window, which goes under the dialogue box.
+	closeup = CloseUp.new()
+	_ui.add_child(closeup)
 	psyon = PsyonWindow.new()
 	_ui.add_child(psyon)
 	dialogue = DialogueBox.new()
@@ -52,7 +55,7 @@ func _ready() -> void:
 	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var fade_layer := CanvasLayer.new()
-	fade_layer.layer = 30
+	fade_layer.layer = 15  # above the world and filter, below the UI so dialogue stays readable on black
 	add_child(fade_layer)
 	fade_layer.add_child(_fade)
 
@@ -97,6 +100,7 @@ func _ready() -> void:
 
 
 func load_map(path: String) -> void:
+	closeup.hide_view()
 	if map:
 		map.queue_free()
 		await map.tree_exited
@@ -136,7 +140,7 @@ func set_ambient(c: Color) -> void:
 func _title_screen() -> void:
 	Game.input_locked = true
 	var layer := CanvasLayer.new()
-	layer.layer = 25
+	layer.layer = 12
 	add_child(layer)
 	var bg := TextureRect.new()
 	bg.texture = load("res://assets/ui/title.png")
@@ -310,6 +314,6 @@ func show_title(text: String, sub := "", hold := 2.0) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible:
+	if event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible:
 		_log_panel.visible = not _log_panel.visible
 		Game.input_locked = _log_panel.visible

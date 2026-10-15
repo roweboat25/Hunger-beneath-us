@@ -104,6 +104,9 @@ func _drive(label: String) -> void:
 		elif p.visible and p._accepting:
 			p._on_submit(["who are you", "what did you say to Dufredy", "show me the transcript", "yes"][Psyon.transcript.size() % 4])
 			idle = 0.0
+		elif main.closeup.visible and main.closeup._accepting:
+			main.closeup.autoplay_step()
+			idle = 0.0
 		elif Game.input_locked:
 			idle = 0.0
 		else:

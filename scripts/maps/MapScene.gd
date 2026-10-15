@@ -14,6 +14,8 @@ var ui: DialogueBox:
 	get: return main.dialogue
 var psyon: PsyonWindow:
 	get: return main.psyon
+var closeup: CloseUp:
+	get: return main.closeup
 var player: Player:
 	get: return main.player
 
