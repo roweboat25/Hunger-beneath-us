@@ -443,3 +443,13 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitWest"]
 shape = SubResource("Rect_32x352")
+
+[node name="ExitEast" type="Area2D" parent="Interactables"]
+position = Vector2(1520, 400)
+script = ExtResource("4_interact")
+id = "exit:east"
+on_enter = true
+once = false
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/ExitEast"]
+shape = SubResource("Rect_32x352")

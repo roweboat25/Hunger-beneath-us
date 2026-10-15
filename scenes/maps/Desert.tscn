@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/DesertScene.gd" id="2_script"]
@@ -31,6 +31,9 @@ size = Vector2(64, 96)
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
 size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="Rect_32x128"]
+size = Vector2(32, 128)
 
 [sub_resource type="RectangleShape2D" id="Rect_1280x32"]
 size = Vector2(1280, 32)
@@ -458,3 +461,13 @@ id = "glyph:desert_cliff2"
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphDesertCliff2"]
 shape = SubResource("Rect_32x32")
+
+[node name="ExitWest" type="Area2D" parent="Interactables"]
+position = Vector2(16, 352)
+script = ExtResource("4_interact")
+id = "exit:west"
+on_enter = true
+once = false
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/ExitWest"]
+shape = SubResource("Rect_32x128")

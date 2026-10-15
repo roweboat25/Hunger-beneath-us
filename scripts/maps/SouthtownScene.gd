@@ -1,4 +1,4 @@
-extends MapScene
+extends StreetScene
 ## Scene 6: Southtown. Chapter 5. Lynx, the old footage, the overpass eye,
 ## and the map.
 
@@ -7,6 +7,8 @@ var _eye_sprite: Sprite2D
 
 
 func objective_text() -> String:
+	if Game.has_flag("southtown_done"):
+		return super.objective_text()
 	if not _met_lynx:
 		return "Lynx is waiting at the station."
 	return "Follow the glyphs east, to the overpass."

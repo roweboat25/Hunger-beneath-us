@@ -152,4 +152,5 @@ func _try_leave() -> void:
 	await ui.think("I entered the coordinates from the map. The red X led into the desert, a place Psyonic marked as restricted. Once, that felt like bureaucracy. Now, it felt like containment.")
 	ui.close()
 	Game.set_flag("lynx_apartment_done")
-	await main.change_map("res://scenes/maps/Desert.tscn")
+	Game.next_beat = "Desert"
+	await travel("drive")

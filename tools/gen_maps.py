@@ -181,7 +181,7 @@ class Map:
                     if grid[y][x] and is_solid(grid[y][x]):
                         blocked[y][x] = True
         for p in self.props:
-            if p["solid"] and p["visible"]:
+            if p["solid"] and p["visible"] and not (p.get("meta") or {}).get("gate"):
                 pw, ph = PROPS[p["name"]]["w"], PROPS[p["name"]]["h"]
                 rows = max(1, round(min(ph, p["solid"] * TILE) / TILE))
                 for dy in range(rows):
@@ -649,6 +649,11 @@ def southtown():
     m.trigger("overpass", 43, 8, 2, 3, on_enter=True)
     m.glyph("st_station", 2, 3); m.glyph("st_overpass", 47, 5, deep=True); m.glyph("st_shanty", 36, 11)
     m.trigger("exit", 3, 17, on_enter=True, once=False)
+    m.exit("exit:east", 49, 5, 1, 5)
+    m.fill(49, 5, 49, 9, CEMENT)
+    m.exit("exit:south", 46, 19, 3, 1)
+    m.fill(46, 19, 48, 19, CEMENT)
+    m.trigger("door:Factory", 21, 15, 2, 1, on_enter=True, once=False)
     m.player = (3, 6)
     return m
 
@@ -707,6 +712,7 @@ def desert():
     m.trigger("door_approach", 30, 8, 2, 3, on_enter=True)
     m.trigger("door", 33, 9, 2)
     m.glyph("desert_cliff", 33, 3); m.glyph("desert_cliff2", 33, 14, deep=True)
+    m.exit("exit:west", 0, 9, 1, 4)
     m.player = (6, 11)
     return m
 
@@ -863,6 +869,7 @@ def zetapark():
     m.trigger("corner", 20, 15, 4, 2)
     m.trigger("glass_lobby", 27, 7, 2)
     m.exit("exit:west", 0, 7, 1, 11)
+    m.exit("exit:east", 47, 7, 1, 11)
     m.player = (11, 10)
     return m
 
@@ -1020,8 +1027,187 @@ def hillroad():
     return m
 
 
+def cognizo():
+    m = street_base("Cognizo", "CognizoScene.gd", 48, 20, 59)
+    # glass fronts: the rival's district is all windows
+    storefront(m, 1, 14, 7, "grey", windows=(2, 4, 10, 12), sign="poster_blank")
+    storefront(m, 17, 30, 23, "dark", windows=(18, 20, 27, 29), sign="poster3")   # the subway entrance
+    storefront(m, 33, 46, 40, "grey", windows=(34, 36, 43, 45), sign="poster2")
+    for x in (3, 11, 19, 28, 35, 44):
+        m.walls[1][x] = "window_lit_top"; m.walls[2][x] = "window_lit_bot"
+    m.decal("glyph_red", 16, 5); m.decal("graffiti_band", 31, 4)
+    m.wall(0, 18, 47, 19, "brick_grey_mid"); m.wall(0, 18, 47, 18, "brick_grey_top")
+    m.decal("poster_blank", 6, 18); m.decal("glyph", 24, 18); m.decal("poster3", 40, 18)
+    for x in (5, 21, 37):
+        m.prop("lamp_post", x, 9)
+    for x in (13, 29, 45):
+        m.prop("lamp_post", x, 16)
+    m.prop("sedan", 9, 12); m.prop("sedan", 26, 13); m.prop("car_blue", 40, 12)
+    m.prop("vending", 31, 8, solid=1); m.prop("planter", 15, 8); m.prop("planter", 32, 15); m.prop("bin", 1, 8); m.prop("bin", 46, 15)
+    m.prop("bench", 8, 15); m.prop("bench", 40, 15)
+    m.decal("paper", 20, 9); m.decal("paper2", 36, 16); m.decal("drain", 24, 10)
+    m.npc("suit", 11, 15, "up", sprite="forner")
+    m.npc("suit2", 38, 10, "down", sprite="turan")
+    m.glyph("cq_lobby", 2, 6); m.glyph("cq_subway", 30, 6, deep=True); m.glyph("cq_wall", 24, 18)
+    m.trigger("door:CognizoStation", 23, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("lobby", 7, 7, 2); m.trigger("lobby", 40, 7, 2)
+    m.trigger("vending", 31, 8, 2)
+    m.trigger("drain", 24, 10)
+    m.exit("exit:west", 0, 7, 1, 11)
+    m.exit("exit:south", 44, 19, 3, 1)
+    m.fill(44, 18, 46, 19, ["cement_dark"]); m.decal("cement_stairs", 44, 19); m.decal("cement_stairs", 46, 19)
+    for x in (44, 45, 46):
+        m.clear_wall(x, 18); m.clear_wall(x, 19)
+    m.player = (24, 10)
+    return m
+
+
+def cognizo_station():
+    m = Map("CognizoStation", "CognizoStationScene.gd", 30, 17, TILE_GREY, seed=61)
+    m.void_border()
+    m.top_wall("navy", 1, 28)
+    m.fill(1, 12, 28, 15, ["asphalt"])           # the track bed
+    m.fill(1, 11, 28, 11, "cement_edge")         # the platform edge
+    m.ground[9][0] = "shadow_floor"; m.clear_wall(0, 9)   # the stairs up, left wall
+    for x in (6, 14, 22):
+        m.prop("pillar", x, 5)
+    m.prop("bench", 9, 6); m.prop("bench", 18, 6); m.prop("vending_dark", 25, 3); m.prop("bin", 2, 3); m.prop("bin", 27, 6)
+    m.decal("poster3", 4, 1); m.decal("poster_blank", 12, 1); m.decal("glyph", 20, 1); m.decal("poster2", 26, 1)
+    m.decal("paper", 7, 8); m.decal("paper3", 16, 7); m.decal("blood", 11, 8); m.decal("tablet_broken", 23, 7)
+    for x in range(2, 28, 2):
+        m.decal("drain", x, 13)
+    m.npc("guard", 4, 7, "right", sprite="officer")
+    m.glyph("cs_wall", 20, 1); m.glyph("cs_far", 27, 1, deep=True)
+    m.trigger("board", 12, 1, 2)
+    m.trigger("tablet", 23, 7)
+    m.trigger("edge", 1, 10, 28, 1, on_enter=True)
+    m.trigger("exit", 0, 9, on_enter=True, once=False)
+    m.player = (2, 8)
+    return m
+
+
+def railcut():
+    m = Map("RailCut", "RailCutScene.gd", 40, 16, DIRT, seed=67)
+    m.fill(0, 6, 39, 9, ["asphalt"])             # the cutting: two tracks
+    m.fill(0, 5, 39, 5, "cement_edge"); m.fill(0, 10, 39, 10, "cement_edge")
+    for x in (8, 9, 30, 31):
+        m.ground[5][x] = m._pick(DIRT); m.ground[10][x] = m._pick(DIRT)   # crossings
+    m.fill(0, 0, 39, 1, GRASS); m.fill(0, 14, 39, 15, GRASS)
+    for x, y in ((3, 3), (17, 12), (26, 2), (35, 13)):
+        m.decal("rock_tiny", x, y)
+    for x, y in ((2, 2), (14, 1), (27, 2), (36, 1)):
+        m.prop("fence_h", x, y)
+    for x, y in ((5, 13), (20, 12), (33, 13)):
+        m.prop("fence_h", x, y)
+    m.prop("tree_dead", 11, 3); m.prop("tree_dead", 24, 14); m.prop("bush_dark", 37, 3); m.prop("barrel", 1, 12)
+    m.prop("crate", 16, 12); m.prop("lamp_post_off", 10, 4); m.prop("lamp_post_off", 29, 4); m.prop("lamp_post", 20, 11)
+    m.decal("paper", 6, 11); m.decal("paper2", 22, 3); m.decal("blood", 31, 11); m.decal("graffiti_band", 0, 4)
+    m.npc("watcher", 21, 12, "up", sprite="eyeless", meta={"min_connection": 25})
+    m.glyph("rc_post", 10, 4); m.glyph("rc_crate", 16, 12, deep=True)
+    m.trigger("train", 8, 5, 2, 6, on_enter=True)
+    m.trigger("tracks", 12, 6, 16, 4)
+    m.trigger("sign", 0, 4)
+    m.exit("exit:west", 0, 11, 1, 3)
+    m.exit("exit:east", 39, 2, 1, 3)
+    m.player = (2, 12)
+    return m
+
+
+def parkave():
+    m = Map("ParkAve", "ParkAveScene.gd", 40, 16, ["asphalt"], seed=71)
+    m.fill(0, 0, 39, 2, CEMENT); m.fill(0, 13, 39, 15, CEMENT)
+    m.wall(0, 0, 39, 0, "brick_grey_top"); m.wall(0, 1, 39, 1, "brick_grey_bot")
+    for x in (4, 12, 20, 28, 36):
+        m.walls[0][x] = "window_lit_top"; m.walls[1][x] = "window_lit_bot"
+    m.decal("poster2", 8, 1); m.decal("glyph", 16, 1); m.decal("poster_blank", 24, 1); m.decal("graffiti_loot", 32, 1)
+    for x in (2, 18, 34):
+        m.prop("lamp_post", x, 2)
+    for x in (10, 26):
+        m.prop("lamp_post_off", x, 14)
+    m.prop("lamp_post", 30, 14, id="camera2")
+    m.prop("sedan", 6, 6); m.prop("car_blue", 22, 9); m.prop("sedan", 33, 7)
+    m.prop("bin", 1, 13); m.prop("planter", 15, 13); m.prop("planter_small", 38, 13); m.prop("bench", 20, 13)
+    m.decal("paper", 12, 3); m.decal("paper3", 29, 13); m.decal("blood", 17, 10)
+    m.scatter(["cement_crack", "cement_crack2"], [(7, 2), (25, 14), (36, 2)])
+    for i, (x, y) in enumerate(((14, 8), (16, 11), (19, 5), (22, 12), (25, 7))):
+        m.npc("crowd%d" % i, x, y, "down", sprite="eyeless", meta={"min_connection": 50})
+    m.glyph("pa_window", 12, 1); m.glyph("pa_end", 39, 14, deep=True)
+    m.trigger("crowd", 12, 3, 16, 10, on_enter=True)
+    m.trigger("camera2", 30, 14)
+    m.trigger("bench", 20, 13)
+    m.exit("exit:west", 0, 3, 1, 10)
+    m.exit("exit:east", 39, 3, 1, 10)
+    m.player = (2, 8)
+    return m
+
+
+def restricted_road():
+    m = Map("RestrictedRoad", "RestrictedRoadScene.gd", 40, 16, ["asphalt"], seed=73)
+    m.fill(0, 0, 39, 4, SAND); m.fill(0, 11, 39, 15, SAND)
+    m.fill(0, 5, 39, 5, "cement_edge"); m.fill(0, 10, 39, 10, "cement_edge")
+    for x in (3, 4, 20, 21, 36, 37):
+        m.ground[5][x] = m._pick(SAND); m.ground[10][x] = m._pick(SAND)
+    # sand creeps over the road the further east it goes
+    m.scatter(SAND, [(x, y) for x in range(14, 40) for y in range(6, 10) if (x * 7 + y * 3) % max(2, 40 - x) == 0])
+    m.fill(30, 6, 39, 9, SAND)
+    m.scatter(["dirt_red", "dirt"], [((i * 13) % 40, (i * 5) % 5) for i in range(20)] + [((i * 11) % 40, 11 + (i * 3) % 5) for i in range(20)])
+    # the checkpoint at x 16-19: a booth and a barrier
+    m.prop("fence_h", 13, 5, solid=1); m.prop("fence_h", 20, 5, solid=1); m.prop("fence_h", 13, 11); m.prop("fence_h", 20, 11)
+    m.prop("counter", 17, 3, id="booth"); m.prop("lamp_post", 16, 4); m.prop("lamp_post_off", 19, 12)
+    m.decal("poster_blank", 14, 4)
+    m.prop("sedan", 33, 12, id="wreck"); m.decal("stick_circle", 33, 11); m.decal("rock_tiny", 36, 13)
+    m.prop("cactus", 6, 2); m.prop("rock_big", 26, 1); m.prop("rock_med", 9, 13); m.prop("tree_dead", 24, 13); m.prop("bush_dark", 2, 12)
+    m.decal("grass_tuft", 11, 3); m.decal("reeds", 38, 2); m.decal("rock_tiny", 29, 3); m.decal("blood", 22, 8)
+    m.npc("guard", 17, 4, "down", sprite="officer")
+    m.glyph("rr_booth", 14, 4); m.glyph("rr_wreck", 33, 12, deep=True)
+    m.trigger("sign", 14, 4)
+    m.trigger("gate", 17, 6, 2, 4, on_enter=True, once=False)
+    m.trigger("deep_sand", 30, 6, 2, 4, on_enter=True)
+    m.trigger("wreck", 33, 12, 2)
+    m.exit("exit:west", 0, 6, 1, 4)
+    m.exit("exit:east", 39, 6, 1, 4)
+    m.player = (2, 8)
+    return m
+
+
+def factory():
+    m = Map("Factory", "FactoryScene.gd", 30, 17, TILE_DARK, seed=79)
+    m.fill(1, 2, 9, 15, ["cement_dark"])          # the locked floor, west
+    m.fill(19, 2, 28, 15, WOOD_GREY)              # the office, east
+    m.void_border()
+    m.top_wall("navy", 1, 28, windows=[(23, "dark"), (24, "dark")])
+    m.partition("navy", 10, 0, 15, gaps=(8,)); m.partition("navy", 18, 0, 15, gaps=(5,))
+    m.ground[16][12] = "shadow_floor"; m.clear_wall(12, 16)
+    # the card-reader door: a cabinet stands in the gap until the card opens it
+    m.prop("cabinet", 10, 8, id="locked_door", solid=1, meta={"gate": 1})  # opens with the keycard
+    # main floor
+    m.prop("copy_machine", 12, 3); m.prop("copy_machine", 15, 3); m.prop("vending_dark", 12, 7)
+    m.prop("crate", 16, 9); m.prop("crate", 17, 10); m.prop("crate_small", 15, 12); m.prop("barrel", 12, 13); m.prop("barrel", 13, 13)
+    m.decal("paper", 14, 6); m.decal("paper3", 16, 14); m.decal("drain", 13, 10); m.decal("glyph", 16, 1)
+    m.npc("worker", 14, 9, "left", sprite="seth")
+    # office
+    m.prop("desk_grey", 22, 4); m.prop("laptop_dark", 23, 4, lift=10, id="office_laptop_prop"); m.prop("chair_office", 22, 5)
+    m.prop("bookcase", 26, 3); m.prop("cabinet", 20, 3); m.prop("water_cooler", 27, 7); m.prop("bin", 20, 13)
+    m.decal("poster", 21, 1); m.decal("rug_blue", 21, 9); m.decal("paper2", 25, 11); m.decal("paper", 24, 13)
+    # the locked floor: the eye is drawn by the scene; frames laid around it
+    for x, y in ((2, 6), (8, 6), (2, 12), (8, 12)):
+        m.decal("stick", x, y)
+    m.decal("stick_circle", 5, 5); m.decal("stick_circle", 5, 13); m.decal("frames_broken", 3, 9); m.decal("frames_broken", 7, 9)
+    m.decal("blood", 5, 11); m.decal("cobweb", 1, 2); m.decal("glyph_red", 4, 1)
+    m.glyph("fa_office", 27, 1); m.glyph("fa_floor", 4, 1, deep=True)
+    m.trigger("machines", 12, 3, 5)
+    m.trigger("keycard", 22, 4)
+    m.trigger("office_laptop", 23, 4)
+    m.trigger("ledger", 26, 3)
+    m.trigger("locked_door", 11, 8)
+    m.trigger("floor_eye", 3, 7, 5, 5, on_enter=True)
+    m.trigger("exit", 12, 16, on_enter=True, once=False)
+    m.player = (12, 14)
+    return m
+
+
 MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
-        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad]
+        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory]
 
 
 def main():

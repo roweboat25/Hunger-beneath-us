@@ -18,6 +18,10 @@ func _ready() -> void:
 func run() -> void:
 	await get_tree().create_timer(0.5).timeout
 	await _drive("intro")
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--tour="):
+			await _tour(arg.trim_prefix("--tour=").split(","))
+			return
 	var maps_seen := 0
 	while not Game.has_flag("act1_done") and maps_seen < 80:
 		var map: Node = main.map
@@ -120,3 +124,27 @@ func _drive(label: String) -> void:
 		get_tree().quit(1)
 	else:
 		print("autoplay: finished '", label, "' after ", snapped(elapsed, 0.1), "s")
+
+
+## Side-content check: visit each named map, fire every interactable except
+## exits and doors (twice, for gated ones), then quit.
+func _tour(maps: PackedStringArray) -> void:
+	for map_name in maps:
+		Game.connection = 60.0  # so connection-gated figures and happenings exist
+		await main.change_map("res://scenes/maps/" + map_name + ".tscn")
+		await _drive(map_name + "/start")
+		var map: Node = main.map
+		print("tour: map ", map_name)
+		for pass_i in 2:
+			if not is_instance_valid(map) or main.map != map:
+				break  # a plot door moved us on; the next map is listed or not
+			for node in _live_interactables(map):
+				if not is_instance_valid(node) or main.map != map:
+					continue
+				var id: String = node.id
+				if id == "exit" or id.begins_with("exit:") or id.begins_with("door:"):
+					continue
+				map._route_interact(id)
+				await _drive(map_name + "/" + id)
+	print("TOUR DONE  connection=", Game.connection, "  log entries=", Game.case_log.size())
+	get_tree().quit()

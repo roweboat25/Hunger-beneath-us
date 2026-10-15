@@ -72,7 +72,7 @@ func _route_interact(id: String) -> void:
 
 func _door(id: String) -> void:
 	var target: String = World.EXITS[String(name)][id][0]
-	if target == Game.next_beat:
+	if target == Game.next_beat or target in World.SIDE_INTERIORS:
 		await travel(id)
 		return
 	if target == Game.last_place:

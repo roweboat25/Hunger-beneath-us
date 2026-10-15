@@ -41,6 +41,13 @@ func on_interact(id: String) -> void:
 			await _approach()
 		"door":
 			await _door()
+		"exit:west":
+			if _at_door:
+				await ui.think("Not back. Not now.")
+				ui.close()
+				main.player.position.x += 24
+			else:
+				await travel("exit:west")
 
 
 func _sedan() -> void:
