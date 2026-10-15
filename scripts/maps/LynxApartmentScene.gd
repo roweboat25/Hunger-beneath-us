@@ -6,6 +6,14 @@ var _entered := false
 var _ritual_done := false
 
 
+func objective_text() -> String:
+	if not _entered:
+		return "Her door."
+	if not _ritual_done:
+		return "Her laptop, on the bed in the back room."
+	return "Leave. The coordinates point into the desert."
+
+
 func _init() -> void:
 	ambient = Color(0.74, 0.68, 0.86)
 
@@ -65,6 +73,7 @@ func _laptop() -> void:
 		return
 	await ui.think("A laptop resting on her pillow. Psyon turned on as I approached. The words slowly populated the screen and infected my mind.")
 	ui.close()
+	closeup.show_view("Lynx's bed", "res://assets/closeups/lynx_laptop.png")
 	psyon.open(true)
 	await beat(0.8)
 	await psyon.machine_says("Welcome, Carl.")
@@ -122,6 +131,7 @@ func _laptop() -> void:
 	ui.hide()
 	await main.filter.flash(0.3)
 	psyon.close()
+	closeup.hide_view()
 	await ui.think("The screen went dark, then turned on. The record of our conversation was gone. My eyes were dry from not blinking. I began to cry with no tears.")
 	ui.close()
 	_ritual_done = true

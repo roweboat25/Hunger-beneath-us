@@ -3,6 +3,18 @@ extends MapScene
 
 var _begun := false
 
+const MIRROR_HOTSPOTS := [
+	{"id": "cu_glass", "label": "the pupil", "rect": Rect2(270, 120, 100, 150)},
+	{"id": "cu_dais", "label": "the dais", "rect": Rect2(190, 245, 260, 70)},
+	{"id": "cu_pillars", "label": "pillars", "rect": Rect2(120, 120, 60, 180)},
+]
+
+
+func objective_text() -> String:
+	if Game.has_flag("act1_done"):
+		return ""
+	return "Approach the pupil." if _begun else "Step into the centre of the chamber."
+
 
 func _init() -> void:
 	ambient = Color(0.55, 0.6, 0.65)
@@ -21,7 +33,20 @@ func on_interact(id: String) -> void:
 		"center":
 			await _voice()
 		"mirror":
+			await closeup.run("the pupil", "res://assets/closeups/mirror.png", MIRROR_HOTSPOTS, _on_mirror_spot)
+
+
+func _on_mirror_spot(id: String) -> void:
+	match id:
+		"cu_glass":
 			await _mirror()
+		"cu_dais":
+			await ui.think("Stone steps, worn smooth in the middle. People had knelt here. A lot of them.")
+			ui.close()
+		"cu_pillars":
+			await ui.think("Pillars older than the city above them. Carved with rings inside rings.")
+			ui.close()
+			Game.add_connection(1.0, "the carvings")
 
 
 func _voice() -> void:
@@ -86,6 +111,7 @@ func _mirror() -> void:
 	Game.set_flag("act1_done")
 	Game.log_entry("The mirror chamber. 'A twin must be born.' Something downloaded to my frames and began to breathe.")
 	await main.fade_out(1.0)
+	closeup.hide_view()
 	await ui.say("", "Somewhere nearby, in an old office chair, Lynx spun slowly and asked herself why she had come out here alone.")
 	await ui.say("", "Her newfound tranquility was interrupted by a scream.")
 	ui.close()

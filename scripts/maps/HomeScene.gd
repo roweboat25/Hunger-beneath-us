@@ -9,6 +9,21 @@ var _ezra_done := false
 var _ritual_done := false
 var _slept := false
 
+const RITUAL_HOTSPOTS := [
+	{"id": "cu_sticks", "label": "the circle", "rect": Rect2(90, 150, 400, 130)},
+	{"id": "cu_tablet", "label": "the tablet", "rect": Rect2(240, 210, 110, 60)},
+	{"id": "cu_light", "label": "nightlight", "rect": Rect2(105, 55, 80, 70)},
+	{"id": "cu_bed", "label": "Mira's bed", "rect": Rect2(420, 70, 200, 100)},
+]
+
+
+func objective_text() -> String:
+	if _second:
+		return "" if _ritual_done else "Check on Mira. Her room is on the right."
+	if not _mira_done:
+		return "Dinner. Talk to Monica, Mira and Ezra."
+	return "Sleep. The couch on the left."
+
 
 func _init() -> void:
 	ambient = Color(1.0, 0.86, 0.72)
@@ -60,8 +75,7 @@ func on_interact(id: String) -> void:
 			if _second and not _ritual_done:
 				await _ritual()
 			elif _second:
-				await ui.think("Sticks. Snapped clean. Two inner rings. The crayon eye was still on the floor.")
-				ui.close()
+				await closeup.run("Mira's floor", "res://assets/closeups/home_ritual.png", RITUAL_HOTSPOTS, _on_ritual_spot)
 		"ezra_bed":
 			await ui.think("Ezra's room. VR headset on the pillow, thirty minutes a night, managed and metered.")
 			ui.close()
@@ -329,6 +343,7 @@ func _ritual() -> void:
 	await ui.think("A soft sound drifted down the hall. Mira, talking to someone. Not in conversation. With a distinct, measured rhythm.")
 	await ui.say("Mira", "The art you lost will speak through me, / The name you wore, the things you dream...", "mira")
 	await ui.think("She sat on the floor, cross-legged, her back to me, her gaze fixed on a circle at the foot of her bed. Sticks. Thin, brittle, snapped clean. Two inner rings. Exactly like Dufredy's ceiling.")
+	closeup.show_view("Mira's room", "res://assets/closeups/home_ritual.png")
 	await ui.think("Inside the circle: a pale, smooth stone, her school tablet, and a scrap of paper with a spiralling eye drawn in bright red crayon.")
 	var pick := await ui.choose(["Barge in now.", "Wait. Watch."])
 	if pick == 1:
@@ -371,6 +386,7 @@ func _ritual() -> void:
 	await ui.think("The floor rushed up to meet me.")
 	ui.close()
 	await main.fade_out(1.2)
+	closeup.hide_view()
 	Game.add_connection(2.0, "Mira's ritual")
 	Game.log_entry("Mira built a stick circle with two inner rings and chanted a verse. Her tablet answered. Same forked build.")
 	await beat(1.0)
@@ -381,6 +397,26 @@ func _ritual() -> void:
 	ui.close()
 	Game.set_flag("ritual_seen")
 	await main.change_map("res://scenes/maps/WarRoom.tscn")
+
+
+func _on_ritual_spot(id: String) -> void:
+	match id:
+		"cu_sticks":
+			await ui.think("Sticks. Snapped clean. Two inner rings. The crayon eye was still on the floor. I didn't touch it.")
+			ui.close()
+		"cu_tablet":
+			if Game.has_flag("tablet_smashed"):
+				await ui.think("The tablet was in pieces in the bin. The chime it made was still in my head.")
+			else:
+				await ui.think("The tablet was in my coat. Evidence. It felt warm through the lining, which was impossible.")
+			ui.close()
+		"cu_light":
+			await ui.think("Her nightlight. She'd asked for it last year. 'In case something looks at me,' she said. I'd laughed.")
+			ui.close()
+			Game.add_connection(1.0, "the nightlight")
+		"cu_bed":
+			await ui.think("Mira's bed. The toy lion I won for her at Red Rock Plaza, years ago, before everything got so loud.")
+			ui.close()
 
 
 func _try_leave() -> void:

@@ -5,6 +5,12 @@ var _seth_done := false
 var _tyson_done := false
 
 
+func objective_text() -> String:
+	if _seth_done and _tyson_done:
+		return "Leave. The path at the bottom left."
+	return "Interview the witnesses: Seth on the bench, Tyson in the alley."
+
+
 func _init() -> void:
 	ambient = Color(1.0, 0.95, 0.82)
 

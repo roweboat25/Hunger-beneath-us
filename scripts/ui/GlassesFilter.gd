@@ -7,6 +7,7 @@ var _rect: ColorRect
 var _mat: ShaderMaterial
 var _hud: Control
 var _hud_label: Label
+var _objective: Label
 var _glasses_value := 1.0
 var _target := 1.0
 
@@ -33,6 +34,14 @@ func _ready() -> void:
 	_hud_label.add_theme_constant_override("shadow_offset_x", 1)
 	_hud_label.add_theme_constant_override("shadow_offset_y", 1)
 	_hud.add_child(_hud_label)
+	_objective = Label.new()
+	_objective.position = Vector2(6, 16)
+	_objective.add_theme_font_size_override("font_size", 10)
+	_objective.add_theme_color_override("font_color", Color("f5d6a0"))
+	_objective.add_theme_color_override("font_shadow_color", Color("050608", 0.9))
+	_objective.add_theme_constant_override("shadow_offset_x", 1)
+	_objective.add_theme_constant_override("shadow_offset_y", 1)
+	add_child(_objective)
 	_fit_viewport()
 	get_viewport().size_changed.connect(_fit_viewport)
 	var corner := TextureRect.new()
@@ -50,6 +59,11 @@ func _ready() -> void:
 
 func set_hud_text(t: String) -> void:
 	_hud_label.text = t
+
+
+## The current goal, shown under the HUD line whatever the glasses state.
+func set_objective(t: String) -> void:
+	_objective.text = "" if t.is_empty() else "\u25b8 " + t
 
 
 func _on_toggled(on: bool) -> void:

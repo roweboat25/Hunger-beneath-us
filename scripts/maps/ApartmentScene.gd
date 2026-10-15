@@ -2,6 +2,20 @@ extends MapScene
 ## Scene 1: Harold Dufredy's apartment. Chapter 1 of the novel.
 
 var _laptop_done := false
+var _desk_seen := false
+
+const DESK_HOTSPOTS := [
+	{"id": "cu_laptop", "label": "Ionware laptop", "rect": Rect2(170, 95, 170, 110)},
+	{"id": "cu_papers", "label": "printouts", "rect": Rect2(330, 120, 140, 80)},
+	{"id": "cu_mug", "label": "coffee mug", "rect": Rect2(90, 190, 60, 50)},
+	{"id": "cu_boxes", "label": "boxes", "rect": Rect2(470, 150, 150, 120)},
+]
+
+
+func objective_text() -> String:
+	if not Game.has_flag("laptop_bagged"):
+		return "Bag Dufredy's laptop. His desk, top right of the bedroom."
+	return "Leave. The doorway at the bottom left."
 
 
 func _init() -> void:
@@ -46,16 +60,17 @@ func on_interact(id: String) -> void:
 			await ui.think("Nobody had slept here in weeks. The desk chair, though, was worn through.")
 			ui.close()
 		"eyes":
+			closeup.show_view("the bedroom floor", "res://assets/closeups/apartment_eyes.png")
 			await ui.say("ORA", "Biological debris identified. Police notified.", "ora")
 			await ui.think("A patch of dried blood stained the dusty brown carpet, framed by two white spheres.")
 			await ui.say("Carl", "Harold Dufredy's eyes.", "carl")
 			await ui.think("Finding a man's eyes, clearly ripped out to the optic nerve, is never a good sight. Why would he discard them in this way?")
 			ui.close()
+			closeup.hide_view()
 			Game.set_flag("eyes_found")
 			Game.log_entry("Eyes found on the bedroom floor. Removed to the optic nerve.")
-		"desk":
-			await ui.think("Most dads keep a photo of their kids on their desks. Something human. There was nothing here. Just an Ionware laptop on a plain wooden desk.")
-			ui.close()
+		"desk", "laptop":
+			await _desk_closeup()
 		"stick":
 			await ui.think("Every crunch underfoot echoed like dry leaves in an autumn forest. For a second, I forgot the smell. It reminded me of the woods behind my childhood house.")
 			await ui.think("Then came a sharp snap.")
@@ -80,14 +95,37 @@ func on_interact(id: String) -> void:
 			Game.set_flag("ceiling_eye")
 			Game.add_connection(2.0, "looked at the eye")
 			Game.log_entry("Eye symbol made of sticks taped to the bedroom ceiling. No pupil.")
-		"laptop":
+		"exit":
+			await _try_leave()
+
+
+## First-person view of the desk. The laptop hotspot runs the Psyon sequence.
+func _desk_closeup() -> void:
+	if not _desk_seen:
+		_desk_seen = true
+		await ui.think("Most dads keep a photo of their kids on their desks. Something human. There was nothing here. Just an Ionware laptop on a plain wooden desk.")
+		ui.close()
+	await closeup.run("Dufredy's desk", "res://assets/closeups/apartment_desk.png", DESK_HOTSPOTS, _on_desk)
+
+
+func _on_desk(id: String) -> void:
+	match id:
+		"cu_laptop":
 			if _laptop_done:
 				await ui.think("The laptop was in the evidence bag. I wasn't opening it again. Not here.")
 				ui.close()
-				return
-			await _laptop_sequence()
-		"exit":
-			await _try_leave()
+			else:
+				await _laptop_sequence()
+		"cu_papers":
+			await ui.think("Printouts. Psyon transcripts, hundreds of pages. Every reply blacked out by hand with a marker. He'd kept only his own questions.")
+			ui.close()
+			Game.log_entry("Desk: printed Psyon transcripts, every reply redacted by hand.")
+		"cu_mug":
+			await ui.think("Coffee with a skin on it. Weeks old. The ring underneath was older.")
+			ui.close()
+		"cu_boxes":
+			await ui.think("Unopened deliveries. He'd stopped going outside long before he stopped seeing.")
+			ui.close()
 
 
 func _laptop_sequence() -> void:

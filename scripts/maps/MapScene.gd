@@ -25,6 +25,23 @@ func start() -> void:
 	pass
 
 
+## One line telling the player what to do next; shown under the HUD.
+func objective_text() -> String:
+	return ""
+
+
+var _last_objective := "\u0001"
+
+
+func _physics_process(_delta: float) -> void:
+	if main == null:
+		return
+	var o := objective_text()
+	if o != _last_objective:
+		_last_objective = o
+		main.filter.set_objective(o)
+
+
 ## Called for every examine, talk, and floor trigger in this map.
 func on_interact(_id: String) -> void:
 	pass

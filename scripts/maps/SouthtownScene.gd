@@ -6,6 +6,12 @@ var _met_lynx := false
 var _eye_sprite: Sprite2D
 
 
+func objective_text() -> String:
+	if not _met_lynx:
+		return "Lynx is waiting at the station."
+	return "Follow the glyphs east, to the overpass."
+
+
 func _init() -> void:
 	ambient = Color(0.95, 0.72, 0.62)
 

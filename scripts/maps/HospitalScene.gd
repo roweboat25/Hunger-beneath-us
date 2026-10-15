@@ -6,6 +6,14 @@ var _nurse_done := false
 var _interviewed := false
 
 
+func objective_text() -> String:
+	if not _checked_in:
+		return "Check in at reception."
+	if not _interviewed:
+		return "Dufredy's room, at the end of the corridor."
+	return "Leave. The doorway at the bottom left."
+
+
 func _init() -> void:
 	ambient = Color(0.92, 0.96, 1.0)
 

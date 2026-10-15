@@ -26,8 +26,6 @@ var _time := 0.0
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	_fit_viewport()
-	get_viewport().size_changed.connect(_fit_viewport)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_bg = TextureRect.new()
 	_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -45,7 +43,7 @@ func _ready() -> void:
 	_caption.add_theme_color_override("font_shadow_color", Color("050608"))
 	_caption.add_theme_constant_override("shadow_offset_x", 1)
 	_caption.add_theme_constant_override("shadow_offset_y", 1)
-	_caption.position = Vector2(8, 18)
+	_caption.position = Vector2(8, 30)
 	add_child(_caption)
 	_hint = Label.new()
 	_hint.add_theme_font_size_override("font_size", 9)
@@ -54,9 +52,11 @@ func _ready() -> void:
 	_hint.add_theme_constant_override("shadow_offset_x", 1)
 	_hint.add_theme_constant_override("shadow_offset_y", 1)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_hint.position = Vector2(320, 18)
+	_hint.position = Vector2(320, 30)
 	_hint.size = Vector2(312, 14)
 	add_child(_hint)
+	_fit_viewport()
+	get_viewport().size_changed.connect(_fit_viewport)
 	hide()
 
 

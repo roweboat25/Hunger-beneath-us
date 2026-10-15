@@ -5,6 +5,14 @@ var _sedan_done := false
 var _at_door := false
 
 
+func objective_text() -> String:
+	if not _sedan_done:
+		return "The sedan, out on the flats."
+	if not _at_door:
+		return "The door in the cliff, to the east."
+	return "Walk in."
+
+
 func _init() -> void:
 	ambient = Color(1.0, 0.9, 0.72)
 
@@ -69,6 +77,7 @@ func _approach() -> void:
 	Game.input_locked = true
 	await ui.think("Each footfall felt rehearsed. Then: static.")
 	ui.close()
+	closeup.show_view("the door", "res://assets/closeups/desert_door.png")
 	await main.filter.flash(0.1)
 	Game.set_glasses(false)
 	await ui.think("My ORA-frames shut down. A scream of digital distortion ripped through my skull. I tore the glasses off. Silence.")
@@ -88,6 +97,7 @@ func _approach() -> void:
 	ui.close()
 	Game.add_connection(2.0, "bowed")
 	await main.filter.flash(0.2)
+	closeup.hide_view()
 	show_prop("cave_door", false)
 	await ui.think("The door slid open.")
 	ui.close()

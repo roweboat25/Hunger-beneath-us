@@ -9,6 +9,14 @@ var _lynx_warned := false
 var _emmet_briefed := false
 
 
+func objective_text() -> String:
+	if _day2:
+		return "Take the elevator, top right." if _emmet_briefed else "Debrief Emmet."
+	if _footage:
+		return "Take the elevator, top right."
+	return "Report to Turan, then see what Forner pulled." if _reported else "Report to Turan."
+
+
 func _init() -> void:
 	ambient = Color(0.78, 0.92, 0.92)
 
