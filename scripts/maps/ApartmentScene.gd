@@ -159,6 +159,5 @@ func _try_leave() -> void:
 	await ui.think("I sat and stared forward at my steering wheel for a while, thinking about that last image. A custom Psyon model could be difficult to deal with, but I've done it before.")
 	await ui.say("Carl", "But how the fuck did it know my name?", "carl")
 	ui.close()
-	await main.show_title("End of the prototype slice", "Next: Harmony Green park. Press L to review the case log.", 3.0)
 	Game.set_flag("scene1_done")
-	await main.fade_in()
+	await main.change_map("res://scenes/maps/Park.tscn")

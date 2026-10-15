@@ -1,15 +1,16 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
-[ext_resource type="TileSet" path="res://assets/tiles/apartment_tileset.tres" id="1_tileset"]
+[ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ApartmentScene.gd" id="2_script"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
 [ext_resource type="Script" path="res://scripts/Interactable.gd" id="4_interact"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_64x16"]
-size = Vector2(64, 16)
+[ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_16x16"]
 size = Vector2(16, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_64x16"]
+size = Vector2(64, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_32x16"]
 size = Vector2(32, 16)

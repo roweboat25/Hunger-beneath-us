@@ -15,6 +15,7 @@ var _title_sub: Label
 var _log_panel: PanelContainer
 var _log_text: RichTextLabel
 var _fade: ColorRect
+var _glyph: TextureRect
 
 
 func _ready() -> void:
@@ -51,7 +52,24 @@ func _ready() -> void:
 	add_child(fade_layer)
 	fade_layer.add_child(_fade)
 
-	await load_map("res://scenes/maps/Apartment.tscn")
+	_glyph = TextureRect.new()
+	_glyph.texture = load("res://assets/ui/eye_glyph_red.png")
+	_glyph.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_glyph.scale = Vector2(3, 3)
+	_glyph.position = Vector2(240 - 48, 135 - 48)
+	_glyph.modulate.a = 0.0
+	fade_layer.add_child(_glyph)
+
+	var first := "res://scenes/maps/Apartment.tscn"
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--map="):
+			first = "res://scenes/maps/" + arg.trim_prefix("--map=") + ".tscn"
+	if OS.has_feature("web"):
+		# dev shortcut: index.html?map=Park
+		var search: String = str(JavaScriptBridge.eval("window.location.search", true))
+		if search.begins_with("?map="):
+			first = "res://scenes/maps/" + search.trim_prefix("?map=").get_slice("&", 0) + ".tscn"
+	await load_map(first)
 	if "--autoplay" in OS.get_cmdline_user_args():
 		var auto: Node = load("res://tools/autoplay.gd").new()
 		add_child(auto)
@@ -78,6 +96,24 @@ func load_map(path: String) -> void:
 		cam.reset_smoothing()
 	await fade_in()
 	map.start()
+
+
+## Fade to black, swap the map, fade back in and run the new map's start().
+func change_map(path: String) -> void:
+	Game.input_locked = true
+	await fade_out()
+	await load_map(path)
+
+
+## The eye, slowly rotating on black. Used for the elevator hallucination.
+func show_glyph(seconds := 2.0) -> void:
+	_glyph.pivot_offset = Vector2(16, 16)
+	_glyph.modulate.a = 1.0
+	var t := create_tween()
+	t.tween_property(_glyph, "rotation", TAU * 0.25, seconds)
+	t.parallel().tween_property(_glyph, "modulate:a", 0.0, seconds).set_delay(seconds * 0.6)
+	await t.finished
+	_glyph.rotation = 0.0
 
 
 func fade_out(seconds := 0.6) -> void:

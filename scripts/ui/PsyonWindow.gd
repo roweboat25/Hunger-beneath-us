@@ -100,12 +100,14 @@ func _build() -> void:
 	col.add_child(_input)
 
 
-func open(is_forked := true) -> void:
+func open(is_forked := true, status := "") -> void:
 	forked = is_forked
 	Game.input_locked = true
 	_log.text = ""
 	_image.hide()
-	_status.text = "  ·  Ionware OS  ·  session: " + ("[unrecoverable]" if forked else "synced")
+	if status.is_empty():
+		status = "  ·  Ionware OS  ·  session: " + ("[unrecoverable]" if forked else "synced")
+	_status.text = status
 	show()
 	_accepting = false
 	_input.editable = false
