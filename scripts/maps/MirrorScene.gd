@@ -4,6 +4,10 @@ extends MapScene
 var _begun := false
 
 
+func _init() -> void:
+	ambient = Color(0.55, 0.6, 0.65)
+
+
 func start() -> void:
 	Game.input_locked = true
 	await ui.think("As I crossed the threshold, the static faded. My vision sharpened. The room was cold, silent, and dim. Then: light.")

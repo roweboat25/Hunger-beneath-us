@@ -10,6 +10,10 @@ var _ritual_done := false
 var _slept := false
 
 
+func _init() -> void:
+	ambient = Color(1.0, 0.86, 0.72)
+
+
 func start() -> void:
 	_second = Game.has_flag("southtown_done")
 	if _second:
@@ -253,6 +257,7 @@ func _couch() -> void:
 
 # ------------------------------------------------------------- evening 2
 func _start_second() -> void:
+	main.set_ambient(Color(0.8, 0.62, 0.62))
 	var mira := npc("mira")
 	await main.show_title("Residence Hall 45C", "That evening")
 	await ui.say("Ezra", "Dad's home!", "ezra")

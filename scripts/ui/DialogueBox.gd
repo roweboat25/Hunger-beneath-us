@@ -17,6 +17,7 @@ var _name: Label
 var _text: RichTextLabel
 var _choices: VBoxContainer
 var _prompt: Label
+var _portrait_frame: PanelContainer
 var _typing := false
 var _choice_buttons: Array[Button] = []
 var _selected := 0
@@ -38,11 +39,16 @@ func _build() -> void:
 	_panel.offset_right = -8
 	_panel.offset_top = -82
 	_panel.offset_bottom = -6
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("050608", 0.94)
-	style.border_color = Color("2fa184")
-	style.set_border_width_all(1)
-	style.set_content_margin_all(6)
+	var style := StyleBoxTexture.new()
+	style.texture = load("res://assets/ui/panel.png")
+	style.texture_margin_left = 6
+	style.texture_margin_right = 6
+	style.texture_margin_top = 6
+	style.texture_margin_bottom = 6
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 7
+	style.content_margin_bottom = 6
 	_panel.add_theme_stylebox_override("panel", style)
 	add_child(_panel)
 
@@ -50,11 +56,21 @@ func _build() -> void:
 	row.add_theme_constant_override("separation", 8)
 	_panel.add_child(row)
 
+	var frame := PanelContainer.new()
+	var fstyle := StyleBoxFlat.new()
+	fstyle.bg_color = Color("0b1210")
+	fstyle.border_color = Color("1f6f5c")
+	fstyle.set_border_width_all(1)
+	fstyle.set_content_margin_all(1)
+	frame.add_theme_stylebox_override("panel", fstyle)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(frame)
 	_portrait = TextureRect.new()
 	_portrait.custom_minimum_size = Vector2(64, 64)
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP
 	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	row.add_child(_portrait)
+	frame.add_child(_portrait)
+	_portrait_frame = frame
 
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -63,6 +79,9 @@ func _build() -> void:
 	_name = Label.new()
 	_name.add_theme_color_override("font_color", Color("7fe0c0"))
 	_name.add_theme_font_size_override("font_size", 10)
+	_name.add_theme_color_override("font_shadow_color", Color("050608"))
+	_name.add_theme_constant_override("shadow_offset_x", 1)
+	_name.add_theme_constant_override("shadow_offset_y", 1)
 	col.add_child(_name)
 
 	_text = RichTextLabel.new()
@@ -72,6 +91,9 @@ func _build() -> void:
 	for f in ["normal_font_size", "italics_font_size", "bold_font_size", "bold_italics_font_size"]:
 		_text.add_theme_font_size_override(f, 10)
 	_text.add_theme_color_override("default_color", Color("e8ecef"))
+	_text.add_theme_color_override("font_shadow_color", Color("050608"))
+	_text.add_theme_constant_override("shadow_offset_x", 1)
+	_text.add_theme_constant_override("shadow_offset_y", 1)
 	col.add_child(_text)
 
 	_choices = VBoxContainer.new()
@@ -81,11 +103,14 @@ func _build() -> void:
 	_prompt = Label.new()
 	_prompt.text = "▼"
 	_prompt.add_theme_font_size_override("font_size", 9)
-	_prompt.add_theme_color_override("font_color", Color("2fa184"))
+	_prompt.add_theme_color_override("font_color", Color("7fe0c0"))
 	_prompt.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	_prompt.offset_left = -16
-	_prompt.offset_top = -14
+	_prompt.offset_left = -18
+	_prompt.offset_top = -16
 	_panel.add_child(_prompt)
+	var bob := create_tween().set_loops()
+	bob.tween_property(_prompt, "position:y", _prompt.position.y + 2, 0.4)
+	bob.tween_property(_prompt, "position:y", _prompt.position.y, 0.4)
 
 
 func _portrait_for(who: String) -> Texture2D:
@@ -103,7 +128,7 @@ func say(speaker: String, text: String, portrait := "") -> void:
 	show()
 	_clear_choices()
 	_portrait.texture = _portrait_for(portrait)
-	_portrait.visible = _portrait.texture != null
+	_portrait_frame.visible = _portrait.texture != null
 	_name.text = speaker
 	_name.visible = not speaker.is_empty()
 	_text.text = text
@@ -142,6 +167,9 @@ func choose(options: Array) -> int:
 		b.flat = true
 		b.focus_mode = Control.FOCUS_NONE
 		b.add_theme_font_size_override("font_size", 10)
+		b.add_theme_color_override("font_shadow_color", Color("050608"))
+		b.add_theme_constant_override("shadow_offset_x", 1)
+		b.add_theme_constant_override("shadow_offset_y", 1)
 		b.pressed.connect(func(): _pick(i))
 		_choices.add_child(b)
 		_choice_buttons.append(b)
@@ -166,7 +194,7 @@ func _clear_choices() -> void:
 func _highlight() -> void:
 	for i in _choice_buttons.size():
 		var b := _choice_buttons[i]
-		b.text = ("> " if i == _selected else "  ") + b.text.substr(2)
+		b.text = ("▸ " if i == _selected else "  ") + b.text.substr(2)
 		b.add_theme_color_override("font_color", Color("7fe0c0") if i == _selected else Color("b9c2c9"))
 
 

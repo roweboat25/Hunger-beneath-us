@@ -4,6 +4,10 @@ extends MapScene
 var _laptop_done := false
 
 
+func _init() -> void:
+	ambient = Color(0.86, 0.84, 0.74)
+
+
 func start() -> void:
 	await main.show_title("Chapter 1", "The House of Harold Dufredy")
 	await ui.think("The smell hit first. Something between melting plastic, meat left too long in the sun, and wet carpet.")

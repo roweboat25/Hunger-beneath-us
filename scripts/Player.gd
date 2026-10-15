@@ -21,6 +21,12 @@ const ROW := {Vector2.DOWN: 0, Vector2.LEFT: 1, Vector2.RIGHT: 2, Vector2.UP: 3}
 
 func _ready() -> void:
 	add_to_group("player")
+	var shadow := Sprite2D.new()
+	shadow.texture = load("res://assets/sprites/shadow.png")
+	shadow.position = Vector2(0, 2)
+	shadow.z_index = -1
+	add_child(shadow)
+	move_child(shadow, 0)
 	_apply_frame(false)
 
 

@@ -6,6 +6,10 @@ var _nurse_done := false
 var _interviewed := false
 
 
+func _init() -> void:
+	ambient = Color(0.92, 0.96, 1.0)
+
+
 func start() -> void:
 	await main.show_title("SalTech Hospital", "Far south side")
 	await ui.think("A brutal architectural metaphor for Silico itself. Shorter, utilitarian, hunkered down against the encroaching desert. More factory than place of healing.")

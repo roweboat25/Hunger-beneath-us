@@ -6,6 +6,10 @@ var _met_lynx := false
 var _eye_sprite: Sprite2D
 
 
+func _init() -> void:
+	ambient = Color(0.95, 0.72, 0.62)
+
+
 func start() -> void:
 	# the ten-foot eye painted on the underside of the overpass
 	_eye_sprite = Sprite2D.new()

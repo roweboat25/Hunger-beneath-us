@@ -15,6 +15,10 @@ var _body: StaticBody2D
 
 func _ready() -> void:
 	super._ready()
+	var shadow := Sprite2D.new()
+	shadow.texture = load("res://assets/sprites/shadow.png")
+	shadow.position = Vector2(0, 2)
+	add_child(shadow)
 	sprite = Sprite2D.new()
 	sprite.texture = load(sprite_sheet)
 	sprite.hframes = 4

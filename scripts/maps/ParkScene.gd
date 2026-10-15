@@ -5,6 +5,10 @@ var _seth_done := false
 var _tyson_done := false
 
 
+func _init() -> void:
+	ambient = Color(1.0, 0.95, 0.82)
+
+
 func start() -> void:
 	await main.show_title("Harmony Green", "Where it happened")
 	await ui.think("The park was the last green thing in Silico. Dufredy had walked out of that gap in the retaining wall, bleeding, grinning, and run straight through the plaza.")

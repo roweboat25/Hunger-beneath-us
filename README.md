@@ -6,7 +6,7 @@ You play Carl Drake, a corporate investigator for the Psyon chatbot, as he works
 
 ## Playing
 
-**In the browser:** the GitHub Actions workflow in `.github/workflows/web.yml` exports the game to HTML5 on every push to `main` and publishes it with GitHub Pages (enable Pages with source "GitHub Actions" in the repo settings once).
+**In the browser:** https://roweboat25.github.io/Hunger-beneath-us/ . The GitHub Actions workflow in `.github/workflows/web.yml` exports the game to HTML5 on every push to `main` and publishes it to the `gh-pages` branch, which GitHub Pages serves.
 
 **Locally:** install [Godot 4.3](https://godotengine.org/download), open `project.godot`, press F5.
 

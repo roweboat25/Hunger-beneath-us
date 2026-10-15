@@ -6,6 +6,16 @@ var _entered := false
 var _ritual_done := false
 
 
+func _init() -> void:
+	ambient = Color(0.74, 0.68, 0.86)
+
+
+func _process(_delta: float) -> void:
+	# the lights inside flickered. dim. pulse-like.
+	var pulse := 0.82 + 0.1 * sin(Time.get_ticks_msec() / 230.0) + (0.06 if randf() < 0.02 else 0.0)
+	main.set_ambient(Color(0.74 * pulse, 0.68 * pulse, 0.86 * pulse))
+
+
 func start() -> void:
 	await main.show_title("Residence Hall 45C", "Lynx's unit, floor 79")
 	ui.close()

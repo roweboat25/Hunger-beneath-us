@@ -9,6 +9,10 @@ var _lynx_warned := false
 var _emmet_briefed := false
 
 
+func _init() -> void:
+	ambient = Color(0.78, 0.92, 0.92)
+
+
 func start() -> void:
 	_day2 = Game.has_flag("ritual_seen")
 	if _day2:

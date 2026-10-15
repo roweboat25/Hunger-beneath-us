@@ -46,11 +46,16 @@ func _build() -> void:
 	_panel.offset_right = 150
 	_panel.offset_top = -95
 	_panel.offset_bottom = 95
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("0b1210", 0.98)
-	style.border_color = Color("1f6f5c")
-	style.set_border_width_all(2)
-	style.set_content_margin_all(6)
+	var style := StyleBoxTexture.new()
+	style.texture = load("res://assets/ui/panel_dark.png")
+	style.texture_margin_left = 4
+	style.texture_margin_right = 4
+	style.texture_margin_top = 4
+	style.texture_margin_bottom = 4
+	style.content_margin_left = 7
+	style.content_margin_right = 7
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
 	_panel.add_theme_stylebox_override("panel", style)
 	add_child(_panel)
 

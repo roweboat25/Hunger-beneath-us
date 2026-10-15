@@ -7,6 +7,8 @@ class_name MapScene
 @export var map_size := Vector2i(480, 272)
 
 var main: Node
+## Ambient light for the map. Main applies it with a CanvasModulate.
+var ambient := Color.WHITE
 
 var ui: DialogueBox:
 	get: return main.dialogue

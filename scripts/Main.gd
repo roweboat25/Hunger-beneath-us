@@ -16,6 +16,7 @@ var _log_panel: PanelContainer
 var _log_text: RichTextLabel
 var _fade: ColorRect
 var _glyph: TextureRect
+var _modulate: CanvasModulate
 
 
 func _ready() -> void:
@@ -60,7 +61,11 @@ func _ready() -> void:
 	_glyph.modulate.a = 0.0
 	fade_layer.add_child(_glyph)
 
+	_modulate = CanvasModulate.new()
+	add_child(_modulate)
+
 	var first := "res://scenes/maps/Apartment.tscn"
+	var skip_title := "--autoplay" in OS.get_cmdline_user_args()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--map="):
 			first = "res://scenes/maps/" + arg.trim_prefix("--map=") + ".tscn"
@@ -69,6 +74,9 @@ func _ready() -> void:
 		var search: String = str(JavaScriptBridge.eval("window.location.search", true))
 		if search.begins_with("?map="):
 			first = "res://scenes/maps/" + search.trim_prefix("?map=").get_slice("&", 0) + ".tscn"
+			skip_title = true
+	if not skip_title:
+		await _title_screen()
 	await load_map(first)
 	if "--autoplay" in OS.get_cmdline_user_args():
 		var auto: Node = load("res://tools/autoplay.gd").new()
@@ -83,6 +91,7 @@ func load_map(path: String) -> void:
 	map.main = self
 	add_child(map)
 	move_child(map, 0)
+	set_ambient(map.ambient)
 	player = map.get_node_or_null("Player")
 	for node in get_tree().get_nodes_in_group("interactable"):
 		if node.is_inside_tree() and map.is_ancestor_of(node):
@@ -96,6 +105,62 @@ func load_map(path: String) -> void:
 		cam.reset_smoothing()
 	await fade_in()
 	map.start()
+
+
+func set_ambient(c: Color) -> void:
+	_modulate.color = c
+
+
+## The title screen: the tower, the name, press Enter.
+func _title_screen() -> void:
+	Game.input_locked = true
+	var layer := CanvasLayer.new()
+	layer.layer = 25
+	add_child(layer)
+	var bg := TextureRect.new()
+	bg.texture = load("res://assets/ui/title.png")
+	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	layer.add_child(bg)
+	var name_label := Label.new()
+	name_label.text = "THE HUNGER BENEATH US"
+	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_color_override("font_color", Color("7fe0c0"))
+	name_label.add_theme_color_override("font_shadow_color", Color("0b0e1a"))
+	name_label.add_theme_constant_override("shadow_offset_x", 2)
+	name_label.add_theme_constant_override("shadow_offset_y", 2)
+	name_label.add_theme_constant_override("outline_size", 4)
+	name_label.add_theme_color_override("font_outline_color", Color("0b0e1a"))
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.position = Vector2(0, 112)
+	name_label.size = Vector2(480, 34)
+	layer.add_child(name_label)
+	var sub := Label.new()
+	sub.text = "a Psyonic Integrations case file"
+	sub.add_theme_font_size_override("font_size", 9)
+	sub.add_theme_color_override("font_color", Color("b9c2c9"))
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.position = Vector2(0, 148)
+	sub.size = Vector2(480, 14)
+	layer.add_child(sub)
+	var prompt := Label.new()
+	prompt.text = "press Enter"
+	prompt.add_theme_font_size_override("font_size", 9)
+	prompt.add_theme_color_override("font_color", Color("f5d6a0"))
+	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt.position = Vector2(0, 244)
+	prompt.size = Vector2(480, 14)
+	layer.add_child(prompt)
+	var blink := create_tween().set_loops()
+	blink.tween_property(prompt, "modulate:a", 0.15, 0.7)
+	blink.tween_property(prompt, "modulate:a", 1.0, 0.7)
+	_fade.modulate.a = 0.0
+	while true:
+		await get_tree().process_frame
+		if Input.is_action_just_pressed("interact"):
+			break
+	blink.kill()
+	await fade_out(0.8)
+	layer.queue_free()
 
 
 ## Fade to black, swap the map, fade back in and run the new map's start().
@@ -148,11 +213,16 @@ func _build_log_panel() -> void:
 	_log_panel.offset_right = 130
 	_log_panel.offset_top = -90
 	_log_panel.offset_bottom = 90
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("050608", 0.96)
-	style.border_color = Color("f5d6a0")
-	style.set_border_width_all(1)
-	style.set_content_margin_all(8)
+	var style := StyleBoxTexture.new()
+	style.texture = load("res://assets/ui/panel.png")
+	style.texture_margin_left = 6
+	style.texture_margin_right = 6
+	style.texture_margin_top = 6
+	style.texture_margin_bottom = 6
+	style.content_margin_left = 9
+	style.content_margin_right = 9
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
 	_log_panel.add_theme_stylebox_override("panel", style)
 	var col := VBoxContainer.new()
 	_log_panel.add_child(col)
@@ -185,6 +255,8 @@ func _build_title() -> void:
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.add_theme_font_size_override("font_size", 16)
 	_title_label.add_theme_color_override("font_color", Color("7fe0c0"))
+	_title_label.add_theme_constant_override("outline_size", 3)
+	_title_label.add_theme_color_override("font_outline_color", Color("0b1f1a"))
 	v.add_child(_title_label)
 	_title_sub = Label.new()
 	_title_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

@@ -23,6 +23,10 @@ void fragment() {
 	float g = (rand(floor(uv * vec2(480.0, 270.0)) + vec2(fract(TIME * 7.0))) - 0.5);
 	col += g * 0.16 * corruption * glasses;
 
+	// faint scanlines from the frames' display
+	float scan = mod(floor(uv.y * 270.0), 2.0) * 0.045 * glasses;
+	col *= 1.0 - scan;
+
 	// vignette, tighter as corruption rises
 	float d = distance(uv, vec2(0.5));
 	col *= 1.0 - smoothstep(0.42, 0.95, d) * (0.3 + 0.45 * corruption) * glasses;
