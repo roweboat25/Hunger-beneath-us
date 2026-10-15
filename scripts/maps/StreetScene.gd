@@ -23,6 +23,10 @@ func objective_text() -> String:
 	return line
 
 
+func waypoint_id() -> String:
+	return recommended_exit()
+
+
 ## The exit the objective is pointing at, for the autoplay.
 func recommended_exit() -> String:
 	var path := World.route(String(name), Game.next_beat)

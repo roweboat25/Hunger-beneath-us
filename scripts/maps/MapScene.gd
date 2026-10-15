@@ -222,6 +222,30 @@ func objective_text() -> String:
 
 
 var _last_objective := "\u0001"
+var _waypoint: Waypoint
+
+
+## The interactable the objective is pointing at, marked on the map with a
+## bouncing chevron so a doorway reads as a doorway. "" for none.
+func waypoint_id() -> String:
+	return "exit" if objective_text().begins_with("Leave") else ""
+
+
+func _update_waypoint() -> void:
+	if _waypoint == null:
+		_waypoint = Waypoint.new()
+		add_child(_waypoint)
+	var id := waypoint_id()
+	var node: Node = interactable(id) if not id.is_empty() else null
+	if node == null or not node.visible:
+		_waypoint.visible = false
+		return
+	var shape: CollisionShape2D = node.get_node_or_null("Shape")
+	var size := Vector2(32, 32)
+	if shape and shape.shape is RectangleShape2D:
+		size = shape.shape.size
+	_waypoint.visible = true
+	_waypoint.global_position = node.global_position + Vector2(size.x / 2.0, -size.y / 2.0 - 12.0)
 
 
 func _physics_process(_delta: float) -> void:
@@ -232,6 +256,7 @@ func _physics_process(_delta: float) -> void:
 	if o != _last_objective:
 		_last_objective = o
 		main.filter.set_objective(o)
+	_update_waypoint()
 
 
 ## Called for every examine, talk, and floor trigger in this map.

@@ -17,6 +17,10 @@ func _init() -> void:
 	ambient = Color(1.0, 0.9, 0.72)
 
 
+func waypoint_id() -> String:
+	return "sedan" if not _sedan_done else "door"
+
+
 func start() -> void:
 	await main.show_title("The sand flats", "Restricted zone")
 	await ui.think("The road cracked beneath my wheels. The horizon opened. Sand and silence swallowed everything. My ORA-frames flickered. Not a glitch. A filter. A signal shift. It was watching me.")
