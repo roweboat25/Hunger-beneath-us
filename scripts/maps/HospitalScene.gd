@@ -102,6 +102,7 @@ func _dufredy() -> void:
 		await ui.think("He was humming. A wordless lullaby, ancient and alien. I didn't have the stomach for a second round.")
 		ui.close()
 		return
+	closeup.show_view("room 108", "res://assets/closeups/hospital_dufredy.png")
 	await ui.think("Dufredy lay strapped to the bed, a mummy cocooned in restraints. His breathing was unnervingly slow, like a child pretending to sleep, suppressing a giggle.")
 	await ui.say("Carl", "Mr. Dufredy. I'm with Psyonic Corp. I'm here to understand what happened at the park yesterday.", "carl")
 	await ui.think("He remained utterly still. But the smile. That persistent, placid smile remained.")
@@ -147,6 +148,7 @@ func _dufredy() -> void:
 	await ui.say("Carl", "This isn't over, Dufredy! What is happening to this city? To me?", "carl")
 	await ui.think("No answer. I was powerless here, the investigator who had walked into a prepared interrogation. The interview was over.")
 	ui.close()
+	closeup.hide_view()
 	_interviewed = true
 	Game.add_connection(2.0, "the lullaby")
 	Game.log_entry("Dufredy: 'Bring it in front of the eye, and you will see. Your seer stone.'")

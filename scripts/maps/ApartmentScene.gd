@@ -87,11 +87,13 @@ func on_interact(id: String) -> void:
 			if pick == 1:
 				ui.close()
 				return
+			closeup.show_view("the ceiling", "res://assets/closeups/apartment_ceiling.png")
 			await ui.think("Sticks. Not driftwood or branches. Snapped, deliberate, clean. Taped to the ceiling in two concentric rings, set inside an oval.")
 			await ui.say("Carl", "An iris. The pupil was missing.", "carl")
 			await ui.think("I was standing beneath a wooden eye. And it was staring down at me.")
 			await ui.say("Carl", "Where the hell did he get all of these sticks? Maybe he took an earlier trip to the park?", "carl")
 			ui.close()
+			closeup.hide_view()
 			Game.set_flag("ceiling_eye")
 			Game.add_connection(2.0, "looked at the eye")
 			Game.log_entry("Eye symbol made of sticks taped to the bedroom ceiling. No pupil.")
