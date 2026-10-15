@@ -147,6 +147,15 @@ func _route_interact(id: String) -> void:
 
 func _door(id: String) -> void:
 	var target: String = World.EXITS[String(name)][id][0]
+	if target in World.GATES:
+		var gate: Array = World.GATES[target]
+		if Game.has_flag(gate[0]):
+			await travel(id)
+		else:
+			await ui.think(gate[1])
+			ui.close()
+			player.position += Vector2(0, 12)
+		return
 	if target == Game.next_beat or target in World.SIDE_INTERIORS:
 		await travel(id)
 		return

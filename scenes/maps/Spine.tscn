@@ -509,21 +509,24 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_60x28")
 
-[node name="P21_bin" type="Sprite2D" parent="Actors"]
-position = Vector2(80, 289)
-offset = Vector2(0, -32.5)
-texture = ExtResource("tex_bin")
+[node name="P21_charging_post" type="Sprite2D" parent="Actors"]
+position = Vector2(528, 545)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_charging_post")
+metadata/prop_id = "charger"
+metadata/scan = "ALTO ENERGY CHARGE POST 9\nlast vehicle: DORNER, P. (company)\nlast session: 02:14, 4% on arrival\nlog: ROTATED"
+metadata/scan_name = "Charge post"
 
-[node name="Body" type="StaticBody2D" parent="Actors/P21_bin"]
+[node name="Body" type="StaticBody2D" parent="Actors/P21_charging_post"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P21_bin/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P21_charging_post/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
 [node name="P22_bin" type="Sprite2D" parent="Actors"]
-position = Vector2(848, 289)
+position = Vector2(80, 289)
 offset = Vector2(0, -32.5)
 texture = ExtResource("tex_bin")
 
@@ -536,7 +539,7 @@ position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
 [node name="P23_bin" type="Sprite2D" parent="Actors"]
-position = Vector2(1776, 289)
+position = Vector2(848, 289)
 offset = Vector2(0, -32.5)
 texture = ExtResource("tex_bin")
 
@@ -549,7 +552,7 @@ position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
 [node name="P24_bin" type="Sprite2D" parent="Actors"]
-position = Vector2(656, 513)
+position = Vector2(1776, 289)
 offset = Vector2(0, -32.5)
 texture = ExtResource("tex_bin")
 
@@ -562,7 +565,7 @@ position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
 [node name="P25_bin" type="Sprite2D" parent="Actors"]
-position = Vector2(1520, 513)
+position = Vector2(656, 513)
 offset = Vector2(0, -32.5)
 texture = ExtResource("tex_bin")
 
@@ -574,34 +577,34 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
-[node name="P26_vending" type="Sprite2D" parent="Actors"]
+[node name="P26_bin" type="Sprite2D" parent="Actors"]
+position = Vector2(1520, 513)
+offset = Vector2(0, -32.5)
+texture = ExtResource("tex_bin")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P26_bin"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P26_bin/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P27_vending" type="Sprite2D" parent="Actors"]
 position = Vector2(1344, 289)
 offset = Vector2(0, -33)
 texture = ExtResource("tex_vending")
 
-[node name="Body" type="StaticBody2D" parent="Actors/P26_vending"]
+[node name="Body" type="StaticBody2D" parent="Actors/P27_vending"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P26_vending/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P27_vending/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_60x28")
 
-[node name="P27_planter" type="Sprite2D" parent="Actors"]
-position = Vector2(880, 289)
-offset = Vector2(0, -17)
-texture = ExtResource("tex_planter")
-
-[node name="Body" type="StaticBody2D" parent="Actors/P27_planter"]
-collision_layer = 1
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="Actors/P27_planter/Body"]
-position = Vector2(0, -17)
-shape = SubResource("Rect_28x28")
-
 [node name="P28_planter" type="Sprite2D" parent="Actors"]
-position = Vector2(1424, 289)
+position = Vector2(880, 289)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_planter")
 
@@ -613,21 +616,21 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
-[node name="P29_planter_small" type="Sprite2D" parent="Actors"]
-position = Vector2(496, 289)
+[node name="P29_planter" type="Sprite2D" parent="Actors"]
+position = Vector2(1424, 289)
 offset = Vector2(0, -17)
-texture = ExtResource("tex_planter_small")
+texture = ExtResource("tex_planter")
 
-[node name="Body" type="StaticBody2D" parent="Actors/P29_planter_small"]
+[node name="Body" type="StaticBody2D" parent="Actors/P29_planter"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P29_planter_small/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P29_planter/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
 [node name="P30_planter_small" type="Sprite2D" parent="Actors"]
-position = Vector2(1776, 289)
+position = Vector2(496, 289)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_planter_small")
 
@@ -639,7 +642,20 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
-[node name="P31_glyph_red" type="Sprite2D" parent="Actors"]
+[node name="P31_planter_small" type="Sprite2D" parent="Actors"]
+position = Vector2(1776, 289)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_planter_small")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P31_planter_small"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P31_planter_small/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P32_glyph_red" type="Sprite2D" parent="Actors"]
 position = Vector2(1296, 225)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_glyph_red")
@@ -647,7 +663,7 @@ metadata/prop_id = "glyph:sp_tower"
 metadata/glyph_deep = true
 visible = false
 
-[node name="P32_glyph" type="Sprite2D" parent="Actors"]
+[node name="P33_glyph" type="Sprite2D" parent="Actors"]
 position = Vector2(464, 225)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_glyph")
@@ -655,7 +671,7 @@ metadata/prop_id = "glyph:sp_west"
 metadata/glyph_deep = false
 visible = false
 
-[node name="P33_glyph" type="Sprite2D" parent="Actors"]
+[node name="P34_glyph" type="Sprite2D" parent="Actors"]
 position = Vector2(1456, 609)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_glyph")
@@ -663,25 +679,11 @@ metadata/prop_id = "glyph:sp_lot"
 metadata/glyph_deep = false
 visible = false
 
-[node name="P34_pylon" type="Sprite2D" parent="Actors"]
+[node name="P35_pylon" type="Sprite2D" parent="Actors"]
 position = Vector2(336, 321)
 offset = Vector2(0, -57)
 texture = ExtResource("tex_pylon")
 metadata/prop_id = "pylon_spine_w"
-
-[node name="Body" type="StaticBody2D" parent="Actors/P34_pylon"]
-collision_layer = 1
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="Actors/P34_pylon/Body"]
-position = Vector2(0, -17)
-shape = SubResource("Rect_28x28")
-
-[node name="P35_pylon" type="Sprite2D" parent="Actors"]
-position = Vector2(1872, 321)
-offset = Vector2(0, -57)
-texture = ExtResource("tex_pylon")
-metadata/prop_id = "pylon_spine_e"
 
 [node name="Body" type="StaticBody2D" parent="Actors/P35_pylon"]
 collision_layer = 1
@@ -691,14 +693,28 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
-[node name="P36_ad_screen" type="Sprite2D" parent="Actors"]
+[node name="P36_pylon" type="Sprite2D" parent="Actors"]
+position = Vector2(1872, 321)
+offset = Vector2(0, -57)
+texture = ExtResource("tex_pylon")
+metadata/prop_id = "pylon_spine_e"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P36_pylon"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P36_pylon/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P37_ad_screen" type="Sprite2D" parent="Actors"]
 position = Vector2(1632, 161)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_ad_screen")
 metadata/prop_id = "ad_spine"
 metadata/pair = "ad_screen"
 
-[node name="P37_ad_screen_static" type="Sprite2D" parent="Actors"]
+[node name="P38_ad_screen_static" type="Sprite2D" parent="Actors"]
 position = Vector2(1632, 161)
 offset = Vector2(0, -17)
 texture = ExtResource("tex_ad_screen_static")
@@ -706,17 +722,17 @@ metadata/prop_id = "ad_spine_static"
 metadata/pair = "ad_screen_static"
 visible = false
 
-[node name="P38_charging_post" type="Sprite2D" parent="Actors"]
+[node name="P39_charging_post" type="Sprite2D" parent="Actors"]
 position = Vector2(400, 513)
 offset = Vector2(0, -25)
 texture = ExtResource("tex_charging_post")
 metadata/prop_id = "charger_spine"
 
-[node name="Body" type="StaticBody2D" parent="Actors/P38_charging_post"]
+[node name="Body" type="StaticBody2D" parent="Actors/P39_charging_post"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P38_charging_post/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P39_charging_post/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
@@ -791,6 +807,14 @@ shape = SubResource("Rect_32x32")
 position = Vector2(1104, 348)
 
 [node name="Interactables" type="Node2D" parent="."]
+
+[node name="Charger" type="Area2D" parent="Interactables"]
+position = Vector2(528, 560)
+script = ExtResource("4_interact")
+id = "charger"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Charger"]
+shape = SubResource("Rect_32x32")
 
 [node name="GlyphSpTower" type="Area2D" parent="Interactables"]
 position = Vector2(1296, 208)

@@ -18,6 +18,8 @@ func intro() -> void:
 
 func on_interact(id: String) -> void:
 	match id:
+		"charger":
+			await _charger()
 		"preacher":
 			await _preacher()
 		"my_car":
@@ -61,3 +63,29 @@ func _preacher() -> void:
 	else:
 		await ui.think("I walked on. Behind me the chant kept the same even pace, like it hadn't needed me at all.")
 		ui.close()
+
+
+## Side case: Dorner's company car charged here before it went to Fargona.
+func _charger() -> void:
+	if Game.has_flag("case_dorner_charger"):
+		await ui.think("The charge post. Its log still read FARGONA AVE, in case I'd forgotten.")
+		ui.close()
+		return
+	if not Game.has_flag("case_dorner_frames"):
+		await ui.think("A charge post for the company cars along the lot. It kept a log of everything plugged into it. Nothing in it I had a reason to read.")
+		ui.close()
+		return
+	await ui.think("The charge post Dorner's car used. Its log was there, and it was rotated, every record turned a quarter off the last so nothing lined up. Someone, or something, had made it a puzzle.")
+	var pick := await ui.choose(["Interface with it.", "Leave it."])
+	ui.close()
+	if pick == 1:
+		return
+	var ok := await interface("dorner_charger", "ALTO ENERGY CHARGE POST 9")
+	if not ok:
+		await ui.think("I let go. The log stayed turned.")
+		ui.close()
+		return
+	await ui.think("The log unrolled. DORNER, P. 02:14. Four percent on arrival. Destination: FARGONA AVE. He'd driven there on the last of the charge and not come back for the car.")
+	ui.close()
+	Game.case_done("dorner", "charger")
+	Game.log_entry("Dorner's car logged a trip to Fargona Avenue at 02:14 on four percent charge. He didn't come back for it.")

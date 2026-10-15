@@ -13,7 +13,7 @@ const COLUMNS := [
 	["DISTRICTS", [
 		["Lamplight", "map", "Lamplight"], ["The Spine", "map", "Spine"], ["Zeta & Park", "map", "ZetaPark"],
 		["The Heights", "map", "Heights"], ["Cognizo Quarter", "map", "Cognizo"], ["Cognizo station", "map", "CognizoStation"],
-		["The factory", "map", "Factory"]]],
+		["The factory", "map", "Factory"], ["Dorner's flat", "map", "DornerFlat"], ["Fargona Avenue", "map", "Fargona"]]],
 	["ROADS", [
 		["Canal Walk", "map", "CanalWalk"], ["Underpass", "map", "Underpass"], ["Flyover", "map", "Flyover"],
 		["Hill Road", "map", "HillRoad"], ["Rail Cut", "map", "RailCut"], ["Park Avenue", "map", "ParkAve"],

@@ -509,6 +509,16 @@ once = false
 [node name="Shape" type="CollisionShape2D" parent="Interactables/DoorApartment"]
 shape = SubResource("Rect_64x32")
 
+[node name="DoorDornerflat" type="Area2D" parent="Interactables"]
+position = Vector2(1312, 272)
+script = ExtResource("4_interact")
+id = "door:DornerFlat"
+on_enter = true
+once = false
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/DoorDornerflat"]
+shape = SubResource("Rect_64x32")
+
 [node name="Neighbour" type="Area2D" parent="Interactables"]
 position = Vector2(768, 240)
 script = ExtResource("4_interact")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ParkAveScene.gd" id="2_script"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
+[ext_resource type="Texture2D" path="res://assets/props/cement_stairs.png" id="tex_cement_stairs"]
 [ext_resource type="Texture2D" path="res://assets/props/coffee_cup.png" id="tex_coffee_cup"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
@@ -24,6 +25,9 @@
 [ext_resource type="Texture2D" path="res://assets/props/poster2.png" id="tex_poster2"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
+
+[sub_resource type="RectangleShape2D" id="Rect_64x32"]
+size = Vector2(64, 32)
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
 size = Vector2(32, 32)
@@ -55,7 +59,7 @@ tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 1, 0, 0, 0, 1, 0, 
 tile_set = ExtResource("1_tileset")
 
 [node name="Walls" type="TileMapLayer" parent="."]
-tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 5, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 6, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 7, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 9, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 10, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 11, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 12, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 13, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 14, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 15, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 16, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 17, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 18, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 19, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 20, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 21, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 22, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 23, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 24, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 25, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 26, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 27, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 28, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 29, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 30, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 31, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 32, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 33, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 34, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 35, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 36, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 37, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 38, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 39, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 1, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 2, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 3, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 4, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 5, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 6, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 7, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 8, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 9, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 10, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 11, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 12, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 13, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 14, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 15, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 16, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 17, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 18, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 19, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 20, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 21, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 22, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 23, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 24, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 25, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 26, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 27, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 28, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 29, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 30, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 31, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 32, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 33, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 34, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 35, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 36, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 37, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 38, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 39, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0)
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 5, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 6, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 7, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 9, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 10, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 11, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 12, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 13, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 14, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 15, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 16, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 17, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 18, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 19, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 22, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 23, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 24, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 25, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 26, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 27, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 28, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 29, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 30, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 31, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 32, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 33, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 34, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 35, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 36, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 37, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 38, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 39, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 1, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 2, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 3, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 4, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 5, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 6, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 7, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 8, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 9, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 10, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 11, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 12, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 13, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 14, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 15, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 16, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 17, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 18, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 19, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 22, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 23, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 24, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 25, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 26, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 27, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 28, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 29, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 30, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 31, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 32, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 33, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 34, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 35, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 36, 0, 1, 0, 0, 0, 2, 0, 4, 0, 0, 0, 37, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 38, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0, 39, 0, 1, 0, 0, 0, 15, 0, 2, 0, 0, 0)
 tile_set = ExtResource("1_tileset")
 
 [node name="Bounds" type="StaticBody2D" parent="."]
@@ -100,32 +104,52 @@ position = Vector2(1072, 64)
 offset = Vector2(0, -26.5)
 texture = ExtResource("tex_graffiti_loot")
 
-[node name="D4_paper" type="Sprite2D" parent="Decals"]
+[node name="D4_cement_stairs" type="Sprite2D" parent="Decals"]
+position = Vector2(656, 32)
+offset = Vector2(0, -32)
+texture = ExtResource("tex_cement_stairs")
+
+[node name="D5_cement_stairs" type="Sprite2D" parent="Decals"]
+position = Vector2(656, 64)
+offset = Vector2(0, -32)
+texture = ExtResource("tex_cement_stairs")
+
+[node name="D6_cement_stairs" type="Sprite2D" parent="Decals"]
+position = Vector2(688, 32)
+offset = Vector2(0, -32)
+texture = ExtResource("tex_cement_stairs")
+
+[node name="D7_cement_stairs" type="Sprite2D" parent="Decals"]
+position = Vector2(688, 64)
+offset = Vector2(0, -32)
+texture = ExtResource("tex_cement_stairs")
+
+[node name="D8_paper" type="Sprite2D" parent="Decals"]
 position = Vector2(400, 128)
 offset = Vector2(0, -7.5)
 texture = ExtResource("tex_paper")
 
-[node name="D5_paper3" type="Sprite2D" parent="Decals"]
+[node name="D9_paper3" type="Sprite2D" parent="Decals"]
 position = Vector2(944, 448)
 offset = Vector2(0, -4)
 texture = ExtResource("tex_paper3")
 
-[node name="D6_blood" type="Sprite2D" parent="Decals"]
+[node name="D10_blood" type="Sprite2D" parent="Decals"]
 position = Vector2(560, 352)
 offset = Vector2(0, -16)
 texture = ExtResource("tex_blood")
 
-[node name="D7_coffee_cup" type="Sprite2D" parent="Decals"]
+[node name="D11_coffee_cup" type="Sprite2D" parent="Decals"]
 position = Vector2(368, 256)
 offset = Vector2(0, -16)
 texture = ExtResource("tex_coffee_cup")
 
-[node name="D8_coffee_cup" type="Sprite2D" parent="Decals"]
+[node name="D12_coffee_cup" type="Sprite2D" parent="Decals"]
 position = Vector2(528, 256)
 offset = Vector2(0, -16)
 texture = ExtResource("tex_coffee_cup")
 
-[node name="D9_coffee_cup" type="Sprite2D" parent="Decals"]
+[node name="D13_coffee_cup" type="Sprite2D" parent="Decals"]
 position = Vector2(976, 320)
 offset = Vector2(0, -16)
 texture = ExtResource("tex_coffee_cup")
@@ -435,6 +459,16 @@ shape = SubResource("Rect_32x32")
 position = Vector2(80, 284)
 
 [node name="Interactables" type="Node2D" parent="."]
+
+[node name="DoorFargona" type="Area2D" parent="Interactables"]
+position = Vector2(672, 80)
+script = ExtResource("4_interact")
+id = "door:Fargona"
+on_enter = true
+once = false
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/DoorFargona"]
+shape = SubResource("Rect_64x32")
 
 [node name="GlyphPaWindow" type="Area2D" parent="Interactables"]
 position = Vector2(400, 48)

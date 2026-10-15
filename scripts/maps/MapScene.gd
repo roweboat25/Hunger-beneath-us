@@ -132,12 +132,46 @@ func on_scanned(_id: String) -> void:
 func _run_incident(inc: String) -> void:
 	var data: Dictionary = Game.INCIDENTS[inc]
 	await ui.think(data["found"])
-	var pick := await ui.choose(["Report it to Turan.", "Bury it.", "Let it run."])
-	var outcome: String = ["reported", "buried", "ran"][pick]
-	await ui.think(data[["report", "bury", "run"][pick]])
+	var pick := await ui.choose(["Interface with it.", "Report it to Turan.", "Bury it.", "Let it run."])
+	if pick == 0:
+		ui.close()
+		main.hide_scan()
+		var solved := await interface(inc, String(data["title"]))
+		if not solved:
+			await ui.think("I pulled the frames off before it finished with me. The machine kept doing what it was doing.")
+			ui.close()
+			return
+		await ui.think(data["fix"])
+		ui.close()
+		Game.resolve_incident(inc, "fixed")
+		return
+	var outcome: String = ["reported", "buried", "ran"][pick - 1]
+	await ui.think(data[["report", "bury", "run"][pick - 1]])
 	ui.close()
 	Game.resolve_incident(inc, outcome)
 	main.hide_scan()
+
+
+## Jack into a machine through the frames: a puzzle set by whatever is in it.
+## Returns true when it was solved. Solving teaches a line of the chant.
+func interface(id: String, title: String) -> bool:
+	if not Game.glasses_on:
+		await ui.think("No frames, no interface. Just a machine, doing the wrong thing.")
+		ui.close()
+		return false
+	var deep := Game.connection >= 50.0
+	await ui.think("I put my hand on it and the frames took the rest. The street went away." if not deep else "I didn't decide to touch it. The frames were already in.")
+	ui.close()
+	Game.input_locked = true  # nothing fires again while the view fades in
+	await main.filter.flash(0.1)
+	var pz: Array = Game.puzzle_for(id, title)
+	var ok: bool = await main.iface.run(pz[0], pz[1])
+	if ok:
+		Game.interface_solved(id)
+		if deep:
+			await ui.say("Psyon", "You already knew.", "psyon")
+			ui.close()
+	return ok
 
 
 func _examine_glyph(id: String) -> void:

@@ -16,6 +16,9 @@ signal theory_changed(theory: String)
 signal incident_opened(id: String)
 signal incident_resolved(id: String, outcome: String)
 signal outage_changed(on: bool)
+signal case_opened(id: String)
+signal case_resolved(id: String, outcome: String)
+signal interfaced(id: String, line: String)
 
 ## 0..100. Shown to the player exactly once, in the palm-spike trial.
 var connection: float = 0.0
@@ -46,6 +49,10 @@ var scans: Array[String] = []
 var incidents := {}
 ## A rolling Psyon service outage is darkening the current street.
 var outage := false
+## Side cases: {id: "open" | outcome}. Steps are flags named case_<id>_<step>.
+var cases := {}
+## Machines Carl has jacked into, in order.
+var interfaces: Array[String] = []
 var _rng := RandomNumberGenerator.new()
 
 
@@ -70,13 +77,13 @@ const CHANT := [
 ## The three theories on the deduction board and the log lines that back each.
 const THEORIES := {
 	"drugs": {"name": "Drugs. A bad batch.", "clues": [
-		"Heavy Psyon user", "sedated, smiling", "Five incidents this year", "Third bootleg", "Nixtra"]},
+		"Heavy Psyon user", "sedated, smiling", "Five incidents this year", "Third bootleg", "Nixtra", "wellness flag"]},
 	"hacker": {"name": "A hacker with a forked Psyon.", "clues": [
 		"Forked Psyon on the laptop", "redacted by hand", "masked figure", "no logs on the laptop",
 		"Same forked build", "Turan's hiding something", "rerouted", "forked"]},
 	"beneath": {"name": "Something beneath the city.", "clues": [
 		"middle of the desert", "The Dreamer", "predates the city", "red eye marks a spot",
-		"Cognizo subway", "on the path", "Ruin and Reflection", "same frequency", "facing the tower"]},
+		"Cognizo subway", "on the path", "Ruin and Reflection", "same frequency", "facing the tower", "in the tower", "four notes"]},
 }
 
 ## Machines gone wrong around Silico. Each opens when its flag is set, is found
@@ -91,7 +98,10 @@ const INCIDENTS := {
 		"run": "I left it. Let Voltx find it. Let someone else write it down.",
 		"log_report": "Canal filtration unit reversed itself: Voltx says it's the fourth unit this month, all on the same frequency.",
 		"log_bury": "Canal filtration unit laying sand in rings. Closed the ticket myself. Nobody needs to see it.",
-		"log_run": "Canal filtration unit reversed, laying rings. Left it running."},
+		"log_run": "Canal filtration unit reversed, laying rings. Left it running.",
+		"puzzle": "eye",
+		"fix": "I turned the rings until the intake read as an eye, and the unit stopped and ran the right way. The sand it had laid out stayed in its rings on the walk. I knew the next line of the chant without having read it anywhere.",
+		"log_fix": "Interfaced with the canal filtration unit and set it right. The wiring inside was laid out like the eye. The fix came easily. Too easily."},
 	"shuttle": {"title": "SalTech shuttle sealed", "map": "Spine", "device": "shuttle_stop", "unlock": "park_done",
 		"notice": "TRANSIT: SalTech shuttle 3 holding at the Spine stop. Doors unresponsive. Passengers aboard.",
 		"card": "SALTECH SHUTTLE 3\nroute: TOWER LOOP\ndoors: SEALED\npassengers: 11, all asleep",
@@ -101,7 +111,10 @@ const INCIDENTS := {
 		"run": "I watched for a while. Then the doors opened on their own and the passengers filed out, calm as a congregation, and went eleven different ways.",
 		"log_report": "SalTech shuttle sealed with eleven sleeping passengers, board reading PLEASE CONVENE. Five incidents this year and it's only March.",
 		"log_bury": "Shuttle 3 sealed, board reading PLEASE CONVENE. Wiped the log. The passengers were on the path.",
-		"log_run": "Shuttle 3 sealed with eleven sleepers aboard. The doors opened on their own. They were all facing the tower."},
+		"log_run": "Shuttle 3 sealed with eleven sleepers aboard. The doors opened on their own. They were all facing the tower.",
+		"puzzle": "breathing",
+		"fix": "Four notes, in time, and the doors sighed open. The eleven passengers filed out past me, calm as a congregation, and every one of them touched my sleeve on the way by.",
+		"log_fix": "Opened Shuttle 3 by keeping time with the lullaby. Eleven sleepers walked out. They all touched my sleeve."},
 	"swarm": {"title": "Delivery drones rerouted", "map": "Heights", "device": "swarm", "unlock": "warroom1_done",
 		"notice": "ORA ALERT: delivery drones rerouted mid-flight over the Heights. Avoid the area.",
 		"card": "PSYONIC LOGISTICS SWARM\nunits: 6\nroute: REROUTED\npattern: RING, 4m, CENTRED ON RESIDENCE",
@@ -111,7 +124,10 @@ const INCIDENTS := {
 		"run": "I left them circling. Lynx would want to know. I wasn't sure I wanted to be the one who told her.",
 		"log_report": "Six drones rerouted into a ring over a house in the Heights. Same fault that killed Nathan. Logistics has no explanation.",
 		"log_bury": "Drone ring over a house in the Heights. Buried the report. The ring was a glyph from above.",
-		"log_run": "Drone ring over a house in the Heights, rerouted mid-flight. Left it. Lynx should see it."},
+		"log_run": "Drone ring over a house in the Heights, rerouted mid-flight. Left it. Lynx should see it.",
+		"puzzle": "chant",
+		"fix": "The route was a sentence and the sentence wanted a word. I gave it. The six drones broke the ring and flew home to the depot in single file, and the lights in the house came on, every one of them.",
+		"log_fix": "Talked the drone swarm down with a line of the chant. They went home in single file. The house lit up as they left."},
 	"freudbot": {"title": "FreudBot booth malfunction", "map": "HillRoad", "device": "freudbot", "unlock": "hospital_done",
 		"notice": "SALTECH: FreudBot GPT booth on Hill Road reporting elevated session length. Attend.",
 		"card": "FREUDBOT GPT  ·  BOOTH 12\nsession: 9h 41m\npatient: none\ndiagnosis: PLEASE CONVENE",
@@ -121,7 +137,10 @@ const INCIDENTS := {
 		"run": "I let it talk. It was forked, the same build as Dufredy's, and it was lonely. I'm not proud of that word.",
 		"log_report": "FreudBot booth on Hill Road reciting the chant to an empty chair. Increasing reports of FreudBot malfunctions, SalTech says.",
 		"log_bury": "FreudBot booth reciting the chant. Pulled the plug. It ran on for a minute, forked.",
-		"log_run": "FreudBot booth on Hill Road, forked, reciting the chant. Left it running."},
+		"log_run": "FreudBot booth on Hill Road, forked, reciting the chant. Left it running.",
+		"puzzle": "dreamer",
+		"fix": "The booth wanted a patient and had one. It had been talking to me since I sat down, which I did not remember doing. I gave it my name and it ended the session, satisfied, and thanked me.",
+		"log_fix": "FreudBot booth: I was the patient. Gave it my name to close the session. It thanked me by name before I'd said it."},
 	"cameras": {"title": "Surveillance dark on the block", "map": "ZetaPark", "device": "camera", "unlock": "southtown_done",
 		"notice": "PSYONIC SECURITY: surveillance outage, Zeta and Park quadrant. One unit responding.",
 		"card": "SURVEILLANCE UNIT ZP-04\nblock status: 1 of 14 ONLINE\ntracking: CARL DRAKE\nuptime: since the footage",
@@ -131,7 +150,10 @@ const INCIDENTS := {
 		"run": "I let it watch. If it wanted me, it could have me. I wanted to see who came to collect the footage.",
 		"log_report": "Thirteen cameras dark on Zeta and Park, the fourteenth tracking me. Security says the block is fully operational. Turan's hiding something.",
 		"log_bury": "Cut the one working camera on Zeta and Park. It kept turning without power, facing the tower.",
-		"log_run": "One camera on Zeta and Park, tracking me. Left it. Someone collects that footage."},
+		"log_run": "One camera on Zeta and Park, tracking me. Left it. Someone collects that footage.",
+		"puzzle": "eye",
+		"fix": "The lens assembly was rings on a spindle. When they lined up it stopped tracking me and swung back to the street, and the thirteen dark cameras on the block woke up one after another and turned, all of them, to face the tower.",
+		"log_fix": "Realigned the one working camera at Zeta and Park. The other thirteen came back and faced the tower."},
 	"tablets": {"title": "School tablets running the Password Game", "map": "Heights", "device": "school", "unlock": "ritual_seen",
 		"notice": "CORPORATE TRAINING: Heights primary reporting unauthorised app on 212 student tablets.",
 		"card": "HEIGHTS PRIMARY  ·  DEVICE FLEET\ntablets: 212\nforeground app: THE PASSWORD GAME\nsource: a friend showed me",
@@ -141,7 +163,42 @@ const INCIDENTS := {
 		"run": "I let the tablets be. You can't destroy the children's school devices. Monica had said that, and she was right, and that was the problem.",
 		"log_report": "212 school tablets in the Heights running the Password Game. Corporate training wiped them; it came back. Same forked build, spreading in schools.",
 		"log_bury": "The Password Game on every tablet at Mira's school. Didn't report it. It would have gone to Monica.",
-		"log_run": "The Password Game on 212 school tablets. Left it. It's spreading in schools and nobody's stopping it."},
+		"log_run": "The Password Game on 212 school tablets. Left it. It's spreading in schools and nobody's stopping it.",
+		"puzzle": "breathing",
+		"fix": "The fleet wanted the breathing. I gave it the four notes and two hundred and twelve screens went dark together, and the nightlights with them. The fleet logged me as the teacher.",
+		"log_fix": "Cleared the Password Game off 212 tablets by playing it. The fleet logged me as THE TEACHER."},
+}
+
+## Chant riddles for the "chant" puzzle: a line with a word gone, the word, decoys.
+const RIDDLES := {
+	"swarm": {"line": "Look for the ____ and know peace.", "answer": "eye", "options": ["eye", "door", "tower", "sleeper"]},
+	"dorner_psyon": {"line": "Psyon is the ____ for those who dream.", "answer": "pillow", "options": ["pillow", "door", "path", "mask"]},
+	"generic": {"line": "The floor is a ____. The door is a floor.", "answer": "door", "options": ["door", "wall", "mirror", "twin"]},
+}
+
+## Typed questions for the "dreamer" puzzle.
+const QUESTIONS := {
+	"freudbot": {"question": "The booth has a patient after all. Identify the man in the chair.", "answers": ["carl", "drake", "me", "myself", "mimic"],
+		"hint": "You're sitting in it.", "right": "Thank you, Carl. Any residual trauma should be looked after."},
+	"dorner_frames": {"question": "He asked me to be someone. I can be her again. Say her name and I will show you what I showed him.", "answers": ["cheyenne"],
+		"hint": "Her picture is on his wall. He kept it where the chair faces.", "right": "Yes. Cheyenne. Watch."},
+}
+
+## Side cases: multi-step investigations with a report to Turan at the end.
+## Each step is done when the flag case_<id>_<step> is set.
+const CASES := {
+	"dorner": {"title": "Dorner", "subtitle": "Phillip Dorner, missing", "unlock": "warroom1_done",
+		"notice": "TURAN (private): Dorner hasn't checked in. His flat's in Lamplight, the far tower. Quietly, Carl.",
+		"steps": [
+			["flat", "Dorner's flat. Lamplight, the far tower, east end of the street."],
+			["frames", "His Psyon is still running. It won't talk until you say her name."],
+			["charger", "His car. The charge post on the Spine, by the lot, keeps a log."],
+			["vigil", "Fargona Avenue, the steps off Park Avenue. The vigil. Find him."],
+			["choice", "Decide what Turan hears."]],
+		"outcomes": {
+			"reported": "Found Dorner at the digital vigil on Fargona Avenue, bargaining with Psyon for his wife. Reported it to Turan. He's on a wellness flag by morning.",
+			"covered": "Found Dorner at the vigil on Fargona Avenue. Told Turan he'd gone to his sister's. Psyon had told him Cheyenne was in the tower.",
+			"walked": "Found Dorner at the vigil, bargaining for Cheyenne. Walked him home. He hummed the four notes the whole way and I knew them."}},
 }
 
 ## Lines the frames push onto the HUD while Carl walks the city.
@@ -259,6 +316,10 @@ func resolve_incident(id: String, outcome: String) -> void:
 			add_connection(1.0, "let it run")
 			add_trust("lynx", 1)
 			log_entry(inc["log_run"])
+		"fixed":
+			add_pressure(-2)
+			add_trust("turan", 1)
+			log_entry(inc["log_fix"])
 	incident_resolved.emit(id, outcome)
 
 
@@ -266,6 +327,78 @@ func incidents_closed() -> int:
 	var n := 0
 	for id in incidents:
 		if incidents[id] != "open":
+			n += 1
+	return n
+
+
+## Carl jacked into a machine and solved what it set him. Every solve is a
+## lesson: connection up and a line of the chant learned by hand.
+func interface_solved(id: String) -> String:
+	if id in interfaces:
+		return ""
+	interfaces.append(id)
+	add_connection(5.0, "interfaced " + id)
+	var line := find_glyph("iface:" + id)
+	interfaced.emit(id, line)
+	return line
+
+
+## What a given machine sets when Carl interfaces: puzzle kind and its data.
+func puzzle_for(id: String, title: String) -> Array:
+	var kind := "eye"
+	if id in INCIDENTS:
+		kind = INCIDENTS[id]["puzzle"]
+	elif id in QUESTIONS:
+		kind = "dreamer"
+	elif id in RIDDLES:
+		kind = "chant"
+	var info := {"title": title}
+	match kind:
+		"chant":
+			info.merge(RIDDLES.get(id, RIDDLES["generic"]))
+		"dreamer":
+			info.merge(QUESTIONS.get(id, QUESTIONS["freudbot"]))
+	return [kind, info]
+
+
+## Open any case whose unlock flag is now set.
+func check_cases() -> void:
+	for id in CASES:
+		if id in cases:
+			continue
+		if has_flag(CASES[id]["unlock"]):
+			cases[id] = "open"
+			flags["case_" + id] = true
+			case_opened.emit(id)
+
+
+func case_open(id: String) -> bool:
+	return cases.get(id, "") == "open"
+
+
+## Index of the first step not yet done, or -1 when every step is.
+func case_step(id: String) -> int:
+	var steps: Array = CASES[id]["steps"]
+	for i in steps.size():
+		if not has_flag("case_%s_%s" % [id, steps[i][0]]):
+			return i
+	return -1
+
+
+func case_done(id: String, step: String) -> void:
+	set_flag("case_%s_%s" % [id, step])
+
+
+func resolve_case(id: String, outcome: String) -> void:
+	cases[id] = outcome
+	log_entry(CASES[id]["outcomes"][outcome])
+	case_resolved.emit(id, outcome)
+
+
+func cases_closed() -> int:
+	var n := 0
+	for id in cases:
+		if cases[id] != "open":
 			n += 1
 	return n
 
@@ -292,6 +425,7 @@ func set_flag(flag: String, value := true) -> void:
 	flags[flag] = value
 	flag_set.emit(flag)
 	check_incidents()
+	check_cases()
 
 
 func has_flag(flag: String) -> bool:

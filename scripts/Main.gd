@@ -4,6 +4,7 @@ extends Node
 var dialogue: DialogueBox
 var psyon: PsyonWindow
 var closeup: CloseUp
+var iface: InterfaceView
 var filter: GlassesFilter
 var map: MapScene
 var player: Player
@@ -42,6 +43,8 @@ func _ready() -> void:
 	# Close-up view under the laptop window, which goes under the dialogue box.
 	closeup = CloseUp.new()
 	_ui.add_child(closeup)
+	iface = InterfaceView.new()
+	_ui.add_child(iface)
 	psyon = PsyonWindow.new()
 	_ui.add_child(psyon)
 	dialogue = DialogueBox.new()
@@ -60,6 +63,9 @@ func _ready() -> void:
 	Game.theory_changed.connect(func(t): _show_toast("Working theory: " + Game.THEORIES[t]["name"]))
 	Game.incident_opened.connect(func(id): _show_feed("INCIDENT  ·  " + Game.INCIDENTS[id]["title"] + "  ·  " + World.place(Game.INCIDENTS[id]["map"]).get_slice(",", 0), true))
 	Game.incident_resolved.connect(func(id, outcome): _show_toast("Incident %s: %s" % [outcome, Game.INCIDENTS[id]["title"]]))
+	Game.case_opened.connect(func(id): _show_feed(Game.CASES[id]["notice"], true))
+	Game.case_resolved.connect(func(id, outcome): _show_toast("Case closed: %s (%s)" % [Game.CASES[id]["title"], outcome]))
+	Game.interfaced.connect(func(_id, line): _show_toast("Interfaced. A line of the chant, learned by hand." if line.is_empty() else "Interfaced. \"" + line + "\""))
 	Game.evidence_added.connect(func(_item): _show_feed("ORA: evidence of a crime detected. Police notified.", true))
 	Game.outage_changed.connect(func(on): _show_feed("VOLTX: rolling outage in this quadrant. Services may be unresponsive." if on else "VOLTX: service restored.", true))
 
@@ -118,6 +124,13 @@ func _ready() -> void:
 			var xy := arg.trim_prefix("--at=").split(",")
 			if xy.size() == 2:
 				start_tile = Vector2i(int(xy[0]), int(xy[1]))
+		elif arg.begins_with("--flags="):
+			# dev: ?flags=scene1_done,warroom1_done sets story flags before the map loads
+			for f in arg.trim_prefix("--flags=").split(","):
+				if not f.is_empty():
+					Game.set_flag(f)
+		elif arg.begins_with("--conn="):
+			Game.connection = float(arg.trim_prefix("--conn="))
 	_start_tile = start_tile
 	for arg in args:
 		if arg.begins_with("--shot="):
@@ -167,6 +180,18 @@ func load_map(path: String) -> void:
 				Game.input_locked = false
 				map.scan(map.interactable(arg.trim_prefix("--scan=")))
 				await get_tree().create_timer(1.0).timeout
+			elif arg.begins_with("--iface="):
+				# --iface=kind[,id] opens that interface puzzle for the shot
+				var parts := arg.trim_prefix("--iface=").split(",")
+				var pid: String = parts[1] if parts.size() > 1 else "generic"
+				dialogue.close()
+				var pz: Array = Game.puzzle_for(pid, "VOLTX FILTRATION UNIT 7")
+				iface.run(parts[0], pz[1])
+				await get_tree().create_timer(1.6).timeout
+			elif arg == "--board":
+				_log_panel.show()
+				_refresh_board()
+				await get_tree().create_timer(0.3).timeout
 		get_viewport().get_texture().get_image().save_png(_shot_path)
 		get_tree().quit()
 
@@ -311,6 +336,22 @@ func _refresh_board() -> void:
 		var state: String = Game.incidents[id]
 		var col := "f5d6a0" if state == "open" else "8fa0a8"
 		t += "\n  [color=%s]%s  %s  (%s)[/color]" % [col, "!" if state == "open" else "x", Game.INCIDENTS[id]["title"], World.place(Game.INCIDENTS[id]["map"]).get_slice(",", 0) if state == "open" else state]
+	t += "\n[color=f5d6a0]CASES[/color]  %d of %d closed" % [Game.cases_closed(), Game.CASES.size()]
+	if Game.cases.is_empty():
+		t += "\n  nothing on the side yet"
+	for id in Game.cases:
+		var cs: Dictionary = Game.CASES[id]
+		var state: String = Game.cases[id]
+		if state != "open":
+			t += "\n  [color=8fa0a8]x  %s  (%s)[/color]" % [cs["title"], state]
+			continue
+		var step: int = Game.case_step(id)
+		t += "\n  [color=f5d6a0]!  %s  ·  %s[/color]" % [cs["title"], cs["subtitle"]]
+		var steps: Array = cs["steps"]
+		for k in steps.size():
+			var mark := "x" if k < step or step == -1 else (">" if k == step else "-")
+			var col := "8fa0a8" if mark == "x" else ("7fe0c0" if mark == ">" else "5a6b70")
+			t += "\n     [color=%s]%s %s[/color]" % [col, mark, steps[k][1] if mark != "-" else "..."]
 	t += "\n[color=f5d6a0]EVIDENCE[/color]  " + (", ".join(Game.evidence) if Game.evidence.size() else "nothing bagged yet")
 	t += "\n[color=f5d6a0]GLYPHS[/color]  %d found  ·  connection %d  ·  company pressure %d\n" % [Game.glyphs_found.size(), int(Game.connection), Game.pressure]
 	t += "\n[color=f5d6a0]LOG[/color]\n"
@@ -503,16 +544,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		closeup.hide_view()
 		Game.input_locked = false
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible:
+	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible:
 		if _log_panel.visible:
 			_log_panel.hide()
 		_menu.open()
-	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible:
+	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible:
 		_log_panel.visible = not _log_panel.visible
 		Game.input_locked = _log_panel.visible
 		if _log_panel.visible:
 			_refresh_board()
-	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not _log_panel.visible:
+	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not _log_panel.visible:
 		var target: Node = player.nearest_interactable()
 		map.scan(target)
 	elif _log_panel.visible and event is InputEventKey and event.pressed and not event.echo:

@@ -793,6 +793,89 @@ def mirror():
     return m
 
 
+def dorner_flat():
+    """Phillip Dorner's flat, Lamplight: laundry and takeout boxes, a chair facing the
+    city, a smashed computer, and his Psyon still running on the pillow."""
+    m = Map("DornerFlat", "DornerFlatScene.gd", 30, 17, WOOD_GREY, seed=23)
+    m.fill(20, 2, 28, 15, ["carpet_navy"])
+    m.void_border()
+    m.top_wall("apt", 1, 28, windows=[(6, "dark"), (7, "dark"), (8, "dark"), (9, "dark"), (10, "dark"), (11, "dark"), (24, "dark"), (25, "dark")])
+    m.partition("apt", 19, 0, 15, gaps=(8,))
+    m.ground[16][3] = "shadow_floor"; m.clear_wall(3, 16)
+    # kitchen, unused
+    m.prop("counter_l", 13, 2); m.prop("counter", 14, 2); m.prop("sink", 15, 2); m.prop("fridge", 17, 2)
+    m.prop("dishes", 14, 2, lift=38); m.prop("coffee_maker", 16, 2, lift=0)
+    # the chair that looks out over the city
+    m.prop("armchair_grey", 8, 4, id="chair"); m.decal("painting2", 3, 1, lift=0)
+    m.prop("end_table", 11, 4); m.prop("phone", 11, 4, lift=20)
+    # laundry and takeout everywhere
+    for (x, y) in ((2, 8), (6, 11), (13, 12), (16, 7), (10, 14)):
+        m.decal("blanket", x, y)
+    for (x, y) in ((4, 6), (12, 9), (15, 14), (8, 12)):
+        m.prop("box_open", x, y)
+    m.prop("crate_small", 3, 12); m.decal("paper", 7, 7); m.decal("paper2", 14, 6); m.decal("paper3", 2, 14); m.decal("coffee_cup", 9, 9)
+    m.prop("tv", 7, 15)
+    # bedroom: the smashed computer and the pillow
+    m.decal("moss", 24, 1)
+    m.prop("desk_dark", 26, 4); m.prop("laptop_dark", 27, 4, lift=18, id="computer"); m.decal("frames_broken", 25, 7); m.prop("chair_office_back", 25, 5)
+    m.prop("bed_single_dark", 21, 6); m.prop("pillow", 21, 4, lift=30); m.prop("tablet", 21, 4, lift=26, id="pillow")
+    m.prop("dresser_dark", 24, 10); m.prop("lamp_table", 24, 10, lift=36)
+    m.decal("paper", 22, 12); m.decal("blanket", 26, 13); m.decal("cobweb", 28, 2)
+    m.trigger("photo", 3, 1, 2)
+    m.trigger("chair", 8, 5, 2)
+    m.trigger("kitchen", 13, 2, 5)
+    m.trigger("laundry", 2, 8, 2); m.trigger("laundry", 13, 12, 2)
+    m.trigger("takeout", 4, 6); m.trigger("takeout", 12, 9)
+    m.trigger("tv", 7, 15, 3)
+    m.trigger("computer", 26, 4, 2)
+    m.trigger("pillow", 21, 4, 2, 3)
+    m.trigger("dresser", 24, 10)
+    m.glyph("df_window", 10, 1); m.glyph("df_bed", 27, 1, deep=True)
+    m.trigger("exit", 3, 15, on_enter=True, once=False)
+    m.player = (3, 13)
+    return m
+
+
+def fargona():
+    """Fargona Avenue at night: the digital vigil. Screens held up, the mourned
+    still posting, and a preacher collecting frames from the dead."""
+    m = street_base("Fargona", "FargonaScene.gd", 48, 20, 83)
+    storefront(m, 1, 20, 10, "dark", windows=(3, 5, 7, 13, 15, 17), sign="poster3")      # Fargona Banking
+    storefront(m, 23, 34, 28, "grey", windows=(24, 26, 32), sign="poster_blank")
+    storefront(m, 37, 46, 41, "dark", windows=(38, 45), sign="poster2")
+    m.decal("graffiti_band", 21, 4); m.decal("glyph", 35, 5); m.decal("graffiti_green", 0, 4)
+    # bottom band: the backs of Park Avenue, the steps down at x 19-21
+    m.wall(0, 18, 18, 19, "brick_dark_mid"); m.wall(22, 18, 47, 19, "brick_dark_mid")
+    m.wall(0, 18, 18, 18, "brick_dark_top"); m.wall(22, 18, 47, 18, "brick_dark_top")
+    m.decal("cement_stairs", 19, 19); m.decal("cement_stairs", 20, 19); m.decal("cement_stairs", 21, 19)
+    m.decal("poster3", 8, 18); m.decal("glyph", 30, 18); m.decal("paper2", 40, 18)
+    for x in (4, 20, 36):
+        m.prop("lamp_post", x, 9)
+    for x in (12, 28, 44):
+        m.prop("lamp_post", x, 16)
+    # candles along the kerb, tablets left on the ground, the screens on the bank
+    for x in (6, 9, 14, 17, 25, 31, 39):
+        m.prop("fire", x, 10, solid=0)
+    for (x, y) in ((11, 15), (23, 16), (33, 15)):
+        m.prop("tablet", x, y, solid=0)
+    for (x, y) in ((7, 12), (19, 14), (29, 12), (38, 14)):
+        m.decal("paper", x, y)
+    m.decal("blood", 26, 13)
+    m.prop("sedan", 42, 12, id="dorner_car")
+    m.prop("bin", 2, 8); m.prop("planter", 22, 8); m.prop("planter_small", 36, 8)
+    # the preacher, and Dorner at the far end with his head back
+    m.npc("preacher", 24, 11, "down", sprite="masked", meta={"scan": "UNREGISTERED\nno ORA frames detected\nPsyon: none\nframes collected tonight: 61", "scan_bad": True, "scan_name": "The preacher"})
+    m.npc("dorner", 44, 13, "up", sprite="dorner", meta={"scan": "DORNER, P. - PSYONIC INTEGRATIONS\nPsyon 4.1 - sync 100%\nsession: CHEYENNE\nstatus: BARGAINING", "scan_bad": True, "scan_name": "Dorner"})
+    m.glyph("fa_bank", 2, 6); m.glyph("fa_steps", 40, 18); m.glyph("fa_sky", 12, 6, deep=True)
+    m.trigger("sky", 8, 10, 30, 6, on_enter=True)
+    m.trigger("screens", 10, 6, 2)
+    m.trigger("candles", 14, 11, 4)
+    m.trigger("dorner_car", 42, 12, 3)
+    m.exit("exit:south", 19, 19, 3, 1)
+    m.player = (20, 17)
+    return m
+
+
 def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
     """A building face spanning x0..x1 with the bottom wall row at y_top+height, a door at `door`."""
     top, bot = f"brick_{style}_top", f"brick_{style}_bot"
@@ -847,6 +930,7 @@ def lamplight():
     m.npc("officer", 37, 15, "up")
     m.glyph("ll_front", 2, 6); m.glyph("ll_neighbour", 30, 6, deep=True); m.glyph("ll_back", 40, 18)
     m.trigger("door:Apartment", 7, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("door:DornerFlat", 40, 8, 2, 1, on_enter=True, once=False)
     m.trigger("neighbour", 23, 7, 2)
     m.trigger("mailboxes", 13, 7)
     m.trigger("cruiser", 34, 12, 2)
@@ -881,6 +965,8 @@ def spine():
     for x in (11, 25, 39, 53):
         m.prop("lamp_post_off", x, 16)
     m.prop("sedan", 13, 13, id="my_car"); m.prop("car_blue", 36, 11); m.prop("sedan", 51, 13)
+    m.prop("charging_post", 16, 16, id="charger", meta={"scan": "ALTO ENERGY CHARGE POST 9\nlast vehicle: DORNER, P. (company)\nlast session: 02:14, 4% on arrival\nlog: ROTATED", "scan_name": "Charge post"})
+    m.trigger("charger", 16, 17)
     m.prop("bin", 2, 8); m.prop("bin", 26, 8); m.prop("bin", 55, 8); m.prop("bin", 20, 15); m.prop("bin", 47, 15)
     m.prop("vending", 41, 8, solid=1); m.prop("planter", 27, 8); m.prop("planter", 44, 8); m.prop("planter_small", 15, 8); m.prop("planter_small", 55, 8)
     m.decal("paper", 23, 9); m.decal("paper3", 40, 16); m.decal("blood", 9, 15)
@@ -1178,6 +1264,9 @@ def parkave():
     for x in (4, 12, 20, 28, 36):
         m.walls[0][x] = "window_lit_top"; m.walls[1][x] = "window_lit_bot"
     m.decal("poster2", 8, 1); m.decal("glyph", 16, 1); m.decal("poster_blank", 24, 1); m.decal("graffiti_loot", 32, 1)
+    for x in (20, 21):
+        m.clear_wall(x, 0); m.clear_wall(x, 1); m.decal("cement_stairs", x, 0); m.decal("cement_stairs", x, 1)
+    m.trigger("door:Fargona", 20, 2, 2, 1, on_enter=True, once=False)
     for x in (2, 18, 34):
         m.prop("lamp_post", x, 2)
     for x in (10, 26):
@@ -1265,7 +1354,7 @@ def factory():
 
 
 MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
-        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory]
+        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona]
 
 
 def main():

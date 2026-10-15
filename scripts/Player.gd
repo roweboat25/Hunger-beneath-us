@@ -80,7 +80,7 @@ func nearest_interactable() -> Node:
 	var best: Node = null
 	var best_d := INF
 	for area in zone.get_overlapping_areas():
-		if area.has_method("interact"):
+		if area.has_method("interact") and not area.get("on_enter"):
 			var d := global_position.distance_to(area.global_position)
 			if d < best_d:
 				best_d = d

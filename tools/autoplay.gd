@@ -42,7 +42,7 @@ func run() -> void:
 				else:
 					map._route_interact(id)
 				await _drive(map_name + "/" + id)
-				if (pass_i == 1 or map.has_method("recommended_exit")) and is_instance_valid(node) and main.map == map and not id.begins_with("exit") and not id.begins_with("door"):
+				if is_instance_valid(map) and main.map == map and is_instance_valid(node) and (pass_i == 1 or map.has_method("recommended_exit")) and not id.begins_with("exit") and not id.begins_with("door"):
 					Game.glasses_on = true
 					map.scan(node)
 					await _drive(map_name + "/scan " + id)
@@ -112,7 +112,13 @@ func _drive(label: String) -> void:
 				d.advanced.emit()
 			idle = 0.0
 		elif p.visible and p._accepting:
-			p._on_submit(["who are you", "what did you say to Dufredy", "show me the transcript", "yes"][Psyon.transcript.size() % 4])
+			if main.iface.visible and main.iface.kind == "dreamer":
+				p._on_submit(main.iface.autoplay_answer())
+			else:
+				p._on_submit(["who are you", "what did you say to Dufredy", "show me the transcript", "yes"][Psyon.transcript.size() % 4])
+			idle = 0.0
+		elif main.iface.visible:
+			main.iface.autoplay_step()
 			idle = 0.0
 		elif main.closeup.visible and main.closeup._accepting:
 			main.closeup.autoplay_step()
@@ -135,6 +141,8 @@ func _drive(label: String) -> void:
 func _tour(maps: PackedStringArray) -> void:
 	for id in Game.INCIDENTS:
 		Game.set_flag(Game.INCIDENTS[id]["unlock"])  # every incident open, so the tour finds them
+	for id in Game.CASES:
+		Game.set_flag(Game.CASES[id]["unlock"])
 	for map_name in maps:
 		Game.connection = 60.0  # so connection-gated figures and happenings exist
 		await main.change_map("res://scenes/maps/" + map_name + ".tscn")
