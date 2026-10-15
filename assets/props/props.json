@@ -59,6 +59,31 @@
   "solid": 1,
   "w": 64
  },
+ "bigscreen": {
+  "h": 64,
+  "solid": 0,
+  "w": 96
+ },
+ "bigscreen2": {
+  "h": 64,
+  "solid": 0,
+  "w": 96
+ },
+ "bigscreen3": {
+  "h": 64,
+  "solid": 0,
+  "w": 96
+ },
+ "bigscreen4": {
+  "h": 64,
+  "solid": 0,
+  "w": 96
+ },
+ "bigscreen_static": {
+  "h": 64,
+  "solid": 0,
+  "w": 96
+ },
  "bin": {
   "h": 63,
   "solid": 1,
@@ -118,6 +143,11 @@
   "h": 59,
   "solid": 1,
   "w": 64
+ },
+ "cables": {
+  "h": 24,
+  "solid": 0,
+  "w": 96
  },
  "cactus": {
   "h": 64,
@@ -379,6 +409,41 @@
   "solid": 0,
   "w": 32
  },
+ "holo_ad": {
+  "h": 96,
+  "solid": 0,
+  "w": 32
+ },
+ "holo_ad2": {
+  "h": 96,
+  "solid": 0,
+  "w": 32
+ },
+ "holo_eye": {
+  "h": 96,
+  "solid": 0,
+  "w": 32
+ },
+ "holo_eye2": {
+  "h": 96,
+  "solid": 0,
+  "w": 32
+ },
+ "holo_pink": {
+  "h": 96,
+  "solid": 0,
+  "w": 32
+ },
+ "holo_pink2": {
+  "h": 96,
+  "solid": 0,
+  "w": 32
+ },
+ "hover_car": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
  "kiosk": {
   "h": 64,
   "solid": 1,
@@ -448,6 +513,61 @@
   "h": 53,
   "solid": 0,
   "w": 32
+ },
+ "neon_alto": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_freud": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_hotel": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_nixtra": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_noodle": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_psyon": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_tokz": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_tube": {
+  "h": 64,
+  "solid": 0,
+  "w": 32
+ },
+ "neon_tube_amber": {
+  "h": 64,
+  "solid": 0,
+  "w": 32
+ },
+ "neon_tube_pink": {
+  "h": 64,
+  "solid": 0,
+  "w": 32
+ },
+ "neon_voltx": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
  },
  "nightlight": {
   "h": 32,
@@ -536,6 +656,21 @@
  },
  "poster_blank": {
   "h": 17,
+  "solid": 0,
+  "w": 32
+ },
+ "puddle": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
+ },
+ "puddle2": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
+ },
+ "puddle3": {
+  "h": 32,
   "solid": 0,
   "w": 32
  },
@@ -639,6 +774,21 @@
   "solid": 1,
   "w": 96
  },
+ "steam_puff": {
+  "h": 48,
+  "solid": 0,
+  "w": 32
+ },
+ "steam_puff2": {
+  "h": 48,
+  "solid": 0,
+  "w": 32
+ },
+ "steam_vent": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
+ },
  "stick": {
   "h": 16,
   "solid": 0,
@@ -688,6 +838,11 @@
   "h": 56,
   "solid": 1,
   "w": 64
+ },
+ "transit_tube": {
+  "h": 40,
+  "solid": 0,
+  "w": 128
  },
  "tree": {
   "h": 93,

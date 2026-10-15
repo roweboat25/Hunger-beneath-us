@@ -45,8 +45,9 @@ var _ambient_base: Color
 func start() -> void:
 	_ambient_base = ambient
 	if Game.is_night() and not night_only:
-		_ambient_base = ambient * Color(0.5, 0.54, 0.8)
+		_ambient_base = ambient * Color(0.42, 0.46, 0.74)
 		main.set_ambient(_ambient_base)
+	_start_fx()
 	var first := not Game.has_flag("visited_" + String(name))
 	if not title.is_empty() and first:
 		Game.set_flag("visited_" + String(name))
@@ -79,6 +80,7 @@ func _begin_outage() -> void:
 	main.filter.set_hud_text("ORA  ·  NO SIGNAL")
 	_swap_props("ad_screen", "ad_screen_static", true)
 	_swap_props("kiosk", "kiosk_static", true)
+	_swap_props("bigscreen", "bigscreen_static", true)
 	var actors := get_node_or_null("Actors")
 	if actors:
 		for node in actors.get_children():
@@ -92,6 +94,7 @@ func _end_outage() -> void:
 	main.filter.set_hud_text("ORA  ·  " + World.place(String(name)).get_slice(",", 0))
 	_swap_props("ad_screen", "ad_screen_static", false)
 	_swap_props("kiosk", "kiosk_static", false)
+	_swap_props("bigscreen", "bigscreen_static", false)
 
 
 ## Props placed as pairs (an `x` and an `x_static` at the same spot) swap over.
@@ -106,6 +109,16 @@ func _swap_props(normal: String, broken: String, to_broken: bool) -> void:
 				node.visible = not to_broken
 			elif pair == broken:
 				node.visible = to_broken
+
+
+## Neon, holograms, big screens, steam, hover cars and rain (StreetFX).
+func _start_fx() -> void:
+	if get_node_or_null("StreetFX") != null:
+		return
+	var fx := StreetFX.new()
+	fx.name = "StreetFX"
+	add_child(fx)
+	fx.setup(self)
 
 
 ## Drones bob in place; the swarm's ring turns.
@@ -285,7 +298,7 @@ func fast_travel() -> void:
 		ui.close()
 		await main.dream()
 		if is_inside_tree():
-			main.set_ambient(ambient if not Game.is_night() else ambient * Color(0.5, 0.54, 0.8))
+			main.set_ambient(ambient if not Game.is_night() else ambient * Color(0.42, 0.46, 0.74))
 			_ambient_base = main._modulate.color
 		return
 	if pick >= targets.size():

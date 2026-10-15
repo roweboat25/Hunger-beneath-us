@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/CanalWalkScene.gd" id="2_script"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/drone_pole.png" id="tex_drone_pole"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
+[ext_resource type="Texture2D" path="res://assets/props/holo_eye.png" id="tex_holo_eye"]
+[ext_resource type="Texture2D" path="res://assets/props/hover_car.png" id="tex_hover_car"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post_off.png" id="tex_lamp_post_off"]
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
@@ -19,6 +21,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/rock_tiny.png" id="tex_rock_tiny"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
 [ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
+[ext_resource type="Texture2D" path="res://assets/props/steam_vent.png" id="tex_steam_vent"]
 [ext_resource type="Texture2D" path="res://assets/props/stick.png" id="tex_stick"]
 [ext_resource type="Texture2D" path="res://assets/props/stick_circle.png" id="tex_stick_circle"]
 [ext_resource type="Texture2D" path="res://assets/props/substation.png" id="tex_substation"]
@@ -268,31 +271,61 @@ metadata/prop_id = "glyph:cw_far"
 metadata/glyph_deep = true
 visible = false
 
-[node name="P10_substation" type="Sprite2D" parent="Actors"]
+[node name="P10_hover_car" type="Sprite2D" parent="Actors"]
+position = Vector2(896, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_hover_car")
+metadata/hover = true
+
+[node name="P11_holo_eye" type="Sprite2D" parent="Actors"]
+position = Vector2(176, 353)
+offset = Vector2(0, -49)
+texture = ExtResource("tex_holo_eye")
+metadata/holo = true
+
+[node name="P12_holo_eye" type="Sprite2D" parent="Actors"]
+position = Vector2(176, 225)
+offset = Vector2(0, -49)
+texture = ExtResource("tex_holo_eye")
+metadata/holo = true
+
+[node name="P13_steam_vent" type="Sprite2D" parent="Actors"]
+position = Vector2(304, 257)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_steam_vent")
+metadata/steam = true
+
+[node name="P14_steam_vent" type="Sprite2D" parent="Actors"]
+position = Vector2(240, 513)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_steam_vent")
+metadata/steam = true
+
+[node name="P15_substation" type="Sprite2D" parent="Actors"]
 position = Vector2(416, 257)
 offset = Vector2(0, -25)
 texture = ExtResource("tex_substation")
 metadata/prop_id = "filtration"
 
-[node name="Body" type="StaticBody2D" parent="Actors/P10_substation"]
+[node name="Body" type="StaticBody2D" parent="Actors/P15_substation"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P10_substation/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P15_substation/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_60x28")
 
-[node name="P11_drone_pole" type="Sprite2D" parent="Actors"]
+[node name="P16_drone_pole" type="Sprite2D" parent="Actors"]
 position = Vector2(976, 193)
 offset = Vector2(0, -33)
 texture = ExtResource("tex_drone_pole")
 metadata/prop_id = "pole_canal"
 
-[node name="Body" type="StaticBody2D" parent="Actors/P11_drone_pole"]
+[node name="Body" type="StaticBody2D" parent="Actors/P16_drone_pole"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P11_drone_pole/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P16_drone_pole/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 

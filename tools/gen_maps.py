@@ -895,6 +895,110 @@ def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
     m.walls[yb - 2][door + 1] = "frame_c_top"
     if sign:
         m.decal(sign, door - 1, yb - 2)
+    # cyberpunk: a neon sign over every door, a tube beside some
+    kind, color = NEON_KINDS[NEON_STATE[0] % len(NEON_KINDS)]
+    NEON_STATE[0] += 1
+    m.prop(kind, door - 1, yb - 3, solid=0, meta={"neon": color})
+    if NEON_STATE[0] % 2 == 0 and door - 3 >= x0:
+        tube = ["neon_tube", "neon_tube_pink", "neon_tube_amber"][NEON_STATE[0] % 3]
+        m.prop(tube, door - 3, yb, solid=0, meta={"neon": NEON_TUBE_COLORS[tube]})
+
+
+NEON_KINDS = [("neon_psyon", "7fe0c0"), ("neon_nixtra", "e848b4"), ("neon_tokz", "ff6e96"), ("neon_alto", "f5be5a"),
+              ("neon_voltx", "5a8cff"), ("neon_freud", "78f08c"), ("neon_hotel", "e0453a"), ("neon_noodle", "5adcff")]
+NEON_TUBE_COLORS = {"neon_tube": "7fe0c0", "neon_tube_pink": "e848b4", "neon_tube_amber": "f5be5a"}
+NEON_STATE = [0]
+ASPHALT_WET = ["asphalt_wet"] * 6 + ["asphalt_wet2"] * 4 + ["asphalt_wet3", "asphalt_wet4"]
+
+## How much cyberpunk dressing a street gets: 2 downtown, 1 edges, 0 none.
+CYBER_LEVEL = {"Spine": 2, "Cognizo": 2, "ParkAve": 2, "ZetaPark": 2, "Lamplight": 2, "Southtown": 2, "Fargona": 2,
+               "Underpass": 1, "CanalWalk": 1, "Flyover": 1, "RailCut": 1, "HillRoad": 1, "Heights": 1, "RestrictedRoad": 0}
+
+
+def cyberpunk(m):
+    """Dresses a street: wet asphalt, cables and transit tubes over the buildings,
+    a hover car, holographic ads, big screens, steam vents, puddles."""
+    level = CYBER_LEVEL.get(m.name, 0)
+    if level == 0:
+        return
+    r = random.Random(m.rng.randint(0, 9999))
+    for y in range(m.h):
+        for x in range(m.w):
+            if m.ground[y][x] == "asphalt":
+                m.ground[y][x] = r.choice(ASPHALT_WET)
+    blocked = m.blocked_grid()
+    taken = set()
+    for t in m.triggers:
+        for dx in range(t["tw"]):
+            for dy in range(t["th"]):
+                taken.add((t["tx"] + dx, t["ty"] + dy))
+    for p in m.props:
+        pw = PROPS[p["name"]]["w"] // TILE
+        for dx in range(max(1, pw)):
+            taken.add((p["tx"] + dx, p["ty"]))
+    for n in m.npcs:
+        taken.add((n["tx"], n["ty"]))
+
+    def wall_run(y, length):
+        """x positions where `length` wall tiles sit side by side on row y."""
+        out = []
+        for x in range(0, m.w - length):
+            if all(m.walls[y][x + k] and m.walls[y][x + k].startswith("brick") and "window" not in m.walls[y][x + k] for k in range(length)):
+                out.append(x)
+        return out
+
+    def free(y, length=1):
+        out = []
+        for x in range(1, m.w - length - 1):
+            if all(not blocked[y][x + k] and (x + k, y) not in taken and m.walls[y][x + k] is None for k in range(length)):
+                out.append(x)
+        return out
+
+    def place(name, x, y, **kw):
+        m.prop(name, x, y, **kw)
+        for dx in range(max(1, PROPS[name]["w"] // TILE)):
+            taken.add((x + dx, y))
+
+    # cables and tubes along the top wall
+    if m.walls[1][0] is not None or m.walls[0][0] is not None:
+        for x in range(r.randint(1, 4), m.w - 3, r.randint(6, 9)):
+            if all(m.walls[1][x + k] for k in range(3)):
+                place("cables", x, 1 + r.randint(0, 1), solid=0)
+        if level == 2 and m.w >= 40:
+            for x in range(r.randint(0, 3), m.w - 4, 9):
+                if r.random() < 0.6 and all(m.walls[1][x + k] for k in range(4)):
+                    place("transit_tube", x, 1, solid=0)
+    # big screens on blank wall
+    if level == 2:
+        runs = [x for x in wall_run(2, 3) if x in wall_run(3, 3)]
+        r.shuffle(runs)
+        for x in runs[:2]:
+            place("bigscreen", x, 3, solid=0, meta={"big": "true", "pair": "bigscreen"})
+            m.prop("bigscreen_static", x, 3, solid=0, visible=False, meta={"pair": "bigscreen_static"})
+    # a hover car crossing above the street
+    place("hover_car", r.randint(2, m.w - 4), 2 if m.walls[2][2] else 1, solid=0, meta={"hover": "true"})
+    # holographic ads on the pavement, steam vents, puddles
+    rows = [y for y in range(m.h) if any(m.ground[y][x] and m.ground[y][x].startswith("cement") and m.walls[y][x] is None for x in range(m.w))]
+    pav = [y for y in rows if y >= 6]
+    if pav:
+        for _ in range(level * 2):
+            y = r.choice(pav)
+            fx = free(y)
+            if fx:
+                x = r.choice(fx)
+                place(r.choice(["holo_ad", "holo_eye", "holo_pink"] if level == 2 else ["holo_eye"]), x, y, solid=0, meta={"holo": "true"})
+        for _ in range(level + 1):
+            y = r.choice(pav)
+            fx = free(y)
+            if fx:
+                place("steam_vent", r.choice(fx), y, solid=0, meta={"steam": "true"})
+    roads = [y for y in range(m.h) if any(m.ground[y][x] and m.ground[y][x].startswith("asphalt_wet") for x in range(m.w))]
+    for _ in range(level * 4):
+        if roads:
+            y = r.choice(roads)
+            fx = [x for x in range(m.w) if m.ground[y][x] and m.ground[y][x].startswith("asphalt_wet") and (x, y) not in taken]
+            if fx:
+                m.decal(r.choice(["puddle", "puddle2", "puddle3"]), r.choice(fx), y)
 
 
 def street_base(name, script, w, h, seed, top_wall=True):
@@ -1366,6 +1470,7 @@ def main():
         os.makedirs(PREVIEW_DIR, exist_ok=True)
     for build in MAPS:
         m = build()
+        cyberpunk(m)
         density.densify(m)
         m.check()
         m.write(os.path.join(maps_dir, m.name + ".tscn"))

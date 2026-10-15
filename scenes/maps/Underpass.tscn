@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3]
+[gd_scene load_steps=41 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/UnderpassScene.gd" id="2_script"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/barrel.png" id="tex_barrel"]
 [ext_resource type="Texture2D" path="res://assets/props/blanket.png" id="tex_blanket"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
+[ext_resource type="Texture2D" path="res://assets/props/cables.png" id="tex_cables"]
 [ext_resource type="Texture2D" path="res://assets/props/cart.png" id="tex_cart"]
 [ext_resource type="Texture2D" path="res://assets/props/crate.png" id="tex_crate"]
 [ext_resource type="Texture2D" path="res://assets/props/crate_small.png" id="tex_crate_small"]
@@ -19,12 +20,15 @@
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_danger.png" id="tex_graffiti_danger"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_green.png" id="tex_graffiti_green"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_loot.png" id="tex_graffiti_loot"]
+[ext_resource type="Texture2D" path="res://assets/props/holo_eye.png" id="tex_holo_eye"]
+[ext_resource type="Texture2D" path="res://assets/props/hover_car.png" id="tex_hover_car"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post_off.png" id="tex_lamp_post_off"]
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
 [ext_resource type="Texture2D" path="res://assets/props/paper2.png" id="tex_paper2"]
 [ext_resource type="Texture2D" path="res://assets/props/pillar.png" id="tex_pillar"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
 [ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
+[ext_resource type="Texture2D" path="res://assets/props/steam_vent.png" id="tex_steam_vent"]
 [ext_resource type="Texture2D" path="res://assets/props/substation.png" id="tex_substation"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
@@ -384,17 +388,77 @@ metadata/prop_id = "glyph:up_deep"
 metadata/glyph_deep = true
 visible = false
 
-[node name="P15_substation" type="Sprite2D" parent="Actors"]
+[node name="P15_cables" type="Sprite2D" parent="Actors"]
+position = Vector2(80, 65)
+offset = Vector2(0, -13)
+texture = ExtResource("tex_cables")
+
+[node name="P16_cables" type="Sprite2D" parent="Actors"]
+position = Vector2(304, 65)
+offset = Vector2(0, -13)
+texture = ExtResource("tex_cables")
+
+[node name="P17_cables" type="Sprite2D" parent="Actors"]
+position = Vector2(528, 65)
+offset = Vector2(0, -13)
+texture = ExtResource("tex_cables")
+
+[node name="P18_cables" type="Sprite2D" parent="Actors"]
+position = Vector2(752, 97)
+offset = Vector2(0, -13)
+texture = ExtResource("tex_cables")
+
+[node name="P19_cables" type="Sprite2D" parent="Actors"]
+position = Vector2(976, 97)
+offset = Vector2(0, -13)
+texture = ExtResource("tex_cables")
+
+[node name="P20_cables" type="Sprite2D" parent="Actors"]
+position = Vector2(1200, 65)
+offset = Vector2(0, -13)
+texture = ExtResource("tex_cables")
+
+[node name="P21_hover_car" type="Sprite2D" parent="Actors"]
+position = Vector2(1184, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_hover_car")
+metadata/hover = true
+
+[node name="P22_holo_eye" type="Sprite2D" parent="Actors"]
+position = Vector2(688, 481)
+offset = Vector2(0, -49)
+texture = ExtResource("tex_holo_eye")
+metadata/holo = true
+
+[node name="P23_holo_eye" type="Sprite2D" parent="Actors"]
+position = Vector2(624, 225)
+offset = Vector2(0, -49)
+texture = ExtResource("tex_holo_eye")
+metadata/holo = true
+
+[node name="P24_steam_vent" type="Sprite2D" parent="Actors"]
+position = Vector2(592, 225)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_steam_vent")
+metadata/steam = true
+
+[node name="P25_steam_vent" type="Sprite2D" parent="Actors"]
+position = Vector2(1104, 449)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_steam_vent")
+metadata/steam = true
+
+[node name="P26_substation" type="Sprite2D" parent="Actors"]
 position = Vector2(992, 417)
 offset = Vector2(0, -25)
 texture = ExtResource("tex_substation")
 metadata/prop_id = "sub_underpass"
 
-[node name="Body" type="StaticBody2D" parent="Actors/P15_substation"]
+[node name="Body" type="StaticBody2D" parent="Actors/P26_substation"]
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Actors/P15_substation/Body"]
+[node name="Shape" type="CollisionShape2D" parent="Actors/P26_substation/Body"]
 position = Vector2(0, -17)
 shape = SubResource("Rect_60x28")
 
