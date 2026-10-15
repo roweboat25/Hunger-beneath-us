@@ -1,0 +1,181 @@
+extends Node
+## Root of the game. Owns the UI layers and swaps maps in and out.
+
+var dialogue: DialogueBox
+var psyon: PsyonWindow
+var filter: GlassesFilter
+var map: MapScene
+var player: Player
+
+var _ui: CanvasLayer
+var _toast: Label
+var _title: Control
+var _title_label: Label
+var _title_sub: Label
+var _log_panel: PanelContainer
+var _log_text: RichTextLabel
+var _fade: ColorRect
+
+
+func _ready() -> void:
+	filter = GlassesFilter.new()
+	add_child(filter)
+
+	_ui = CanvasLayer.new()
+	_ui.layer = 20
+	add_child(_ui)
+
+	dialogue = DialogueBox.new()
+	_ui.add_child(dialogue)
+	psyon = PsyonWindow.new()
+	_ui.add_child(psyon)
+
+	_toast = Label.new()
+	_toast.add_theme_font_size_override("font_size", 8)
+	_toast.add_theme_color_override("font_color", Color("f5d6a0"))
+	_toast.position = Vector2(6, 258)
+	_toast.modulate.a = 0.0
+	_ui.add_child(_toast)
+	Game.log_added.connect(_on_log)
+	Game.evidence_added.connect(func(item): _show_toast("Evidence bagged: " + item))
+
+	_build_log_panel()
+	_build_title()
+
+	_fade = ColorRect.new()
+	_fade.color = Color.BLACK
+	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fade_layer := CanvasLayer.new()
+	fade_layer.layer = 30
+	add_child(fade_layer)
+	fade_layer.add_child(_fade)
+
+	await load_map("res://scenes/maps/Apartment.tscn")
+	if "--autoplay" in OS.get_cmdline_user_args():
+		var auto: Node = load("res://tools/autoplay.gd").new()
+		add_child(auto)
+
+
+func load_map(path: String) -> void:
+	if map:
+		map.queue_free()
+		await map.tree_exited
+	map = load(path).instantiate()
+	map.main = self
+	add_child(map)
+	move_child(map, 0)
+	player = map.get_node_or_null("Player")
+	for node in get_tree().get_nodes_in_group("interactable"):
+		if node.is_inside_tree() and map.is_ancestor_of(node):
+			node.interacted.connect(map.on_interact)
+	if player:
+		var cam: Camera2D = player.get_node("Camera2D")
+		cam.limit_left = 0
+		cam.limit_top = 0
+		cam.limit_right = map.map_size.x
+		cam.limit_bottom = map.map_size.y
+		cam.reset_smoothing()
+	await fade_in()
+	map.start()
+
+
+func fade_out(seconds := 0.6) -> void:
+	var t := create_tween()
+	t.tween_property(_fade, "modulate:a", 1.0, seconds)
+	await t.finished
+
+
+func fade_in(seconds := 0.6) -> void:
+	var t := create_tween()
+	t.tween_property(_fade, "modulate:a", 0.0, seconds)
+	await t.finished
+
+
+func _on_log(entry: String) -> void:
+	_show_toast("Case log: " + entry)
+	_log_text.append_text("· " + entry + "\n")
+
+
+func _show_toast(text: String) -> void:
+	_toast.text = text
+	_toast.modulate.a = 1.0
+	var t := create_tween()
+	t.tween_interval(2.2)
+	t.tween_property(_toast, "modulate:a", 0.0, 0.6)
+
+
+func _build_log_panel() -> void:
+	_log_panel = PanelContainer.new()
+	_log_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_log_panel.offset_left = -130
+	_log_panel.offset_right = 130
+	_log_panel.offset_top = -90
+	_log_panel.offset_bottom = 90
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("050608", 0.96)
+	style.border_color = Color("f5d6a0")
+	style.set_border_width_all(1)
+	style.set_content_margin_all(8)
+	_log_panel.add_theme_stylebox_override("panel", style)
+	var col := VBoxContainer.new()
+	_log_panel.add_child(col)
+	var h := Label.new()
+	h.text = "CASE LOG  ·  Dufredy, H.  ·  press L to close"
+	h.add_theme_font_size_override("font_size", 9)
+	h.add_theme_color_override("font_color", Color("f5d6a0"))
+	col.add_child(h)
+	_log_text = RichTextLabel.new()
+	_log_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_log_text.add_theme_font_size_override("normal_font_size", 9)
+	col.add_child(_log_text)
+	_log_panel.hide()
+	_ui.add_child(_log_panel)
+
+
+func _build_title() -> void:
+	_title = Control.new()
+	_title.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var bg := ColorRect.new()
+	bg.color = Color("050608")
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_title.add_child(bg)
+	var v := VBoxContainer.new()
+	v.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	_title.add_child(v)
+	_title_label = Label.new()
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_label.add_theme_font_size_override("font_size", 16)
+	_title_label.add_theme_color_override("font_color", Color("7fe0c0"))
+	v.add_child(_title_label)
+	_title_sub = Label.new()
+	_title_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_sub.add_theme_font_size_override("font_size", 9)
+	_title_sub.add_theme_color_override("font_color", Color("b9c2c9"))
+	v.add_child(_title_sub)
+	_title.modulate.a = 0.0
+	_title.hide()
+	_ui.add_child(_title)
+
+
+## Black card with a title, held for a moment.
+func show_title(text: String, sub := "", hold := 2.0) -> void:
+	Game.input_locked = true
+	_title_label.text = text
+	_title_sub.text = sub
+	_title.show()
+	var t := create_tween()
+	t.tween_property(_title, "modulate:a", 1.0, 0.5)
+	t.tween_interval(hold)
+	t.tween_property(_title, "modulate:a", 0.0, 0.7)
+	await t.finished
+	_title.hide()
+	Game.input_locked = false
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible:
+		_log_panel.visible = not _log_panel.visible
+		Game.input_locked = _log_panel.visible
