@@ -73,13 +73,21 @@ func _update_glyphs() -> void:
 		p.visible = Game.glasses_on and (not deep or Game.can_see_deep_glyphs())
 
 
-## Leave this place for the Silico street, with the next plot beat marked.
-func go_to_street(next_map: String) -> void:
+## Walk through an exit of this map, as listed in World.EXITS.
+func travel(exit_id: String) -> void:
+	var e = World.EXITS.get(String(name), {}).get(exit_id)
+	if e == null:
+		push_warning("no exit " + exit_id + " from " + String(name))
+		return
 	Game.last_place = String(name)
+	main._start_tile = e[1]
+	await main.change_map("res://scenes/maps/" + e[0] + ".tscn")
+
+
+## Leave an interior for the street outside, with the next plot beat marked.
+func go_to_street(next_map: String) -> void:
 	Game.next_beat = next_map
-	await main.change_map("res://scenes/maps/Silico.tscn")
-
-
+	await travel("exit")
 ## One line telling the player what to do next; shown under the HUD.
 func objective_text() -> String:
 	return ""

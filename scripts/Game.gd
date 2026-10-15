@@ -33,7 +33,7 @@ var theory := ""
 var pressure := 20
 ## Where the street hub should send Carl next (a map name), and where he came from.
 var next_beat := "Park"
-var last_place := "Apartment"
+var last_place := ""
 ## Set while a dialogue, chat window or cutscene owns the input.
 var input_locked := false
 var current_map := "apartment"

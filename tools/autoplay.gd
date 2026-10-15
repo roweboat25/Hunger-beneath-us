@@ -19,7 +19,7 @@ func run() -> void:
 	await get_tree().create_timer(0.5).timeout
 	await _drive("intro")
 	var maps_seen := 0
-	while not Game.has_flag("act1_done") and maps_seen < 20:
+	while not Game.has_flag("act1_done") and maps_seen < 80:
 		var map: Node = main.map
 		var map_name := String(map.name)
 		maps_seen += 1
@@ -65,7 +65,9 @@ func _live_interactables(map: Node) -> Array:
 	for node in children:
 		if node is NPC:
 			people.append(node)
-		elif node.id == "exit" or node.id == "door" and String(map.name) == "Desert":
+		elif node.id == "exit" or node.id.begins_with("exit:") or node.id.begins_with("door:") or node.id == "door" and String(map.name) == "Desert":
+			if map.has_method("recommended_exit") and node.id != map.recommended_exit():
+				continue  # streets: only take the exit the objective points at
 			exits.append(node)
 		else:
 			out.append(node)

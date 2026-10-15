@@ -160,8 +160,12 @@ class Map:
     def trigger(self, id, tx, ty, tw=1, th=1, on_enter=False, once=True):
         self.triggers.append(dict(id=id, tx=tx, ty=ty, tw=tw, th=th, on_enter=on_enter, once=once))
 
-    def npc(self, id, tx, ty, facing="down", sprite=None):
-        self.npcs.append(dict(id=id, tx=tx, ty=ty, facing=facing, sprite=sprite or id))
+    def npc(self, id, tx, ty, facing="down", sprite=None, meta=None):
+        self.npcs.append(dict(id=id, tx=tx, ty=ty, facing=facing, sprite=sprite or id, meta=meta or {}))
+
+    def exit(self, id, tx, ty, tw=1, th=1):
+        """An edge of the map that leads to another map (see scripts/World.gd)."""
+        self.trigger(id, tx, ty, tw, th, on_enter=True, once=False)
 
     def scatter(self, names, cells, layer="ground"):
         for (x, y) in cells:
@@ -310,7 +314,10 @@ class Map:
                     f'position = Vector2({n["tx"] * TILE + 16}, {n["ty"] * TILE + 28})',
                     'script = ExtResource("5_npc")', f'id = "{n["id"]}"',
                     f'sprite_sheet = "res://assets/sprites/{n["sprite"]}.png"',
-                    f'facing = "{n["facing"]}"', '',
+                    f'facing = "{n["facing"]}"']
+            for k, v in n.get("meta", {}).items():
+                out.append(f'metadata/{k} = {v}')
+            out += ['',
                     f'[node name="Shape" type="CollisionShape2D" parent="Actors/{node}"]',
                     'position = Vector2(0, -16)',
                     f'shape = SubResource("{shape(TILE, TILE)}")', '']
@@ -722,14 +729,6 @@ def mirror():
     return m
 
 
-# Which Silico street door leads where: map name -> (door tile x, y of the trigger).
-# Top-row buildings open onto the north sidewalk; the park and the south road are below.
-HUB_DOORS = {
-    "Apartment": (7, 8), "Home": (20, 8), "WarRoom": (34, 8), "Hospital": (49, 8), "LynxApartment": (59, 8),
-    "Park": (9, 17), "Southtown": (56, 22),
-}
-
-
 def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
     """A building face spanning x0..x1 with the bottom wall row at y_top+height, a door at `door`."""
     top, bot = f"brick_{style}_top", f"brick_{style}_bot"
@@ -742,7 +741,6 @@ def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
         for wy in range(y_top + 1, yb - 1, 2):
             if wy + 1 <= yb - 1:
                 m.walls[wy][wx] = "window_dark_top"; m.walls[wy + 1][wx] = "window_dark_bot"
-    # ground-floor windows beside the door
     m.walls[yb - 1][door - 2] = "window_lit_top"; m.walls[yb][door - 2] = "window_lit_bot"
     m.walls[yb - 1][door + 2] = "window_lit_top"; m.walls[yb][door + 2] = "window_lit_bot"
     m.walls[yb - 2][door] = "frame_c_top"; m.walls[yb - 1][door] = "frame_l_top"; m.walls[yb][door] = "frame_l_bot"
@@ -752,72 +750,178 @@ def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
         m.decal(sign, door - 1, yb - 2)
 
 
-def silico():
-    m = Map("Silico", "SilicoScene.gd", 64, 24, ["asphalt"], seed=31)
-    # sidewalks and the street
-    m.fill(0, 8, 63, 9, CEMENT); m.fill(0, 15, 63, 16, CEMENT)
-    m.fill(0, 7, 63, 7, CEMENT); m.fill(0, 17, 63, 17, CEMENT)
-    m.scatter(["cement_crack", "cement_crack2"], [(5, 9), (18, 8), (31, 16), (44, 15), (57, 9), (12, 16)])
-    # north row: Lamplight (Dufredy), Carl's building, Psyonic tower, SalTech, Lynx's block
-    m.wall(0, 0, 63, 6, "brick_dark_mid"); m.wall(0, 0, 63, 0, "brick_dark_top"); m.wall(0, 6, 63, 6, "brick_dark_bot")
-    storefront(m, 1, 12, 7, "grey", windows=(3, 10), sign="poster")
-    storefront(m, 15, 25, 20, "red", windows=(16, 24), sign="poster2")
-    storefront(m, 28, 41, 34, "dark", windows=(29, 31, 37, 39), sign="poster3")
-    storefront(m, 44, 54, 49, "grey", windows=(45, 53), sign="poster_blank")
+def street_base(name, script, w, h, seed, top_wall=True):
+    """A boulevard: building fronts along the top (rows 0-6), sidewalks, street, sidewalk, a bottom band."""
+    m = Map(name, script, w, h, ["asphalt"], seed=seed)
+    m.fill(0, 7, w - 1, 9, CEMENT); m.fill(0, 15, w - 1, 17, CEMENT)
+    if top_wall:
+        m.wall(0, 0, w - 1, 6, "brick_dark_mid"); m.wall(0, 0, w - 1, 0, "brick_dark_top"); m.wall(0, 6, w - 1, 6, "brick_dark_bot")
+    m.fill(0, 18, w - 1, h - 1, CEMENT)
+    return m
+
+
+def lamplight():
+    m = street_base("Lamplight", "LamplightScene.gd", 48, 20, 31)
+    storefront(m, 1, 13, 7, "grey", windows=(3, 11), sign="poster")            # the Lamplight, Dufredy's building
+    storefront(m, 16, 30, 23, "red", windows=(17, 20, 26, 29), sign="poster2")  # the neighbour's block
+    storefront(m, 33, 46, 40, "grey", windows=(35, 45), sign="poster_blank")
+    m.decal("graffiti_green", 0, 4); m.decal("glyph", 15, 5); m.decal("graffiti_band", 31, 4)
+    m.prop("mailboxes", 13, 6, solid=0)
+    # bottom band: the backs of the next block, with the canal steps at x 19-21
+    m.wall(0, 18, 18, 19, "brick_dark_mid"); m.wall(22, 18, 47, 19, "brick_dark_mid")
+    m.wall(0, 18, 18, 18, "brick_dark_top"); m.wall(22, 18, 47, 18, "brick_dark_top")
+    m.decal("cement_stairs", 19, 19); m.decal("cement_stairs", 20, 19); m.decal("cement_stairs", 21, 19)
+    m.decal("graffiti_loot", 8, 18); m.decal("poster3", 30, 18)
+    for x in (4, 20, 36):
+        m.prop("lamp_post", x, 9)
+    for x in (12, 28, 44):
+        m.prop("lamp_post_off", x, 16)
+    m.prop("sedan", 34, 12, id="cruiser"); m.prop("car_blue", 10, 13)
+    m.prop("bin", 2, 8); m.prop("bin", 31, 8); m.prop("planter", 15, 8); m.prop("planter_small", 32, 8)
+    m.decal("paper", 23, 9); m.decal("paper3", 40, 16); m.decal("blood", 6, 15); m.decal("paper2", 14, 16)
+    m.scatter(["cement_crack", "cement_crack2"], [(5, 9), (18, 8), (31, 16), (44, 15)])
+    m.npc("officer", 37, 15, "up")
+    m.glyph("ll_front", 2, 6); m.glyph("ll_neighbour", 30, 6, deep=True); m.glyph("ll_back", 40, 18)
+    m.trigger("door:Apartment", 7, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("neighbour", 23, 7, 2)
+    m.trigger("mailboxes", 13, 7)
+    m.trigger("cruiser", 34, 12, 2)
+    m.trigger("stairs_sign", 18, 17)
+    m.exit("exit:east", 47, 7, 1, 11)
+    m.exit("exit:south", 19, 19, 3, 1)
+    m.player = (8, 10)
+    return m
+
+
+def spine():
+    m = street_base("Spine", "SpineScene.gd", 64, 22, 33)
+    storefront(m, 1, 12, 6, "grey", windows=(3, 10), sign="poster")
+    storefront(m, 15, 25, 20, "red", windows=(16, 24), sign="poster2")           # the flyover ramp, for now a door home
+    storefront(m, 28, 41, 34, "dark", windows=(29, 31, 37, 39), sign="poster3")  # Psyonic Integrations
+    storefront(m, 44, 54, 49, "grey", windows=(45, 53), sign="poster_blank")     # SalTech shuttle stop, for now a door
     storefront(m, 56, 62, 59, "red", windows=(57,), sign="paper")
-    # south row: Harmony Green behind an iron fence, a vacant lot, the road south
-    m.fill(0, 18, 63, 23, CEMENT)
-    m.fill(2, 19, 16, 23, GRASS)
-    for x in range(2, 17, 3):
-        if x not in (8,):
-            m.prop("fence_iron", x, 18)
-    m.prop("tree", 3, 22); m.prop("tree2", 12, 22); m.prop("bush", 6, 21); m.prop("bush2", 14, 20)
-    m.prop("lamp_post", 10, 21)
-    m.fill(20, 19, 46, 23, DIRT)
-    m.prop("fence_h", 20, 18); m.prop("fence_h", 24, 18); m.prop("fence_h", 40, 18); m.prop("fence_h", 44, 18)
-    m.prop("crate", 22, 21); m.prop("barrel", 26, 22); m.prop("cart", 41, 21); m.prop("tent", 33, 21); m.prop("fire", 36, 22)
-    m.decal("blanket", 30, 22); m.decal("paper2", 38, 20); m.decal("graffiti_green", 23, 19)
-    m.fill(52, 18, 60, 23, ["asphalt"]); m.fill(51, 18, 51, 23, "cement_edge"); m.fill(61, 18, 61, 23, "cement_edge")
-    m.wall(62, 18, 63, 23, "brick_dark_mid"); m.wall(0, 18, 1, 23, "brick_dark_mid"); m.wall(47, 18, 50, 23, "brick_dark_mid")
-    m.wall(17, 18, 19, 23, "brick_dark_mid")
-    m.decal("graffiti_danger", 48, 21); m.decal("glyph", 47, 19); m.decal("graffiti_band", 62, 20)
-    # street dressing
+    m.decal("graffiti_loot", 26, 4); m.decal("graffiti_band", 55, 4); m.decal("graffiti_green", 0, 4)
+    # bottom band: a vacant lot with the camp, the underpass stairs at x 33-36, walls either side
+    m.fill(0, 18, 63, 21, CEMENT)
+    m.fill(2, 19, 30, 21, DIRT)
+    m.prop("fence_h", 2, 18); m.prop("fence_h", 6, 18); m.prop("fence_h", 22, 18); m.prop("fence_h", 26, 18)
+    m.prop("crate", 5, 21); m.prop("barrel", 9, 21); m.prop("cart", 24, 20); m.prop("tent", 15, 20); m.prop("fire", 18, 21)
+    m.decal("blanket", 12, 21); m.decal("paper2", 21, 19); m.decal("graffiti_green", 3, 19)
+    m.wall(38, 18, 63, 21, "brick_dark_mid"); m.wall(38, 18, 63, 18, "brick_dark_top"); m.wall(0, 18, 1, 21, "brick_dark_mid")
+    m.wall(31, 18, 32, 21, "brick_dark_mid")
+    m.fill(33, 18, 37, 21, ["cement_dark"])
+    m.decal("cement_stairs", 33, 21); m.decal("cement_stairs", 34, 21); m.decal("cement_stairs", 35, 21); m.decal("cement_stairs", 36, 21)
+    m.decal("graffiti_danger", 40, 18); m.decal("glyph", 47, 18); m.decal("graffiti_band", 58, 18)
     for x in (4, 18, 32, 46, 60):
         m.prop("lamp_post", x, 9)
     for x in (11, 25, 39, 53):
         m.prop("lamp_post_off", x, 16)
     m.prop("sedan", 13, 13, id="my_car"); m.prop("car_blue", 36, 11); m.prop("sedan", 51, 13)
     m.prop("bin", 2, 8); m.prop("bin", 26, 8); m.prop("bin", 55, 8); m.prop("bin", 20, 15); m.prop("bin", 47, 15)
-    m.prop("vending", 41, 8, solid=1); m.prop("mailboxes", 13, 6, solid=0); m.prop("planter", 27, 8); m.prop("planter", 44, 8)
-    m.prop("planter_small", 15, 8); m.prop("planter_small", 55, 8)
+    m.prop("vending", 41, 8, solid=1); m.prop("planter", 27, 8); m.prop("planter", 44, 8); m.prop("planter_small", 15, 8); m.prop("planter_small", 55, 8)
     m.decal("paper", 23, 9); m.decal("paper3", 40, 16); m.decal("blood", 9, 15)
-    m.decal("graffiti_loot", 26, 4); m.decal("graffiti_band", 55, 4); m.decal("graffiti_green", 0, 4)
-    # people on the street
     m.npc("preacher", 30, 15, "down", sprite="eyeless")
-    m.npc("officer", 6, 16, "down")
-    # hidden glyphs
-    m.glyph("silico_lamplight", 2, 6); m.glyph("silico_tower", 40, 6, deep=True); m.glyph("silico_fence", 23, 18, lift=6)
-    m.glyph("silico_road", 61, 20, deep=True); m.glyph("silico_vacant", 45, 23)
-    # doors
-    for name, (dx, dy) in HUB_DOORS.items():
-        if dy == 8:
-            m.trigger("door:" + name, dx, dy, 2, 1, on_enter=True, once=False)
-        elif name == "Park":
-            m.trigger("door:" + name, 8, 18, 3, 1, on_enter=True, once=False)
-        else:
-            m.trigger("door:" + name, 52, 23, 9, 1, on_enter=True, once=False)
+    m.glyph("sp_tower", 40, 6, deep=True); m.glyph("sp_west", 14, 6); m.glyph("sp_lot", 45, 18)
+    for name, dx in (("Home", 20), ("WarRoom", 34), ("Hospital", 49)):
+        m.trigger("door:" + name, dx, 8, 2, 1, on_enter=True, once=False)
     m.trigger("my_car", 13, 13, 2)
     m.trigger("vending", 41, 8, 2)
-    m.trigger("mailboxes", 13, 6, 2)
     m.trigger("tower_sign", 32, 6, 5)
-    m.trigger("park_fence", 2, 18, 6)
-    m.trigger("camp", 30, 20, 8, 3)
-    m.trigger("south_glyph", 47, 19)
-    m.player = (7, 9)
+    m.trigger("camp", 12, 20, 10, 2)
+    m.trigger("south_glyph", 47, 18)
+    m.exit("exit:west", 0, 7, 1, 11)
+    m.exit("exit:east", 63, 7, 1, 11)
+    m.exit("exit:south", 33, 21, 4, 1)
+    m.player = (34, 10)
     return m
 
 
-MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror, silico]
+def zetapark():
+    m = street_base("ZetaPark", "ZetaParkScene.gd", 48, 20, 35)
+    storefront(m, 3, 17, 10, "red", windows=(4, 7, 13, 16), sign="paper")        # Lynx's building
+    storefront(m, 20, 34, 27, "grey", windows=(21, 24, 30, 33), sign="poster3")  # the glass block
+    storefront(m, 37, 46, 42, "dark", windows=(38, 45), sign="poster_blank")
+    m.decal("glyph_red", 18, 5); m.decal("graffiti_band", 0, 4); m.decal("graffiti_danger", 35, 4)
+    # bottom band: Park Avenue crossing, a wall with the one working camera on it
+    m.wall(0, 18, 47, 19, "brick_dark_mid"); m.wall(0, 18, 47, 18, "brick_dark_top")
+    m.decal("poster", 5, 18); m.decal("graffiti_loot", 30, 18); m.decal("poster2", 40, 18)
+    m.fill(20, 15, 23, 19, CEMENT)  # the crossing
+    m.fill(20, 10, 23, 14, ["cement_dark"])
+    for x in (2, 16, 30, 44):
+        m.prop("lamp_post", x, 9)
+    for x in (9, 36):
+        m.prop("lamp_post_off", x, 16)
+    m.prop("lamp_post", 25, 16, id="camera_post")
+    m.prop("car_blue", 6, 12); m.prop("sedan", 38, 13)
+    m.prop("bin", 1, 8); m.prop("bin", 19, 8); m.prop("bin", 35, 8); m.prop("planter", 18, 8); m.prop("planter_small", 47, 8)
+    m.decal("paper", 12, 9); m.decal("paper3", 28, 16); m.decal("blood", 21, 16); m.decal("paper2", 42, 15)
+    m.npc("masked", 22, 17, "up", meta={"min_connection": 50})
+    m.glyph("zp_lynx", 2, 6); m.glyph("zp_glass", 33, 6, deep=True); m.glyph("zp_corner", 26, 18)
+    m.trigger("door:LynxApartment", 10, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("camera", 25, 16)
+    m.trigger("corner", 20, 15, 4, 2)
+    m.trigger("glass_lobby", 27, 7, 2)
+    m.exit("exit:west", 0, 7, 1, 11)
+    m.player = (11, 10)
+    return m
+
+
+def canalwalk():
+    m = Map("CanalWalk", "CanalWalkScene.gd", 40, 16, CEMENT, seed=37)
+    # the dry canal runs north-south down the middle; ramps at rows 6-7
+    m.fill(14, 0, 25, 15, ["cement_dark"]); m.scatter(SAND, [(14 + (i * 7) % 12, (i * 5) % 16) for i in range(30)])
+    for y in range(16):
+        if y not in (6, 7):
+            m.ground[y][13] = "cement_edge"; m.ground[y][26] = "cement_edge"
+    m.fill(27, 0, 39, 15, DIRT); m.scatter(GRASS, [(28 + (i * 3) % 12, (i * 7) % 16) for i in range(24)])
+    m.decal("stick_circle", 17, 3); m.decal("stick_circle", 21, 10); m.decal("stick_circle", 15, 13)
+    m.decal("stick", 19, 8); m.decal("stick", 23, 5); m.decal("rock_tiny", 16, 11); m.decal("reeds", 24, 14); m.decal("reeds", 14, 1)
+    m.prop("sedan", 3, 4, id="radio_car"); m.prop("lamp_post_off", 9, 2); m.prop("lamp_post", 9, 12); m.prop("bin", 1, 9)
+    m.prop("tree_dead", 31, 3); m.prop("tree_small", 36, 10); m.prop("bush_dark", 29, 13); m.prop("rock_med", 34, 6)
+    m.decal("paper", 5, 8); m.decal("blood", 20, 12)
+    m.npc("kid1", 6, 10, "right", sprite="ezra"); m.npc("kid2", 8, 10, "left", sprite="mira")
+    m.npc("bank_figure", 33, 8, "left", sprite="eyeless", meta={"min_connection": 25})
+    m.glyph("cw_wall", 13, 3); m.glyph("cw_far", 26, 12, deep=True)
+    m.trigger("radio", 3, 4, 2)
+    m.trigger("chalk", 6, 11, 3)
+    m.trigger("circles", 17, 3)
+    m.trigger("circles", 21, 10)
+    m.trigger("silt", 15, 6, 10, 2, on_enter=True)
+    m.exit("exit:north", 18, 0, 4, 1)
+    m.exit("exit:south", 18, 15, 4, 1)
+    m.player = (20, 2)
+    return m
+
+
+def underpass():
+    m = Map("Underpass", "UnderpassScene.gd", 40, 16, ["cement_dark"], seed=41)
+    m.wall(0, 0, 39, 1, "brick_dark_mid"); m.wall(0, 0, 39, 0, "brick_dark_top"); m.wall(0, 1, 39, 1, "brick_dark_bot")
+    m.wall(0, 14, 39, 15, "brick_dark_mid"); m.wall(0, 14, 39, 14, "brick_dark_top")
+    for x in (18, 19, 20, 21):
+        m.clear_wall(x, 0); m.clear_wall(x, 1); m.clear_wall(x, 14); m.clear_wall(x, 15)
+    m.fill(18, 0, 21, 1, ["cement_dark"]); m.fill(18, 14, 21, 15, ["cement_dark"])
+    for x in (6, 14, 25, 33):
+        m.prop("pillar", x, 6); m.prop("pillar", x, 11)
+    m.decal("graffiti_band", 2, 1); m.decal("graffiti_green", 5, 1); m.decal("glyph", 9, 1); m.decal("graffiti_danger", 12, 1)
+    m.decal("graffiti_loot", 27, 1); m.decal("glyph_red", 30, 1); m.decal("graffiti_band", 34, 1); m.decal("poster_blank", 37, 1)
+    m.decal("graffiti_green", 3, 14); m.decal("glyph", 23, 14); m.decal("graffiti_danger", 31, 14)
+    m.decal("blanket", 9, 4); m.decal("blanket", 12, 4); m.decal("blanket", 15, 4); m.decal("fire_out", 11, 6)
+    m.prop("barrel", 2, 5); m.prop("crate", 36, 4); m.prop("crate_small", 37, 12); m.prop("cart", 3, 11); m.prop("lamp_post_off", 22, 8)
+    m.decal("paper", 17, 9); m.decal("paper2", 29, 12); m.decal("blood", 31, 8); m.decal("drain", 20, 7)
+    m.npc("sleeper1", 10, 4, "left", sprite="eyeless"); m.npc("sleeper2", 13, 4, "left", sprite="eyeless"); m.npc("sleeper3", 16, 4, "left", sprite="eyeless")
+    m.glyph("up_east", 24, 1); m.glyph("up_deep", 36, 14, deep=True)
+    m.trigger("chant_wall", 2, 1, 12)
+    m.trigger("sleepers", 9, 4, 8, 1)
+    m.trigger("drain", 20, 7)
+    m.trigger("old_layers", 27, 1, 8)
+    m.exit("exit:north", 18, 0, 4, 1)
+    m.exit("exit:south", 18, 15, 4, 1)
+    m.player = (20, 2)
+    return m
+
+
+MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
+        lamplight, spine, zetapark, canalwalk, underpass]
 
 
 def main():
