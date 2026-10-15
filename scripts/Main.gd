@@ -25,6 +25,10 @@ var _feed_timer := 0.0
 var _scan_panel: PanelContainer
 var _scan_text: RichTextLabel
 var _scan_timer := 0.0
+var _menu: SceneMenu
+var _menu_jump := ""
+var _menu_closeup := false
+var _on_title := false
 
 
 func _ready() -> void:
@@ -70,6 +74,9 @@ func _ready() -> void:
 	_feed.modulate.a = 0.0
 	_ui.add_child(_feed)
 	_build_scan_panel()
+	_menu = SceneMenu.new()
+	_menu.jump.connect(_on_menu_jump)
+	add_child(_menu)
 
 	_build_log_panel()
 	_build_title()
@@ -117,6 +124,8 @@ func _ready() -> void:
 			_shot_path = arg.trim_prefix("--shot=")
 	if not skip_title:
 		await _title_screen()
+		if not _menu_jump.is_empty():
+			first = _menu_jump
 	await load_map(first)
 	if "--autoplay" in OS.get_cmdline_user_args():
 		var auto: Node = load("res://tools/autoplay.gd").new()
@@ -212,10 +221,19 @@ func _title_screen() -> void:
 	blink.tween_property(prompt, "modulate:a", 0.15, 0.7)
 	blink.tween_property(prompt, "modulate:a", 1.0, 0.7)
 	_fade.modulate.a = 0.0
+	_menu_jump = ""
+	_on_title = true
 	while true:
 		await get_tree().process_frame
+		if _menu.visible:
+			continue
+		if not _menu_jump.is_empty():
+			break
 		if Input.is_action_just_pressed("interact"):
 			break
+		if Input.is_action_just_pressed("scene_menu"):
+			_menu.open()
+	_on_title = false
 	blink.kill()
 	await fade_out(0.8)
 	layer.queue_free()
@@ -457,8 +475,39 @@ func show_title(text: String, sub := "", hold := 2.0) -> void:
 	Game.input_locked = false
 
 
+## A pick on the scene menu. Maps load with their door open and every incident
+## live; close-ups just show the painting until Esc.
+func _on_menu_jump(kind: String, target: String) -> void:
+	if kind == "closeup":
+		_menu_closeup = true
+		Game.input_locked = true
+		closeup.show_view(target.replace("_", " "), "res://assets/closeups/" + target + ".png")
+		return
+	Game.set_glasses(true)
+	if target in World.EXITS and not target in World.STREETS:
+		Game.next_beat = target
+	for id in Game.INCIDENTS:
+		if not id in Game.incidents:
+			Game.incidents[id] = "open"
+	_start_tile = Vector2i(-1, -1)
+	var path := "res://scenes/maps/" + target + ".tscn"
+	if map == null or _on_title:
+		_menu_jump = path
+		return
+	await change_map(path)
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible:
+	if _menu_closeup and (event.is_action_pressed("cancel") or event.is_action_pressed("interact")):
+		_menu_closeup = false
+		closeup.hide_view()
+		Game.input_locked = false
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("scene_menu") and not _menu.visible and not dialogue.visible and not psyon.visible and not closeup.visible:
+		if _log_panel.visible:
+			_log_panel.hide()
+		_menu.open()
+	elif event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible:
 		_log_panel.visible = not _log_panel.visible
 		Game.input_locked = _log_panel.visible
 		if _log_panel.visible:
