@@ -11,6 +11,9 @@ var subtitle := ""
 var ambient_tint := Color(0.88, 0.84, 0.92)
 ## Streets that are always night (Fargona) keep their own ambient.
 var night_only := false
+## The story flag this street's intro assumes. Before it, intro_early() runs
+## instead and the real intro waits for the first visit after the flag.
+var intro_flag := ""
 
 
 func _init() -> void:
@@ -42,17 +45,23 @@ var _ambient_base: Color
 func start() -> void:
 	_ambient_base = ambient
 	if Game.is_night() and not night_only:
-		_ambient_base = ambient * Color(0.42, 0.46, 0.72)
+		_ambient_base = ambient * Color(0.5, 0.54, 0.8)
 		main.set_ambient(_ambient_base)
 	var first := not Game.has_flag("visited_" + String(name))
 	if not title.is_empty() and first:
 		Game.set_flag("visited_" + String(name))
 		await main.show_title(title, subtitle)
-		await intro()
+	if not title.is_empty() and not Game.has_flag("intro_" + String(name)):
+		if intro_flag.is_empty() or Game.has_flag(intro_flag):
+			Game.set_flag("intro_" + String(name))
+			await intro()
+		elif first:
+			await intro_early()
 	Game.input_locked = false
 	main.filter.set_hud_text("ORA  ·  " + World.place(String(name)).get_slice(",", 0))
 	_start_drones()
-	if not first and Game.has_flag("warroom1_done") and randf() < 0.22 + Game.connection / 250.0 + (0.2 if Game.is_night() else 0.0):
+	var force_outage := Game.has_flag("dev_outage") and not Game.has_flag("outage_seen")
+	if (not first and Game.has_flag("warroom1_done") and randf() < 0.22 + Game.connection / 250.0 + (0.2 if Game.is_night() else 0.0)) or force_outage:
 		_begin_outage()
 
 
@@ -122,6 +131,11 @@ func intro() -> void:
 	pass
 
 
+## What the street says before the plot has given Carl a reason to read it.
+func intro_early() -> void:
+	pass
+
+
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	_update_gated_npcs()
@@ -152,6 +166,12 @@ func _update_gated_npcs() -> void:
 
 func _route_interact(id: String) -> void:
 	if id.begins_with("exit:"):
+		var gates: Dictionary = World.EXIT_GATES.get(String(name), {})
+		if gates.has(id) and not Game.has_flag(gates[id][0]):
+			await ui.think(gates[id][1])
+			ui.close()
+			player.position += Vector2(-12, 0) if id == "exit:east" else (Vector2(12, 0) if id == "exit:west" else (Vector2(0, -12) if id == "exit:south" else Vector2(0, 12)))
+			return
 		await travel(id)
 	elif id.begins_with("door:"):
 		await _door(id)
@@ -265,7 +285,7 @@ func fast_travel() -> void:
 		ui.close()
 		await main.dream()
 		if is_inside_tree():
-			main.set_ambient(ambient if not Game.is_night() else ambient * Color(0.42, 0.46, 0.72))
+			main.set_ambient(ambient if not Game.is_night() else ambient * Color(0.5, 0.54, 0.8))
 			_ambient_base = main._modulate.color
 		return
 	if pick >= targets.size():

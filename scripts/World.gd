@@ -42,6 +42,11 @@ const EXITS := {
 const CAR_SPOTS := {"Spine": Vector2i(15, 15), "Heights": Vector2i(16, 14), "Lamplight": Vector2i(8, 10), "ZetaPark": Vector2i(11, 10), "Cognizo": Vector2i(10, 15)}
 
 ## Interiors that are not plot beats: their doors are always open.
+## Street exits that only open once the plot has reached them: map -> exit id -> [flag, line].
+const EXIT_GATES := {
+	"RestrictedRoad": {"exit:east": ["lynx_apartment_done", "The flats. Sand to the horizon, the checkpoint logging every step, and nothing out there I had a reason for. Not yet."]},
+}
+
 const SIDE_INTERIORS := ["CognizoStation", "Factory", "DornerFlat"]
 
 ## Places that open only once a flag is set: target -> [flag, what Carl thinks at the door].

@@ -3,12 +3,18 @@ extends StreetScene
 
 func _init() -> void:
 	title = "Zeta & Park"
-	subtitle = "Where the footage was shot"
+	subtitle = "Lynx's block"
+	intro_flag = "warroom1_done"
 	ambient = Color(0.84, 0.86, 0.96)
 
 
 func intro() -> void:
 	await ui.think("Zeta and Park. Forner's three seconds of footage had been shot from this corner. Dufredy and the masked figure, walking, and then the stare into the lens with nothing behind it.")
+	ui.close()
+
+
+func intro_early() -> void:
+	await ui.think("Zeta and Park. A corner like a hundred others: a camera on a pole, a red building, and a red eye sprayed on the wall beside its door, fresh enough to smell.")
 	ui.close()
 
 

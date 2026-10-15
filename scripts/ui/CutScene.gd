@@ -76,7 +76,7 @@ func _ready() -> void:
 	_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_band)
 	_caption = Label.new()
-	_caption.add_theme_font_size_override("font_size", 11)
+	_caption.add_theme_font_size_override("font_size", 10)
 	_caption.add_theme_color_override("font_color", Color("e8ecef"))
 	_caption.add_theme_color_override("font_shadow_color", Color("050608"))
 	_caption.add_theme_constant_override("shadow_offset_x", 1)
@@ -111,10 +111,10 @@ func _fit() -> void:
 	_bars[0].size = Vector2(s.x, bar_h)
 	_bars[1].position = Vector2(0, s.y - bar_h)
 	_bars[1].size = Vector2(s.x, bar_h)
-	_band.position = Vector2(0, s.y - bar_h - 46)
-	_band.size = Vector2(s.x, 46)
-	_caption.position = Vector2(s.x * 0.06, s.y - bar_h - 46)
-	_caption.size = Vector2(s.x * 0.88, 46)
+	_band.position = Vector2(0, s.y - bar_h - 56)
+	_band.size = Vector2(s.x, 56)
+	_caption.position = Vector2(s.x * 0.06, s.y - bar_h - 56)
+	_caption.size = Vector2(s.x * 0.88, 56)
 	_hint.position = Vector2(s.x - 200, s.y - bar_h + 4)
 	_hint.size = Vector2(190, 12)
 

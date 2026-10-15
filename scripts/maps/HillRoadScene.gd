@@ -21,7 +21,10 @@ func on_interact(id: String) -> void:
 		"nurse":
 			var n := npc("nurse")
 			n.face_toward(player.global_position)
-			await ui.say("Nurse", "You're the Psyonic one. Going in to see him?", "nurse")
+			if Game.has_flag("warroom1_done"):
+				await ui.say("Nurse", "You're the Psyonic one. Going in to see him?", "nurse")
+			else:
+				await ui.say("Nurse", "You're Psyonic. I can tell by the frames; the company ones hum. Here for a patient, or for the ward?", "nurse")
 			await ui.say("Nurse", "Five patients on the ward hum the same tune at night. Same four notes. None of them have met. I asked. I stopped asking.", "nurse")
 			await ui.think("She put the cigarette out on the wall and went back in without looking at me.")
 			ui.close()

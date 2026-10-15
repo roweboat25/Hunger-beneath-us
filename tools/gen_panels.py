@@ -159,7 +159,7 @@ def opening_car():
     for _ in range(150):
         x, y = r.randint(28, W - 28), r.randint(12, 110)
         im.putpixel((x, y), lerp(im.getpixel((x, y)), (110, 100, 80), 0.35))
-    vignette(im, 0.5)
+    vignette(im, 0.35)
     noise(im, 4, 2)
     finish(im, "cs_opening_2")
 
@@ -204,7 +204,7 @@ def opening_tower():
     d.rectangle([236, 60, 240, 152], fill=(40, 42, 50))
     d.rectangle([228, 56, 248, 62], fill=(60, 62, 70))
     im = glow(im, [(238, 64, 16)], lerp(AMBER, (255, 255, 255), 0.2), radius=10, alpha=0.5)
-    vignette(im, 0.5)
+    vignette(im, 0.35)
     noise(im, 5, 3)
     finish(im, "cs_opening_3")
 
@@ -256,7 +256,7 @@ def outage_boulevard():
     d.polygon([(16, 150), (60, 150), (54, 140), (24, 140)], fill=(22, 22, 30))
     d.rectangle([250, 150, 314, 178], fill=(16, 16, 22))
     d.polygon([(260, 150), (304, 150), (298, 140), (268, 140)], fill=(22, 22, 30))
-    vignette(im, 0.45)
+    vignette(im, 0.35)
     noise(im, 5, 4)
     finish(im, "cs_outage_1", 20)
 
@@ -297,7 +297,7 @@ def outage_crowd():
             d.ellipse([hx - headr + 1, hy - headr + 1, hx + headr - 1, hy + 1], outline=lerp(TEAL, body, 0.7))
             glows.append((hx, hy, int(5 * scale)))
     im = glow(im, glows, TEAL, radius=6, alpha=0.3)
-    vignette(im, 0.6)
+    vignette(im, 0.35)
     noise(im, 4, 5)
     finish(im, "cs_outage_2", 36)
 
@@ -337,7 +337,7 @@ def dream_desk():
     d.ellipse([157, 110, 167, 118], outline=RED, width=1)
     d.ellipse([160, 112, 164, 116], fill=RED)
     im = glow(im, [(162, 114, 12)], RED, radius=8, alpha=0.5)
-    vignette(im, 0.6)
+    vignette(im, 0.35)
     noise(im, 5, 6)
     finish(im, "dream_desk")
 
@@ -373,7 +373,7 @@ def dream_chamber():
     d.ellipse([150, 156, 170, 166], outline=AMBER)
     d.ellipse([157, 159, 163, 163], fill=AMBER)
     im = glow(im, [(160, 161, 12)], AMBER, radius=8, alpha=0.4)
-    vignette(im, 0.45)
+    vignette(im, 0.35)
     noise(im, 4, 7)
     finish(im, "dream_chamber", 24)
 
@@ -409,7 +409,7 @@ def dream_door():
     d.rectangle([154, 118, 166, 150], fill=(220, 200, 120))
     d.ellipse([152, 104, 168, 120], fill=(30, 22, 20))
     d.rectangle([156, 134, 164, 150], fill=(200, 170, 140))
-    vignette(im, 0.5)
+    vignette(im, 0.35)
     noise(im, 5, 8)
     finish(im, "dream_door")
 

@@ -9,7 +9,10 @@ func _init() -> void:
 
 
 func intro() -> void:
-	await ui.think("The road out of Southtown ran dead straight into the flats. Psyonic had marked it restricted years ago. Once, that felt like bureaucracy. Now it felt like containment.")
+	if Game.has_flag("lynx_apartment_done"):
+		await ui.think("The road out of Southtown ran dead straight into the flats. Psyonic had marked it restricted years ago. Once, that felt like bureaucracy. Now it felt like containment.")
+	else:
+		await ui.think("The road out of Southtown ran dead straight into the flats, and stopped being a road for anyone without company plates at the checkpoint. Psyonic had marked it restricted years ago. I had never asked why.")
 	ui.close()
 
 
