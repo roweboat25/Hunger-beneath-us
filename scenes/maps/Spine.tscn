@@ -682,16 +682,6 @@ id = "glyph:sp_lot"
 [node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphSpLot"]
 shape = SubResource("Rect_32x32")
 
-[node name="DoorHome" type="Area2D" parent="Interactables"]
-position = Vector2(672, 272)
-script = ExtResource("4_interact")
-id = "door:Home"
-on_enter = true
-once = false
-
-[node name="Shape" type="CollisionShape2D" parent="Interactables/DoorHome"]
-shape = SubResource("Rect_64x32")
-
 [node name="DoorWarroom" type="Area2D" parent="Interactables"]
 position = Vector2(1120, 272)
 script = ExtResource("4_interact")
@@ -702,14 +692,22 @@ once = false
 [node name="Shape" type="CollisionShape2D" parent="Interactables/DoorWarroom"]
 shape = SubResource("Rect_64x32")
 
-[node name="DoorHospital" type="Area2D" parent="Interactables"]
-position = Vector2(1600, 272)
+[node name="ExitNorth" type="Area2D" parent="Interactables"]
+position = Vector2(672, 272)
 script = ExtResource("4_interact")
-id = "door:Hospital"
+id = "exit:north"
 on_enter = true
 once = false
 
-[node name="Shape" type="CollisionShape2D" parent="Interactables/DoorHospital"]
+[node name="Shape" type="CollisionShape2D" parent="Interactables/ExitNorth"]
+shape = SubResource("Rect_64x32")
+
+[node name="ShuttleStop" type="Area2D" parent="Interactables"]
+position = Vector2(1600, 272)
+script = ExtResource("4_interact")
+id = "shuttle_stop"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/ShuttleStop"]
 shape = SubResource("Rect_64x32")
 
 [node name="MyCar" type="Area2D" parent="Interactables"]

@@ -796,9 +796,9 @@ def lamplight():
 def spine():
     m = street_base("Spine", "SpineScene.gd", 64, 22, 33)
     storefront(m, 1, 12, 6, "grey", windows=(3, 10), sign="poster")
-    storefront(m, 15, 25, 20, "red", windows=(16, 24), sign="poster2")           # the flyover ramp, for now a door home
+    storefront(m, 15, 25, 20, "red", windows=(16, 24), sign="poster2")           # the flyover ramp
     storefront(m, 28, 41, 34, "dark", windows=(29, 31, 37, 39), sign="poster3")  # Psyonic Integrations
-    storefront(m, 44, 54, 49, "grey", windows=(45, 53), sign="poster_blank")     # SalTech shuttle stop, for now a door
+    storefront(m, 44, 54, 49, "grey", windows=(45, 53), sign="poster_blank")     # SalTech shuttle stop
     storefront(m, 56, 62, 59, "red", windows=(57,), sign="paper")
     m.decal("graffiti_loot", 26, 4); m.decal("graffiti_band", 55, 4); m.decal("graffiti_green", 0, 4)
     # bottom band: a vacant lot with the camp, the underpass stairs at x 33-36, walls either side
@@ -822,8 +822,9 @@ def spine():
     m.decal("paper", 23, 9); m.decal("paper3", 40, 16); m.decal("blood", 9, 15)
     m.npc("preacher", 30, 15, "down", sprite="eyeless")
     m.glyph("sp_tower", 40, 6, deep=True); m.glyph("sp_west", 14, 6); m.glyph("sp_lot", 45, 18)
-    for name, dx in (("Home", 20), ("WarRoom", 34), ("Hospital", 49)):
-        m.trigger("door:" + name, dx, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("door:WarRoom", 34, 8, 2, 1, on_enter=True, once=False)
+    m.exit("exit:north", 20, 8, 2, 1)          # the flyover ramp, up to the Heights
+    m.trigger("shuttle_stop", 49, 8, 2, 1)
     m.trigger("my_car", 13, 13, 2)
     m.trigger("vending", 41, 8, 2)
     m.trigger("tower_sign", 32, 6, 5)
@@ -920,8 +921,107 @@ def underpass():
     return m
 
 
+def heights():
+    m = street_base("Heights", "HeightsScene.gd", 48, 20, 43)
+    # houses: low fronts with lit windows and a nightlight in each
+    storefront(m, 1, 9, 5, "grey", windows=(), sign=None)
+    storefront(m, 12, 20, 16, "red", windows=(), sign=None)            # Carl's house: door at 16
+    storefront(m, 23, 31, 27, "grey", windows=(), sign=None)
+    storefront(m, 34, 46, 40, "dark", windows=(36, 44), sign="poster_blank")  # the school
+    for x in (3, 14, 25):
+        m.prop("nightlight", x, 4, lift=10, solid=0)
+    m.decal("glyph", 32, 5)
+    for x in (10, 21, 32):
+        m.prop("tree_small", x, 8)
+    m.prop("planter", 11, 8); m.prop("planter", 22, 8); m.prop("planter_small", 33, 8)
+    # bottom band: garden walls, the ramp down at x 22-25, Carl's car in the drive
+    m.wall(0, 18, 21, 19, "brick_dark_mid"); m.wall(26, 18, 47, 19, "brick_dark_mid")
+    m.wall(0, 18, 21, 18, "brick_dark_top"); m.wall(26, 18, 47, 18, "brick_dark_top")
+    m.fill(22, 18, 25, 19, ["cement_dark"]); m.decal("cement_stairs", 22, 19); m.decal("cement_stairs", 24, 19)
+    for x in (2, 5, 8, 36, 39, 42):
+        m.prop("fence_iron", x, 17)
+    m.fill(2, 15, 10, 16, GRASS); m.fill(36, 15, 46, 16, GRASS)
+    m.prop("tree", 4, 17); m.prop("bush", 40, 16); m.prop("bush2", 44, 15)
+    for x in (6, 30):
+        m.prop("lamp_post", x, 9)
+    for x in (18, 42):
+        m.prop("lamp_post_off", x, 16)
+    m.prop("sedan", 14, 12, id="my_car"); m.prop("car_blue", 28, 13)
+    m.decal("paper", 20, 9); m.decal("paper3", 12, 16)
+    m.decal("rug_blue", 36, 9)  # chalk on the pavement, blue
+    m.npc("jogger", 44, 10, "left", sprite="seth")
+    m.glyph("ht_school", 46, 6); m.glyph("ht_wall", 12, 18, deep=True); m.glyph("ht_garden", 46, 18)
+    m.trigger("door:Home", 16, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("school", 40, 8, 2)
+    m.trigger("nightlight", 3, 6); m.trigger("nightlight", 14, 6); m.trigger("nightlight", 25, 6)
+    m.trigger("chalk", 36, 9)
+    m.trigger("my_car", 14, 12, 2)
+    m.exit("exit:south", 22, 19, 4, 1)
+    m.exit("exit:west", 0, 7, 1, 11)
+    m.player = (17, 10)
+    return m
+
+
+def flyover():
+    m = Map("Flyover", "FlyoverScene.gd", 24, 28, ["asphalt"], seed=47)
+    m.fill(0, 0, 4, 27, CEMENT); m.fill(19, 0, 23, 27, CEMENT)
+    m.fill(5, 0, 5, 27, "cement_edge"); m.fill(18, 0, 18, 27, "cement_edge")
+    for y in (6, 7, 14, 15, 22, 23):
+        m.ground[y][5] = m._pick(CEMENT); m.ground[y][18] = m._pick(CEMENT)
+    # the billboard wall on the east walkway: twenty years of ads, oldest at the top
+    m.wall(21, 0, 23, 27, "brick_dark_mid")
+    for i, y in enumerate((2, 6, 10, 14, 18, 22)):
+        m.decal(["poster_blank", "poster3", "poster2", "poster", "graffiti_band", "graffiti_loot"][i], 21, y)
+        m.trigger("billboard", 21, y, 1, 2)
+    m.decal("glyph", 22, 25)
+    for y in (3, 11, 19, 26):
+        m.prop("lamp_post", 2, y)
+    m.prop("sedan", 10, 12, id="stalled"); m.decal("stick", 9, 15); m.decal("stick", 13, 14)
+    m.decal("blood", 8, 20); m.decal("paper", 15, 5); m.decal("paper2", 11, 24)
+    m.scatter(["cement_crack", "cement_crack2"], [(1, 9), (3, 17), (20, 4), (19, 21)])
+    m.npc("jogger", 2, 22, "up", sprite="tyson")
+    m.glyph("fo_top", 21, 26, deep=True); m.glyph("fo_edge", 5, 10)
+    m.trigger("stalled", 10, 12, 2)
+    m.trigger("ramp_top", 6, 2, 12, 1, on_enter=True)
+    m.exit("exit:north", 10, 0, 4, 1)
+    m.exit("exit:south", 10, 27, 4, 1)
+    m.player = (12, 25)
+    return m
+
+
+def hillroad():
+    m = Map("HillRoad", "HillRoadScene.gd", 40, 16, ["asphalt"], seed=53)
+    m.fill(0, 0, 39, 4, DIRT); m.fill(0, 11, 39, 15, DIRT)
+    m.fill(0, 5, 39, 5, CEMENT); m.fill(0, 10, 39, 10, CEMENT)
+    m.scatter(GRASS, [((i * 7) % 40, (i * 3) % 4) for i in range(30)] + [((i * 11) % 40, 11 + (i * 3) % 5) for i in range(30)])
+    # SalTech gate at the west end
+    m.wall(0, 0, 7, 4, "brick_grey_mid"); m.wall(0, 0, 7, 0, "brick_grey_top"); m.wall(0, 4, 7, 4, "brick_grey_bot")
+    m.walls[3][3] = "frame_l_top"; m.walls[4][3] = "frame_l_bot"; m.walls[3][4] = "frame_r_top"; m.walls[4][4] = "frame_r_bot"
+    m.walls[2][3] = "frame_c_top"; m.walls[2][4] = "frame_c_top"
+    m.decal("poster_blank", 1, 2); m.decal("poster3", 6, 2)
+    m.prop("car_blue", 9, 2, id="ambulance")
+    for x in (12, 20, 28, 36):
+        m.prop("lamp_post", x, 4, id="lamp_on_%d" % x)
+        m.prop("lamp_post_off", x, 4, id="lamp_off_%d" % x, visible=False)
+    for x, y in ((14, 1), (24, 0), (33, 1), (5, 13), (17, 12), (30, 13)):
+        m.prop("tree", x, y + 3) if y < 3 else m.prop("tree2", x, y + 2)
+    m.prop("bush", 10, 14); m.prop("bush_dark", 38, 12); m.prop("rock_med", 22, 14); m.prop("bench", 26, 11)
+    m.decal("grass_tuft", 8, 12); m.decal("grass_tuft", 35, 2); m.decal("paper", 18, 10)
+    m.npc("nurse", 11, 5, "down")
+    m.npc("follower", 30, 10, "left", sprite="eyeless", meta={"min_connection": 0})
+    m.glyph("hr_gate", 7, 4); m.glyph("hr_bench", 26, 15, deep=True)
+    m.trigger("door:Hospital", 3, 5, 2, 1, on_enter=True, once=False)
+    m.trigger("ambulance", 9, 2, 2)
+    m.trigger("bench", 26, 11)
+    m.trigger("lights", 16, 5, 2, 6, on_enter=True)
+    m.trigger("follow", 24, 5, 2, 6, on_enter=True)
+    m.exit("exit:east", 39, 5, 1, 6)
+    m.player = (37, 7)
+    return m
+
+
 MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
-        lamplight, spine, zetapark, canalwalk, underpass]
+        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad]
 
 
 def main():

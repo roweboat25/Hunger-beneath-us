@@ -21,7 +21,9 @@ func on_interact(id: String) -> void:
 		"preacher":
 			await _preacher()
 		"my_car":
-			await ui.think("My sedan. Company plates, company logs. Everywhere I drove it, the tower knew.")
+			await fast_travel()
+		"shuttle_stop":
+			await ui.think("The SalTech shuttle stop. A timetable, and under it, two rings in marker. The shuttle hadn't run since the second incident.")
 			ui.close()
 		"vending":
 			await ui.think("Psyonic-branded water. Three credits. The screen on the front looped the same ad: a family asleep, smiling, under a logo.")
