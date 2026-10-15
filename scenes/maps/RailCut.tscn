@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/RailCutScene.gd" id="2_script"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
 [ext_resource type="Texture2D" path="res://assets/props/bush_dark.png" id="tex_bush_dark"]
 [ext_resource type="Texture2D" path="res://assets/props/crate.png" id="tex_crate"]
+[ext_resource type="Texture2D" path="res://assets/props/drone.png" id="tex_drone"]
 [ext_resource type="Texture2D" path="res://assets/props/fence_h.png" id="tex_fence_h"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
@@ -18,6 +19,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
 [ext_resource type="Texture2D" path="res://assets/props/paper2.png" id="tex_paper2"]
 [ext_resource type="Texture2D" path="res://assets/props/rock_tiny.png" id="tex_rock_tiny"]
+[ext_resource type="Texture2D" path="res://assets/props/substation.png" id="tex_substation"]
 [ext_resource type="Texture2D" path="res://assets/props/tree_dead.png" id="tex_tree_dead"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
@@ -31,6 +33,9 @@ size = Vector2(512, 128)
 
 [sub_resource type="RectangleShape2D" id="Rect_32x96"]
 size = Vector2(32, 96)
+
+[sub_resource type="RectangleShape2D" id="Rect_64x32"]
+size = Vector2(64, 32)
 
 [sub_resource type="RectangleShape2D" id="Rect_1280x32"]
 size = Vector2(1280, 32)
@@ -46,6 +51,9 @@ size = Vector2(92, 28)
 
 [sub_resource type="RectangleShape2D" id="Rect_28x28"]
 size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="Rect_60x28"]
+size = Vector2(60, 28)
 
 [node name="RailCut" type="Node2D"]
 script = ExtResource("2_script")
@@ -335,6 +343,27 @@ metadata/prop_id = "glyph:rc_crate"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P17_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(656, 321)
+offset = Vector2(0, -73)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "drone_rail"
+metadata/drone = true
+
+[node name="P18_substation" type="Sprite2D" parent="Actors"]
+position = Vector2(992, 449)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_substation")
+metadata/prop_id = "sub_rail"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P18_substation"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P18_substation/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_60x28")
+
 [node name="NpcWatcher" type="Area2D" parent="Actors"]
 position = Vector2(688, 412)
 script = ExtResource("5_npc")
@@ -344,6 +373,20 @@ facing = "up"
 metadata/min_connection = 25
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcWatcher"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcSignalmanRail" type="Area2D" parent="Actors"]
+position = Vector2(336, 380)
+script = ExtResource("5_npc")
+id = "signalman_rail"
+sprite_sheet = "res://assets/sprites/seth.png"
+facing = "right"
+metadata/scan = "COGNIZO RAIL - SIGNALMAN\nPsyon: none\nframes: COGNIZO v1\nnote: saw the faces"
+metadata/scan_name = "Signalman"
+metadata/say = "'Empty train came through at walking pace. Faces in every window, nobody on the platform, nobody off. Cognizo says it was a test run. Of what, I said.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcSignalmanRail"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -412,3 +455,26 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitEast"]
 shape = SubResource("Rect_32x96")
+
+[node name="DroneRail" type="Area2D" parent="Interactables"]
+position = Vector2(656, 304)
+script = ExtResource("4_interact")
+id = "drone_rail"
+metadata/scan = "PSYONIC LOGISTICS UNIT\nroute: RAIL\nnote: not a rail route"
+metadata/scan_name = "Delivery drone"
+metadata/say = "A delivery drone following the rails at walking pace, low, like it was riding them."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/DroneRail"]
+shape = SubResource("Rect_32x32")
+
+[node name="SubRail" type="Area2D" parent="Interactables"]
+position = Vector2(992, 432)
+script = ExtResource("4_interact")
+id = "sub_rail"
+metadata/scan = "ALTO ENERGY SUBSTATION 14\nfeed: TOWER\nfeed: BENEATH"
+metadata/scan_name = "Substation"
+metadata/scan_bad = true
+metadata/say = "A substation. The eye on the panel, and under it, scratched in with something sharp: WE KNOW WHO SENDS THE SIGNALS."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/SubRail"]
+shape = SubResource("Rect_64x32")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/UnderpassScene.gd" id="2_script"]
@@ -24,6 +24,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/paper2.png" id="tex_paper2"]
 [ext_resource type="Texture2D" path="res://assets/props/pillar.png" id="tex_pillar"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
+[ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
+[ext_resource type="Texture2D" path="res://assets/props/substation.png" id="tex_substation"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
 size = Vector2(32, 32)
@@ -37,6 +39,9 @@ size = Vector2(256, 32)
 [sub_resource type="RectangleShape2D" id="Rect_128x32"]
 size = Vector2(128, 32)
 
+[sub_resource type="RectangleShape2D" id="Rect_64x32"]
+size = Vector2(64, 32)
+
 [sub_resource type="RectangleShape2D" id="Rect_1280x32"]
 size = Vector2(1280, 32)
 
@@ -48,6 +53,9 @@ size = Vector2(28, 28)
 
 [sub_resource type="RectangleShape2D" id="Rect_28x20"]
 size = Vector2(28, 20)
+
+[sub_resource type="RectangleShape2D" id="Rect_60x28"]
+size = Vector2(60, 28)
 
 [node name="Underpass" type="Node2D"]
 script = ExtResource("2_script")
@@ -177,6 +185,16 @@ texture = ExtResource("tex_blood")
 position = Vector2(656, 256)
 offset = Vector2(0, -26)
 texture = ExtResource("tex_drain")
+
+[node name="D19_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(464, 288)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
+
+[node name="D20_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(848, 288)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -366,6 +384,20 @@ metadata/prop_id = "glyph:up_deep"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P15_substation" type="Sprite2D" parent="Actors"]
+position = Vector2(992, 417)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_substation")
+metadata/prop_id = "sub_underpass"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P15_substation"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P15_substation/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_60x28")
+
 [node name="NpcSleeper1" type="Area2D" parent="Actors"]
 position = Vector2(336, 156)
 script = ExtResource("5_npc")
@@ -396,6 +428,21 @@ sprite_sheet = "res://assets/sprites/eyeless.png"
 facing = "left"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcSleeper3"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcBotFallen" type="Area2D" parent="Actors"]
+position = Vector2(272, 412)
+script = ExtResource("5_npc")
+id = "bot_fallen"
+sprite_sheet = "res://assets/sprites/bot.png"
+facing = "left"
+metadata/scan = "VOLTX MAINT UNIT 22\nstatus: FALLEN\nrequest: PLEASE\nrequest: PLEASE"
+metadata/scan_name = "Maintenance bot"
+metadata/scan_bad = true
+metadata/say = "A maintenance bot on its side, legs going. Its speaker said 'please' every eleven seconds. I counted."
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcBotFallen"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -471,3 +518,15 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitSouth"]
 shape = SubResource("Rect_128x32")
+
+[node name="SubUnderpass" type="Area2D" parent="Interactables"]
+position = Vector2(992, 400)
+script = ExtResource("4_interact")
+id = "sub_underpass"
+metadata/scan = "ALTO ENERGY SUBSTATION 9\nload: 140%\nfeed: BENEATH"
+metadata/scan_name = "Substation"
+metadata/scan_bad = true
+metadata/say = "A substation panel. Warning stripes, a padlock, and the eye in marker over the lock. Sewer lids, substation panels, even inside a city terminal kiosk. They'd said it was everywhere."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/SubUnderpass"]
+shape = SubResource("Rect_64x32")

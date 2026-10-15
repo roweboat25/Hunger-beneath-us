@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=39 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ZetaParkScene.gd" id="2_script"]
@@ -8,11 +8,15 @@
 [ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
+[ext_resource type="Texture2D" path="res://assets/props/coffee_cup.png" id="tex_coffee_cup"]
+[ext_resource type="Texture2D" path="res://assets/props/drone.png" id="tex_drone"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_band.png" id="tex_graffiti_band"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_danger.png" id="tex_graffiti_danger"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_loot.png" id="tex_graffiti_loot"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk.png" id="tex_kiosk"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk_static.png" id="tex_kiosk_static"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post_off.png" id="tex_lamp_post_off"]
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
@@ -25,6 +29,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/poster3.png" id="tex_poster3"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
+[ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
 size = Vector2(32, 32)
@@ -148,6 +153,16 @@ texture = ExtResource("tex_blood")
 position = Vector2(1360, 512)
 offset = Vector2(0, -9.5)
 texture = ExtResource("tex_paper2")
+
+[node name="D13_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(656, 448)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
+
+[node name="D14_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(528, 320)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -359,6 +374,36 @@ metadata/prop_id = "glyph:zp_corner"
 metadata/glyph_deep = false
 visible = false
 
+[node name="P17_kiosk" type="Sprite2D" parent="Actors"]
+position = Vector2(1296, 289)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk")
+metadata/prop_id = "kiosk_zeta"
+metadata/pair = "kiosk"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P17_kiosk"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P17_kiosk/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P18_kiosk_static" type="Sprite2D" parent="Actors"]
+position = Vector2(1296, 289)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk_static")
+metadata/prop_id = "kiosk_zeta_static"
+metadata/pair = "kiosk_static"
+visible = false
+
+[node name="P19_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(720, 385)
+offset = Vector2(0, -73)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "drone_zeta"
+metadata/drone = true
+
 [node name="NpcMasked" type="Area2D" parent="Actors"]
 position = Vector2(720, 572)
 script = ExtResource("5_npc")
@@ -368,6 +413,34 @@ facing = "up"
 metadata/min_connection = 50
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcMasked"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcDoormanZeta" type="Area2D" parent="Actors"]
+position = Vector2(464, 284)
+script = ExtResource("5_npc")
+id = "doorman_zeta"
+sprite_sheet = "res://assets/sprites/tyson.png"
+facing = "down"
+metadata/scan = "BUILDING STAFF - ZETA TOWER\nPsyon 4.1 - sync 99%\nnote: same sentence, 9 times today"
+metadata/scan_name = "Doorman"
+metadata/say = "'Mr Drake. Ms Lynx said you'd come by. She said you'd come by last week, too.' He said it kindly, the way you'd say something for the ninth time."
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcDoormanZeta"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcResidentParkave" type="Area2D" parent="Actors"]
+position = Vector2(1200, 540)
+script = ExtResource("5_npc")
+id = "resident_parkave"
+sprite_sheet = "res://assets/sprites/emmet.png"
+facing = "up"
+metadata/scan = "RESIDENT - PARK AVE\nPsyon 4.0 - sync 55%\nflag: HIGH REPORTER"
+metadata/scan_name = "Resident"
+metadata/say = "'The corner's bad. Everyone knows. You stand on it with the frames on and they show you your own back.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcResidentParkave"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -453,3 +526,26 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitEast"]
 shape = SubResource("Rect_32x352")
+
+[node name="KioskZeta" type="Area2D" parent="Interactables"]
+position = Vector2(1296, 272)
+script = ExtResource("4_interact")
+id = "kiosk_zeta"
+metadata/scan = "CITY TERMINAL 206\nmap version: UNKNOWN\nlines: ALL TO TOWER"
+metadata/scan_name = "City terminal"
+metadata/say = "City terminal. The transit map on it had the lines drawn in the wrong colours, and every one of them still ran to the tower."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/KioskZeta"]
+shape = SubResource("Rect_32x32")
+
+[node name="DroneZeta" type="Area2D" parent="Interactables"]
+position = Vector2(720, 368)
+script = ExtResource("4_interact")
+id = "drone_zeta"
+metadata/scan = "PSYONIC LOGISTICS UNIT\npackage: ORA FRAMES x1\nrecipient: DUFREDY, H.\nstatus: UNDELIVERABLE"
+metadata/scan_name = "Delivery drone"
+metadata/scan_bad = true
+metadata/say = "A delivery drone holding over the intersection, package still clipped under it. Nobody coming for it. Nobody left to."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/DroneZeta"]
+shape = SubResource("Rect_32x32")

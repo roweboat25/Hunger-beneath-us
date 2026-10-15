@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/CanalWalkScene.gd" id="2_script"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
 [ext_resource type="Texture2D" path="res://assets/props/bush_dark.png" id="tex_bush_dark"]
+[ext_resource type="Texture2D" path="res://assets/props/drone_pole.png" id="tex_drone_pole"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
@@ -17,8 +18,10 @@
 [ext_resource type="Texture2D" path="res://assets/props/rock_med.png" id="tex_rock_med"]
 [ext_resource type="Texture2D" path="res://assets/props/rock_tiny.png" id="tex_rock_tiny"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
+[ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
 [ext_resource type="Texture2D" path="res://assets/props/stick.png" id="tex_stick"]
 [ext_resource type="Texture2D" path="res://assets/props/stick_circle.png" id="tex_stick_circle"]
+[ext_resource type="Texture2D" path="res://assets/props/substation.png" id="tex_substation"]
 [ext_resource type="Texture2D" path="res://assets/props/tree_dead.png" id="tex_tree_dead"]
 [ext_resource type="Texture2D" path="res://assets/props/tree_small.png" id="tex_tree_small"]
 
@@ -135,6 +138,11 @@ texture = ExtResource("tex_paper")
 position = Vector2(656, 416)
 offset = Vector2(0, -16)
 texture = ExtResource("tex_blood")
+
+[node name="D10_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(784, 320)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -260,6 +268,34 @@ metadata/prop_id = "glyph:cw_far"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P10_substation" type="Sprite2D" parent="Actors"]
+position = Vector2(416, 257)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_substation")
+metadata/prop_id = "filtration"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P10_substation"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P10_substation/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_60x28")
+
+[node name="P11_drone_pole" type="Sprite2D" parent="Actors"]
+position = Vector2(976, 193)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_drone_pole")
+metadata/prop_id = "pole_canal"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P11_drone_pole"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P11_drone_pole/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
 [node name="NpcKid1" type="Area2D" parent="Actors"]
 position = Vector2(208, 348)
 script = ExtResource("5_npc")
@@ -291,6 +327,34 @@ facing = "left"
 metadata/min_connection = 25
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcBankFigure"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcVoltxCanal" type="Area2D" parent="Actors"]
+position = Vector2(464, 284)
+script = ExtResource("5_npc")
+id = "voltx_canal"
+sprite_sheet = "res://assets/sprites/seth.png"
+facing = "left"
+metadata/scan = "VOLTX FIELD TECH - S. OKAFOR\nPsyon: none (company policy)\non his knees today: 6h"
+metadata/scan_name = "Voltx tech"
+metadata/say = "'Fourth time this week. I clear it, it comes back in rings. You're Psyonic? Then you tell me why a filter makes shapes.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcVoltxCanal"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcCanalWoman" type="Area2D" parent="Actors"]
+position = Vector2(208, 316)
+script = ExtResource("5_npc")
+id = "canal_woman"
+sprite_sheet = "res://assets/sprites/nurse.png"
+facing = "right"
+metadata/scan = "RESIDENT - LAMPLIGHT\nPsyon 3.8 - sync 40%\nsleep debt: 12h\nspouse: ON THE PATH"
+metadata/scan_name = "Resident"
+metadata/say = "'My husband walks here at night. Says the canal's talking. It's dry. It's been dry twenty years.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcCanalWoman"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -375,3 +439,26 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitSouth"]
 shape = SubResource("Rect_128x32")
+
+[node name="Filtration" type="Area2D" parent="Interactables"]
+position = Vector2(416, 240)
+script = ExtResource("4_interact")
+id = "filtration"
+metadata/scan = "VOLTX FILTRATION UNIT 7\nstatus: RUNNING\nintake: NORMAL\nlast service: 20 years"
+metadata/scan_name = "Filtration unit"
+metadata/say = "A Voltx filtration unit, humming. Sand on the walk around it, in rings."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Filtration"]
+shape = SubResource("Rect_64x32")
+
+[node name="PoleCanal" type="Area2D" parent="Interactables"]
+position = Vector2(976, 176)
+script = ExtResource("4_interact")
+id = "pole_canal"
+metadata/scan = "CIVIC ASSISTANT POLE\ncamera: MISSING\naudio: BROADCASTING\nsource: UNKNOWN"
+metadata/scan_name = "Drone pole"
+metadata/scan_bad = true
+metadata/say = "A rusted drone pole, crooked, its camera housing empty. The voice assistant speaker hissed static, and under the static, slower than speech, something keeping time."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PoleCanal"]
+shape = SubResource("Rect_32x32")

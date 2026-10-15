@@ -21,6 +21,9 @@ import random
 import struct
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import density  # noqa: E402  (the people and machines of the city)
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 TILE = 32
 ATLAS = json.load(open(os.path.join(ROOT, "assets", "tiles", "atlas.json")))
@@ -29,6 +32,17 @@ PREVIEW_DIR = os.environ.get("PREVIEW_DIR", os.path.join(ROOT, "build", "preview
 
 SOLID_PREFIXES = ("wall_", "brick_", "stone_", "drywall_", "window_", "frame_",
                   "cliff_", "void", "cement_edge")
+
+
+def meta_literal(v):
+    """A metadata value as a .tscn literal: numbers and true/false raw, text quoted."""
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (int, float)):
+        return str(v)
+    if v in ("true", "false"):
+        return v
+    return json.dumps(v, ensure_ascii=False)
 
 
 def is_solid(tile):
@@ -157,8 +171,50 @@ class Map:
                   meta={"glyph_deep": "true" if deep else "false"})
         self.trigger("glyph:" + id, tx, ty)
 
-    def trigger(self, id, tx, ty, tw=1, th=1, on_enter=False, once=True):
-        self.triggers.append(dict(id=id, tx=tx, ty=ty, tw=tw, th=th, on_enter=on_enter, once=once))
+    def trigger(self, id, tx, ty, tw=1, th=1, on_enter=False, once=True, meta=None):
+        self.triggers.append(dict(id=id, tx=tx, ty=ty, tw=tw, th=th, on_enter=on_enter, once=once, meta=meta or {}))
+
+    def blocked_grid(self):
+        """Cells Carl can't stand on: solid tiles, solid props, people."""
+        blocked = [[False] * self.w for _ in range(self.h)]
+        for y in range(self.h):
+            for x in range(self.w):
+                for grid in (self.ground, self.walls):
+                    if grid[y][x] and is_solid(grid[y][x]):
+                        blocked[y][x] = True
+        for p in self.props:
+            if p["solid"] and p["visible"]:
+                pw, ph = PROPS[p["name"]]["w"], PROPS[p["name"]]["h"]
+                rows = max(1, round(min(ph, p["solid"] * TILE) / TILE))
+                for dy in range(rows):
+                    for dx in range(pw // TILE):
+                        x, y = p["tx"] + dx, p["ty"] - dy
+                        if 0 <= x < self.w and 0 <= y < self.h:
+                            blocked[y][x] = True
+        for n in self.npcs:
+            blocked[n["ty"]][n["tx"]] = True
+        for t in self.triggers:
+            if t["on_enter"]:
+                for dx in range(t["tw"]):
+                    for dy in range(t["th"]):
+                        x, y = t["tx"] + dx, t["ty"] + dy
+                        if 0 <= x < self.w and 0 <= y < self.h:
+                            blocked[y][x] = True
+        return blocked
+
+    def free_near(self, tx, ty, blocked=None):
+        """The nearest cell to (tx, ty) that is free and connected to the player's start."""
+        blocked = blocked or self.blocked_grid()
+        seen = {self.player}
+        stack = [self.player]
+        while stack:
+            x, y = stack.pop()
+            for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                if 0 <= nx < self.w and 0 <= ny < self.h and not blocked[ny][nx] and (nx, ny) not in seen:
+                    seen.add((nx, ny))
+                    stack.append((nx, ny))
+        best = min(seen, key=lambda c: abs(c[0] - tx) + abs(c[1] - ty) + (0 if c[1] == ty else 0.5))
+        return best
 
     def npc(self, id, tx, ty, facing="down", sprite=None, meta=None):
         self.npcs.append(dict(id=id, tx=tx, ty=ty, facing=facing, sprite=sprite or id, meta=meta or {}))
@@ -297,7 +353,7 @@ class Map:
             if p["id"]:
                 out.append(f'metadata/prop_id = "{p["id"]}"')
             for k, v in p.get("meta", {}).items():
-                out.append(f'metadata/{k} = {v}')
+                out.append(f'metadata/{k} = {meta_literal(v)}')
             if not p["visible"]:
                 out.append('visible = false')
             out.append('')
@@ -316,7 +372,7 @@ class Map:
                     f'sprite_sheet = "res://assets/sprites/{n["sprite"]}.png"',
                     f'facing = "{n["facing"]}"']
             for k, v in n.get("meta", {}).items():
-                out.append(f'metadata/{k} = {v}')
+                out.append(f'metadata/{k} = {meta_literal(v)}')
             out += ['',
                     f'[node name="Shape" type="CollisionShape2D" parent="Actors/{node}"]',
                     'position = Vector2(0, -16)',
@@ -339,6 +395,8 @@ class Map:
                 out.append("on_enter = true")
             if not t["once"]:
                 out.append("once = false")
+            for k, v in t.get("meta", {}).items():
+                out.append(f'metadata/{k} = {meta_literal(v)}')
             out += ['', f'[node name="Shape" type="CollisionShape2D" parent="Interactables/{node}"]',
                     f'shape = SubResource("{shape(sw, sh)}")', '']
         with open(path, "w") as f:
@@ -1219,6 +1277,7 @@ def main():
         os.makedirs(PREVIEW_DIR, exist_ok=True)
     for build in MAPS:
         m = build()
+        density.densify(m)
         m.check()
         m.write(os.path.join(maps_dir, m.name + ".tscn"))
         if preview:

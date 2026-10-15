@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3]
+[gd_scene load_steps=55 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/SouthtownScene.gd" id="2_script"]
@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/cement_stairs.png" id="tex_cement_stairs"]
 [ext_resource type="Texture2D" path="res://assets/props/crate.png" id="tex_crate"]
 [ext_resource type="Texture2D" path="res://assets/props/crate_small.png" id="tex_crate_small"]
+[ext_resource type="Texture2D" path="res://assets/props/drone_pole.png" id="tex_drone_pole"]
 [ext_resource type="Texture2D" path="res://assets/props/fence_h.png" id="tex_fence_h"]
 [ext_resource type="Texture2D" path="res://assets/props/fire.png" id="tex_fire"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
@@ -21,6 +22,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_band.png" id="tex_graffiti_band"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_danger.png" id="tex_graffiti_danger"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_green.png" id="tex_graffiti_green"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk.png" id="tex_kiosk"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk_static.png" id="tex_kiosk_static"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post_off.png" id="tex_lamp_post_off"]
 [ext_resource type="Texture2D" path="res://assets/props/mailboxes.png" id="tex_mailboxes"]
@@ -33,6 +36,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
 [ext_resource type="Texture2D" path="res://assets/props/rock_tiny.png" id="tex_rock_tiny"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
+[ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
 [ext_resource type="Texture2D" path="res://assets/props/tent.png" id="tex_tent"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
@@ -201,6 +205,11 @@ texture = ExtResource("tex_paper3")
 position = Vector2(176, 512)
 offset = Vector2(0, -7)
 texture = ExtResource("tex_rock_tiny")
+
+[node name="D17_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(656, 416)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -533,6 +542,43 @@ metadata/prop_id = "glyph:st_shanty"
 metadata/glyph_deep = false
 visible = false
 
+[node name="P27_drone_pole" type="Sprite2D" parent="Actors"]
+position = Vector2(976, 289)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_drone_pole")
+metadata/prop_id = "pole_south"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P27_drone_pole"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P27_drone_pole/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P28_kiosk" type="Sprite2D" parent="Actors"]
+position = Vector2(1296, 545)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk")
+metadata/prop_id = "kiosk_south"
+metadata/pair = "kiosk"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P28_kiosk"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P28_kiosk/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P29_kiosk_static" type="Sprite2D" parent="Actors"]
+position = Vector2(1296, 545)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk_static")
+metadata/prop_id = "kiosk_south_static"
+metadata/pair = "kiosk_static"
+visible = false
+
 [node name="NpcLynx" type="Area2D" parent="Actors"]
 position = Vector2(240, 188)
 script = ExtResource("5_npc")
@@ -541,6 +587,20 @@ sprite_sheet = "res://assets/sprites/lynx.png"
 facing = "down"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcLynx"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcResidentSouth" type="Area2D" parent="Actors"]
+position = Vector2(336, 572)
+script = ExtResource("5_npc")
+id = "resident_south"
+sprite_sheet = "res://assets/sprites/emmet.png"
+facing = "up"
+metadata/scan = "RESIDENT - SOUTHTOWN\nPsyon: none\nframes: NONE\nnote: unmonitored"
+metadata/scan_name = "Resident"
+metadata/say = "'Voltx recruits from here. Scrappy, they call us. They mean cheap.' He nodded at the tower, visible from everywhere. 'They mean we'll go underneath.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcResidentSouth"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -685,3 +745,25 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/DoorFactory"]
 shape = SubResource("Rect_64x32")
+
+[node name="PoleSouth" type="Area2D" parent="Interactables"]
+position = Vector2(976, 272)
+script = ExtResource("4_interact")
+id = "pole_south"
+metadata/scan = "CIVIC ASSISTANT POLE\ncamera: STICK\naudio: NONE"
+metadata/scan_name = "Drone pole"
+metadata/say = "Another drone pole, the speaker torn out of this one. Someone had wedged a stick in the empty camera housing, and tied two rings of twine around it."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PoleSouth"]
+shape = SubResource("Rect_32x32")
+
+[node name="KioskSouth" type="Area2D" parent="Interactables"]
+position = Vector2(1296, 528)
+script = ExtResource("4_interact")
+id = "kiosk_south"
+metadata/scan = "CITY TERMINAL 7\nuptime: 0d 0h\nlast query: WHERE IS THE DOOR"
+metadata/scan_name = "City terminal"
+metadata/say = "A city terminal, screen cracked, still lit. The eye on the inside of the glass here too."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/KioskSouth"]
+shape = SubResource("Rect_32x32")

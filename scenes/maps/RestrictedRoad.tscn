@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=36 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/RestrictedRoadScene.gd" id="2_script"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/bush_dark.png" id="tex_bush_dark"]
 [ext_resource type="Texture2D" path="res://assets/props/cactus.png" id="tex_cactus"]
 [ext_resource type="Texture2D" path="res://assets/props/counter.png" id="tex_counter"]
+[ext_resource type="Texture2D" path="res://assets/props/drone_police.png" id="tex_drone_police"]
 [ext_resource type="Texture2D" path="res://assets/props/fence_h.png" id="tex_fence_h"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
@@ -22,6 +23,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/rock_tiny.png" id="tex_rock_tiny"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
 [ext_resource type="Texture2D" path="res://assets/props/stick_circle.png" id="tex_stick_circle"]
+[ext_resource type="Texture2D" path="res://assets/props/substation.png" id="tex_substation"]
 [ext_resource type="Texture2D" path="res://assets/props/tree_dead.png" id="tex_tree_dead"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
@@ -313,6 +315,27 @@ metadata/prop_id = "glyph:rr_wreck"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P15_drone_police" type="Sprite2D" parent="Actors"]
+position = Vector2(656, 161)
+offset = Vector2(0, -83)
+texture = ExtResource("tex_drone_police")
+metadata/prop_id = "pd_drone_gate"
+metadata/drone = true
+
+[node name="P16_substation" type="Sprite2D" parent="Actors"]
+position = Vector2(992, 385)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_substation")
+metadata/prop_id = "sub_gate"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P16_substation"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P16_substation/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_60x28")
+
 [node name="NpcGuard" type="Area2D" parent="Actors"]
 position = Vector2(560, 156)
 script = ExtResource("5_npc")
@@ -321,6 +344,20 @@ sprite_sheet = "res://assets/sprites/officer.png"
 facing = "down"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcGuard"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcVoltxGate" type="Area2D" parent="Actors"]
+position = Vector2(400, 316)
+script = ExtResource("5_npc")
+id = "voltx_gate"
+sprite_sheet = "res://assets/sprites/seth.png"
+facing = "right"
+metadata/scan = "VOLTX - PERIMETER CREW\nPsyon: none\nnote: wants to go home"
+metadata/scan_name = "Voltx crew"
+metadata/say = "'Nobody goes past the gate. Filtration's dead out there; the sand's winning. Psyonic marked it restricted. Restricted from what, I asked. They said from the sand.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcVoltxGate"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -399,3 +436,26 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitEast"]
 shape = SubResource("Rect_32x128")
+
+[node name="PdDroneGate" type="Area2D" parent="Interactables"]
+position = Vector2(656, 144)
+script = ExtResource("4_interact")
+id = "pd_drone_gate"
+metadata/scan = "SILICO PD DRONE 11\nassignment: PERIMETER\nbeyond: NO COVERAGE"
+metadata/scan_name = "Police drone"
+metadata/say = "A police drone holding at the gate. Beyond it, no drones at all. The sky over the flats was empty, and that was worse."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PdDroneGate"]
+shape = SubResource("Rect_32x32")
+
+[node name="SubGate" type="Area2D" parent="Interactables"]
+position = Vector2(992, 368)
+script = ExtResource("4_interact")
+id = "sub_gate"
+metadata/scan = "ALTO ENERGY SUBSTATION 0\nfeed: BENEATH\nmark: FACTORY STAMP"
+metadata/scan_name = "Substation"
+metadata/scan_bad = true
+metadata/say = "The last substation before the flats. The eye on this one wasn't drawn. It was stamped into the panel at the factory."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/SubGate"]
+shape = SubResource("Rect_64x32")

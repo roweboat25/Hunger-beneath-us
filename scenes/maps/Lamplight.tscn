@@ -1,19 +1,25 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/LamplightScene.gd" id="2_script"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
 [ext_resource type="Script" path="res://scripts/Interactable.gd" id="4_interact"]
 [ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
+[ext_resource type="Texture2D" path="res://assets/props/ad_screen.png" id="tex_ad_screen"]
+[ext_resource type="Texture2D" path="res://assets/props/ad_screen_static.png" id="tex_ad_screen_static"]
 [ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/cement_stairs.png" id="tex_cement_stairs"]
+[ext_resource type="Texture2D" path="res://assets/props/coffee_cup.png" id="tex_coffee_cup"]
+[ext_resource type="Texture2D" path="res://assets/props/drone_police.png" id="tex_drone_police"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_band.png" id="tex_graffiti_band"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_green.png" id="tex_graffiti_green"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_loot.png" id="tex_graffiti_loot"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk.png" id="tex_kiosk"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk_static.png" id="tex_kiosk_static"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post_off.png" id="tex_lamp_post_off"]
 [ext_resource type="Texture2D" path="res://assets/props/mailboxes.png" id="tex_mailboxes"]
@@ -27,6 +33,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/poster3.png" id="tex_poster3"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
+[ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
 size = Vector2(32, 32)
@@ -160,6 +167,21 @@ texture = ExtResource("tex_blood")
 position = Vector2(464, 544)
 offset = Vector2(0, -9.5)
 texture = ExtResource("tex_paper2")
+
+[node name="D15_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(592, 416)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
+
+[node name="D16_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(720, 320)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
+
+[node name="D17_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(1296, 544)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -350,6 +372,51 @@ metadata/prop_id = "glyph:ll_back"
 metadata/glyph_deep = false
 visible = false
 
+[node name="P16_kiosk" type="Sprite2D" parent="Actors"]
+position = Vector2(1168, 289)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk")
+metadata/prop_id = "kiosk_lamplight"
+metadata/pair = "kiosk"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P16_kiosk"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P16_kiosk/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P17_kiosk_static" type="Sprite2D" parent="Actors"]
+position = Vector2(1168, 289)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk_static")
+metadata/prop_id = "kiosk_lamplight_static"
+metadata/pair = "kiosk_static"
+visible = false
+
+[node name="P18_ad_screen" type="Sprite2D" parent="Actors"]
+position = Vector2(352, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_ad_screen")
+metadata/prop_id = "ad_lamplight"
+metadata/pair = "ad_screen"
+
+[node name="P19_ad_screen_static" type="Sprite2D" parent="Actors"]
+position = Vector2(352, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_ad_screen_static")
+metadata/prop_id = "ad_lamplight_static"
+metadata/pair = "ad_screen_static"
+visible = false
+
+[node name="P20_drone_police" type="Sprite2D" parent="Actors"]
+position = Vector2(848, 385)
+offset = Vector2(0, -73)
+texture = ExtResource("tex_drone_police")
+metadata/prop_id = "pd_drone_lamplight"
+metadata/drone = true
+
 [node name="NpcOfficer" type="Area2D" parent="Actors"]
 position = Vector2(1200, 508)
 script = ExtResource("5_npc")
@@ -358,6 +425,48 @@ sprite_sheet = "res://assets/sprites/officer.png"
 facing = "up"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcOfficer"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcResident4B" type="Area2D" parent="Actors"]
+position = Vector2(656, 284)
+script = ExtResource("5_npc")
+id = "resident_4b"
+sprite_sheet = "res://assets/sprites/tyson.png"
+facing = "down"
+metadata/scan = "RESIDENT 4B - LAMPLIGHT\nPsyon 4.1 - sync 61%\nsleep debt: 31h"
+metadata/scan_name = "Resident, 4B"
+metadata/say = "'You from Psyonic? Then tell them the hallway lights have been on for three nights. All night. Nobody on four can sleep, and nobody on four can stop smiling about it.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcResident4B"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcKidLamplight" type="Area2D" parent="Actors"]
+position = Vector2(976, 540)
+script = ExtResource("5_npc")
+id = "kid_lamplight"
+sprite_sheet = "res://assets/sprites/ezra.png"
+facing = "up"
+metadata/scan = "MINOR - corporate training, year 2\nPsyon JUNIOR - sync 88%\nforeground app: THE PASSWORD GAME"
+metadata/scan_name = "Minor"
+metadata/say = "'Mister. My tablet says please convene. What's convene?'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcKidLamplight"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcVoltxLamplight" type="Area2D" parent="Actors"]
+position = Vector2(208, 540)
+script = ExtResource("5_npc")
+id = "voltx_lamplight"
+sprite_sheet = "res://assets/sprites/seth.png"
+facing = "right"
+metadata/scan = "VOLTX FIELD TECH\nPsyon: none (company policy)\nshift: 14h\nports cleared: 212"
+metadata/scan_name = "Voltx tech"
+metadata/say = "Voltx, on his knees at a sand-choked port with a dustbuster. 'Gets in overnight. Every night. You'd think a city this smart could keep its mouth shut.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcVoltxLamplight"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -451,3 +560,36 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitSouth"]
 shape = SubResource("Rect_96x32")
+
+[node name="KioskLamplight" type="Area2D" parent="Interactables"]
+position = Vector2(1168, 272)
+script = ExtResource("4_interact")
+id = "kiosk_lamplight"
+metadata/scan = "CITY TERMINAL\nuptime: 0d 0h\nlast query: WHERE IS THE DOOR"
+metadata/scan_name = "City terminal"
+metadata/say = "A city terminal kiosk. Transit, bills, FreudBot bookings. Someone had scrawled the eye on the inside of the screen bezel, from the inside."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/KioskLamplight"]
+shape = SubResource("Rect_32x32")
+
+[node name="AdLamplight" type="Area2D" parent="Interactables"]
+position = Vector2(352, 208)
+script = ExtResource("4_interact")
+id = "ad_lamplight"
+metadata/scan = "PSYONIC DISPLAY\nloop: FAMILY ASLEEP\nviews today: 2,001,114"
+metadata/scan_name = "Psyonic display"
+metadata/say = "A Psyonic ad, looping. A family asleep, smiling, under the logo. Neural harmony, AI-assisted actualisation. The same ad as the vending machines."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/AdLamplight"]
+shape = SubResource("Rect_64x32")
+
+[node name="PdDroneLamplight" type="Area2D" parent="Interactables"]
+position = Vector2(848, 368)
+script = ExtResource("4_interact")
+id = "pd_drone_lamplight"
+metadata/scan = "SILICO PD DRONE 2\nassignment: NONE\nholding: 6h 12m\ntarget: THE GROUND"
+metadata/scan_name = "Police drone"
+metadata/say = "A police drone, low over the boulevard, its camera pointed at the same square of asphalt for the whole time I watched. Carrion flies, Lynx called them."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PdDroneLamplight"]
+shape = SubResource("Rect_32x32")

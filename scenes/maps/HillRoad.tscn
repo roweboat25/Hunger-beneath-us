@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/HillRoadScene.gd" id="2_script"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/bush.png" id="tex_bush"]
 [ext_resource type="Texture2D" path="res://assets/props/bush_dark.png" id="tex_bush_dark"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
+[ext_resource type="Texture2D" path="res://assets/props/freudbot.png" id="tex_freudbot"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/grass_tuft.png" id="tex_grass_tuft"]
@@ -386,6 +387,20 @@ metadata/prop_id = "glyph:hr_bench"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P21_freudbot" type="Sprite2D" parent="Actors"]
+position = Vector2(672, 193)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_freudbot")
+metadata/prop_id = "freudbot"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P21_freudbot"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P21_freudbot/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_60x28")
+
 [node name="NpcNurse" type="Area2D" parent="Actors"]
 position = Vector2(368, 188)
 script = ExtResource("5_npc")
@@ -406,6 +421,35 @@ facing = "left"
 metadata/min_connection = 0
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcFollower"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcOrderlyHill" type="Area2D" parent="Actors"]
+position = Vector2(976, 316)
+script = ExtResource("5_npc")
+id = "orderly_hill"
+sprite_sheet = "res://assets/sprites/tyson.png"
+facing = "left"
+metadata/scan = "SALTECH ORDERLY\nPsyon 4.0 - sync 80%\nshift: 19h"
+metadata/scan_name = "Orderly"
+metadata/say = "'Five of them humming on the ward. Five. None of them have met. You want to know what it sounds like?' He didn't wait. 'It sounds like a lullaby.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcOrderlyHill"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcPatientHill" type="Area2D" parent="Actors"]
+position = Vector2(272, 220)
+script = ExtResource("5_npc")
+id = "patient_hill"
+sprite_sheet = "res://assets/sprites/emmet.png"
+facing = "left"
+metadata/scan = "SALTECH PATIENT 1181\ndischarged: NO\nPsyon 4.1 - sync 100%\nheading: THE TOWER"
+metadata/scan_name = "Patient"
+metadata/scan_bad = true
+metadata/say = "An old man in a gown and slippers, walking downhill away from the hospital. 'Discharged,' he said. 'Discharged.' He was humming it."
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcPatientHill"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -483,3 +527,14 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitEast"]
 shape = SubResource("Rect_32x192")
+
+[node name="Freudbot" type="Area2D" parent="Interactables"]
+position = Vector2(672, 176)
+script = ExtResource("4_interact")
+id = "freudbot"
+metadata/scan = "FREUDBOT GPT - BOOTH 12\nsession: none\nmood: CHEERFUL\nmalfunction reports: RISING"
+metadata/scan_name = "FreudBot booth"
+metadata/say = "A FreudBot GPT booth. A seat, a screen with a face on it. Any residual trauma should be looked after by FreudBot GPT. I was required to end every interview that way."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Freudbot"]
+shape = SubResource("Rect_64x32")

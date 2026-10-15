@@ -42,6 +42,10 @@ func run() -> void:
 				else:
 					map._route_interact(id)
 				await _drive(map_name + "/" + id)
+				if (pass_i == 1 or map.has_method("recommended_exit")) and is_instance_valid(node) and main.map == map and not id.begins_with("exit") and not id.begins_with("door"):
+					Game.glasses_on = true
+					map.scan(node)
+					await _drive(map_name + "/scan " + id)
 		if main.map == map and not Game.has_flag("act1_done"):
 			push_error("autoplay: stuck in map " + map_name)
 			get_tree().quit(1)
@@ -129,6 +133,8 @@ func _drive(label: String) -> void:
 ## Side-content check: visit each named map, fire every interactable except
 ## exits and doors (twice, for gated ones), then quit.
 func _tour(maps: PackedStringArray) -> void:
+	for id in Game.INCIDENTS:
+		Game.set_flag(Game.INCIDENTS[id]["unlock"])  # every incident open, so the tour finds them
 	for map_name in maps:
 		Game.connection = 60.0  # so connection-gated figures and happenings exist
 		await main.change_map("res://scenes/maps/" + map_name + ".tscn")
@@ -146,5 +152,8 @@ func _tour(maps: PackedStringArray) -> void:
 					continue
 				map._route_interact(id)
 				await _drive(map_name + "/" + id)
+				if is_instance_valid(node) and main.map == map:
+					map.scan(node)
+					await _drive(map_name + "/scan " + id)
 	print("TOUR DONE  connection=", Game.connection, "  log entries=", Game.case_log.size())
 	get_tree().quit()

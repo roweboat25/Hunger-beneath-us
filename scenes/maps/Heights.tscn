@@ -1,14 +1,19 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=41 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/HeightsScene.gd" id="2_script"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
 [ext_resource type="Script" path="res://scripts/Interactable.gd" id="4_interact"]
 [ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
+[ext_resource type="Texture2D" path="res://assets/props/ad_screen.png" id="tex_ad_screen"]
+[ext_resource type="Texture2D" path="res://assets/props/ad_screen_static.png" id="tex_ad_screen_static"]
 [ext_resource type="Texture2D" path="res://assets/props/bush.png" id="tex_bush"]
 [ext_resource type="Texture2D" path="res://assets/props/bush2.png" id="tex_bush2"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/cement_stairs.png" id="tex_cement_stairs"]
+[ext_resource type="Texture2D" path="res://assets/props/charging_post.png" id="tex_charging_post"]
+[ext_resource type="Texture2D" path="res://assets/props/coffee_cup.png" id="tex_coffee_cup"]
+[ext_resource type="Texture2D" path="res://assets/props/drone.png" id="tex_drone"]
 [ext_resource type="Texture2D" path="res://assets/props/fence_iron.png" id="tex_fence_iron"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
@@ -126,6 +131,11 @@ texture = ExtResource("tex_paper3")
 position = Vector2(1200, 320)
 offset = Vector2(0, -32)
 texture = ExtResource("tex_rug_blue")
+
+[node name="D7_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(912, 320)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -443,6 +453,77 @@ metadata/prop_id = "glyph:ht_garden"
 metadata/glyph_deep = false
 visible = false
 
+[node name="P27_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(1104, 257)
+offset = Vector2(0, -93)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "swarm_1"
+metadata/drone = true
+
+[node name="P28_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(1232, 257)
+offset = Vector2(0, -93)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "swarm_2"
+metadata/drone = true
+
+[node name="P29_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(1072, 257)
+offset = Vector2(0, -93)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "swarm_3"
+metadata/drone = true
+
+[node name="P30_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(1264, 257)
+offset = Vector2(0, -93)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "swarm_4"
+metadata/drone = true
+
+[node name="P31_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(1104, 257)
+offset = Vector2(0, -93)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "swarm_5"
+metadata/drone = true
+
+[node name="P32_drone" type="Sprite2D" parent="Actors"]
+position = Vector2(1232, 289)
+offset = Vector2(0, -93)
+texture = ExtResource("tex_drone")
+metadata/prop_id = "swarm"
+metadata/drone = true
+
+[node name="P33_ad_screen" type="Sprite2D" parent="Actors"]
+position = Vector2(672, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_ad_screen")
+metadata/prop_id = "ad_heights"
+metadata/pair = "ad_screen"
+
+[node name="P34_ad_screen_static" type="Sprite2D" parent="Actors"]
+position = Vector2(672, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_ad_screen_static")
+metadata/prop_id = "ad_heights_static"
+metadata/pair = "ad_screen_static"
+visible = false
+
+[node name="P35_charging_post" type="Sprite2D" parent="Actors"]
+position = Vector2(496, 513)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_charging_post")
+metadata/prop_id = "charger_heights"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P35_charging_post"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P35_charging_post/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
 [node name="NpcJogger" type="Area2D" parent="Actors"]
 position = Vector2(1424, 348)
 script = ExtResource("5_npc")
@@ -451,6 +532,48 @@ sprite_sheet = "res://assets/sprites/seth.png"
 facing = "left"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcJogger"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcMotherHeights" type="Area2D" parent="Actors"]
+position = Vector2(336, 540)
+script = ExtResource("5_npc")
+id = "mother_heights"
+sprite_sheet = "res://assets/sprites/nurse.png"
+facing = "right"
+metadata/scan = "RESIDENT - HEIGHTS\nPsyon 4.1 - sync 97%\ndependents: 1, enrolled"
+metadata/scan_name = "Resident"
+metadata/say = "'They put a nightlight in every room. Corporate training sent them home with it. She sleeps with her eyes open now. Is that normal? You'd know. You're Psyonic.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcMotherHeights"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcKidHeights" type="Area2D" parent="Actors"]
+position = Vector2(784, 540)
+script = ExtResource("5_npc")
+id = "kid_heights"
+sprite_sheet = "res://assets/sprites/ezra.png"
+facing = "up"
+metadata/scan = "MINOR - corporate training, year 1\nPsyon JUNIOR - sync 100%"
+metadata/scan_name = "Minor"
+metadata/say = "'We did the breathing today. You close your eyes and you count the rings. I got to eleven.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcKidHeights"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcSecurityHeights" type="Area2D" parent="Actors"]
+position = Vector2(208, 284)
+script = ExtResource("5_npc")
+id = "security_heights"
+sprite_sheet = "res://assets/sprites/officer.png"
+facing = "down"
+metadata/scan = "PRIVATE SECURITY - HEIGHTS\nPsyon 4.1 - sync 91%\nlist: EVERYONE"
+metadata/scan_name = "Security"
+metadata/say = "'Gated community, sir. You're on the list.' He hadn't looked at anything. 'Everyone's on the list.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcSecurityHeights"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -560,3 +683,36 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitWest"]
 shape = SubResource("Rect_32x352")
+
+[node name="Swarm" type="Area2D" parent="Interactables"]
+position = Vector2(1232, 272)
+script = ExtResource("4_interact")
+id = "swarm"
+metadata/scan = "PSYONIC LOGISTICS SWARM\nunits: 6\nroute: NOMINAL"
+metadata/scan_name = "Delivery swarm"
+metadata/say = "Six delivery drones over one house, in a ring. They didn't drift. Nobody was home, and the ring was waiting for someone to be."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Swarm"]
+shape = SubResource("Rect_32x32")
+
+[node name="AdHeights" type="Area2D" parent="Interactables"]
+position = Vector2(672, 208)
+script = ExtResource("4_interact")
+id = "ad_heights"
+metadata/scan = "TOKZ DISPLAY\nloop: SLEEP TOGETHER\nviews today: 414,009"
+metadata/scan_name = "TOKZ display"
+metadata/say = "A TOKZ ad. Sleep better. Sleep together. The couple in it faced the same way in the dark, eyes shut, and the camera held on them too long."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/AdHeights"]
+shape = SubResource("Rect_64x32")
+
+[node name="ChargerHeights" type="Area2D" parent="Interactables"]
+position = Vector2(496, 496)
+script = ExtResource("4_interact")
+id = "charger_heights"
+metadata/scan = "FLEET CHARGER 118\nlast vehicle: DRAKE, C.\nlast trip: HOME, 03:12"
+metadata/scan_name = "Fleet charger"
+metadata/say = "The charging post outside the house. The car was always full. The car always knew where I'd been."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/ChargerHeights"]
+shape = SubResource("Rect_32x32")

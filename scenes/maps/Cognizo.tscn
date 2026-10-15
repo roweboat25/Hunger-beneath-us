@@ -1,18 +1,23 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/CognizoScene.gd" id="2_script"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
 [ext_resource type="Script" path="res://scripts/Interactable.gd" id="4_interact"]
 [ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
+[ext_resource type="Texture2D" path="res://assets/props/ad_screen.png" id="tex_ad_screen"]
+[ext_resource type="Texture2D" path="res://assets/props/ad_screen_static.png" id="tex_ad_screen_static"]
 [ext_resource type="Texture2D" path="res://assets/props/bench.png" id="tex_bench"]
 [ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/cement_stairs.png" id="tex_cement_stairs"]
+[ext_resource type="Texture2D" path="res://assets/props/coffee_cup.png" id="tex_coffee_cup"]
 [ext_resource type="Texture2D" path="res://assets/props/drain.png" id="tex_drain"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_band.png" id="tex_graffiti_band"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk.png" id="tex_kiosk"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk_static.png" id="tex_kiosk_static"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
 [ext_resource type="Texture2D" path="res://assets/props/paper2.png" id="tex_paper2"]
@@ -20,7 +25,9 @@
 [ext_resource type="Texture2D" path="res://assets/props/poster2.png" id="tex_poster2"]
 [ext_resource type="Texture2D" path="res://assets/props/poster3.png" id="tex_poster3"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
+[ext_resource type="Texture2D" path="res://assets/props/pylon.png" id="tex_pylon"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
+[ext_resource type="Texture2D" path="res://assets/props/sewer_lid.png" id="tex_sewer_lid"]
 [ext_resource type="Texture2D" path="res://assets/props/vending.png" id="tex_vending"]
 
 [sub_resource type="RectangleShape2D" id="Rect_32x32"]
@@ -145,6 +152,16 @@ texture = ExtResource("tex_cement_stairs")
 position = Vector2(1488, 640)
 offset = Vector2(0, -32)
 texture = ExtResource("tex_cement_stairs")
+
+[node name="D13_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(656, 320)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
+
+[node name="D14_sewer_lid" type="Sprite2D" parent="Decals"]
+position = Vector2(784, 416)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_sewer_lid")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -381,6 +398,72 @@ metadata/prop_id = "glyph:cq_wall"
 metadata/glyph_deep = false
 visible = false
 
+[node name="P19_pylon" type="Sprite2D" parent="Actors"]
+position = Vector2(272, 321)
+offset = Vector2(0, -57)
+texture = ExtResource("tex_pylon")
+metadata/prop_id = "pylon_cognizo_w"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P19_pylon"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P19_pylon/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P20_pylon" type="Sprite2D" parent="Actors"]
+position = Vector2(1296, 321)
+offset = Vector2(0, -57)
+texture = ExtResource("tex_pylon")
+metadata/prop_id = "pylon_cognizo_e"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P20_pylon"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P20_pylon/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P21_ad_screen" type="Sprite2D" parent="Actors"]
+position = Vector2(864, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_ad_screen")
+metadata/prop_id = "ad_cognizo"
+metadata/pair = "ad_screen"
+
+[node name="P22_ad_screen_static" type="Sprite2D" parent="Actors"]
+position = Vector2(864, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_ad_screen_static")
+metadata/prop_id = "ad_cognizo_static"
+metadata/pair = "ad_screen_static"
+visible = false
+
+[node name="P23_kiosk" type="Sprite2D" parent="Actors"]
+position = Vector2(1168, 545)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk")
+metadata/prop_id = "kiosk_cognizo"
+metadata/pair = "kiosk"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P23_kiosk"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P23_kiosk/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P24_kiosk_static" type="Sprite2D" parent="Actors"]
+position = Vector2(1168, 545)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk_static")
+metadata/prop_id = "kiosk_cognizo_static"
+metadata/pair = "kiosk_static"
+visible = false
+
 [node name="NpcSuit" type="Area2D" parent="Actors"]
 position = Vector2(368, 508)
 script = ExtResource("5_npc")
@@ -400,6 +483,35 @@ sprite_sheet = "res://assets/sprites/turan.png"
 facing = "down"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcSuit2"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcInternCognizo" type="Area2D" parent="Actors"]
+position = Vector2(976, 540)
+script = ExtResource("5_npc")
+id = "intern_cognizo"
+sprite_sheet = "res://assets/sprites/carl_noglasses.png"
+facing = "up"
+metadata/scan = "COGNIZO - ASSOCIATE\nframes: COGNIZO v2\nPsyon: NONE DETECTED\nPsyon: DETECTED"
+metadata/scan_name = "Cognizo associate"
+metadata/scan_bad = true
+metadata/say = "'Cognizo frames don't do this, you know. Ours don't talk. That's the whole pitch.' A pause. 'Then why did mine?'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcInternCognizo"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcGreeterCognizo" type="Area2D" parent="Actors"]
+position = Vector2(464, 284)
+script = ExtResource("5_npc")
+id = "greeter_cognizo"
+sprite_sheet = "res://assets/sprites/bot.png"
+facing = "down"
+metadata/scan = "COGNIZO GREETER UNIT\nscript: WELCOME\nscript: PLEASE"
+metadata/scan_name = "Greeter bot"
+metadata/say = "'Welcome to Cognizo Quarter. Please mind the gap. Please mind the gap. Please.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcGreeterCognizo"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -493,3 +605,47 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitSouth"]
 shape = SubResource("Rect_96x32")
+
+[node name="PylonCognizoW" type="Area2D" parent="Interactables"]
+position = Vector2(272, 304)
+script = ExtResource("4_interact")
+id = "pylon_cognizo_w"
+metadata/scan = "TRANSIT PYLON 61\nline: COGNIZO LOOP\nterminus: THE TOWER"
+metadata/scan_name = "Transit pylon"
+metadata/say = "A transit pylon. Even Cognizo's tubes ran to the tower."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PylonCognizoW"]
+shape = SubResource("Rect_32x32")
+
+[node name="PylonCognizoE" type="Area2D" parent="Interactables"]
+position = Vector2(1296, 304)
+script = ExtResource("4_interact")
+id = "pylon_cognizo_e"
+metadata/scan = "TRANSIT PYLON 62\nline: COGNIZO LOOP\nload: 0%"
+metadata/scan_name = "Transit pylon"
+metadata/say = "A pylon. The tube hummed overhead; nothing was running on it."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PylonCognizoE"]
+shape = SubResource("Rect_32x32")
+
+[node name="AdCognizo" type="Area2D" parent="Interactables"]
+position = Vector2(864, 208)
+script = ExtResource("4_interact")
+id = "ad_cognizo"
+metadata/scan = "COGNIZO DISPLAY\nloop: OURS DON'T TALK\nnote: it does"
+metadata/scan_name = "Cognizo display"
+metadata/say = "A Cognizo ad. Clean lines, no faces. OURS DON'T TALK. Under it, in marker, two rings."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/AdCognizo"]
+shape = SubResource("Rect_64x32")
+
+[node name="KioskCognizo" type="Area2D" parent="Interactables"]
+position = Vector2(1168, 528)
+script = ExtResource("4_interact")
+id = "kiosk_cognizo"
+metadata/scan = "CITY TERMINAL 301\nuptime: 0d 0h\nlast query: WHERE IS THE DOOR"
+metadata/scan_name = "City terminal"
+metadata/say = "A city terminal kiosk. Transit, bills, FreudBot bookings. Someone had scrawled the eye on the inside of the screen bezel, from the inside."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/KioskCognizo"]
+shape = SubResource("Rect_32x32")

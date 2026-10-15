@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ParkAveScene.gd" id="2_script"]
@@ -9,9 +9,12 @@
 [ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
+[ext_resource type="Texture2D" path="res://assets/props/coffee_cup.png" id="tex_coffee_cup"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_loot.png" id="tex_graffiti_loot"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk.png" id="tex_kiosk"]
+[ext_resource type="Texture2D" path="res://assets/props/kiosk_static.png" id="tex_kiosk_static"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post.png" id="tex_lamp_post"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_post_off.png" id="tex_lamp_post_off"]
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
@@ -111,6 +114,21 @@ texture = ExtResource("tex_paper3")
 position = Vector2(560, 352)
 offset = Vector2(0, -16)
 texture = ExtResource("tex_blood")
+
+[node name="D7_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(368, 256)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
+
+[node name="D8_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(528, 256)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
+
+[node name="D9_coffee_cup" type="Sprite2D" parent="Decals"]
+position = Vector2(976, 320)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_coffee_cup")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -301,6 +319,29 @@ metadata/prop_id = "glyph:pa_end"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P15_kiosk" type="Sprite2D" parent="Actors"]
+position = Vector2(784, 449)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk")
+metadata/prop_id = "kiosk_parkave"
+metadata/pair = "kiosk"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P15_kiosk"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P15_kiosk/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P16_kiosk_static" type="Sprite2D" parent="Actors"]
+position = Vector2(784, 449)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_kiosk_static")
+metadata/prop_id = "kiosk_parkave_static"
+metadata/pair = "kiosk_static"
+visible = false
+
 [node name="NpcCrowd0" type="Area2D" parent="Actors"]
 position = Vector2(464, 284)
 script = ExtResource("5_npc")
@@ -358,6 +399,35 @@ facing = "down"
 metadata/min_connection = 50
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcCrowd4"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcCommuterA" type="Area2D" parent="Actors"]
+position = Vector2(368, 220)
+script = ExtResource("5_npc")
+id = "commuter_a"
+sprite_sheet = "res://assets/sprites/tyson.png"
+facing = "down"
+metadata/scan = "PSYONIC - MARKET INTELLIGENCE\nPsyon 4.1 - sync 99%\nblink rate: 0"
+metadata/scan_name = "Commuter"
+metadata/scan_bad = true
+metadata/say = "Adults clutched paper coffee cups and stared at nothing. This one didn't blink while I talked to him. 'Fine,' he said. 'Fine. Fine.'"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcCommuterA"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcCommuterB" type="Area2D" parent="Actors"]
+position = Vector2(368, 188)
+script = ExtResource("5_npc")
+id = "commuter_b"
+sprite_sheet = "res://assets/sprites/nurse.png"
+facing = "down"
+metadata/scan = "FARGONA BANKING - ANALYST\nPsyon 4.1 - sync 98%\ncall: NONE"
+metadata/scan_name = "Commuter"
+metadata/say = "'Sorry, I'm on a call.' She wasn't holding anything. Her lips kept moving after I'd walked on."
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcCommuterB"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -426,3 +496,14 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitEast"]
 shape = SubResource("Rect_32x320")
+
+[node name="KioskParkave" type="Area2D" parent="Interactables"]
+position = Vector2(784, 432)
+script = ExtResource("4_interact")
+id = "kiosk_parkave"
+metadata/scan = "CITY TERMINAL 212\nuptime: 0d 0h\nlast query: WHERE IS THE DOOR"
+metadata/scan_name = "City terminal"
+metadata/say = "A city terminal kiosk. Transit, bills, FreudBot bookings. Someone had scrawled the eye on the inside of the screen bezel, from the inside."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/KioskParkave"]
+shape = SubResource("Rect_32x32")

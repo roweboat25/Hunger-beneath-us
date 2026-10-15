@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/FlyoverScene.gd" id="2_script"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/Interactable.gd" id="4_interact"]
 [ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
 [ext_resource type="Texture2D" path="res://assets/props/blood.png" id="tex_blood"]
+[ext_resource type="Texture2D" path="res://assets/props/drone_police.png" id="tex_drone_police"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_band.png" id="tex_graffiti_band"]
@@ -17,6 +18,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/poster2.png" id="tex_poster2"]
 [ext_resource type="Texture2D" path="res://assets/props/poster3.png" id="tex_poster3"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
+[ext_resource type="Texture2D" path="res://assets/props/pylon.png" id="tex_pylon"]
 [ext_resource type="Texture2D" path="res://assets/props/sedan.png" id="tex_sedan"]
 [ext_resource type="Texture2D" path="res://assets/props/stick.png" id="tex_stick"]
 
@@ -226,6 +228,27 @@ metadata/prop_id = "glyph:fo_edge"
 metadata/glyph_deep = false
 visible = false
 
+[node name="P7_drone_police" type="Sprite2D" parent="Actors"]
+position = Vector2(400, 673)
+offset = Vector2(0, -83)
+texture = ExtResource("tex_drone_police")
+metadata/prop_id = "pd_drone_flyover"
+metadata/drone = true
+
+[node name="P8_pylon" type="Sprite2D" parent="Actors"]
+position = Vector2(144, 353)
+offset = Vector2(0, -57)
+texture = ExtResource("tex_pylon")
+metadata/prop_id = "pylon_flyover"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P8_pylon"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P8_pylon/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
 [node name="NpcJogger" type="Area2D" parent="Actors"]
 position = Vector2(80, 732)
 script = ExtResource("5_npc")
@@ -234,6 +257,20 @@ sprite_sheet = "res://assets/sprites/tyson.png"
 facing = "up"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcJogger"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcWalkerFlyover" type="Area2D" parent="Actors"]
+position = Vector2(400, 476)
+script = ExtResource("5_npc")
+id = "walker_flyover"
+sprite_sheet = "res://assets/sprites/emmet.png"
+facing = "down"
+metadata/scan = "PEDESTRIAN\nPsyon 2.2 (legacy)\nsync: 12%\nflag: DISSENTER FORUM"
+metadata/scan_name = "Pedestrian"
+metadata/say = "'Don't look at the boards too long. The old ones, top of the ramp. They look back.' He kept his own eyes on the asphalt the whole way down."
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcWalkerFlyover"]
 position = Vector2(0, -16)
 shape = SubResource("Rect_32x32")
 
@@ -342,3 +379,26 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/ExitSouth"]
 shape = SubResource("Rect_128x32")
+
+[node name="PdDroneFlyover" type="Area2D" parent="Interactables"]
+position = Vector2(400, 656)
+script = ExtResource("4_interact")
+id = "pd_drone_flyover"
+metadata/scan = "SILICO PD DRONE 7\nassignment: FLYOVER\ntarget: DRAKE, C."
+metadata/scan_name = "Police drone"
+metadata/scan_bad = true
+metadata/say = "A police drone over the ramp. Carrion flies, Lynx called them, the night she told me about Nathan."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PdDroneFlyover"]
+shape = SubResource("Rect_32x32")
+
+[node name="PylonFlyover" type="Area2D" parent="Interactables"]
+position = Vector2(144, 336)
+script = ExtResource("4_interact")
+id = "pylon_flyover"
+metadata/scan = "TRANSIT PYLON 12\nline: HEIGHTS EXPRESS\nterminus: THE TOWER"
+metadata/scan_name = "Transit pylon"
+metadata/say = "A transit tube pylon. The tube overhead ran dead straight to the tower, a thread in the circuitry."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PylonFlyover"]
+shape = SubResource("Rect_32x32")

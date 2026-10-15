@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=46 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ParkScene.gd" id="2_script"]
@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/cart.png" id="tex_cart"]
 [ext_resource type="Texture2D" path="res://assets/props/crate.png" id="tex_crate"]
 [ext_resource type="Texture2D" path="res://assets/props/crate_small.png" id="tex_crate_small"]
+[ext_resource type="Texture2D" path="res://assets/props/drone_pole.png" id="tex_drone_pole"]
 [ext_resource type="Texture2D" path="res://assets/props/fence_iron.png" id="tex_fence_iron"]
 [ext_resource type="Texture2D" path="res://assets/props/fire_out.png" id="tex_fire_out"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
@@ -539,6 +540,20 @@ metadata/prop_id = "glyph:park_gap"
 metadata/glyph_deep = true
 visible = false
 
+[node name="P30_drone_pole" type="Sprite2D" parent="Actors"]
+position = Vector2(880, 225)
+offset = Vector2(0, -33)
+texture = ExtResource("tex_drone_pole")
+metadata/prop_id = "pole_park"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P30_drone_pole"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P30_drone_pole/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
 [node name="NpcSeth" type="Area2D" parent="Actors"]
 position = Vector2(304, 156)
 script = ExtResource("5_npc")
@@ -655,4 +670,15 @@ on_enter = true
 once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Exit"]
+shape = SubResource("Rect_32x32")
+
+[node name="PolePark" type="Area2D" parent="Interactables"]
+position = Vector2(880, 208)
+script = ExtResource("4_interact")
+id = "pole_park"
+metadata/scan = "CIVIC ASSISTANT POLE - HARMONY GREEN\ncamera: MISSING\naudio: STATIC\nclimate: 72F, always"
+metadata/scan_name = "Drone pole"
+metadata/say = "A rusted drone pole stood crooked near the sandbox, its camera housing empty, its voice assistant speaker hissing faintly with static."
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/PolePark"]
 shape = SubResource("Rect_32x32")

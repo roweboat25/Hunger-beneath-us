@@ -1,4 +1,14 @@
 {
+ "ad_screen": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "ad_screen_static": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
  "armchair_grey": {
   "h": 48,
   "solid": 1,
@@ -159,7 +169,17 @@
   "solid": 1,
   "w": 32
  },
+ "charging_post": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
  "cobweb": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
+ },
+ "coffee_cup": {
   "h": 32,
   "solid": 0,
   "w": 32
@@ -259,6 +279,21 @@
   "solid": 1,
   "w": 64
  },
+ "drone": {
+  "h": 24,
+  "solid": 0,
+  "w": 32
+ },
+ "drone_pole": {
+  "h": 64,
+  "solid": 1,
+  "w": 32
+ },
+ "drone_police": {
+  "h": 24,
+  "solid": 0,
+  "w": 32
+ },
  "elevator": {
   "h": 64,
   "solid": 1,
@@ -299,6 +334,11 @@
   "solid": 0,
   "w": 32
  },
+ "freudbot": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
  "fridge": {
   "h": 64,
   "solid": 1,
@@ -337,6 +377,16 @@
  "grass_tuft": {
   "h": 9,
   "solid": 0,
+  "w": 32
+ },
+ "kiosk": {
+  "h": 64,
+  "solid": 1,
+  "w": 32
+ },
+ "kiosk_static": {
+  "h": 64,
+  "solid": 1,
   "w": 32
  },
  "lamp_floor": {
@@ -489,6 +539,11 @@
   "solid": 0,
   "w": 32
  },
+ "pylon": {
+  "h": 112,
+  "solid": 1,
+  "w": 32
+ },
  "reeds": {
   "h": 53,
   "solid": 0,
@@ -538,6 +593,11 @@
   "h": 40,
   "solid": 1,
   "w": 64
+ },
+ "sewer_lid": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
  },
  "shelf": {
   "h": 20,
@@ -598,6 +658,11 @@
   "h": 31,
   "solid": 1,
   "w": 32
+ },
+ "substation": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
  },
  "table": {
   "h": 36,

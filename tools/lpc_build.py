@@ -13,6 +13,7 @@ Outputs:
   assets/portraits/<name>.png           64x64 dialogue portraits
 """
 import json
+import random
 import os
 import shutil
 import sys
@@ -514,6 +515,146 @@ def custom_props():
     d.line([(16, 6), (28, 16)], fill=(200, 200, 210))
     d.line([(4, 12), (16, 22)], fill=(200, 200, 210))
     P["frames_broken"] = (im, 0)
+
+    # --- the city's machines (density pass): drones, kiosks, screens, booths
+    def box(d, x0, y0, x1, y1, col, edge):
+        d.rectangle([x0, y0, x1, y1], fill=col)
+        d.line([(x0, y0), (x1, y0)], fill=edge)
+        d.line([(x0, y0), (x0, y1)], fill=edge)
+
+    # delivery drone (grey quad) and police drone (black, blue light)
+    for name, body, light in (("drone", (120, 124, 136), (230, 70, 60)), ("drone_police", (36, 36, 44), (90, 170, 255))):
+        im = new(32, 24)
+        d = ImageDraw.Draw(im)
+        for cx, cy in ((6, 6), (26, 6), (6, 18), (26, 18)):
+            d.ellipse([cx - 5, cy - 2, cx + 5, cy + 2], fill=(200, 206, 214, 120))
+            d.line([(cx, cy), (16, 12)], fill=(70, 72, 80), width=2)
+        d.rounded_rectangle([10, 7, 22, 17], 3, fill=body)
+        d.rectangle([13, 10, 19, 14], fill=(26, 24, 30))
+        d.point((16, 12), fill=light)
+        d.rectangle([15, 17, 17, 20], fill=(60, 60, 70))
+        P[name] = (im, 0)
+
+    # the rusted drone pole by the sandbox: empty camera housing, hissing speaker
+    im = new(32, 64)
+    d = ImageDraw.Draw(im)
+    d.rectangle([14, 8, 18, 62], fill=(110, 84, 70))
+    for y in (14, 26, 41, 52):
+        d.rectangle([14, y, 18, y + 2], fill=(150, 90, 60))
+    d.rectangle([8, 2, 24, 12], fill=(96, 96, 104))
+    d.ellipse([12, 4, 20, 10], fill=(20, 18, 22))
+    d.rectangle([19, 30, 28, 40], fill=(70, 70, 78))
+    for y in (32, 35, 38):
+        d.line([(21, y), (26, y)], fill=(30, 30, 34))
+    P["drone_pole"] = (outline(im), 1)
+
+    # city terminal kiosk, screen lit teal, the eye scrawled under it
+    im = new(32, 64)
+    d = ImageDraw.Draw(im)
+    d.rectangle([4, 4, 27, 62], fill=(70, 74, 86))
+    d.rectangle([4, 4, 27, 8], fill=(94, 98, 110))
+    d.rectangle([7, 12, 24, 30], fill=(18, 60, 56))
+    for y in (15, 19, 23, 27):
+        d.line([(9, y), (20 - (y % 7), y)], fill=(127, 224, 192))
+    d.rectangle([7, 36, 24, 42], fill=(40, 42, 50))
+    d.ellipse([11, 47, 21, 53], outline=(200, 60, 50))
+    d.point((16, 50), fill=(200, 60, 50))
+    P["kiosk"] = (outline(im), 1)
+    im2 = im.copy()
+    d = ImageDraw.Draw(im2)
+    d.rectangle([7, 12, 24, 30], fill=(60, 60, 66))
+    for y in range(13, 30, 2):
+        for x in range(8, 24, 3):
+            d.point((x + (y % 3), y), fill=(120, 120, 128))
+    P["kiosk_static"] = (outline(im2), 1)
+
+    # wall ad screen (64x32): Psyonic / Nixtra loop, and the static version
+    im = new(64, 32)
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, 63, 31], fill=(30, 30, 36))
+    d.rectangle([3, 3, 60, 28], fill=(24, 54, 70))
+    d.rectangle([8, 8, 28, 24], fill=(220, 190, 150))
+    d.ellipse([12, 10, 24, 22], fill=(240, 214, 180))
+    d.line([(14, 16), (22, 16)], fill=(60, 40, 40))
+    d.rectangle([34, 10, 56, 13], fill=(127, 224, 192))
+    d.rectangle([34, 17, 50, 20], fill=(180, 190, 200))
+    P["ad_screen"] = (im, 0)
+    im = new(64, 32)
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, 63, 31], fill=(30, 30, 36))
+    rnd = random.Random(7)
+    for y in range(3, 29):
+        for x in range(3, 61):
+            g = rnd.choice((40, 70, 110, 150))
+            d.point((x, y), fill=(g, g, g + 6))
+    d.ellipse([26, 10, 38, 22], outline=(200, 60, 50))
+    P["ad_screen_static"] = (im, 0)
+
+    # FreudBot GPT booth: a seat, a screen face, a little sign
+    im = new(64, 64)
+    d = ImageDraw.Draw(im)
+    d.rectangle([2, 10, 61, 62], fill=(206, 210, 216))
+    d.rectangle([2, 10, 61, 16], fill=(127, 224, 192))
+    d.rectangle([6, 20, 34, 44], fill=(20, 30, 40))
+    d.ellipse([14, 26, 26, 38], outline=(127, 224, 192))
+    d.point((18, 31), fill=(127, 224, 192)); d.point((22, 31), fill=(127, 224, 192))
+    d.arc([16, 30, 24, 36], 0, 180, fill=(127, 224, 192))
+    d.rectangle([40, 30, 58, 50], fill=(90, 70, 70))
+    d.rectangle([40, 26, 58, 32], fill=(110, 86, 86))
+    d.rectangle([6, 50, 34, 58], fill=(60, 64, 70))
+    P["freudbot"] = (outline(im), 1)
+
+    # Voltx substation panel: grey box, warning stripe, the eye in marker
+    im = new(64, 48)
+    d = ImageDraw.Draw(im)
+    d.rectangle([2, 4, 61, 46], fill=(118, 122, 128))
+    d.rectangle([2, 4, 61, 9], fill=(140, 144, 150))
+    for x in range(4, 60, 8):
+        d.polygon([(x, 40), (x + 4, 40), (x + 8, 46), (x + 4, 46)], fill=(230, 190, 60))
+    d.rectangle([8, 14, 30, 34], fill=(70, 72, 80))
+    d.rectangle([12, 18, 26, 20], fill=(230, 80, 60))
+    d.rectangle([12, 24, 26, 26], fill=(80, 200, 120))
+    d.ellipse([38, 16, 56, 30], outline=(200, 60, 50), width=2)
+    d.ellipse([44, 20, 50, 26], fill=(200, 60, 50))
+    P["substation"] = (outline(im), 1)
+
+    # sewer lid with the rings scratched in (decal)
+    im = new(32, 32)
+    d = ImageDraw.Draw(im)
+    d.ellipse([3, 6, 28, 26], fill=(74, 72, 70))
+    d.ellipse([7, 9, 24, 23], outline=(54, 52, 50))
+    d.ellipse([11, 12, 20, 20], outline=(200, 60, 50))
+    d.ellipse([14, 14, 17, 18], fill=(200, 60, 50))
+    P["sewer_lid"] = (im, 0)
+
+    # transit tube pylon: the elevated tubes that all run to the tower
+    im = new(32, 112)
+    d = ImageDraw.Draw(im)
+    d.rectangle([11, 20, 20, 110], fill=(96, 100, 112))
+    d.rectangle([13, 20, 15, 110], fill=(120, 124, 136))
+    d.rectangle([0, 4, 31, 20], fill=(70, 74, 86))
+    d.rectangle([0, 8, 31, 12], fill=(50, 120, 130))
+    d.rectangle([4, 104, 27, 110], fill=(80, 82, 90))
+    for y in (30, 50, 70, 90):
+        d.point((19, y), fill=(230, 70, 60))
+    P["pylon"] = (outline(im), 1)
+
+    # a charging post for the company cars
+    im = new(32, 48)
+    d = ImageDraw.Draw(im)
+    d.rectangle([10, 6, 22, 46], fill=(86, 90, 100))
+    d.rectangle([12, 10, 20, 20], fill=(18, 60, 56))
+    d.rectangle([14, 13, 18, 15], fill=(127, 224, 192))
+    d.rectangle([13, 26, 19, 32], fill=(40, 42, 50))
+    d.line([(16, 32), (26, 44)], fill=(30, 30, 34), width=2)
+    P["charging_post"] = (outline(im), 1)
+
+    # a coffee cup, a tablet left on a bench, a snapped-stick bundle (small decals)
+    im = new(32, 32)
+    d = ImageDraw.Draw(im)
+    d.rectangle([12, 14, 20, 26], fill=(230, 226, 220))
+    d.rectangle([12, 14, 20, 17], fill=(120, 80, 60))
+    P["coffee_cup"] = (outline(im), 0)
     return P
 
 

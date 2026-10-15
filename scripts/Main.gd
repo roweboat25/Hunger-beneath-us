@@ -20,6 +20,11 @@ var _log_text: RichTextLabel
 var _fade: ColorRect
 var _glyph: TextureRect
 var _modulate: CanvasModulate
+var _feed: Label
+var _feed_timer := 0.0
+var _scan_panel: PanelContainer
+var _scan_text: RichTextLabel
+var _scan_timer := 0.0
 
 
 func _ready() -> void:
@@ -49,6 +54,22 @@ func _ready() -> void:
 	Game.glyph_found.connect(func(_id, n): _show_toast("Glyph %d  ·  a line of the chant decoded" % n))
 	Game.threshold_crossed.connect(_on_threshold)
 	Game.theory_changed.connect(func(t): _show_toast("Working theory: " + Game.THEORIES[t]["name"]))
+	Game.incident_opened.connect(func(id): _show_feed("INCIDENT  ·  " + Game.INCIDENTS[id]["title"] + "  ·  " + World.place(Game.INCIDENTS[id]["map"]).get_slice(",", 0), true))
+	Game.incident_resolved.connect(func(id, outcome): _show_toast("Incident %s: %s" % [outcome, Game.INCIDENTS[id]["title"]]))
+	Game.evidence_added.connect(func(_item): _show_feed("ORA: evidence of a crime detected. Police notified.", true))
+	Game.outage_changed.connect(func(on): _show_feed("VOLTX: rolling outage in this quadrant. Services may be unresponsive." if on else "VOLTX: service restored.", true))
+
+	# the ORA feed: what the frames push at Carl while he walks
+	_feed = Label.new()
+	_feed.add_theme_font_size_override("font_size", 8)
+	_feed.add_theme_color_override("font_color", Color("7fe0c0", 0.9))
+	_feed.add_theme_color_override("font_shadow_color", Color("050608", 0.9))
+	_feed.add_theme_constant_override("shadow_offset_x", 1)
+	_feed.add_theme_constant_override("shadow_offset_y", 1)
+	_feed.position = Vector2(6, 30)
+	_feed.modulate.a = 0.0
+	_ui.add_child(_feed)
+	_build_scan_panel()
 
 	_build_log_panel()
 	_build_title()
@@ -129,8 +150,14 @@ func load_map(path: String) -> void:
 	await fade_in()
 	map.start()
 	if not _shot_path.is_empty():
-		# dev: --shot=path.png saves a frame of this map and quits
-		await get_tree().create_timer(6.0).timeout
+		# dev: --shot=path.png saves a frame of this map and quits; --scan=id shows that thing's card first
+		await get_tree().create_timer(5.0).timeout
+		for arg in OS.get_cmdline_user_args():
+			if arg.begins_with("--scan="):
+				dialogue.close()
+				Game.input_locked = false
+				map.scan(map.interactable(arg.trim_prefix("--scan=")))
+				await get_tree().create_timer(1.0).timeout
 		get_viewport().get_texture().get_image().save_png(_shot_path)
 		get_tree().quit()
 
@@ -252,7 +279,7 @@ func _refresh_board() -> void:
 	var i := 1
 	for id in Game.THEORIES:
 		var th: Dictionary = Game.THEORIES[id]
-		var have := Game.theory_progress(id)
+		var have: int = Game.theory_progress(id)
 		var total: int = th["clues"].size()
 		var bar := ""
 		for k in total:
@@ -261,12 +288,83 @@ func _refresh_board() -> void:
 		var col := "7fe0c0" if Game.theory == id else "e8ecef"
 		t += "[color=%s]%s%d. %-32s %s %d/%d[/color]\n" % [col, pin, i, th["name"], bar, have, total]
 		i += 1
+	t += "\n[color=f5d6a0]INCIDENTS[/color]  %d of %d closed" % [Game.incidents_closed(), Game.INCIDENTS.size()]
+	for id in Game.incidents:
+		var state: String = Game.incidents[id]
+		var col := "f5d6a0" if state == "open" else "8fa0a8"
+		t += "\n  [color=%s]%s  %s  (%s)[/color]" % [col, "!" if state == "open" else "x", Game.INCIDENTS[id]["title"], World.place(Game.INCIDENTS[id]["map"]).get_slice(",", 0) if state == "open" else state]
 	t += "\n[color=f5d6a0]EVIDENCE[/color]  " + (", ".join(Game.evidence) if Game.evidence.size() else "nothing bagged yet")
 	t += "\n[color=f5d6a0]GLYPHS[/color]  %d found  ·  connection %d  ·  company pressure %d\n" % [Game.glyphs_found.size(), int(Game.connection), Game.pressure]
 	t += "\n[color=f5d6a0]LOG[/color]\n"
 	for entry in Game.case_log:
 		t += "\u00b7 " + entry + "\n"
 	_log_text.text = t
+
+
+## A line on the ORA feed under the objective. Urgent ones hold longer.
+func _show_feed(text: String, urgent := false) -> void:
+	if not Game.glasses_on and not urgent:
+		return
+	_feed.text = "ORA > " + text
+	_feed.modulate.a = 1.0
+	var t := create_tween()
+	t.tween_interval(4.5 if urgent else 3.2)
+	t.tween_property(_feed, "modulate:a", 0.0, 0.8)
+
+
+func _build_scan_panel() -> void:
+	_scan_panel = PanelContainer.new()
+	_scan_panel.position = Vector2(170, 44)
+	_scan_panel.custom_minimum_size = Vector2(300, 0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("06100e", 0.92)
+	style.border_color = Color("7fe0c0", 0.9)
+	style.set_border_width_all(1)
+	style.set_content_margin_all(6)
+	_scan_panel.add_theme_stylebox_override("panel", style)
+	_scan_text = RichTextLabel.new()
+	_scan_text.bbcode_enabled = true
+	_scan_text.fit_content = true
+	_scan_text.scroll_active = false
+	_scan_text.custom_minimum_size = Vector2(288, 0)
+	_scan_text.add_theme_font_size_override("normal_font_size", 8)
+	_scan_text.add_theme_font_size_override("bold_font_size", 8)
+	_scan_text.add_theme_color_override("default_color", Color("d8f3ea"))
+	_scan_panel.add_child(_scan_text)
+	_scan_panel.hide()
+	_ui.add_child(_scan_panel)
+
+
+## The ORA identification card: what the frames make of whatever Carl faces.
+func show_scan(title: String, body: String, bad := false) -> void:
+	var col := "e0453a" if bad else "7fe0c0"
+	# the card's font has no middle dot, so cards use a dash
+	_scan_text.text = "[color=%s]ORA ID  -  %s[/color]\n%s" % [col, title.replace("\u00b7", "-"), body.replace("\u00b7", "-")]
+	_scan_panel.modulate.a = 1.0
+	_scan_panel.show()
+	_scan_timer = 3.6
+
+
+func hide_scan() -> void:
+	_scan_panel.hide()
+	_scan_timer = 0.0
+
+
+func _process(delta: float) -> void:
+	if _scan_timer > 0.0:
+		_scan_timer -= delta
+		if _scan_timer <= 0.0:
+			var t := create_tween()
+			t.tween_property(_scan_panel, "modulate:a", 0.0, 0.4)
+			t.tween_callback(_scan_panel.hide)
+	# the feed only runs while Carl is out on a street with nothing else up
+	if map is StreetScene and not Game.input_locked and not dialogue.visible and not psyon.visible:
+		_feed_timer -= delta
+		if _feed_timer <= 0.0:
+			_feed_timer = randf_range(16.0, 30.0)
+			var line: String = map.feed_line()
+			if not line.is_empty():
+				_show_feed(line)
 
 
 func _show_toast(text: String) -> void:
@@ -365,6 +463,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		Game.input_locked = _log_panel.visible
 		if _log_panel.visible:
 			_refresh_board()
+	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not _log_panel.visible:
+		var target: Node = player.nearest_interactable()
+		map.scan(target)
 	elif _log_panel.visible and event is InputEventKey and event.pressed and not event.echo:
 		var keys := {KEY_1: "drugs", KEY_2: "hacker", KEY_3: "beneath"}
 		if event.keycode in keys:
