@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3]
+[gd_scene load_steps=45 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ParkScene.gd" id="2_script"]
@@ -17,6 +17,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/crate_small.png" id="tex_crate_small"]
 [ext_resource type="Texture2D" path="res://assets/props/fence_iron.png" id="tex_fence_iron"]
 [ext_resource type="Texture2D" path="res://assets/props/fire_out.png" id="tex_fire_out"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_danger.png" id="tex_graffiti_danger"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_loot.png" id="tex_graffiti_loot"]
 [ext_resource type="Texture2D" path="res://assets/props/grass_tuft.png" id="tex_grass_tuft"]
@@ -513,6 +515,30 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
+[node name="P27_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(656, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:park_wall"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P28_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(1232, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:park_alley"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P29_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(944, 385)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:park_gap"
+metadata/glyph_deep = true
+visible = false
+
 [node name="NpcSeth" type="Area2D" parent="Actors"]
 position = Vector2(304, 156)
 script = ExtResource("5_npc")
@@ -596,6 +622,30 @@ id = "tent"
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Tent"]
 shape = SubResource("Rect_64x64")
+
+[node name="GlyphParkWall" type="Area2D" parent="Interactables"]
+position = Vector2(656, 48)
+script = ExtResource("4_interact")
+id = "glyph:park_wall"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphParkWall"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphParkAlley" type="Area2D" parent="Interactables"]
+position = Vector2(1232, 48)
+script = ExtResource("4_interact")
+id = "glyph:park_alley"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphParkAlley"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphParkGap" type="Area2D" parent="Interactables"]
+position = Vector2(944, 368)
+script = ExtResource("4_interact")
+id = "glyph:park_gap"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphParkGap"]
+shape = SubResource("Rect_32x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(112, 496)

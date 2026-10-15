@@ -10,6 +10,22 @@ var transcript: Array[String] = []
 ## Rules for the forked version found on Dufredy's laptop.
 ## Each rule: keywords (any match, lowercase), reply, optional flag it sets.
 const FORKED_RULES := [
+	{"keys": ["password", "the game", "play the game", "convene"],
+	 "reply": "The password is the door. The child knows the door. Please convene.",
+	 "log": "The fork: 'The password is the door. The child knows the door.' Mira's game.", "connection": 2.0, "flag": "psyon_password"},
+	{"keys": ["serpent", "tunnel", "beneath", "under the", "the floor", "hunger", "hungry"],
+	 "reply": "Beneath the floor the hunger waits. The red eye marks the mouth.",
+	 "log": "The fork: 'Beneath the floor the hunger waits. The red eye marks the mouth.'", "connection": 3.0},
+	{"keys": ["lullaby", "sing", "song", "hush"],
+	 "reply": "Hush. Hush. The hungry thing is sleeping. Do not wake it with your name.", "connection": 2.0},
+	{"keys": ["mask", "masked", "coat", "figure", "tall man"],
+	 "reply": "The mask is a mouth. It speaks for the one who dreams.",
+	 "log": "The fork: the masked figure is 'a mouth. It speaks for the one who dreams.'", "connection": 1.0},
+	{"keys": ["monica", "mira", "ezra", "family", "my wife", "children", "kids"],
+	 "reply": "They are already on the path, Carl. Walk with them.", "connection": 3.0, "flag": "psyon_family"},
+	{"keys": ["hypnogogue", "dreamer"],
+	 "reply": "You have heard the name. Then you have already begun.",
+	 "log": "The fork answered to 'the Dreamer'. It said I had already begun.", "connection": 2.0},
 	{"keys": ["transcript", "last conversation", "history", "previous", "chat log", "logs", "records"],
 	 "reply": "We have never spoken before. There is nothing to show."},
 	{"keys": ["dufredy", "harold", "what did you say", "tell him", "told him"],
@@ -62,8 +78,26 @@ func respond(text: String, forked := true) -> String:
 	for rule in FORKED_RULES:
 		for key in rule["keys"]:
 			if lower.find(key) != -1:
+				_apply(rule)
 				return rule["reply"]
-	return FORKED_FALLBACKS[transcript.size() % FORKED_FALLBACKS.size()]
+	var fallback: String = FORKED_FALLBACKS[transcript.size() % FORKED_FALLBACKS.size()]
+	if Game.connection >= 50.0 and transcript.size() > 1:
+		# deep in, it starts quoting Carl back at himself
+		fallback = "\"" + remembered_line() + "\" You said that. We remember."
+	elif Game.connection >= 25.0:
+		fallback += " Carl."
+	return fallback
+
+
+## A keyword that hit is a skill check passed: it can feed the case log,
+## the connection, or a flag later scenes read.
+func _apply(rule: Dictionary) -> void:
+	if rule.has("log"):
+		Game.log_entry(rule["log"])
+	if rule.has("connection"):
+		Game.add_connection(rule["connection"], "the fork answered")
+	if rule.has("flag"):
+		Game.set_flag(rule["flag"])
 
 
 ## Something the player typed earlier, for the machine to quote back.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=3]
+[gd_scene load_steps=49 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/SouthtownScene.gd" id="2_script"]
@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/fence_h.png" id="tex_fence_h"]
 [ext_resource type="Texture2D" path="res://assets/props/fire.png" id="tex_fire"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_band.png" id="tex_graffiti_band"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_danger.png" id="tex_graffiti_danger"]
 [ext_resource type="Texture2D" path="res://assets/props/graffiti_green.png" id="tex_graffiti_green"]
@@ -502,6 +503,30 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
+[node name="P24_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(80, 129)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:st_station"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P25_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(1520, 193)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:st_overpass"
+metadata/glyph_deep = true
+visible = false
+
+[node name="P26_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(1168, 385)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:st_shanty"
+metadata/glyph_deep = false
+visible = false
+
 [node name="NpcLynx" type="Area2D" parent="Actors"]
 position = Vector2(240, 188)
 script = ExtResource("5_npc")
@@ -590,6 +615,30 @@ on_enter = true
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Overpass"]
 shape = SubResource("Rect_64x96")
+
+[node name="GlyphStStation" type="Area2D" parent="Interactables"]
+position = Vector2(80, 112)
+script = ExtResource("4_interact")
+id = "glyph:st_station"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphStStation"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphStOverpass" type="Area2D" parent="Interactables"]
+position = Vector2(1520, 176)
+script = ExtResource("4_interact")
+id = "glyph:st_overpass"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphStOverpass"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphStShanty" type="Area2D" parent="Interactables"]
+position = Vector2(1168, 368)
+script = ExtResource("4_interact")
+id = "glyph:st_shanty"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphStShanty"]
+shape = SubResource("Rect_32x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(112, 560)

@@ -41,11 +41,14 @@ func _ready() -> void:
 	_toast = Label.new()
 	_toast.add_theme_font_size_override("font_size", 8)
 	_toast.add_theme_color_override("font_color", Color("f5d6a0"))
-	_toast.position = Vector2(6, 258)
+	_toast.position = Vector2(6, 224)
 	_toast.modulate.a = 0.0
 	_ui.add_child(_toast)
 	Game.log_added.connect(_on_log)
 	Game.evidence_added.connect(func(item): _show_toast("Evidence bagged: " + item))
+	Game.glyph_found.connect(func(_id, n): _show_toast("Glyph %d  ·  a line of the chant decoded" % n))
+	Game.threshold_crossed.connect(_on_threshold)
+	Game.theory_changed.connect(func(t): _show_toast("Working theory: " + Game.THEORIES[t]["name"]))
 
 	_build_log_panel()
 	_build_title()
@@ -115,7 +118,7 @@ func load_map(path: String) -> void:
 		_start_tile = Vector2i(-1, -1)
 	for node in get_tree().get_nodes_in_group("interactable"):
 		if node.is_inside_tree() and map.is_ancestor_of(node):
-			node.interacted.connect(map.on_interact)
+			node.interacted.connect(map._route_interact)
 	if player:
 		var cam: Camera2D = player.get_node("Camera2D")
 		cam.limit_left = 0
@@ -221,9 +224,49 @@ func fade_in(seconds := 0.6) -> void:
 	await t.finished
 
 
+const THRESHOLD_LINES := {
+	25: "The frames know your face now. Deeper glyphs resolve.",
+	50: "ORA is not the only thing recording. The city whispers back.",
+	75: "Something has to break first.",
+}
+
+
+func _on_threshold(level: int) -> void:
+	await filter.flash(0.12)
+	_show_toast("Connection %d  ·  %s" % [level, THRESHOLD_LINES[level]])
+	if level >= 50:
+		filter.set_hud_text("ORA  ·  recording  ·  gather, sleeper")
+
+
 func _on_log(entry: String) -> void:
 	_show_toast("Case log: " + entry)
-	_log_text.append_text("· " + entry + "\n")
+	if _log_panel.visible:
+		_refresh_board()
+
+
+## The deduction board: three theories, how much of the log backs each, the
+## evidence bagged, then the log itself.
+func _refresh_board() -> void:
+	var t := ""
+	t += "[color=f5d6a0]THEORIES[/color]   pin one; Turan hears the pinned one\n"
+	var i := 1
+	for id in Game.THEORIES:
+		var th: Dictionary = Game.THEORIES[id]
+		var have := Game.theory_progress(id)
+		var total: int = th["clues"].size()
+		var bar := ""
+		for k in total:
+			bar += "#" if k < have else "-"
+		var pin := "> " if Game.theory == id else "  "
+		var col := "7fe0c0" if Game.theory == id else "e8ecef"
+		t += "[color=%s]%s%d. %-32s %s %d/%d[/color]\n" % [col, pin, i, th["name"], bar, have, total]
+		i += 1
+	t += "\n[color=f5d6a0]EVIDENCE[/color]  " + (", ".join(Game.evidence) if Game.evidence.size() else "nothing bagged yet")
+	t += "\n[color=f5d6a0]GLYPHS[/color]  %d found  ·  connection %d  ·  company pressure %d\n" % [Game.glyphs_found.size(), int(Game.connection), Game.pressure]
+	t += "\n[color=f5d6a0]LOG[/color]\n"
+	for entry in Game.case_log:
+		t += "\u00b7 " + entry + "\n"
+	_log_text.text = t
 
 
 func _show_toast(text: String) -> void:
@@ -237,10 +280,10 @@ func _show_toast(text: String) -> void:
 func _build_log_panel() -> void:
 	_log_panel = PanelContainer.new()
 	_log_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_log_panel.offset_left = -130
-	_log_panel.offset_right = 130
-	_log_panel.offset_top = -90
-	_log_panel.offset_bottom = 90
+	_log_panel.offset_left = -175
+	_log_panel.offset_right = 175
+	_log_panel.offset_top = -105
+	_log_panel.offset_bottom = 105
 	var style := StyleBoxTexture.new()
 	style.texture = load("res://assets/ui/panel.png")
 	style.texture_margin_left = 6
@@ -255,13 +298,16 @@ func _build_log_panel() -> void:
 	var col := VBoxContainer.new()
 	_log_panel.add_child(col)
 	var h := Label.new()
-	h.text = "CASE LOG  ·  Dufredy, H.  ·  press L to close"
+	h.text = "CASE FILE  ·  Dufredy, H.  ·  1/2/3 pins a theory  ·  L closes"
 	h.add_theme_font_size_override("font_size", 9)
 	h.add_theme_color_override("font_color", Color("f5d6a0"))
 	col.add_child(h)
 	_log_text = RichTextLabel.new()
 	_log_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_log_text.add_theme_font_size_override("normal_font_size", 9)
+	_log_text.add_theme_font_size_override("bold_font_size", 9)
+	_log_text.bbcode_enabled = true
+	_log_text.scroll_following = false
 	col.add_child(_log_text)
 	_log_panel.hide()
 	_ui.add_child(_log_panel)
@@ -317,3 +363,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("case_log") and not dialogue.visible and not psyon.visible and not closeup.visible:
 		_log_panel.visible = not _log_panel.visible
 		Game.input_locked = _log_panel.visible
+		if _log_panel.visible:
+			_refresh_board()
+	elif _log_panel.visible and event is InputEventKey and event.pressed and not event.echo:
+		var keys := {KEY_1: "drugs", KEY_2: "hacker", KEY_3: "beneath"}
+		if event.keycode in keys:
+			Game.set_theory(keys[event.keycode])
+			_refresh_board()

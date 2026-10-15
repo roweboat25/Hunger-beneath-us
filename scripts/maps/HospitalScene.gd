@@ -179,4 +179,4 @@ func _try_leave() -> void:
 	await ui.say("Lynx", "I'll meet you in front of Southwest Station. Thirty minutes.", "lynx")
 	ui.close()
 	Game.set_flag("hospital_done")
-	await main.change_map("res://scenes/maps/Southtown.tscn")
+	await go_to_street("Southtown")

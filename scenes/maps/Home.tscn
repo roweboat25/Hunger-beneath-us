@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3]
+[gd_scene load_steps=60 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/HomeScene.gd" id="2_script"]
@@ -21,6 +21,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/dishes.png" id="tex_dishes"]
 [ext_resource type="Texture2D" path="res://assets/props/dresser.png" id="tex_dresser"]
 [ext_resource type="Texture2D" path="res://assets/props/fridge.png" id="tex_fridge"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_floor.png" id="tex_lamp_floor"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_table.png" id="tex_lamp_table"]
 [ext_resource type="Texture2D" path="res://assets/props/laptop_closed.png" id="tex_laptop_closed"]
@@ -507,6 +509,22 @@ collision_mask = 0
 position = Vector2(0, -13)
 shape = SubResource("Rect_28x20")
 
+[node name="P31_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(240, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:home_kitchen"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P32_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(784, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:home_mira"
+metadata/glyph_deep = true
+visible = false
+
 [node name="NpcMonica" type="Area2D" parent="Actors"]
 position = Vector2(112, 156)
 script = ExtResource("5_npc")
@@ -610,6 +628,22 @@ id = "ezra_bed"
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/EzraBed"]
 shape = SubResource("Rect_64x32")
+
+[node name="GlyphHomeKitchen" type="Area2D" parent="Interactables"]
+position = Vector2(240, 48)
+script = ExtResource("4_interact")
+id = "glyph:home_kitchen"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphHomeKitchen"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphHomeMira" type="Area2D" parent="Interactables"]
+position = Vector2(784, 48)
+script = ExtResource("4_interact")
+id = "glyph:home_mira"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphHomeMira"]
+shape = SubResource("Rect_32x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(112, 496)

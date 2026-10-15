@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3]
+[gd_scene load_steps=60 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/ApartmentScene.gd" id="2_script"]
@@ -22,6 +22,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/end_table.png" id="tex_end_table"]
 [ext_resource type="Texture2D" path="res://assets/props/eyes.png" id="tex_eyes"]
 [ext_resource type="Texture2D" path="res://assets/props/fridge.png" id="tex_fridge"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_floor_dark.png" id="tex_lamp_floor_dark"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_table.png" id="tex_lamp_table"]
 [ext_resource type="Texture2D" path="res://assets/props/laptop_open.png" id="tex_laptop_open"]
@@ -529,6 +531,22 @@ collision_mask = 0
 position = Vector2(0, -12)
 shape = SubResource("Rect_28x18")
 
+[node name="P29_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(400, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:apt_kitchen"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P30_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(880, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:apt_bedroom"
+metadata/glyph_deep = true
+visible = false
+
 [node name="Player" parent="Actors" instance=ExtResource("3_player")]
 position = Vector2(112, 444)
 
@@ -648,6 +666,22 @@ once = false
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/UnderEye"]
 shape = SubResource("Rect_96x96")
+
+[node name="GlyphAptKitchen" type="Area2D" parent="Interactables"]
+position = Vector2(400, 48)
+script = ExtResource("4_interact")
+id = "glyph:apt_kitchen"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphAptKitchen"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphAptBedroom" type="Area2D" parent="Interactables"]
+position = Vector2(880, 48)
+script = ExtResource("4_interact")
+id = "glyph:apt_bedroom"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphAptBedroom"]
+shape = SubResource("Rect_32x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(112, 496)

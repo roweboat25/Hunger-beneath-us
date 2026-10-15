@@ -172,4 +172,4 @@ func _try_leave() -> void:
 	await ui.think("Turan isn't going to like this one bit. The media attention on these incidents is reaching a fever pitch. But something is very wrong.")
 	ui.close()
 	Game.set_flag("park_done")
-	await main.change_map("res://scenes/maps/Home.tscn")
+	await go_to_street("Home")

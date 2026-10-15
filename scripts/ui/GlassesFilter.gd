@@ -8,6 +8,9 @@ var _mat: ShaderMaterial
 var _hud: Control
 var _hud_label: Label
 var _objective: Label
+var _meter_label: Label
+var _meter_bg: ColorRect
+var _meter_fill: ColorRect
 var _glasses_value := 1.0
 var _target := 1.0
 
@@ -50,6 +53,31 @@ func _ready() -> void:
 	corner.name = "Glyph"
 	corner.position = Vector2(640 - 40, 4)
 	_hud.add_child(corner)
+	# connection meter, top right, only with the frames on
+	_meter_label = Label.new()
+	_meter_label.position = Vector2(640 - 190, 4)
+	_meter_label.add_theme_font_size_override("font_size", 8)
+	_meter_label.add_theme_color_override("font_color", Color("7fe0c0", 0.85))
+	_meter_label.add_theme_color_override("font_shadow_color", Color("050608", 0.9))
+	_meter_label.add_theme_constant_override("shadow_offset_x", 1)
+	_meter_label.add_theme_constant_override("shadow_offset_y", 1)
+	_hud.add_child(_meter_label)
+	_meter_bg = ColorRect.new()
+	_meter_bg.position = Vector2(640 - 190, 15)
+	_meter_bg.size = Vector2(140, 4)
+	_meter_bg.color = Color("050608", 0.7)
+	_hud.add_child(_meter_bg)
+	_meter_fill = ColorRect.new()
+	_meter_fill.position = Vector2(640 - 190, 15)
+	_meter_fill.size = Vector2(0, 4)
+	_meter_fill.color = Color("7fe0c0")
+	_hud.add_child(_meter_fill)
+	for level in Game.THRESHOLDS:
+		var tick := ColorRect.new()
+		tick.position = Vector2(640 - 190 + 140 * level / 100.0, 14)
+		tick.size = Vector2(1, 6)
+		tick.color = Color("f5d6a0", 0.6)
+		_hud.add_child(tick)
 
 	Game.glasses_toggled.connect(_on_toggled)
 	Game.connection_changed.connect(_on_connection)
@@ -63,7 +91,7 @@ func set_hud_text(t: String) -> void:
 
 ## The current goal, shown under the HUD line whatever the glasses state.
 func set_objective(t: String) -> void:
-	_objective.text = "" if t.is_empty() else "\u25b8 " + t
+	_objective.text = "" if t.is_empty() else "> " + t
 
 
 func _on_toggled(on: bool) -> void:
@@ -74,6 +102,11 @@ func _on_connection(v: float) -> void:
 	_mat.set_shader_parameter("corruption", v / 100.0)
 	# the glyph in the corner only shows once the frames are infected
 	_hud.get_node("Glyph").modulate.a = clampf((v - 10.0) / 40.0, 0.0, 0.6)
+	if _meter_fill:
+		var t := create_tween()
+		t.tween_property(_meter_fill, "size:x", 140.0 * v / 100.0, 0.4)
+		_meter_fill.color = Color("7fe0c0").lerp(Color("e0453a"), clampf(v / 100.0, 0.0, 1.0))
+		_meter_label.text = "CONNECTION  %d" % int(v) + ("   ·  glyphs %d" % Game.glyphs_found.size() if Game.glyphs_found.size() else "")
 
 
 func _process(delta: float) -> void:

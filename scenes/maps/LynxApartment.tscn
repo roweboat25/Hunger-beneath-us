@@ -1,4 +1,4 @@
-[gd_scene load_steps=53 format=3]
+[gd_scene load_steps=54 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/LynxApartmentScene.gd" id="2_script"]
@@ -21,6 +21,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/dishes.png" id="tex_dishes"]
 [ext_resource type="Texture2D" path="res://assets/props/frames_broken.png" id="tex_frames_broken"]
 [ext_resource type="Texture2D" path="res://assets/props/fridge.png" id="tex_fridge"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
 [ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/lamp_floor_dark.png" id="tex_lamp_floor_dark"]
 [ext_resource type="Texture2D" path="res://assets/props/laptop_closed.png" id="tex_laptop_closed"]
@@ -496,6 +497,22 @@ collision_mask = 0
 position = Vector2(0, -8)
 shape = SubResource("Rect_28x10")
 
+[node name="P21_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(400, 65)
+offset = Vector2(0, -21)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:lynx_kitchen"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P22_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(720, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:lynx_back"
+metadata/glyph_deep = true
+visible = false
+
 [node name="Player" parent="Actors" instance=ExtResource("3_player")]
 position = Vector2(112, 444)
 
@@ -549,6 +566,22 @@ id = "laptop"
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Laptop"]
 shape = SubResource("Rect_64x32")
+
+[node name="GlyphLynxKitchen" type="Area2D" parent="Interactables"]
+position = Vector2(400, 48)
+script = ExtResource("4_interact")
+id = "glyph:lynx_kitchen"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphLynxKitchen"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphLynxBack" type="Area2D" parent="Interactables"]
+position = Vector2(720, 48)
+script = ExtResource("4_interact")
+id = "glyph:lynx_back"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphLynxBack"]
+shape = SubResource("Rect_32x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(112, 496)

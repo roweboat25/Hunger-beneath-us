@@ -20,9 +20,64 @@ var player: Player:
 	get: return main.player
 
 
+var _glyph_props: Array = []
+
+
+func _ready() -> void:
+	var actors := get_node_or_null("Actors")
+	if actors:
+		for node in actors.get_children():
+			if node is Sprite2D and node.has_meta("glyph_deep"):
+				_glyph_props.append(node)
+	_update_glyphs()
+
+
 ## Called by Main once the map is on screen.
 func start() -> void:
 	pass
+
+
+## Main wires every interactable here. Hidden glyphs are handled for all maps;
+## everything else goes to the scene's own on_interact.
+func _route_interact(id: String) -> void:
+	if id.begins_with("glyph:"):
+		await _examine_glyph(id)
+	else:
+		on_interact(id)
+
+
+func _examine_glyph(id: String) -> void:
+	if not Game.glasses_on:
+		await ui.think("Bare wall. Whatever was there, I couldn't see it without the frames.")
+		ui.close()
+		return
+	var p := prop(id)
+	if p and not p.visible:
+		await ui.think("Something in the brick, almost. The frames couldn't resolve it. Not yet.")
+		ui.close()
+		return
+	var line := Game.find_glyph(id)
+	if line.is_empty():
+		await ui.think("The same rings. Already logged.")
+		ui.close()
+		return
+	await main.filter.flash(0.08)
+	await ui.say("", "The rings turned once, and the frames parsed a line of it:\n\"" + line + "\"")
+	ui.close()
+
+
+## Hidden glyphs only draw with the frames on; deep ones need a high connection.
+func _update_glyphs() -> void:
+	for p in _glyph_props:
+		var deep: bool = p.get_meta("glyph_deep", false)
+		p.visible = Game.glasses_on and (not deep or Game.can_see_deep_glyphs())
+
+
+## Leave this place for the Silico street, with the next plot beat marked.
+func go_to_street(next_map: String) -> void:
+	Game.last_place = String(name)
+	Game.next_beat = next_map
+	await main.change_map("res://scenes/maps/Silico.tscn")
 
 
 ## One line telling the player what to do next; shown under the HUD.
@@ -36,6 +91,7 @@ var _last_objective := "\u0001"
 func _physics_process(_delta: float) -> void:
 	if main == null:
 		return
+	_update_glyphs()
 	var o := objective_text()
 	if o != _last_objective:
 		_last_objective = o

@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/WarRoomScene.gd" id="2_script"]
@@ -14,6 +14,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/desk_grey.png" id="tex_desk_grey"]
 [ext_resource type="Texture2D" path="res://assets/props/desk_long_wood.png" id="tex_desk_long_wood"]
 [ext_resource type="Texture2D" path="res://assets/props/elevator.png" id="tex_elevator"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/laptop_dark.png" id="tex_laptop_dark"]
 [ext_resource type="Texture2D" path="res://assets/props/laptop_open.png" id="tex_laptop_open"]
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
@@ -500,6 +502,22 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
+[node name="P35_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(656, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:hq_wall"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P36_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(912, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:hq_lift"
+metadata/glyph_deep = true
+visible = false
+
 [node name="NpcTuran" type="Area2D" parent="Actors"]
 position = Vector2(400, 156)
 script = ExtResource("5_npc")
@@ -580,6 +598,22 @@ id = "elevator"
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Elevator"]
 shape = SubResource("Rect_64x32")
+
+[node name="GlyphHqWall" type="Area2D" parent="Interactables"]
+position = Vector2(656, 48)
+script = ExtResource("4_interact")
+id = "glyph:hq_wall"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphHqWall"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphHqLift" type="Area2D" parent="Interactables"]
+position = Vector2(912, 48)
+script = ExtResource("4_interact")
+id = "glyph:hq_lift"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphHqLift"]
+shape = SubResource("Rect_32x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(112, 496)

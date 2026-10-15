@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/DesertScene.gd" id="2_script"]
@@ -10,6 +10,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/car_blue.png" id="tex_car_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/cave.png" id="tex_cave"]
 [ext_resource type="Texture2D" path="res://assets/props/cave_door.png" id="tex_cave_door"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
 [ext_resource type="Texture2D" path="res://assets/props/grass_tuft.png" id="tex_grass_tuft"]
 [ext_resource type="Texture2D" path="res://assets/props/reeds.png" id="tex_reeds"]
 [ext_resource type="Texture2D" path="res://assets/props/rock_big.png" id="tex_rock_big"]
@@ -387,6 +389,22 @@ collision_mask = 0
 position = Vector2(0, -17)
 shape = SubResource("Rect_28x28")
 
+[node name="P18_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(1072, 129)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:desert_cliff"
+metadata/glyph_deep = false
+visible = false
+
+[node name="P19_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(1072, 481)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:desert_cliff2"
+metadata/glyph_deep = true
+visible = false
+
 [node name="Player" parent="Actors" instance=ExtResource("3_player")]
 position = Vector2(208, 380)
 
@@ -424,3 +442,19 @@ id = "door"
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Door"]
 shape = SubResource("Rect_64x32")
+
+[node name="GlyphDesertCliff" type="Area2D" parent="Interactables"]
+position = Vector2(1072, 112)
+script = ExtResource("4_interact")
+id = "glyph:desert_cliff"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphDesertCliff"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphDesertCliff2" type="Area2D" parent="Interactables"]
+position = Vector2(1072, 464)
+script = ExtResource("4_interact")
+id = "glyph:desert_cliff2"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphDesertCliff2"]
+shape = SubResource("Rect_32x32")

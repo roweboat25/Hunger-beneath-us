@@ -152,4 +152,4 @@ func _overpass() -> void:
 	Game.add_evidence("The map")
 	Game.log_entry("Under the overpass eye, the fork generated a map of Silico. A red eye marks a spot deep in the desert.")
 	Game.set_flag("southtown_done")
-	await main.change_map("res://scenes/maps/Home.tscn")
+	await go_to_street("Home")

@@ -109,6 +109,7 @@ func _turan_day1() -> void:
 	await ui.say("Turan", "This shifts culpability. Rogue handler. Outside interference. We need video. Anything. Find that masked freak.", "turan")
 	await ui.say("Forner", "The surveillance outages in that quadrant may complicate things. I'll see what I can recover. Might be fragments. Might be noise.", "forner")
 	await ui.say("Turan", "Find it. This is our out.", "turan")
+	await _file_theory()
 	ui.close()
 	_reported = true
 	Game.log_entry("Reported to Turan. She wants the masked figure on video: 'This is our out.'")
@@ -230,7 +231,7 @@ func _elevator_day1() -> void:
 	await ui.say("Carl", "Get it together, Carl. You're just here to interview an old man. An old man who gouged out his eyes and spoke your name before ever meeting you.", "carl")
 	ui.close()
 	Game.set_flag("warroom1_done")
-	await main.change_map("res://scenes/maps/Hospital.tscn")
+	await go_to_street("Hospital")
 
 
 # ------------------------------------------------------------------ day 2
@@ -313,4 +314,27 @@ func _elevator_day2() -> void:
 	await ui.think("We were supposed to meet for our morning stand-up before heading out to the sand flats. Lynx hadn't checked in. No messages. No call. I wasn't waiting.")
 	ui.close()
 	Game.set_flag("warroom2_done")
-	await main.change_map("res://scenes/maps/LynxApartment.tscn")
+	await go_to_street("LynxApartment")
+
+
+## The theory pinned on the case file is what Turan hears. Each one moves the
+## company pressure differently; none of them is wrong yet.
+func _file_theory() -> void:
+	match Game.theory:
+		"drugs":
+			await ui.say("Carl", "My working theory is a bad batch. Something he took, something that got into the frames with him.", "carl")
+			await ui.say("Turan", "Drugs. Good. Drugs I can sell. Get me a tox screen and we bury this by Friday.", "turan")
+			Game.add_pressure(-10)
+			Game.add_trust("turan", 1)
+		"hacker":
+			await ui.say("Carl", "My working theory is a hacker. Someone forked Psyon and aimed it at him.", "carl")
+			await ui.say("Turan", "A hacker means our platform is open. Say that outside this room and legal eats you. Prove it quietly.", "turan")
+			Game.add_pressure(5)
+		"beneath":
+			await ui.say("Carl", "My working theory is that this isn't about him. The city has been drawing eyes on itself for twenty years.", "carl")
+			await ui.say("Turan", "Carl. I asked for drugs or schizophrenia. Not folklore. Write it as a hacker until you can show me a photograph.", "turan")
+			Game.add_pressure(15)
+			Game.add_trust("turan", -1)
+		_:
+			await ui.think("I hadn't pinned a theory yet. Turan noticed, and didn't say anything, which was worse.")
+			Game.add_pressure(5)

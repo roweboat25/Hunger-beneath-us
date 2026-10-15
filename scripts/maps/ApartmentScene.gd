@@ -203,4 +203,4 @@ func _try_leave() -> void:
 	await ui.say("Carl", "But how the fuck did it know my name?", "carl")
 	ui.close()
 	Game.set_flag("scene1_done")
-	await main.change_map("res://scenes/maps/Park.tscn")
+	await go_to_street("Park")

@@ -36,7 +36,7 @@ func run() -> void:
 				if id == "laptop" and map_name == "Apartment":
 					await _laptop_keypress()
 				else:
-					map.on_interact(id)
+					map._route_interact(id)
 				await _drive(map_name + "/" + id)
 		if main.map == map and not Game.has_flag("act1_done"):
 			push_error("autoplay: stuck in map " + map_name)
