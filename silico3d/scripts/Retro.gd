@@ -16,7 +16,11 @@ uniform float vignette = 0.6;
 uniform float scanline = 0.08;
 uniform float amount = 1.0;
 uniform float haze = 1.0;
+uniform float fx_pix = 1.0;
+uniform float fx_dither = 1.0;
+uniform float fx_fringe = 1.0;
 uniform float lift = 0.35;
+uniform float pixmode = 0.0;
 
 float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 
@@ -33,9 +37,18 @@ void fragment() {
 	vec2 uv = SCREEN_UV;
 	// the low-res frame
 	vec2 px = floor(uv * res) + 0.5;
-	vec2 luv = px / res;
+	vec2 luv;
+	if (pixmode < 0.5) {
+		luv = mix(uv, px / res, fx_pix);
+	} else if (pixmode < 1.5) {
+		luv = uv - (fract(uv * res) - 0.5) / res * fx_pix;
+	} else {
+		vec2 scale = 1.0 / (SCREEN_PIXEL_SIZE * res);
+		vec2 c2 = (floor(FRAGCOORD.xy / scale) + 0.5) * scale * SCREEN_PIXEL_SIZE;
+		luv = mix(uv, c2, fx_pix);
+	}
 	vec2 cc = luv - 0.5;
-	float fr = dot(cc, cc) * 0.004;
+	float fr = dot(cc, cc) * 0.004 * fx_fringe;
 	vec3 col;
 	col.r = texture(screen_tex, luv + cc * fr).r;
 	col.g = texture(screen_tex, luv).g;
@@ -66,7 +79,7 @@ void fragment() {
 	col = max(col, vec3(0.0));
 	// 15-bit colour with ordered dithering
 	float d = (bayer(px) - 0.5) / levels;
-	col = floor(col * levels + d * levels + 0.5) / levels;
+	col = mix(col, floor(col * levels + d * levels + 0.5) / levels, fx_dither);
 	// film grain and scanlines
 	float g = h(px + vec2(fract(TIME * 7.0) * 100.0)) - 0.5;
 	col += g * grain * (0.4 + lum);
@@ -80,6 +93,7 @@ void fragment() {
 
 var rect: ColorRect
 var mat: ShaderMaterial
+var _lock := {}
 
 
 func _ready() -> void:
@@ -98,6 +112,15 @@ func _ready() -> void:
 ## style=0 off, style=ps1 (default) on; res=W,H for another resolution.
 func apply(args: Dictionary) -> void:
 	visible = str(args.get("style", "ps1")) not in ["0", "off", "none"]
+	# rfx=nopix,nodither,nofringe,nohaze,nograin,noscan for debugging a renderer
+	for f in str(args.get("rfx", "")).split(","):
+		match f:
+			"nopix": mat.set_shader_parameter("fx_pix", 0.0)
+			"nodither": mat.set_shader_parameter("fx_dither", 0.0)
+			"nofringe": mat.set_shader_parameter("fx_fringe", 0.0)
+			"nohaze": _lock["haze"] = 0.0
+			"nograin": _lock["grain"] = 0.0
+			"noscan": mat.set_shader_parameter("scanline", 0.0)
 	if args.has("res"):
 		var v: PackedStringArray = str(args["res"]).split(",")
 		if v.size() == 2:
@@ -108,6 +131,6 @@ func apply(args: Dictionary) -> void:
 func tune(day: bool) -> void:
 	# the curve col*(1+lift)/(col+lift) is near identity for a large lift and
 	# a strong shadow lift for a small one
-	mat.set_shader_parameter("haze", 0.15 if day else 1.0)
+	mat.set_shader_parameter("haze", _lock.get("haze", 0.15 if day else 1.0))
 	mat.set_shader_parameter("lift", 6.0 if day else 0.35)
-	mat.set_shader_parameter("grain", 0.06 if day else 0.09)
+	mat.set_shader_parameter("grain", _lock.get("grain", 0.06 if day else 0.09))

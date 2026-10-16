@@ -957,11 +957,12 @@ func tick(delta: float) -> void:
 	for i in police_lights.size():
 		var pl: OmniLight3D = police_lights[i]
 		pl.light_energy = 3.0 if (int(_t * 4.0) + i) % 2 == 0 else 0.0
-	if officer and officer.has_meta("walk"):
-		var legs: Array = officer.get_meta("legs")
-		var sw := sin(_t * 7.0) * 0.4
-		legs[0].rotation.x = sw
-		legs[1].rotation.x = -sw
+	if officer:
+		if officer.has_meta("walk"):
+			Anim.walk(officer, _t, 1.4)
+		else:
+			Anim.idle(officer, _t)
+			Anim.look(officer, main.player.global_position + Vector3(0, 1.6, 0), 0.8, 0.06)
 
 
 func _police_scene() -> void:
@@ -999,7 +1000,7 @@ func _police_scene() -> void:
 	await tw.finished
 	await ui.think("As I left the House of Harold Dufredy, a police car pulled up. My glasses had automatically notified local police when evidence of a crime was found.")
 	ui.close()
-	officer = figure(Color(0.05, 0.07, 0.12), Color(0.6, 0.42, 0.3), {"legs": Color(0.05, 0.06, 0.1)})
+	officer = figure(Color(0.05, 0.07, 0.12), Color(0.6, 0.42, 0.3), {"legs": Color(0.05, 0.06, 0.1), "arms": true, "knees": true})
 	box(Vector3(0.3, 0.06, 0.32), Vector3(0, 0.13, 0), mat(Color(0.05, 0.07, 0.12)), false, officer.get_meta("head"))
 	officer.position = Vector3(-5.0, 0, 5.4)
 	add_child(officer)

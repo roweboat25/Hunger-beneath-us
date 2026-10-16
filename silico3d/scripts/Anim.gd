@@ -92,7 +92,9 @@ static func sit(fig: Node3D, lean := 0.1) -> void:
 		(a as Node3D).rotation.x = -0.6
 
 
-## Crouched on the balls of the feet, as Seth is at the bench.
+## Crouched on the balls of the feet, as Seth is at the bench: thighs
+## forward, shins tucked under, torso leaning in. The caller lowers the
+## figure's root by about 0.45 so the feet reach the ground.
 static func crouch(fig: Node3D) -> void:
 	for l in fig.get_meta("legs", []):
 		(l as Node3D).rotation.x = 1.6
@@ -101,7 +103,7 @@ static func crouch(fig: Node3D) -> void:
 	var body: Node3D = fig.get_meta("body", null)
 	if body:
 		body.rotation.x = 0.35
-		body.position.y = -0.55
 	var head: Node3D = fig.get_meta("head", null)
 	if head:
-		head.position.y = HEAD_Y - 0.6
+		head.position.z = -0.12
+		head.rotation.x = -0.2

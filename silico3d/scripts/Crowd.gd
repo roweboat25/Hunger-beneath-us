@@ -30,7 +30,7 @@ func setup(m: Node, lvl: Node) -> void:
 		var z := rng.randf_range(-160.0, 120.0)
 		if x < 0.0 and z < -5.0 and z > -55.0 and x < -14.0:
 			z += 60.0
-		var n := figure(COATS[rng.randi() % COATS.size()], SKINS[rng.randi() % SKINS.size()], true)
+		var n: Node3D = city.figure(COATS[rng.randi() % COATS.size()], SKINS[rng.randi() % SKINS.size()], {"visor": true, "arms": true, "knees": true})
 		n.position = Vector3(x, 0.12, z)
 		add_child(n)
 		peds.append({"node": n, "dir": -1.0 if rng.randf() < 0.5 else 1.0,
@@ -112,9 +112,8 @@ func _process(delta: float) -> void:
 			if n.position.z < p.min_z or n.position.z > p.max_z:
 				p.dir = -p.dir
 			n.rotation.y = lerp_angle(n.rotation.y, 0.0 if p.dir < 0.0 else PI, delta * 4.0)
-			var sw := sin(t * p.speed * 4.5 + p.phase) * 0.45
-			legs[0].rotation.x = sw
-			legs[1].rotation.x = -sw
+			Anim.walk(n, t, p.speed, p.phase)
+			Anim.look(n, ppos + Vector3(0, 1.6, 0), 0.0 if dist > 12.0 else 0.6, 0.05)
 			if visor:
 				visor.material_override = _visor_red if watching else _visor_cyan
 		else:
@@ -124,8 +123,8 @@ func _process(delta: float) -> void:
 				n.rotation.y = lerp_angle(n.rotation.y, want, delta * 0.6)
 			else:
 				n.rotation.y = want
-			for l in legs:
-				l.rotation.x = 0.0
+			Anim.idle(n, t, p.phase)
+			Anim.look(n, ppos + Vector3(0, 1.6, 0), 1.0, 0.08)
 			if visor:
 				visor.material_override = _visor_red
 

@@ -437,12 +437,11 @@ func _people() -> void:
 		{"hair": Color(0.78, 0.74, 0.62), "long_hair": true, "legs": Color(0.2, 0.22, 0.3)})
 	person("agata", "Talk to the woman on the bench", agata, "GREENWOOD, AGATA (37)\nVIRTEC - 3D PRINT TECHNICIAN\nchildren: ADDISON, NICOLE")
 	# Seth McCarren, crouched at the bench by the entrance with a dustbuster
-	seth = figure(Color(0.8, 0.95, 0.2), Color(0.86, 0.68, 0.55), {"hair": Color(0.32, 0.2, 0.12), "long_hair": true, "legs": Color(0.25, 0.25, 0.3), "arms": true})
-	seth.position = Vector3(7.25, -0.42, 28.3)
+	seth = figure(Color(0.8, 0.95, 0.2), Color(0.86, 0.68, 0.55), {"hair": Color(0.32, 0.2, 0.12), "long_hair": true, "legs": Color(0.25, 0.25, 0.3), "arms": true, "knees": true})
+	seth.position = Vector3(7.25, -0.45, 28.3)
 	seth.rotation.y = PI / 2.0
 	add_child(seth)
-	for l in seth.get_meta("legs"):
-		(l as Node3D).rotation.x = 1.1
+	Anim.crouch(seth)
 	for a in seth.get_meta("arms"):
 		(a as Node3D).rotation.x = -1.0
 	var hd: Node3D = seth.get_meta("head")
@@ -483,12 +482,13 @@ func _people() -> void:
 
 
 func _seated(coat: Color, skin: Color, pos: Vector3, rot: float, opts: Dictionary) -> Node3D:
+	opts["knees"] = true
+	opts["arms"] = true
 	var f := figure(coat, skin, opts)
 	f.position = pos + Vector3(0, -0.41, 0)
 	f.rotation.y = rot
 	add_child(f)
-	for l in f.get_meta("legs"):
-		(l as Node3D).rotation.x = PI / 2.0
+	Anim.sit(f)
 	return f
 
 
@@ -547,10 +547,7 @@ func tick(delta: float) -> void:
 		var a := _t * 1.6 + i * TAU / 3.0
 		k.position = Vector3(-20, 0.02, 4.5) + Vector3(cos(a), 0, sin(a)) * 2.4
 		k.rotation.y = -a
-		var legs: Array = k.get_meta("legs")
-		var sw := sin(_t * 12.0 + i) * 0.6
-		legs[0].rotation.x = sw
-		legs[1].rotation.x = -sw
+		Anim.walk(k, _t, 2.6, float(i), 1.3)
 	# past 25 the onlookers stop watching the stain and start watching Carl
 	if main.connection >= 25.0:
 		var cam: Camera3D = main.player.cam
@@ -569,10 +566,16 @@ func tick(delta: float) -> void:
 		if _masked_look > 1.6 or pp.distance_to(masked.global_position) < 11.0:
 			_masked_leaves()
 	if ghost and ghost.has_meta("run"):
-		var legs: Array = ghost.get_meta("legs")
-		var sw := sin(_t * 16.0) * 0.8
-		legs[0].rotation.x = sw
-		legs[1].rotation.x = -sw
+		Anim.walk(ghost, _t, 3.5, 0.0, 1.6)
+	for o in onlookers:
+		Anim.idle(o, _t, float(o.get_instance_id() % 100))
+	if cop and not cop.has_meta("posed"):
+		Anim.idle(cop, _t, 3.0)
+		Anim.look(cop, pp + Vector3(0, 1.6, 0), 0.9, 0.06)
+	if agata:
+		Anim.look(agata, pp + Vector3(0, 1.6, 0), 0.7 if pp.distance_to(agata.global_position) < 8.0 else 0.0, 0.05)
+	if tyson:
+		Anim.look(tyson, pp + Vector3(0, 1.6, 0), 0.7 if pp.distance_to(tyson.global_position) < 8.0 else 0.0, 0.05)
 
 
 func interact(node: Object) -> bool:
@@ -681,7 +684,7 @@ func _ghost_replay() -> void:
 	gm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	gm.albedo_color = Color(1.0, 0.22, 0.18, 0.58)
 	gm.no_depth_test = false
-	ghost = figure(Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), {"arms": true, "hair": Color(1, 1, 1)})
+	ghost = figure(Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), {"arms": true, "knees": true, "hair": Color(1, 1, 1)})
 	add_child(ghost)
 	_paint(ghost, gm)
 	ghost.position = TRAIL[0]
@@ -1061,7 +1064,7 @@ func apply_args(a: Dictionary) -> void:
 		gm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		gm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		gm.albedo_color = Color(1.0, 0.22, 0.18, 0.58)
-		ghost = figure(Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), {"arms": true, "hair": Color(1, 1, 1)})
+		ghost = figure(Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), {"arms": true, "knees": true, "hair": Color(1, 1, 1)})
 		add_child(ghost)
 		_paint(ghost, gm)
 		ghost.position = TRAIL[3]
