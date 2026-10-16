@@ -1178,7 +1178,7 @@ func _tunnel_mouth() -> void:
 		"Two rings on the portal, red and new, beside the NO ENTRY. Painted by somebody on the way in.")
 	g.position.x -= 0.02
 	# the footprints: two rings at every step, from the camp to the bars
-	var path := [Vector3(138.0, 0, 2.0), Vector3(142.0, 0, -4.0), Vector3(146.0, 0, -9.0), Vector3(150.0, 0, -14.0), Vector3(153.5, 0, -19.0), Vector3(155.5, 0, -22.0)]
+	var path := [Vector3(135.0, 0, 3.0), Vector3(138.0, 0, -3.0), Vector3(142.0, 0, -7.5), Vector3(146.0, 0, -11.0), Vector3(150.0, 0, -15.0), Vector3(153.5, 0, -19.0), Vector3(155.5, 0, -22.0)]
 	for i in path.size() - 1:
 		var a: Vector3 = path[i]
 		var b: Vector3 = path[i + 1]

@@ -604,10 +604,10 @@ func _elevators() -> void:
 	quad(Vector2(1.6, 2.5), CAR + Vector3(0, 1.25, -1.14), 0.0, brushed)
 	quad(Vector2(2.3, 2.5), Vector3(-2.49, 1.25, 3.35), PI / 2.0, brushed)
 	quad(Vector2(2.3, 2.5), Vector3(-0.91, 1.25, 3.35), -PI / 2.0, brushed)
-	box(Vector3(1.6, 0.9, 2.3), CAR + Vector3(0, 2.95, 0), _dark)
-	floor_quad(Vector2(1.6, 2.3), CAR + Vector3(0, 0.01, 0), 0.0, mat(Color(0.12, 0.12, 0.13), 0.5, 0.3))
+	box(Vector3(1.6, 0.9, 2.3), CAR + Vector3(0, 2.95, 0), brushed)
+	floor_quad(Vector2(1.6, 2.3), CAR + Vector3(0, 0.01, 0), 0.0, pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.42, 0.4, 0.4)))
 	floor_quad(Vector2(1.0, 0.3), CAR + Vector3(0, 2.49, 0), 0.0, glow(Color(0.9, 0.95, 1.0), 1.4), self, false)
-	car_light = light(CAR + Vector3(0, 2.2, 0), Color(0.9, 0.95, 1.0), 0.9, 3.0, false)
+	car_light = light(CAR + Vector3(0, 2.2, 0), Color(0.9, 0.95, 1.0), 0.45, 2.6, false)
 	# the button panel, and a handrail
 	box(Vector3(0.14, 0.5, 0.02), Vector3(-0.92, 1.2, 4.1), _metal).rotation.y = -PI / 2.0
 	box(Vector3(0.03, 0.03, 0.01), Vector3(-0.93, 1.3, 4.1), glow(Color(0.3, 1.0, 0.6), 1.5)).rotation.y = -PI / 2.0
@@ -624,9 +624,9 @@ func _elevators() -> void:
 		box(Vector3(0.12, 2.5, 0.2), p + Vector3(0.9, 1.25, 0.05), _metal)
 	# the floor counters: digital, boring, dependable
 	counter_out = _counter(Vector3(-1.7, 2.78, 4.62), 0.0)
-	counter_in = _counter(CAR + Vector3(0, 2.25, 1.07), PI)
+	counter_in = _counter(CAR + Vector3(0, 2.08, 1.07), PI)
 	eye_out = _eye_sprite(Vector3(-1.7, 2.78, 4.63), 0.0, 0.0024)
-	eye_in = _eye_sprite(CAR + Vector3(0, 2.25, 1.06), PI, 0.0028)
+	eye_in = _eye_sprite(CAR + Vector3(0, 2.08, 1.06), PI, 0.0021)
 	var c2 := _counter(Vector3(1.7, 2.78, 4.62), 0.0)
 	c2.text = "- -"
 	c2.modulate = Color(1.0, 0.35, 0.25)
@@ -2188,7 +2188,7 @@ func _ride_down() -> void:
 	# the lights flicker once, just once
 	var fl := create_tween()
 	fl.tween_property(car_light, "light_energy", 0.0, 0.08)
-	fl.tween_property(car_light, "light_energy", 0.9, 0.3)
+	fl.tween_property(car_light, "light_energy", 0.45, 0.3)
 	main.play("off", -6.0, 0.6)
 	ui.flash(0.4)
 	await ui.think(T["flicker"])
