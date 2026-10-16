@@ -54,6 +54,13 @@ Painted facades, shop interiors and the leaf cards come from
 wall tiles (albedo, lit-window emission, normal, roughness), four shop rooms,
 one leaf cluster. Rerun it after editing; the `.import` files are committed.
 
+Art style: `Retro.gd` is a CanvasLayer under the UI with one screen-space
+shader: the frame at 427x240, 15-bit colour with Bayer dither, a neon haze
+blur, violet shadows and a lifted curve at night, grain, vignette, colour
+fringing and scanlines. `Main.load_level` calls `retro.tune(level.kit_day)`
+for the lighter day grade; `style=0` turns the layer off, `res=W,H` changes
+the resolution.
+
 Scripts: `Main.gd` (level loading, input, interactions, self-test),
 `Level.gd` (base class: build helpers, glyphs, power, the city kit with
 `cyber_block`/`cyber_dress`/`kit_shop`/`tree`), `Body.gd` (people: lofted
