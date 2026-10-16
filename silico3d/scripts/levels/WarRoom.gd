@@ -442,7 +442,7 @@ func build(m: Node) -> void:
 	spawn_yaw = 180.0
 	step_db = -20.0
 	card = LINES["card"]["d2" if day2 else "d1"]
-	_carpet = pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.5, 0.53, 0.58))
+	_carpet = pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.56, 0.53, 0.52))
 	_glass = newmat(Color(0.55, 0.7, 0.78, 0.2), 0.05, 0.4)
 	_glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_metal = mat(Color(0.36, 0.37, 0.4), 0.4, 0.7)
@@ -571,7 +571,13 @@ func _shell() -> void:
 	box(Vector3(1.8, H, 2.3), Vector3(0, H / 2.0, 3.35), _wood, true)
 	box(Vector3(3.6, H, 2.3), Vector3(2.7, H / 2.0, 3.35), _wood, true)
 	for y: float in [0.9, 2.2]:
-		box(Vector3(9.04, 0.05, 9.04), Vector3(0, y, 0), _green)
+		# streaks on the core's faces only; the slab must not run through the cars
+		box(Vector3(9.04, 0.05, 0.06), Vector3(0, y, -4.52), _green)
+		box(Vector3(0.06, 0.05, 9.04), Vector3(-4.52, y, 0), _green)
+		box(Vector3(0.06, 0.05, 9.04), Vector3(4.52, y, 0), _green)
+		box(Vector3(1.8, 0.05, 0.06), Vector3(0, y, 4.52), _green)
+		box(Vector3(2.0, 0.05, 0.06), Vector3(-3.52, y, 4.52), _green)
+		box(Vector3(2.0, 0.05, 0.06), Vector3(3.52, y, 4.52), _green)
 	# the glass: 48 panes round the floor, mullions, a transom and a sill
 	var sill := mat(Color(0.2, 0.2, 0.22), 0.6, 0.4)
 	var n := 48
@@ -604,8 +610,9 @@ func _elevators() -> void:
 	quad(Vector2(1.6, 2.5), CAR + Vector3(0, 1.25, -1.14), 0.0, brushed)
 	quad(Vector2(2.3, 2.5), Vector3(-2.49, 1.25, 3.35), PI / 2.0, brushed)
 	quad(Vector2(2.3, 2.5), Vector3(-0.91, 1.25, 3.35), -PI / 2.0, brushed)
-	box(Vector3(1.6, 0.9, 2.3), CAR + Vector3(0, 2.95, 0), brushed)
-	floor_quad(Vector2(1.6, 2.3), CAR + Vector3(0, 0.01, 0), 0.0, pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.42, 0.4, 0.4)))
+	var warm := mat(Color(0.5, 0.42, 0.34), 0.6, 0.2)
+	box(Vector3(1.6, 0.9, 2.3), CAR + Vector3(0, 2.95, 0), warm)
+	floor_quad(Vector2(1.6, 2.3), CAR + Vector3(0, 0.01, 0), 0.0, pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.55, 0.45, 0.38)))
 	floor_quad(Vector2(1.0, 0.3), CAR + Vector3(0, 2.49, 0), 0.0, glow(Color(0.9, 0.95, 1.0), 1.4), self, false)
 	car_light = light(CAR + Vector3(0, 2.2, 0), Color(0.9, 0.95, 1.0), 0.45, 2.6, false)
 	# the button panel, and a handrail
