@@ -237,7 +237,7 @@ func _build_title() -> void:
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	t.add_theme_font_size_override("normal_font_size", 20)
 	t.add_theme_font_size_override("bold_font_size", 44)
-	t.text = ("[center]\n\n[b]THE HUNGER BENEATH US[/b]\n[color=#6fe8d0]SILICO  -  first person  -  proof of concept[/color]\n\n"
+	t.text = ("[center]\n\n[b]THE HUNGER BENEATH US[/b]\n[color=#6fe8d0]SILICO  -  first person[/color]\n\n"
 		+ "Mouse or arrow keys look    WASD walk    Shift hurry\nE examine / talk    G frames    F scan (frames on)    P Psyon    M this menu\n\n"
 		+ "[color=#888888]Headphones. Lights off.[/color][/center]")
 	title.add_child(t)
@@ -246,8 +246,8 @@ func _build_title() -> void:
 	vb.name = "menu"
 	vb.add_theme_constant_override("separation", 14)
 	title.add_child(vb)
-	var opts := [["1   Chapters 1 and 2:  The Dufredy case", "Day. The apartment, the eyes, the park, the witnesses."],
-		["2   The Spine at night", "The first test: the rings, the outage, the tower's eye."]]
+	var opts := [["1   Act 1:  The Dufredy case", "From the apartment and the eyes to the door in the cliff."],
+		["2   The Spine at night", "Chapter 3: the rings, the outage, the tower's eye."]]
 	for i in opts.size():
 		var bt := Button.new()
 		bt.text = opts[i][0] + "\n" + opts[i][1]

@@ -61,6 +61,15 @@ var sun: DirectionalLight3D
 var connection := 0.0
 var frames_on := false
 var flags := {}
+# The bible's state (design/bible-1-systems-and-ui.md, "Meters and state").
+# Standing is shown to the player as 100 - pressure. Trust runs -3..3.
+var pressure := 20.0
+var trust := {"turan": 0, "lynx": 0, "emmet": 0, "monica": 0, "mira": 0, "tyson": 0,
+	"agata": 0, "nurse": 0, "officer": 0}
+var stance_points := {"company_man": 0, "investigator": 0, "sleeper": 0}
+var lexicon: Array = []  # words known, in the order learned
+var first_typed := ""  # the first thing the player ever typed to Psyon
+var ledger: Array = []  # [{level, kind, text}], the log the fork reads
 var glyphs_found := 0
 var outage := false
 var started := false
@@ -169,7 +178,7 @@ func _reset_env() -> void:
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.16, 0.11, 0.12)
-	env.fog_density = 0.0055
+	env.fog_density = 0.0036
 	env.fog_sky_affect = 0.35
 	sun.light_color = Color(0.55, 0.6, 0.8)
 	sun.light_energy = 0.18
@@ -442,6 +451,53 @@ func add_connection(v: float, why: String) -> void:
 	level.on_connection(old, connection)
 
 
+## The bible's effect shorthand: W:word, T:name, P, S:stance. Each is one
+## call from a level; the toasts are the player's only feedback for now.
+func learn(word: String) -> void:
+	if word in lexicon:
+		return
+	lexicon.append(word)
+	ui.show_toast("Word learned: %s" % word, 3.0)
+	log_line("word", word)
+
+
+func add_trust(who: String, d: int) -> void:
+	trust[who] = clampi(int(trust.get(who, 0)) + d, -3, 3)
+	log_line("trust", "%s %+d" % [who, d])
+
+
+func add_pressure(d: float, why := "") -> void:
+	pressure = clampf(pressure + d, 0.0, 100.0)
+	if d > 0.0:
+		ui.show_toast("Standing -%d   %s" % [int(d), why], 2.5)
+	elif d < 0.0:
+		ui.show_toast("Standing +%d   %s" % [int(-d), why], 2.5)
+	log_line("standing", "%+d %s" % [int(-d), why])
+
+
+func add_stance(s: String) -> void:
+	stance_points[s] = int(stance_points.get(s, 0)) + 1
+
+
+## The leader among the three stance columns, or "undecided" (needs 2, no tie).
+func stance() -> String:
+	var best := "undecided"
+	var top := 1
+	var tie := false
+	for k in stance_points:
+		if stance_points[k] > top:
+			best = k
+			top = stance_points[k]
+			tie = false
+		elif stance_points[k] == top and top > 1:
+			tie = true
+	return "undecided" if tie else best
+
+
+func log_line(kind: String, text: String) -> void:
+	ledger.append({"level": level_name, "kind": kind, "text": text})
+
+
 func update_hud() -> void:
 	if not level:
 		return
@@ -668,7 +724,7 @@ func _selftest_all() -> void:
 			await get_tree().create_timer(6.0).timeout
 			player.position = Vector3(0, 0.2, -200)
 			await get_tree().create_timer(2.0).timeout
-	print("SELFTEST DONE glyphs=", glyphs_found, " conn=", connection, " flags=", flags.keys())
+	print("SELFTEST DONE glyphs=", glyphs_found, " conn=", connection, " pressure=", pressure, " trust=", trust, " stance=", stance_points, " words=", lexicon, " flags=", flags.keys())
 	_selftest = false
 	get_tree().quit()
 

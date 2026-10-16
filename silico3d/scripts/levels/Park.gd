@@ -71,7 +71,7 @@ func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	env.ambient_light_color = Color(0.66, 0.66, 0.6)
 	env.ambient_light_energy = 0.48
 	env.fog_light_color = Color(0.88, 0.64, 0.42)
-	env.fog_density = 0.0034
+	env.fog_density = 0.0024
 	env.fog_sky_affect = 0.15
 	env.tonemap_exposure = 1.0
 	env.glow_hdr_threshold = 1.2

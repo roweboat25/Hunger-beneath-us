@@ -11,7 +11,7 @@ shader_type canvas_item;
 uniform sampler2D screen_tex : hint_screen_texture, filter_nearest;
 uniform vec2 res = vec2(427.0, 240.0);
 uniform float levels = 32.0;
-uniform float grain = 0.09;
+uniform float grain = 0.045;
 uniform float vignette = 0.6;
 uniform float scanline = 0.08;
 uniform float amount = 1.0;
@@ -125,4 +125,4 @@ func tune(day: bool) -> void:
 	# a strong shadow lift for a small one
 	mat.set_shader_parameter("haze", _lock.get("haze", 0.15 if day else 1.0))
 	mat.set_shader_parameter("lift", 6.0 if day else 0.35)
-	mat.set_shader_parameter("grain", _lock.get("grain", 0.06 if day else 0.09))
+	mat.set_shader_parameter("grain", _lock.get("grain", 0.03 if day else 0.045))

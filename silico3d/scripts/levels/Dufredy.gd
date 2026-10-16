@@ -77,7 +77,7 @@ func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	env.ambient_light_energy = 0.2
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	env.fog_light_color = Color(0.78, 0.66, 0.5)
-	env.fog_density = 0.0028
+	env.fog_density = 0.002
 	env.fog_sky_affect = 0.2
 	env.tonemap_exposure = 1.0
 	env.glow_hdr_threshold = 1.2
@@ -838,12 +838,14 @@ func _laptop_scene() -> void:
 	await get_tree().create_timer(1.6).timeout
 	main.play("ding", -4.0)
 	await ui.laptop_line("Welcome, dreamer.")
+	main.learn("dreamer")
 	main.player.shake(0.2)
 	await ui.think("I nearly fell out of the chair. That's not how Psyon works. It's reactive. It needs input first. It's not supposed to start on its own.")
 	await ui.think("What does it mean, dreamer?")
 	ui.close()
 	main.play("keys", -6.0)
-	await ui.laptop_line("What was our last conversation? Please provide a full transcript.", true)
+	main.first_typed = "What was our last conversation? Please provide a full transcript."
+	await ui.laptop_line(main.first_typed, true)
 	await get_tree().create_timer(0.8).timeout
 	await ui.laptop_line("We have never spoken before. There is nothing to show.")
 	await ui.think("Custom model? That's the only explanation. But Dufredy was a sixty-five-year-old retiree. There's no way he built this himself.")

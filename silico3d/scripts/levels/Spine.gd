@@ -802,10 +802,13 @@ func _ending() -> void:
 	await ui.think("Up there, in the middle of the donut on its stick, the eye didn't blink. It didn't need to. It had been watching me since I was a kid craning my neck at it.")
 	ui.close()
 	main.flags.erase("cinematic")
-	ui.show_end("[center]\n\n\n[b]END OF THE TEST SLICE[/b]\n\n"
+	ui.show_end("[center]\n\n\n[b]END OF CHAPTER 3[/b]\n\n"
 		+ "Rings read: %d of %d        Connection: %d\n\n" % [main.glyphs_found, glyphs.size(), int(main.connection)]
-		+ "[color=#aaaaaa]A first-person test of Silico, built from the book.\nThe tower lobby, the flats and the lab under them would come next.[/color]\n\n"
-		+ "[color=#777777]E to keep walking    M for the menu[/color][/center]")
+		+ "[color=#aaaaaa]The tower had seen enough of me for one night.\nNext in the book: home, Monica, and Mira's school project.[/color]\n\n"
+		+ "[color=#777777]E to go home    M for the menu[/color][/center]")
+	await ui.end_closed
+	main.flags["spine_done"] = true
+	main.load_level("Home")
 
 
 ## Dev args for shots: the outage frozen, the eye open.
