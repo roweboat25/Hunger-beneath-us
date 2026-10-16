@@ -21,6 +21,7 @@ const LEVELS := {
 	"Drive": preload("res://scripts/levels/Drive.gd"),
 	"Park": preload("res://scripts/levels/Park.gd"),
 	"Spine": preload("res://scripts/levels/Spine.gd"),
+	"Lineup": preload("res://scripts/levels/Lineup.gd"),
 }
 
 ## Same chant as the 2D game (scripts/Game.gd), in the same order.

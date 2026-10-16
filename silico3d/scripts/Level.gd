@@ -330,6 +330,8 @@ func set_active(body: CollisionObject3D, on: bool) -> void:
 ## models. opts: visor (bool), arms (separate, posable), hair (Color),
 ## long_hair, legs (Color), scale.
 func figure(coat: Color, skin: Color, opts := {}) -> Node3D:
+	if not opts.get("old", false):
+		return Body.build(self, coat, skin, opts)
 	var root := Node3D.new()
 	var coat_m: StandardMaterial3D = mat(coat, 0.7)
 	var skin_m: StandardMaterial3D = mat(skin, 0.6)
@@ -597,19 +599,24 @@ func _kit_mats() -> Dictionary:
 		Color(1.12, 1.02, 0.9), Color(0.9, 0.95, 1.0), Color(1.0, 0.92, 0.9)]
 	for i in 6:
 		var style := i % 3
-		var t: Array = Tex.cyber_facade(700 + i, style)
-		var w := newmat(tints[i] * (0.85 if kit_day else 0.55), 0.3 if style == 1 else 0.85, 0.55 if style == 1 else 0.0)
-		w.albedo_texture = t[0]
+		# painted facades (tools/gen_facades.py): 10.5 m a tile, three floors of four bays
+		var fb := "res://assets/facades/f%d_" % i
+		var w := newmat(tints[i] * (0.85 if kit_day else 0.55), 1.0, 0.3 if style == 1 else 0.0)
+		w.albedo_texture = load(fb + "albedo.png")
+		w.normal_enabled = true
+		w.normal_texture = load(fb + "normal.png")
+		w.roughness_texture = load(fb + "rough.png")
+		w.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		w.uv1_triplanar = true
 		w.uv1_world_triplanar = true
-		w.uv1_scale = Vector3(1, 1, 1) / 8.0
+		w.uv1_scale = Vector3(1, 1, 1) / 10.5
 		var lit := StandardMaterial3D.new()
 		lit.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		lit.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		lit.albedo_texture = t[1]
+		lit.albedo_texture = load(fb + "emit.png")
 		lit.uv1_triplanar = true
 		lit.uv1_world_triplanar = true
-		lit.uv1_scale = Vector3(1, 1, 1) / 8.0
+		lit.uv1_scale = Vector3(1, 1, 1) / 10.5
 		lit.albedo_color = Color(0.5, 0.5, 0.5) if kit_day else Color(1, 1, 1)
 		lit.disable_fog = true  # fog on an additive layer adds the fog colour to the whole face
 		power_mats.append([lit, lit.albedo_color, "albedo_color", Color(0, 0, 0)])
@@ -621,8 +628,76 @@ func _kit_mats() -> Dictionary:
 	d["dark"] = mat(Color(0.06, 0.06, 0.07), 0.6, 0.3)
 	d["rust"] = mat(Color(0.36, 0.24, 0.17), 0.8, 0.3)
 	d["cable"] = mat(Color(0.04, 0.04, 0.04), 0.7)
+	var gl := StandardMaterial3D.new()
+	gl.albedo_color = Color(0.05, 0.08, 0.1, 0.3)
+	gl.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	gl.roughness = 0.05
+	gl.metallic = 0.6
+	gl.cull_mode = BaseMaterial3D.CULL_DISABLED
+	d["glass"] = gl
+	d["plinth"] = pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.6, 0.58, 0.55))
 	_kit[key] = d
 	return d
+
+
+## A lit shop behind glass on the current kit face (_fo/_fr): painted
+## interior, glass, mullions, a door. `w` is the glass width.
+func kit_shop(w: float, c: Color) -> void:
+	var k := _kit_mats()
+	_fquad(Vector2(w, 2.8), 0, 1.6, 0.03, _shop_mat(rng.randi() % 4, c))
+	_fquad(Vector2(w, 2.8), 0, 1.6, 0.16, k["glass"])
+	var nm := maxi(1, int(w / 2.6))
+	for mi in range(1, nm + 1):
+		_fbox(Vector3(0.06, 2.8, 0.08), -w / 2.0 + w * mi / (nm + 1), 1.6, 0.17, k["dark"])
+	_fbox(Vector3(0.9, 2.2, 0.08), -w / 2.0 + 0.9, 1.1, 0.2, k["dark"])
+	_fbox(Vector3(0.04, 0.3, 0.04), -w / 2.0 + 1.25, 1.05, 0.26, k["metal"])
+
+
+## Shop interior N, unlit (the painted room is already lit), dark in an outage.
+func _shop_mat(n: int, c: Color) -> StandardMaterial3D:
+	var key := "shop%d|%s|%s" % [n, c, kit_dead]
+	if _mat_cache.has(key):
+		return _mat_cache[key]
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_texture = load("res://assets/facades/shop%d_emit.png" % n)
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var on := Color(1, 1, 1).lerp(c, 0.2) * (1.7 if kit_day else 1.3)
+	m.albedo_color = Color(0.08, 0.08, 0.09) if kit_dead else on
+	if not kit_dead:
+		power_mats.append([m, on, "albedo_color", Color(0.08, 0.08, 0.09)])
+	_mat_cache[key] = m
+	return m
+
+
+## A tree: textured trunk, limbs, a canopy of leaf cards round a few spheres.
+func tree(p: Vector3, h: float, bark: Material, leaf_mats: Array, parent: Node = self) -> void:
+	cyl(0.32, 0.55, h, p + Vector3(0, h / 2.0, 0), bark, 9, parent)
+	for k in 3:
+		var a := rng.randf() * TAU
+		var s := p + Vector3(0, h * 0.55, 0)
+		stick(s, s + Vector3(cos(a) * 2.0, 1.0, sin(a) * 2.0), 0.12, bark, parent)
+	for k in 3:
+		var off := Vector3(rng.randf_range(-1.6, 1.6), h + rng.randf_range(-0.5, 1.2), rng.randf_range(-1.6, 1.6))
+		sphere(rng.randf_range(1.6, 2.4), p + off, leaf_mats[k % leaf_mats.size()], 8, parent)
+	for k in 12:
+		var off := Vector3(rng.randf_range(-2.2, 2.2), h + rng.randf_range(-1.2, 1.8), rng.randf_range(-2.2, 2.2))
+		var q := quad(Vector2(4.6, 4.6) * rng.randf_range(0.8, 1.2), p + off, 0.0, _leaf_card(), parent)
+		q.rotation = Vector3(rng.randf_range(-0.7, 0.7), rng.randf() * TAU, rng.randf_range(-0.5, 0.5))
+
+
+func _leaf_card() -> StandardMaterial3D:
+	if _mat_cache.has("leafcard"):
+		return _mat_cache["leafcard"]
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load("res://assets/facades/leaves.png")
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.roughness = 0.9
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_mat_cache["leafcard"] = m
+	return m
 
 
 func _neon(c: Color) -> StandardMaterial3D:
@@ -690,6 +765,11 @@ func cyber_block(o: Vector3, rot_y: float, w: float, h: float, d: float, solid :
 	_fbox(Vector3(w, h, d), 0, h / 2.0, -d / 2.0, k["walls"][wi], solid)
 	if h > 6.0 and not kit_dead:
 		_fquad(Vector2(w - 0.1, h - 4.4), 0, 4.4 + (h - 4.4) / 2.0, 0.015, k["lits"][wi])
+	# cornice and parapet at the roof line, a plinth at the pavement
+	_fbox(Vector3(w + 0.5, 0.7, 0.55), 0, h - 0.35, 0.2, k["dark"])
+	_fbox(Vector3(w + 0.3, 0.12, 0.7), 0, h - 0.8, 0.25, k["metal"])
+	if lod == 0:
+		_fbox(Vector3(w, 0.5, 0.25), 0, 0.25, 0.1, k["plinth"])
 	if h > 32.0 and rng.randf() < 0.4:
 		var h2 := rng.randf_range(12.0, 45.0)
 		var w2 := w * rng.randf_range(0.45, 0.7)
@@ -712,11 +792,7 @@ func cyber_dress(o: Vector3, rot_y: float, w: float, h: float, lod := 0, shop :=
 	var c := _kc()
 	if shop and lod == 0:
 		if rng.randf() < 0.75:
-			_fquad(Vector2(w - 1.2, 2.8), 0, 1.6, 0.03, _kglow(c * 0.3, 1.5))
-			_fbox(Vector3(w - 0.8, 0.12, 1.4), 0, 3.25, 0.7, k["dark"])
-			_fbox(Vector3(w - 0.8, 0.06, 0.06), 0, 3.2, 1.4, _neon(c))
-			var txt: String = KIT_SHOPS[rng.randi() % KIT_SHOPS.size()]
-			neon_text(txt, _fp(0, 3.95, 0.1), _fr, _fit(txt, w - 2.0, 0.9), c)
+			kit_shop(w - 1.2, c)
 		else:
 			_fquad(Vector2(w - 1.2, 2.8), 0, 1.6, 0.03, k["metal"])
 	if rng.randf() < 0.5:

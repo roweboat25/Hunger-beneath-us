@@ -36,6 +36,7 @@ var _metal: StandardMaterial3D
 func build(m: Node) -> void:
 	main = m
 	rng.seed = 1984
+	kit_day = false
 	spawn = Vector3(5.5, 0.2, 104.0)
 	rain = true
 	card = "THE SPINE\n[color=#888888]night, after the second incident[/color]"
@@ -103,24 +104,11 @@ func _road() -> void:
 # ------------------------------------------------------------------ buildings
 
 func _buildings() -> void:
+	# the painted facades the rest of Silico uses (Level._kit_mats)
 	var variants := []
+	var k := _kit_mats()
 	for i in 6:
-		var t: Array = Tex.facade(100 + i, 0.14 + 0.05 * i)
-		# world-space (triplanar) mapping so every building shares these two
-		var wall := newmat(Color(1, 1, 1), 0.7)
-		wall.albedo_texture = t[0]
-		wall.uv1_triplanar = true
-		wall.uv1_world_triplanar = true
-		wall.uv1_scale = Vector3(1, 1, 1) / 7.0
-		var lit := StandardMaterial3D.new()
-		lit.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		lit.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		lit.albedo_texture = t[1]
-		lit.uv1_triplanar = true
-		lit.uv1_world_triplanar = true
-		lit.uv1_scale = Vector3(1, 1, 1) / 7.0
-		power_mats.append([lit, Color(1, 1, 1), "albedo_color", Color(0, 0, 0)])
-		variants.append([t[0], t[1], wall, lit])
+		variants.append([null, null, k["walls"][i], k["lits"][i]])
 	var shop_cols := [Color(1.0, 0.55, 0.25), Color(0.2, 0.9, 0.85), Color(1.0, 0.25, 0.65),
 		Color(0.45, 1.0, 0.55), Color(1.0, 0.8, 0.5)]
 	var signs := ["NOODLES", "24H", "LUSHON", "NIXTRA", "TOKZ", "VOLTX", "PSYMATCHBOT",
@@ -165,7 +153,9 @@ func _building(side: float, cz: float, depth: float, h: float, tex: Array, shop_
 	# street level: a lit shopfront or a shutter
 	if rng.randf() < 0.65:
 		var c: Color = shop_cols[rng.randi() % shop_cols.size()]
-		quad(Vector2(depth - 1.5, 3.0), Vector3(fx - side * 0.01, 1.7, cz), rot, glow(c * 0.3, 1.0, true))
+		_fo = Vector3(fx, 0, cz)
+		_fr = rot
+		kit_shop(depth - 1.5, c)
 		if rng.randf() < 0.6:
 			var txt: String = signs[rng.randi() % signs.size()]
 			var l := label(txt, Vector3(side * (FRONT - 0.12), 4.0, cz), rot, 0.014, c * 1.6)

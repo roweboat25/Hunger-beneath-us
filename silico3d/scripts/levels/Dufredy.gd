@@ -535,12 +535,7 @@ func _outside() -> void:
 	for i in 18:
 		floor_quad(Vector2(2.5, 1.2) * rng.randf_range(0.6, 1.4), Vector3(rng.randf_range(-40, 5), 0.015 + i * 0.0005, 3.2 + rng.randf() * 0.5 if i % 2 == 0 else 14.5), rng.randf_range(-0.2, 0.2), sand)
 	# the building's face: Dufredy's door in a long, expensive frontage
-	var f: Array = Tex.facade(301, 0.0)
-	var face := newmat(Color(1.6, 1.55, 1.45), 0.8)
-	face.albedo_texture = f[0]
-	face.uv1_triplanar = true
-	face.uv1_world_triplanar = true
-	face.uv1_scale = Vector3(1, 1, 1) / 6.0
+	var face: StandardMaterial3D = _kit_mats()["walls"][3]
 	box(Vector3(40.0, 14.0, 0.2), Vector3(-20.5, 7.0, 0.1), face, true)
 	box(Vector3(4.1, 14.0, 0.2), Vector3(2.55, 7.0, 0.1), face, true)
 	box(Vector3(1.0, 11.8, 0.2), Vector3(0.0, 8.1, 0.1), face)
@@ -598,15 +593,7 @@ func _car(pos: Vector3, rot: float, paint_c: Color, id: String, mine: bool) -> N
 	car.position = pos
 	car.rotation.y = rot
 	add_child(car)
-	var paint := mat(paint_c, 0.25, 0.6)
-	box(Vector3(1.9, 0.75, 4.5), Vector3(0, 0.55, 0), paint, false, car)
-	box(Vector3(1.7, 0.6, 2.4), Vector3(0, 1.2, 0.2), mat(Color(0.05, 0.07, 0.09), 0.1, 0.5), false, car)
-	for x: float in [-0.85, 0.85]:
-		for z: float in [-1.45, 1.45]:
-			var w := cyl(0.34, 0.34, 0.24, Vector3(x, 0.34, z), mat(Color(0.05, 0.05, 0.05), 0.8), 14, car)
-			w.rotation.z = PI / 2.0
-	box(Vector3(1.6, 0.12, 0.05), Vector3(0, 0.7, -2.26), glow(Color(1, 0.97, 0.9), 1.0), false, car)
-	box(Vector3(1.6, 0.1, 0.05), Vector3(0, 0.75, 2.26), glow(Color(0.9, 0.05, 0.05), 1.0), false, car)
+	car.add_child(Car.build(self, paint_c, {"plate": "PSF 0086" if mine else ""}))
 	solid_box(Vector3(1.9, 1.5, 4.5), Vector3(0, 0.75, 0), car)
 	if mine:
 		var it := interactable(id, "Get in your car", Vector3(0, 1.0, 0), Vector3(2.0, 1.8, 4.6),

@@ -147,12 +147,7 @@ func _car(pos: Vector3, rot: float, c: Color, mine: bool) -> void:
 	car.position = pos
 	car.rotation.y = rot
 	add_child(car)
-	box(Vector3(1.9, 0.75, 4.5), Vector3(0, 0.55, 0), mat(c, 0.25, 0.6), false, car)
-	box(Vector3(1.7, 0.6, 2.4), Vector3(0, 1.2, 0.2), mat(Color(0.05, 0.07, 0.09), 0.1, 0.5), false, car)
-	for x: float in [-0.85, 0.85]:
-		for z: float in [-1.45, 1.45]:
-			var w := cyl(0.34, 0.34, 0.24, Vector3(x, 0.34, z), mat(Color(0.05, 0.05, 0.05), 0.8), 14, car)
-			w.rotation.z = PI / 2.0
+	car.add_child(Car.build(self, c, {"plate": "PSF 0086" if mine else ""}))
 	solid_box(Vector3(1.9, 1.5, 4.5), Vector3(0, 0.75, 0), car)
 	if mine:
 		var it := interactable("my_car", "Your company car", Vector3(0, 1.0, 0), Vector3(2.0, 1.8, 4.6),
@@ -289,16 +284,8 @@ func _trees() -> void:
 	for i in spots.size():
 		var p: Vector3 = spots[i]
 		var h := rng.randf_range(5.5, 8.0)
-		cyl(0.32, 0.55, h, p + Vector3(0, h / 2.0, 0), bark, 9)
 		solid_box(Vector3(0.9, h, 0.9), p + Vector3(0, h / 2.0, 0))
-		for k in 3:
-			var off := Vector3(rng.randf_range(-1.8, 1.8), h + rng.randf_range(-0.5, 1.2), rng.randf_range(-1.8, 1.8))
-			sphere(rng.randf_range(2.2, 3.4), p + off, leaves[(i + k) % 3], 10)
-		# limbs low down
-		for k in 3:
-			var a := rng.randf() * TAU
-			var s := p + Vector3(0, h * 0.55, 0)
-			stick(s, s + Vector3(cos(a) * 2.0, 1.0, sin(a) * 2.0), 0.12, bark)
+		tree(p, h, bark, leaves)
 	# the tree by the wall: the lower branches snapped off, clean, dozens
 	var ct := Vector3(-6, 0, -22)
 	for k in 14:

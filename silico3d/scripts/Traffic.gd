@@ -41,11 +41,10 @@ func setup(m: Node, lvl: Node) -> void:
 		var lane: Array = lanes[i % lanes.size()]
 		var car := Node3D.new()
 		add_child(car)
-		var paint: StandardMaterial3D = city.mat(paints[rng.randi() % paints.size()], 0.2, 0.7)
-		city.box(Vector3(2.0, 0.6, 4.4), Vector3(0, 0, 0), paint, false, car)
-		city.box(Vector3(1.7, 0.5, 2.2), Vector3(0, 0.5, 0.3), city.mat(Color(0.02, 0.03, 0.04), 0.05, 0.6), false, car)
-		city.box(Vector3(1.7, 0.1, 0.05), Vector3(0, 0.05, -2.22), city.glow(Color(1, 0.97, 0.9), 4.0, true), false, car)
-		city.box(Vector3(1.8, 0.1, 0.05), Vector3(0, 0.1, 2.22), city.glow(Color(1, 0.05, 0.05), 3.0, true), false, car)
+		var body := Car.build(city, paints[rng.randi() % paints.size()], {"hover": true,
+			"head": city.glow(Color(1, 0.97, 0.9), 4.0, true), "tail": city.glow(Color(1, 0.05, 0.05), 3.0, true)})
+		body.position.y = -0.55
+		car.add_child(body)
 		var uc: Color = under[rng.randi() % under.size()]
 		city.box(Vector3(1.6, 0.04, 3.6), Vector3(0, -0.32, 0), city.glow(uc, 2.0, true), false, car)
 		if i % 3 == 0:

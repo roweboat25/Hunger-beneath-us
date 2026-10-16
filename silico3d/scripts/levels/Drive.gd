@@ -188,8 +188,8 @@ func _stoplight() -> void:
 	van.position = Vector3(-4.0, 0, z - 9.0)
 	van.rotation.y = PI / 2.0 + 0.25
 	add_child(van)
-	box(Vector3(2.1, 2.2, 5.0), Vector3(0, 1.3, 0), mat(Color(0.85, 0.85, 0.82), 0.4), false, van)
-	label("VOLTX DELIVERY", Vector3(1.06, 1.6, 0), PI / 2.0, 0.008, Color(0.1, 0.4, 0.2), van, false)
+	van.add_child(Car.build(self, Color(0.85, 0.85, 0.82), {"van": true, "plate": "VLT 4410"}))
+	label("VOLTX DELIVERY", Vector3(1.075, 1.6, 0.3), PI / 2.0, 0.008, Color(0.1, 0.4, 0.2), van, false)
 	for x: float in [-0.9, 0.9]:
 		var hz := newglow(Color(1.0, 0.6, 0.1), 3.0)
 		box(Vector3(0.2, 0.15, 0.05), Vector3(x, 0.8, 2.52), hz, false, van)

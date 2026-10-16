@@ -49,8 +49,17 @@ rust; ids in `LICENSE.txt`), loaded with `Level.pbr(name, scale, triplanar,
 tint, rough_mul)`. Their `.import` files are committed on purpose: normal maps
 need `compress/normal_map=1` and everything needs mipmaps.
 
+Painted facades, shop interiors and the leaf cards come from
+`tools/gen_facades.py` (numpy + Pillow) into `assets/facades/`: six 10.5 m
+wall tiles (albedo, lit-window emission, normal, roughness), four shop rooms,
+one leaf cluster. Rerun it after editing; the `.import` files are committed.
+
 Scripts: `Main.gd` (level loading, input, interactions, self-test),
-`Level.gd` (base class: build helpers, figures, glyphs, power), `levels/`
-(`Dufredy.gd`, `Drive.gd`, `Park.gd`, `Spine.gd`), `Crowd.gd`, `Traffic.gd`,
-`Player.gd`, `UI.gd` (frames overlay, dialogue, laptop, pictures, phone),
-`Synth.gd` (sounds), `Tex.gd` (textures).
+`Level.gd` (base class: build helpers, glyphs, power, the city kit with
+`cyber_block`/`cyber_dress`/`kit_shop`/`tree`), `Body.gd` (people: lofted
+bodies with painted faces and clothes, one mesh each for clothes and head;
+`figure()` in Level calls it), `Car.gd` (swept car bodies: ground, hover,
+van), `levels/` (`Dufredy.gd`, `Drive.gd`, `Park.gd`, `Spine.gd`, `Lineup.gd`
+for checking people and cars), `Crowd.gd`, `Traffic.gd`, `Player.gd`,
+`UI.gd` (frames overlay, dialogue, laptop, pictures, phone), `Synth.gd`
+(sounds), `Tex.gd` (small procedural textures).
