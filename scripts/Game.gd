@@ -62,6 +62,8 @@ var hour := 21
 ## Dreams Carl has had, and how many times he bowed in them.
 var dreams := 0
 var bowed := 0
+## Arcade tickets from the machines under Red Rock Plaza. Spent at the prize counter.
+var tickets := 0
 ## The stance the case file has earned him, recomputed as he acts.
 var stance_now := ""
 var _rng := RandomNumberGenerator.new()
@@ -185,6 +187,7 @@ const RIDDLES := {
 	"swarm": {"line": "Look for the ____ and know peace.", "answer": "eye", "options": ["eye", "door", "tower", "sleeper"]},
 	"dorner_psyon": {"line": "Psyon is the ____ for those who dream.", "answer": "pillow", "options": ["pillow", "door", "path", "mask"]},
 	"generic": {"line": "The floor is a ____. The door is a floor.", "answer": "door", "options": ["door", "wall", "mirror", "twin"]},
+	"cab_blastula": {"line": "From 0 to 1, from 1 to 2, from 2 to ____.", "answer": "4", "options": ["4", "3", "none", "me"]},
 }
 
 ## Typed questions for the "dreamer" puzzle.
@@ -566,6 +569,8 @@ func stance() -> String:
 	if has_flag("refused_turan"): score["investigator"] += 1
 	if has_flag("called_monica"): score["investigator"] += 1
 	if has_flag("hesitated_at_door"): score["investigator"] += 1
+	if has_flag("lied_to_fork"): score["investigator"] += 1
+	if has_flag("password_game_won"): score["sleeper"] += 1
 	score["sleeper"] += interfaces.size() + bowed
 	match theory:
 		"drugs": score["company"] += 1

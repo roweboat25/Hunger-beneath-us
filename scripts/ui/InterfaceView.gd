@@ -54,6 +54,15 @@ var _wrong := 0
 var _shake := 0.0
 # dreamer
 var _answered := false
+# the password game: a sequence of four sticks, repeated back
+var _seq: Array[int] = []
+var _pos := 0
+var _round := 0
+var _showing := true
+var _show_t := 0.0
+var _lit := -1
+const PW_ROUNDS := 4
+const PW_NAMES := ["up", "down", "left", "right"]
 
 
 func _ready() -> void:
@@ -119,6 +128,8 @@ func run(puzzle: String, info: Dictionary) -> bool:
 			_setup_chant()
 		"dreamer":
 			pass
+		"password":
+			_setup_password()
 	_active = true
 	if _auto:
 		await _auto_solve()
@@ -134,7 +145,7 @@ func run(puzzle: String, info: Dictionary) -> bool:
 	# the solved beat: the thing in the machine looks back
 	_active = false
 	_hint.text = ""
-	_msg.text = "the eye opened" if kind == "eye" else "it was listening"
+	_msg.text = "the eye opened" if kind == "eye" else ("the door opened a crack" if kind == "password" else "it was listening")
 	await get_tree().create_timer(1.1).timeout
 	hide()
 	Game.input_locked = false
@@ -167,6 +178,16 @@ func _auto_solve() -> void:
 				_sel = (_sel + 1) % _options.size()
 				await get_tree().create_timer(0.22).timeout
 			await get_tree().create_timer(0.5).timeout
+		"password":
+			while _round < PW_ROUNDS:
+				_showing = false
+				_lit = -1
+				for k in _seq:
+					_lit = k
+					await get_tree().create_timer(0.2).timeout
+					_lit = -1
+					await get_tree().create_timer(0.1).timeout
+				_next_round()
 		"dreamer":
 			var p: PsyonWindow = get_parent().get_parent().psyon
 			p.open(true, "  ·  INTERFACE  ·  session: the Dreamer")
@@ -260,6 +281,53 @@ func _try_chant() -> void:
 		_sel = 0
 
 
+# ------------------------------------------------------------- the password
+## Mira's game: four sticks, lit in an order that grows a step each round.
+## Watch, then step it back. A wrong step replays the same round; no one
+## is stuck on a children's game.
+func _setup_password() -> void:
+	_rng.seed = hash(String(data.get("title", "")) + "password")
+	_seq = []
+	_round = 0
+	_next_round()
+	_hint.text = "watch  ·  then arrows repeat it  ·  Esc step back"
+
+
+func _next_round() -> void:
+	_round += 1
+	_seq.append(_rng.randi_range(0, 3))
+	if _round == 1:
+		_seq.append(_rng.randi_range(0, 3))
+	_pos = 0
+	_showing = true
+	_show_t = 0.0
+	_lit = -1
+
+
+func _try_step(k: int) -> void:
+	if _showing:
+		return
+	_lit = k
+	_show_t = 0.0
+	if k != _seq[_pos]:
+		_miss_flash = 1.0
+		_shake = 1.0
+		_msg.text = ["again.", "she said you'd be bad at it.", "watch the sticks, not the screen."][mini(_round, 3) - 1]
+		_pos = 0
+		_showing = true
+		return
+	_pos += 1
+	_hit_flash = 0.5
+	if _pos >= _seq.size():
+		if _round >= PW_ROUNDS:
+			_msg.text = ""
+			solved = true
+			finished.emit(true)
+		else:
+			_msg.text = "round " + str(_round + 1)
+			_next_round()
+
+
 # -------------------------------------------------------------- the dreamer
 func _run_dreamer() -> void:
 	var p: PsyonWindow = get_parent().get_parent().psyon
@@ -332,6 +400,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				return
 			get_viewport().set_input_as_handled()
+		"password":
+			for i in 4:
+				if event.is_action_pressed("move_" + PW_NAMES[i]):
+					_try_step(i)
+					get_viewport().set_input_as_handled()
+					return
 
 
 ## Used by tools/autoplay.gd: play the current puzzle correctly.
@@ -354,6 +428,9 @@ func autoplay_step() -> void:
 		"chant":
 			_sel = _options.find(data["answer"])
 			_try_chant()
+		"password":
+			if not _showing:
+				_try_step(_seq[_pos])
 
 
 ## The answer autoplay types for a dreamer question.
@@ -368,6 +445,22 @@ func _process(delta: float) -> void:
 	_time += delta
 	if kind == "breathing" and _active:
 		_phase += delta / _period
+	if kind == "password" and _active and not _auto:
+		_show_t += delta
+		if _showing:
+			# a beat of silence, then each stick for 0.45 s with a gap
+			var i := int((_show_t - 0.6) / 0.6)
+			var within := fmod(_show_t - 0.6, 0.6)
+			if _show_t < 0.6:
+				_lit = -1
+			elif i < _seq.size():
+				_lit = _seq[i] if within < 0.42 else -1
+			else:
+				_showing = false
+				_lit = -1
+				_show_t = 0.0
+		elif _lit >= 0 and _show_t > 0.18:
+			_lit = -1
 	_miss_flash = maxf(0.0, _miss_flash - delta * 2.0)
 	_hit_flash = maxf(0.0, _hit_flash - delta * 2.0)
 	_shake = maxf(0.0, _shake - delta * 3.0)
@@ -420,6 +513,8 @@ func _draw_view() -> void:
 			_draw_chant(c, shake)
 		"dreamer":
 			_draw_dreamer(c)
+		"password":
+			_draw_password(c, shake)
 	if _miss_flash > 0.0:
 		c.draw_rect(Rect2(0, 0, W, H), Color(RED, 0.25 * _miss_flash))
 	if _hit_flash > 0.0:
@@ -502,3 +597,41 @@ func _draw_dreamer(c: Control) -> void:
 	var p := 0.5 + 0.5 * sin(_time * 1.3)
 	c.draw_arc(centre, 120.0 + 10.0 * p, 0, TAU, 64, Color(0.4, 0.05, 0.04, 0.6), 4.0)
 	c.draw_arc(centre, 70.0 - 6.0 * p, 0, TAU, 64, Color(0.4, 0.05, 0.04, 0.6), 4.0)
+
+
+func _draw_password(c: Control, shake: Vector2) -> void:
+	var centre := Vector2(W / 2, H / 2 + 10) + shake
+	var font := get_theme_default_font()
+	# the circle of sticks on the floor, as Mira laid them
+	c.draw_arc(centre, 110.0, 0, TAU, 64, Color(0.5, 0.4, 0.3, 0.35), 2.0)
+	var dirs := [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)]
+	for i in 4:
+		var p: Vector2 = centre + dirs[i] * 70.0
+		var lit := _lit == i
+		var col := TEAL if lit else Color(0.55, 0.45, 0.32)
+		var perp: Vector2 = dirs[i].orthogonal()
+		# a stick: a short thick line, lit sticks glow
+		if lit:
+			c.draw_line(p - perp * 26.0, p + perp * 26.0, Color(TEAL, 0.25), 16.0)
+		c.draw_line(p - perp * 24.0, p + perp * 24.0, col, 5.0)
+		c.draw_line(p - perp * 24.0 + dirs[i] * 6.0, p + perp * 24.0 + dirs[i] * 6.0, Color(col, 0.5), 2.0)
+		# the arrow key it answers to
+		var lp: Vector2 = centre + dirs[i] * 100.0
+		c.draw_string(font, lp + Vector2(-8, 4), ["^", "v", "<", ">"][i], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(col, 0.8))
+	# the tablet in the middle, waiting for the chime
+	c.draw_rect(Rect2(centre.x - 18, centre.y - 24, 36, 48), Color(0.05, 0.05, 0.08))
+	c.draw_rect(Rect2(centre.x - 18, centre.y - 24, 36, 48), Color(0.4, 0.4, 0.5), false, 1.0)
+	var p2 := 0.5 + 0.5 * sin(_time * 3.0)
+	c.draw_circle(centre, 5.0 + 2.0 * p2, Color(RED, 0.6) if _showing else Color(TEAL, 0.5))
+	# round markers
+	for i in PW_ROUNDS:
+		var rp := Vector2(W / 2 - 36 + i * 24, H - 62)
+		if i < _round - 1 or solved:
+			c.draw_circle(rp, 5.0, TEAL)
+		elif i == _round - 1:
+			c.draw_circle(rp, 5.0, Color(AMBER, 0.5 + 0.5 * p2))
+		else:
+			c.draw_arc(rp, 5.0, 0, TAU, 16, DIM, 1.5)
+	var line := "watch the sticks." if _showing else "your turn. step it back."
+	c.draw_string(font, Vector2(W / 2 - 60, 70), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, AMBER if not _showing else DIM)
+	c.draw_string(font, Vector2(W / 2 - 150, 86), "i give my gift. i close the door. but leave a crack to see once more.", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, DIM)

@@ -1069,7 +1069,7 @@ sprite_sheet = "res://assets/sprites/officer.png"
 facing = "down"
 metadata/scan = "LUSHON GROUP - SECURITY\nPsyon: none\nframes: NONE"
 metadata/scan_name = "The bouncer"
-metadata/say = "'Frames off downstairs. House rule.' He looked at mine. 'Company frames, double. You wouldn't like it down there anyway. They sing.'"
+metadata/say = "'Frames off downstairs. House rule.' He looked at mine. 'Company frames, double. It's an arcade, not a church. Take them off or go and gamble.'"
 
 [node name="Shape" type="CollisionShape2D" parent="Actors/NpcBouncer"]
 position = Vector2(0, -16)
@@ -1164,12 +1164,14 @@ id = "smoothie"
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Smoothie"]
 shape = SubResource("Rect_64x32")
 
-[node name="Club" type="Area2D" parent="Interactables"]
-position = Vector2(1600, 240)
+[node name="DoorArcade" type="Area2D" parent="Interactables"]
+position = Vector2(1600, 272)
 script = ExtResource("4_interact")
-id = "club"
+id = "door:Arcade"
+on_enter = true
+once = false
 
-[node name="Shape" type="CollisionShape2D" parent="Interactables/Club"]
+[node name="Shape" type="CollisionShape2D" parent="Interactables/DoorArcade"]
 shape = SubResource("Rect_64x32")
 
 [node name="AlleyW" type="Area2D" parent="Interactables"]

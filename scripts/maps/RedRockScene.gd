@@ -46,6 +46,29 @@ func _physics_process(delta: float) -> void:
 			m.set_deferred("monitorable", show)
 
 
+## The bouncer's house rule: frames off downstairs. Deep in, he doesn't
+## bother; the frames are not the thing he was watching for by then.
+func _door(id: String) -> void:
+	if id == "door:Arcade" and Game.glasses_on and Game.connection < 50.0:
+		await ui.think("Stairs down, and the bass coming up them like weather. A sign on the rail: FRAMES OFF. The bouncer watched me read it, and then watched the frames.")
+		var pick := await ui.choose(["Take them off.", "Keep them on."])
+		if pick == 0:
+			Game.set_glasses(false)
+			await ui.think("I took them off. The plaza got quieter and dimmer and smaller, and the stairs were just stairs. He stepped aside.")
+			ui.close()
+			await travel(id)
+		else:
+			await ui.say("Bouncer", "Then you're not coming in. Casino's that way. They'll take you with the frames on. They'll take anybody.", "officer")
+			ui.close()
+			player.position += Vector2(0, 12)
+		return
+	if id == "door:Arcade" and Game.connection >= 50.0 and Game.glasses_on and not Game.has_flag("arcade_deep_let_in"):
+		Game.set_flag("arcade_deep_let_in")
+		await ui.think("FRAMES OFF, the sign on the rail said. The bouncer looked at mine and then away, and stepped aside without a word, the way you'd step aside for a hearse.")
+		ui.close()
+	await super._door(id)
+
+
 func on_interact(id: String) -> void:
 	match id:
 		"pillar":

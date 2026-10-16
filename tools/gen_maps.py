@@ -1513,7 +1513,7 @@ def redrock():
     m.trigger("outlet", 36, 7, 2)
     m.trigger("pillar", 26, 16, 3, 1)
     m.trigger("smoothie", 38, 8, 2)
-    m.trigger("club", 49, 7, 2)
+    m.trigger("door:Arcade", 49, 8, 2, 1, on_enter=True, once=False)
     m.trigger("alley_w", 14, 7, 2); m.trigger("alley_e", 29, 7, 2)
     m.trigger("subway_sign", 3, 17)
     m.exit("exit:east", 55, 7, 1, 11)
@@ -1578,8 +1578,55 @@ def lushon():
     return m
 
 
+def arcade():
+    """The arcade under Red Rock Plaza, down the club stairs: the one room in
+    Silico where the frames come off. Cabinets, the Psymatchbot booth, the
+    prize counter (50 tickets for a new phone, 200 for a companion), a dance
+    pad, and a table of school kids playing the Password Game."""
+    m = Map("Arcade", "ArcadeScene.gd", 28, 14, ["tile_dark"] * 9 + ["tile_dark2"] * 2 + ["diamond_navy"], seed=101)
+    m.void_border()
+    m.top_wall("navy", 1, 26)
+    m.ground[13][14] = "shadow_floor"; m.clear_wall(14, 13)
+    m.decal("graffiti_gift", 1, 0); m.decal("poster3", 23, 0); m.decal("glyph_red", 26, 1)
+    m.prop("neon_arcade", 12, 0, lift=4, solid=0, meta={"neon": "e848b4"})
+    m.prop("neon_psymatch", 16, 0, lift=4, solid=0, meta={"neon": "ff6e96"})
+    # the cabinets along the top wall
+    m.prop("cab_serpent", 2, 2, id="cab_serpent", meta={"neon": "78f08c"})
+    m.prop("cab_hush", 4, 2, id="cab_hush", meta={"neon": "5a8cff"})
+    m.prop("cab_blastula", 6, 2, id="cab_blastula", meta={"neon": "e848b4"})
+    m.prop("cab_dark", 8, 2, id="cab_dark1"); m.prop("cab_dark", 10, 2, id="cab_dark2")
+    m.prop("cab_tower", 12, 2, id="cab_tower", meta={"neon": "f5be5a"})
+    m.prop("psymatch_booth", 16, 2, id="booth", meta={"neon": "ff6e96"})
+    m.prop("claw_machine", 20, 2, id="claw", meta={"neon": "5a8cff"})
+    m.prop("prize_counter", 23, 3, id="counter")
+    m.prop("ticket_machine", 26, 6, id="tickets", meta={"neon": "f5be5a"})
+    m.prop("speaker_stack", 1, 8); m.prop("speaker_stack", 26, 10)
+    m.prop("dance_pad", 7, 8, id="pad", solid=0, meta={"neon": "7fe0c0"})
+    m.prop("kids_table", 2, 11, id="kids_table")
+    m.prop("bin", 20, 11); m.prop("vending_dark", 22, 11)
+    m.decal("bottle", 11, 11); m.decal("paper", 18, 6); m.decal("blood", 25, 12)
+    m.npc("attendant", 24, 2, "down", sprite="seth", meta={"say": "'Tickets for prizes. Fifty for a phone, two hundred for the box.' He didn't say what was in the box. 'The kids' table is free.'", "scan": "RED ROCK AMUSEMENTS\nPsyon: none\nframes: NONE\nshift: all of them", "scan_name": "The attendant"})
+    m.npc("kid_a", 2, 10, "down", sprite="mira", meta={"say": "'You're too old for it.' She didn't look up from the tablet. 'It only does your homework if you've got homework.'", "scan": "HEIGHTS PRIMARY - YEAR 6\nPsyon 4.1 - sync 97%\nforeground app: THE PASSWORD GAME\nround: 7", "scan_name": "A schoolgirl", "speaker": "Schoolgirl"})
+    m.npc("kid_b", 4, 10, "down", sprite="ezra", meta={"say": "'Mira Drake's dad? She's the best at it. She got to round eight. Nobody gets to round eight.'", "scan": "HEIGHTS PRIMARY - YEAR 6\nPsyon 4.1 - sync 94%\nforeground app: THE PASSWORD GAME\nround: 5", "scan_name": "A schoolboy", "speaker": "Schoolboy"})
+    m.npc("dancer", 8, 7, "down", sprite="ezra", meta={"say": "She was dancing to nothing. The speakers were off. 'Four notes,' she said, stepping them out on the pad. 'Up, down, left, right. It's always the same four.'", "scan": "TOKZ - CREATOR\nPsyon 4.1 - sync 100%\nlast post: the pad, 4 notes\nframes: ON", "scan_name": "A dancer", "bad": True})
+    m.npc("regular", 13, 4, "up", sprite="forner", meta={"say": "'Tower Run. Don't bother, it's rigged. You run up the stairs and the eye's at the top of every floor and the game ends when you look at it.' He put another coin in.", "scan": "UNREGISTERED\nORA frames: NONE\ncredit: 212 tickets\nhigh score: TOWER RUN", "scan_name": "A regular"})
+    m.glyph("ar_wall", 9, 1, deep=True); m.glyph("ar_pad", 9, 9)
+    # each spot covers the machine and the tile Carl stands on in front of it
+    m.trigger("cab_serpent", 2, 2, 1, 2); m.trigger("cab_hush", 4, 2, 1, 2); m.trigger("cab_blastula", 6, 2, 1, 2)
+    m.trigger("cab_dark", 8, 2, 3, 2); m.trigger("cab_tower", 12, 2, 1, 2)
+    m.trigger("booth", 16, 2, 2, 3)
+    m.trigger("claw", 20, 2, 1, 2)
+    m.trigger("counter", 23, 3, 3, 2)
+    m.trigger("tickets", 26, 6, 1, 2)
+    m.trigger("pad", 7, 8, 2, 2, on_enter=True, once=False)
+    m.trigger("kids_table", 2, 11, 2, 2)
+    m.trigger("exit", 14, 13, on_enter=True, once=False)
+    m.player = (14, 11)
+    return m
+
+
 MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
-        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona, redrock, casino, lushon]
+        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona, redrock, casino, lushon, arcade]
 
 
 def main():

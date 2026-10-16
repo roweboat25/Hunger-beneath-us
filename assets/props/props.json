@@ -149,6 +149,31 @@
   "solid": 1,
   "w": 32
  },
+ "cab_blastula": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "cab_dark": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "cab_hush": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "cab_serpent": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "cab_tower": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
  "cabinet": {
   "h": 59,
   "solid": 1,
@@ -219,6 +244,11 @@
   "solid": 1,
   "w": 32
  },
+ "claw_machine": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
  "club_stairs": {
   "h": 32,
   "solid": 0,
@@ -275,6 +305,11 @@
   "w": 64
  },
  "curtain_dark": {
+  "h": 64,
+  "solid": 0,
+  "w": 64
+ },
+ "dance_pad": {
   "h": 64,
   "solid": 0,
   "w": 64
@@ -424,6 +459,11 @@
   "solid": 0,
   "w": 96
  },
+ "graffiti_gift": {
+  "h": 32,
+  "solid": 0,
+  "w": 160
+ },
  "graffiti_god": {
   "h": 32,
   "solid": 0,
@@ -487,6 +527,11 @@
  "hover_car": {
   "h": 32,
   "solid": 0,
+  "w": 64
+ },
+ "kids_table": {
+  "h": 32,
+  "solid": 1,
   "w": 64
  },
  "kiosk": {
@@ -569,6 +614,11 @@
   "solid": 0,
   "w": 64
  },
+ "neon_arcade": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
  "neon_casino": {
   "h": 32,
   "solid": 0,
@@ -595,6 +645,11 @@
   "w": 64
  },
  "neon_noodle": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_psymatch": {
   "h": 32,
   "solid": 0,
   "w": 64
@@ -718,6 +773,16 @@
   "h": 17,
   "solid": 0,
   "w": 32
+ },
+ "prize_counter": {
+  "h": 48,
+  "solid": 1,
+  "w": 96
+ },
+ "psymatch_booth": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
  },
  "puddle": {
   "h": 32,
@@ -928,6 +993,11 @@
   "h": 56,
   "solid": 1,
   "w": 64
+ },
+ "ticket_machine": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
  },
  "transit_tube": {
   "h": 40,

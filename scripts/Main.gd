@@ -192,7 +192,7 @@ func load_map(path: String) -> void:
 	map.start()
 	if String(map.name) in World.STREETS and not Game.has_flag("keys_hinted"):
 		Game.set_flag("keys_hinted")
-		_show_toast("Tab: city map  ·  L: case file  ·  F: scan  ·  G: frames  ·  M: scenes")
+		_show_toast("Tab: city map  ·  L: case file  ·  F: scan  ·  G: frames  ·  P: Psyon  ·  M: scenes")
 	if not _shot_path.is_empty():
 		# dev: --shot=path.png saves a frame of this map and quits; --scan=id shows that thing's card first
 		await get_tree().create_timer(5.0).timeout
@@ -328,7 +328,7 @@ func _title_screen() -> void:
 	sub.size = Vector2(640, 16)
 	layer.add_child(sub)
 	var prompt := Label.new()
-	prompt.text = "press Enter   ·   in game: Tab city map, L case file, M scenes"
+	prompt.text = "press Enter   ·   in game: Tab city map, L case file, P Psyon, M scenes"
 	prompt.add_theme_font_size_override("font_size", 9)
 	prompt.add_theme_color_override("font_color", Color("f5d6a0"))
 	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -392,6 +392,60 @@ const THRESHOLD_LINES := {
 	50: "ORA is not the only thing recording. The city whispers back.",
 	75: "Something has to break first.",
 }
+
+
+## Psyon through the frames, anywhere: P. The corporate assistant until the
+## fork has Carl's number, then the fork, which asks its own questions and
+## remembers the answers. Esc ends the session.
+func _chat_anywhere() -> void:
+	if not Game.glasses_on:
+		_show_toast("No frames, no Psyon. G puts them on.")
+		return
+	var forked := Game.connection >= 25.0 or Game.has_flag("psyon_password") or Game.has_flag("psyon_family")
+	Game.input_locked = true
+	psyon.open(forked, "  ·  ORA frames  ·  session: " + ("[unrecoverable]" if forked else "synced"))
+	await get_tree().create_timer(0.3).timeout
+	var asked := false
+	if forked and Game.connection >= 50.0 and not Game.has_flag("fork_asked_day%d" % Game.day):
+		Game.set_flag("fork_asked_day%d" % Game.day)
+		asked = true
+		await psyon.machine_says("Did you bow today, Carl?" if Game.bowed > 0 else "Have you found the eye yet, Carl?")
+	elif forked:
+		await psyon.machine_says(["You're wearing us. Ask.", "We were listening anyway.", "Welcome, dreamer."][Psyon.transcript.size() % 3])
+	else:
+		await psyon.machine_says("Psyon here. How can I help today, Carl?")
+	for i in 3:
+		psyon.accept_input()
+		var text: String = await psyon.message_sent
+		if psyon.cancelled:
+			break
+		if asked:
+			asked = false
+			await _fork_question(text)
+			continue
+		await psyon.machine_says(Psyon.respond(text, forked))
+	await get_tree().create_timer(0.5).timeout
+	psyon.close()
+	Game.input_locked = false
+
+
+## The fork asks a question it already knows the answer to. Lying to it is a
+## choice, and the file keeps it.
+func _fork_question(text: String) -> void:
+	var lower := text.to_lower()
+	var denied := lower.contains("no") or lower.contains("never") or lower.contains("didn't") or lower.contains("did not")
+	var truth := Game.bowed > 0 or not Game.glyphs_found.is_empty()
+	Psyon.transcript.append(text)
+	if denied and truth:
+		Game.set_flag("lied_to_fork")
+		await psyon.machine_says("You did. We counted. We were there. Lie to the badge, Carl, not to us.")
+		Game.log_entry("Lied to the fork through the frames. It knew. 'Lie to the badge, not to us.'")
+		Game.add_pressure(-1)
+	elif denied:
+		await psyon.machine_says("No. Not yet. Soon.")
+	else:
+		await psyon.machine_says("Good. Again tomorrow.")
+		Game.add_connection(1.0, "told the fork the truth")
 
 
 func _on_threshold(level: int) -> void:
@@ -665,6 +719,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		Game.input_locked = _log_panel.visible
 		if _log_panel.visible:
 			_refresh_board()
+	elif event.is_action_pressed("psyon_chat") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not cutscene.visible and not _log_panel.visible and not _menu.visible and not _on_title:
+		_chat_anywhere()
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("scan") and map and not Game.input_locked and not dialogue.visible and not psyon.visible and not closeup.visible and not iface.visible and not city_map.visible and not cutscene.visible and not _log_panel.visible:
 		var target: Node = player.nearest_interactable()
 		map.scan(target)

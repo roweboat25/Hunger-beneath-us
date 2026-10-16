@@ -24,7 +24,7 @@ const LAYOUT := {
 	"Underpass": Vector2(330, 232), "RailCut": Vector2(520, 242),
 	"Factory": Vector2(276, 312), "Southtown": Vector2(330, 292),
 	"RestrictedRoad": Vector2(450, 312), "Desert": Vector2(560, 312), "Mirror": Vector2(606, 336),
-	"RedRock": Vector2(600, 262), "Casino": Vector2(566, 284), "Lushon": Vector2(630, 284),
+	"RedRock": Vector2(600, 262), "Casino": Vector2(566, 284), "Lushon": Vector2(630, 284), "Arcade": Vector2(662, 290),
 }
 
 const SHORT := {
@@ -34,7 +34,7 @@ const SHORT := {
 	"CognizoStation": "subway", "Cognizo": "Cognizo", "CanalWalk": "Canal Walk", "Park": "Harmony Green",
 	"Underpass": "Underpass", "RailCut": "Rail Cut", "Factory": "factory", "Southtown": "Southtown",
 	"RestrictedRoad": "Restricted Rd", "Desert": "sand flats", "Mirror": "the mirror",
-	"RedRock": "Red Rock", "Casino": "casino", "Lushon": "Lushon's",
+	"RedRock": "Red Rock", "Casino": "casino", "Lushon": "Lushon's", "Arcade": "arcade",
 }
 
 var _root: Control

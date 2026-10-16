@@ -212,7 +212,7 @@ DENSITY = {
           "'Three eyes. Three eyes on every machine in there. I've been putting money in all night and it just keeps showing me the same thing.'",
           "UNREGISTERED\nORA frames: CRACKED\ncredit: 0", scan_name="A drunk"),
         N("bouncer", 51, 8, "down", "officer",
-          "'Frames off downstairs. House rule.' He looked at mine. 'Company frames, double. You wouldn't like it down there anyway. They sing.'",
+          "'Frames off downstairs. House rule.' He looked at mine. 'Company frames, double. It's an arcade, not a church. Take them off or go and gamble.'",
           "LUSHON GROUP - SECURITY\nPsyon: none\nframes: NONE", scan_name="The bouncer"),
         DRONE("drone_police", 20, 9, "drone_plaza",
               "A police drone circling the pillar at the height of the plaque, the way the book of the city says they do, like carrion flies.",

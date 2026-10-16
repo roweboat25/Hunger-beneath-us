@@ -128,6 +128,7 @@ func open(is_forked := true, status := "") -> void:
 
 ## Let the player type. Resolves when they submit a line.
 func accept_input() -> void:
+	cancelled = false
 	_accepting = true
 	_line.editable = true
 	_line.placeholder_text = "Type here..."
@@ -139,6 +140,8 @@ func accept_input() -> void:
 ## on a player who does not know what to type.
 const DEFAULT_LINES := ["Hello?", "Who is this?", "What do you want?"]
 var _defaults_used := 0
+## True when the last line was sent by Esc; a free chat uses it to end the session.
+var cancelled := false
 
 
 func _on_submit(text: String) -> void:
@@ -217,6 +220,7 @@ func close() -> void:
 func _input(event: InputEvent) -> void:
 	if visible and _accepting and event.is_action_pressed("cancel"):
 		# Esc sends the line as typed (or a default) instead of trapping the player.
+		cancelled = true
 		_on_submit(_line.text)
 		get_viewport().set_input_as_handled()
 

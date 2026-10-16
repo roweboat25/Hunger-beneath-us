@@ -185,6 +185,27 @@ func interface(id: String, title: String) -> bool:
 	return ok
 
 
+## An arcade machine: the same puzzles the broken devices set, played as a
+## game. Without the frames it pays tickets; with them it is an interface
+## like any other, and the arcade knows it.
+func play_game(id: String, title: String, kind: String, info := {}) -> bool:
+	Game.input_locked = true
+	await main.filter.flash(0.06)
+	var pz: Array = Game.puzzle_for(id, title)
+	if not kind.is_empty() and pz[0] != kind:
+		pz[0] = kind
+		if kind == "chant":
+			pz[1].merge(Game.RIDDLES.get(id, Game.RIDDLES["generic"]))
+		elif kind == "dreamer":
+			pz[1].merge(Game.QUESTIONS.get(id, Game.QUESTIONS["freudbot"]))
+	for k in info:
+		pz[1][k] = info[k]
+	var ok: bool = await main.iface.run(pz[0], pz[1])
+	if ok and Game.glasses_on:
+		Game.interface_solved(id)
+	return ok
+
+
 func _examine_glyph(id: String) -> void:
 	if not Game.glasses_on:
 		await ui.think("Bare wall. Whatever was there, I couldn't see it without the frames.")
