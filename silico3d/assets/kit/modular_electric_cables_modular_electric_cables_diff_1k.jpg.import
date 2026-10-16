@@ -1,0 +1,37 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://dufnfn6vdkalj"
+path="res://.godot/imported/modular_electric_cables_modular_electric_cables_diff_1k.jpg-d0d0005c5c30fea0029064a9d901d708.ctex"
+metadata={
+"vram_texture": false
+}
+generator_parameters={
+"md5": "0862fbe130b68a1bb0809f0ffe391317"
+}
+
+[deps]
+
+source_file="res://assets/kit/modular_electric_cables_modular_electric_cables_diff_1k.jpg"
+dest_files=["res://.godot/imported/modular_electric_cables_modular_electric_cables_diff_1k.jpg-d0d0005c5c30fea0029064a9d901d708.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1

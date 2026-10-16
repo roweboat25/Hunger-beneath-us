@@ -29,6 +29,7 @@ const LEVELS := {
 	"Flats": preload("res://scripts/levels/Flats.gd"),
 	"Mirror": preload("res://scripts/levels/Mirror.gd"),
 	"Lineup": preload("res://scripts/levels/Lineup.gd"),
+	"PropKit": preload("res://scripts/levels/PropKit.gd"),
 }
 
 ## Story order of the levels (the title menu and the self-test walk it).
