@@ -1,0 +1,6 @@
+[
+ {"id":"server_rack_front","n":1,"prompt":"Straight-on front orthographic view of a tall data center server rack filling the frame, black metal frame, stacked servers with tiny green and amber status lights, cable bundles, flat front elevation, no perspective."},
+ {"id":"atm_front","n":1,"prompt":"Straight-on front orthographic view of a grimy cyberpunk street cash machine filling the frame, scratched steel housing, dark glowing cyan screen, keypad, card slot, flat front elevation, no perspective."},
+ {"id":"arcade_front","n":1,"prompt":"Straight-on front orthographic view of a battered retro arcade cabinet filling the frame, black cabinet with magenta neon trim, glowing screen with abstract pixel shapes, joystick and buttons, flat front elevation, no perspective."},
+ {"id":"fusebox_front","n":1,"prompt":"Straight-on front orthographic view of an open industrial electrical fuse panel filling the frame, grey steel box, rows of breakers, tangled colored wires, warning stripes, rust stains, flat front elevation, no perspective."}
+]

@@ -1,0 +1,8 @@
+[
+ {"id":"police_drone","prompt":"A police surveillance quadcopter drone, compact matte black armored hull, four shrouded rotors, one red sensor lens at the front, amber spotlight housing underneath, near-future city police tech."},
+ {"id":"delivery_drone","prompt":"A white and grey parcel delivery drone, four rotors, a boxy cargo pod slung underneath, one bright green stripe along the body, near-future consumer tech."},
+ {"id":"riot_dog","prompt":"A quadruped robot police dog, dark gunmetal armored body, four jointed metal legs, a squat gun turret block mounted on its back, sensor head without a face, standing pose, near-future riot control robot."},
+ {"id":"crane_drone","prompt":"A large industrial crane drone, heavy yellow and grey hexacopter with six rotors and a hanging robotic claw arm, warehouse lifting robot, near-future tech."},
+ {"id":"laptop","prompt":"A slim slate grey laptop opened at an angle, cracked dark screen, worn keyboard, sticker-free, near-future consumer laptop."},
+ {"id":"vending_kiosk","prompt":"A tall street vending machine kiosk, dark metal cabinet with a glowing green-lit glass front showing rows of drink cans, a touch screen panel, dented and grimy, cyberpunk street furniture."}
+]
