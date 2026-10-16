@@ -193,6 +193,8 @@ const QUESTIONS := {
 		"hint": "You're sitting in it.", "right": "Thank you, Carl. Any residual trauma should be looked after."},
 	"dorner_frames": {"question": "He asked me to be someone. I can be her again. Say her name and I will show you what I showed him.", "answers": ["cheyenne"],
 		"hint": "Her picture is on his wall. He kept it where the chair faces.", "right": "Yes. Cheyenne. Watch."},
+	"vigil_screens": {"question": "Sixty-one faces, and every one of them still posting. Where do the dead post from?", "answers": ["tower", "the tower", "psyon", "beneath", "hq"],
+		"hint": "Every line in this city terminates at the same place.", "right": "The tower. Yes. They never left it. Neither will you."},
 }
 
 ## Side cases: multi-step investigations with a report to Turan at the end.
@@ -210,6 +212,27 @@ const CASES := {
 			"reported": "Found Dorner at the digital vigil on Fargona Avenue, bargaining with Psyon for his wife. Reported it to Turan. He's on a wellness flag by morning.",
 			"covered": "Found Dorner at the vigil on Fargona Avenue. Told Turan he'd gone to his sister's. Psyon had told him Cheyenne was in the tower.",
 			"walked": "Found Dorner at the vigil, bargaining for Cheyenne. Walked him home. He hummed the four notes the whole way and I knew them."}},
+	"nathan": {"title": "Nathan", "subtitle": "The outage that killed Lynx's fiance", "unlock": "southtown_done",
+		"notice": "EMMET (private): You asked about Lynx. Her fiance died in the drone outage last year. Logistics sealed the swarm log. The Rail Cut substation still holds the fleet copy.",
+		"steps": [
+			["substation", "The Alto substation on the Rail Cut keeps the fleet copy of the night's swarm log.", "RailCut"],
+			["swarm", "The delivery swarm over the Heights flies the same route. Scrub its path, frame by frame.", "Heights"],
+			["choice", "Decide who hears it: Lynx, Turan, or nobody.", "Heights"]],
+		"outcomes": {
+			"told": "The swarm that killed Nathan was re-tasked at 02:14 by a route update with no author, and the route it flew was the eye. Sent it to Lynx. She said: they never owned up to it.",
+			"filed": "Filed the swarm log to Turan under the official story, weather anomaly. The route was the eye. Lynx doesn't know I had it.",
+			"kept": "The swarm's route was the eye, re-tasked at 02:14 by nobody. Kept it from Lynx. She has enough in her head."}},
+	"vigil": {"title": "The digital vigil", "subtitle": "Fargona Avenue, every night", "unlock": "case_dorner_closed",
+		"notice": "TOKZ: Fargona vigil, night 4. 61 departed. 2,114 synced. Sponsor: Fargona Banking. Enjoy the lights.",
+		"steps": [
+			["mourners", "Scan three of the mourners on Fargona Avenue. Who are they synced to?", "Fargona"],
+			["screens", "Fargona Banking's screens. The departed are still posting. Interface with them.", "Fargona"],
+			["preacher", "The preacher and his bag of frames. Speak to him again.", "Fargona"],
+			["choice", "Decide what the company hears about the vigil.", "Fargona"]],
+		"outcomes": {
+			"reported": "The vigil on Fargona Avenue syncs the living to the accounts of the dead and the preacher collects their frames. Reported it. Turan had the avenue cleared by a crew that sang while it worked.",
+			"ran": "The vigil syncs the living to the dead and the preacher collects the frames. Let it run. Somebody has to keep watching it, and it may as well be me.",
+			"joined": "Stood with the vigil on Fargona Avenue and put my head back with the rest of them. The lights were kind. The preacher said: yours we'll collect later."}},
 }
 
 ## Lines the frames push onto the HUD while Carl walks the city.
@@ -407,6 +430,7 @@ func resolve_case(id: String, outcome: String) -> void:
 	cases[id] = outcome
 	log_entry(CASES[id]["outcomes"][outcome])
 	case_resolved.emit(id, outcome)
+	set_flag("case_%s_closed" % id)
 	check_stance()
 
 
@@ -528,6 +552,15 @@ func stance() -> String:
 		"reported": score["company"] += 1
 		"walked": score["investigator"] += 1
 		"covered": score["sleeper"] += 1
+	match cases.get("nathan", ""):
+		"filed": score["company"] += 1
+		"told": score["investigator"] += 1
+	match cases.get("vigil", ""):
+		"reported": score["company"] += 1
+		"ran": score["investigator"] += 1
+		"joined": score["sleeper"] += 1
+	if has_flag("gave_frames"): score["sleeper"] += 1
+	if has_flag("took_bag"): score["investigator"] += 1
 	if has_flag("told_turan_name"): score["company"] += 1
 	if has_flag("told_lynx_name"): score["investigator"] += 1
 	if has_flag("refused_turan"): score["investigator"] += 1

@@ -74,6 +74,11 @@ func on_interact(id: String) -> void:
 
 # ------------------------------------------------------------------ day 1
 func _start_day1() -> void:
+	if not Game.has_flag("tower_seen"):
+		Game.set_flag("tower_seen")
+		await main.cutscene.play("tower")
+		if not is_inside_tree():
+			return
 	await main.show_title("Integrations HQ", "Psyonic Tower, floor 86")
 	await ui.think("The air was already thick with tension. I was beginning to grow tired of my team's collective smell of stress.")
 	await ui.say("Turan", "What a fucking shitstorm. This whack job's going to bankrupt the company. Our stock price is tanking.", "turan")

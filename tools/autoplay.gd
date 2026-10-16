@@ -120,6 +120,9 @@ func _drive(label: String) -> void:
 		elif main.cutscene.visible and main.cutscene._playing:
 			main.cutscene.skip()
 			idle = 0.0
+		elif main.ending.visible:
+			main.ending.close()
+			idle = 0.0
 		elif main.iface.visible:
 			main.iface.autoplay_step()
 			idle = 0.0

@@ -27,6 +27,47 @@ const PANELS := {
 			"Nobody ran. Everyone on the pavement turned the same way and tilted their faces up, lit only by their frames.",
 			"They were all looking at the tower. Its windows made a shape I knew. I closed my eyes until the lamps came back."]},
 	],
+	"tower": [
+		{"image": "cs_tower_1", "move": "zoom", "lines": [
+			"Psyonic Tower. Eighty-six floors of glass and metal musculature in the middle of the Spine, and every window lit teal, at seven in the morning, the way they were lit at midnight.",
+			"The company car dropped me at the door it always dropped me at. The frames said good morning. The lobby said it too, in the same voice."]},
+		{"image": "cs_tower_2", "move": "pan", "lines": [
+			"Floor 86. Integrations. The elevator opened on the smell of my team's collective stress and a wall of screens running the same three seconds of footage.",
+			"A retired man had gouged out his eyes, and the company's stock price was on every one of those screens, tanking. Turan was already looking at me."]},
+	],
+	"drive": [
+		{"image": "cs_drive_1", "move": "pan_left", "lines": [
+			"The Restricted Road at night. The checkpoint waved the company car through without waking up. Sand drifted across the lane in the headlights, and the lane stopped being a lane.",
+			"I entered the coordinates from the map. Once, restricted had felt like bureaucracy. Now it felt like containment."]},
+		{"image": "cs_drive_2", "move": "zoom", "lines": [
+			"Lynx's sedan, doors open, out on the flats, under a cliff that had a door in it.",
+			"I turned the engine off and the frames kept running. They had been recording since the checkpoint. They had not asked."]},
+	],
+	"vigil": [
+		{"image": "cs_vigil_1", "move": "pan", "lines": [
+			"I left Fargona Avenue the way I'd come, down the steps, and from the top of them the vigil was a street of lit faces, every one tilted back, every one smiling at the thing above them.",
+			"None of them watched me go. The lights did."]},
+	],
+	"ending_company": [
+		{"image": "ending_company", "move": "still", "lines": [
+			"The mirror cleared and I was in it, with the badge on, and behind me, where nobody stood, stood Turan, and Monica, and the company car with its door open.",
+			"PROTECT THE BRAND, the frames wrote across the glass, in my handwriting. I had filed everything. The file had become the man."]},
+	],
+	"ending_investigator": [
+		{"image": "ending_investigator", "move": "still", "lines": [
+			"The mirror cleared and I was in it, and behind me, where nobody stood, stood Lynx, holding her smashed frames, looking at the door and not at the glass.",
+			"FIND OUT WHAT HAPPENED TO HIM, the frames wrote across the glass. I had refused enough to still be asking. It had noticed. It had kept a list."]},
+	],
+	"ending_sleeper": [
+		{"image": "ending_sleeper", "move": "still", "lines": [
+			"The mirror cleared and I was in it, already bowing, and behind me, where nobody stood, stood the whole of Fargona Avenue with its heads back.",
+			"BOW, the frames wrote across the glass. I had been on the path since the first glyph. I had only been pretending to walk it slowly."]},
+	],
+	"ending_none": [
+		{"image": "ending_none", "move": "still", "lines": [
+			"The mirror cleared and I was in it, alone. Behind me, where nobody stood, nobody stood.",
+			"The frames wrote nothing across the glass. The file had not decided what I was yet. Neither had I. It could wait. It was patient."]},
+	],
 }
 
 signal finished

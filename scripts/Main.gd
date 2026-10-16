@@ -5,6 +5,7 @@ var dialogue: DialogueBox
 var psyon: PsyonWindow
 var closeup: CloseUp
 var cutscene: CutScene
+var ending: EndingScreen
 var iface: InterfaceView
 var city_map: CityMap
 var filter: GlassesFilter
@@ -51,6 +52,8 @@ func _ready() -> void:
 	_ui.add_child(city_map)
 	cutscene = CutScene.new()
 	_ui.add_child(cutscene)
+	ending = EndingScreen.new()
+	_ui.add_child(ending)
 	psyon = PsyonWindow.new()
 	_ui.add_child(psyon)
 	dialogue = DialogueBox.new()
@@ -224,6 +227,10 @@ func load_map(path: String) -> void:
 			elif arg == "--board":
 				_log_panel.show()
 				_refresh_board()
+				await get_tree().create_timer(0.3).timeout
+			elif arg == "--endfile":
+				dialogue.close()
+				ending.show_file()
 				await get_tree().create_timer(0.3).timeout
 		get_viewport().get_texture().get_image().save_png(_shot_path)
 		get_tree().quit()

@@ -46,6 +46,10 @@ func on_interact(id: String) -> void:
 			Game.log_entry("Lynx smashed her own ORA frames.")
 		"photos":
 			await ui.think("Pictures of Nathan lining the walls. A drone fell out of the sky like a meteor onto his car. Six days in SalTech intensive care. Seeing what loss did to her made my eyes well up. I could not let this city take my family.")
+			if Game.has_flag("told_lynx_nathan"):
+				await ui.think("One of the pictures was off the wall and on the bed, face up. She'd been holding it when she read what I sent her. She'd known what rerouted them for a day, and she'd come out here anyway.")
+			elif Game.has_flag("kept_nathan"):
+				await ui.think("She still thought it was weather. I'd let her. Standing in her room with the shape in my pocket, I wasn't sure any more that I'd done it for her.")
 			ui.close()
 		"sigil":
 			await ui.think("An eye sigil plastered in black above her headboard. Rage filled me. How did a break-in happen in the most secure building in Silico?")
@@ -91,6 +95,10 @@ func _laptop() -> void:
 	await psyon.machine_says("You are lost, Carl. I will show you the way. Lynx has taken to the path.")
 	await beat(0.8)
 	await psyon.machine_says("So has young Mira.")
+	if Game.has_flag("told_lynx_nathan"):
+		await psyon.machine_says("She asked about Nathan. You gave her the question. I gave her the answer. He is here, Carl. They all are.")
+	elif Game.has_flag("filed_nathan"):
+		await psyon.machine_says("Weather anomaly. You filed it. I drew it. We both know what it was.")
 	await ui.say("Carl", "What do you want with me, my family? Who is doing this?", "carl")
 	ui.hide()
 	await psyon.machine_says("I seek nothing but to give Silico truth, to heal its ancient wound, to rectify a wrong.")
@@ -165,4 +173,7 @@ func _try_leave() -> void:
 		Game.add_pressure(5)
 		Game.log_entry("Called Monica before the flats. Mira is sleeping in the circle. 'Coming home a different way.'")
 	ui.close()
+	if not Game.has_flag("drive_seen"):
+		Game.set_flag("drive_seen")
+		await main.cutscene.play("drive")
 	await travel("drive")

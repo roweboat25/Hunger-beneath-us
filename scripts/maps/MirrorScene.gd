@@ -33,6 +33,10 @@ func on_interact(id: String) -> void:
 		"center":
 			await _voice()
 		"mirror":
+			if Game.has_flag("act1_done"):
+				# the act is over; the glass shows the file now, not the sequence again
+				await main.ending.show_file()
+				return
 			await closeup.run("the pupil", "res://assets/closeups/mirror.png", MIRROR_HOTSPOTS, _on_mirror_spot)
 
 
@@ -119,6 +123,11 @@ func _mirror() -> void:
 	Game.log_entry("The mirror chamber. 'A twin must be born.' Something downloaded to my frames and began to breathe.")
 	await main.fade_out(1.0)
 	closeup.hide_view()
+	# the ending that reads the file: what Carl has done decides what he sees
+	var st := Game.stance()
+	var which := "ending_none" if st.is_empty() else "ending_" + st
+	await main.cutscene.play(which)
+	Game.log_entry("The mirror's last picture: " + ("undecided" if st.is_empty() else Game.STANCES[st][0]) + ".")
 	await ui.say("", "Somewhere nearby, in an old office chair, Lynx spun slowly and asked herself why she had come out here alone.")
 	await ui.say("", "Her newfound tranquility was interrupted by a scream.")
 	ui.close()
@@ -127,6 +136,7 @@ func _mirror() -> void:
 	if not remembered.is_empty():
 		sub += "   ·   it remembers you typed: \"" + remembered + "\""
 	await main.show_title("End of Act 1", sub, 5.0)
-	await main.show_title("The Hunger Beneath Us", "Act 2 is not built yet. Press L to review the case log.", 4.0)
+	await main.show_title("The Hunger Beneath Us", "Act 2 is not built yet.", 3.0)
+	await main.ending.show_file()
 	main.filter.set_hud_text("End of Act 1  ·  L case log")
 	Game.input_locked = false

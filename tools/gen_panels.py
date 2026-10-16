@@ -414,6 +414,274 @@ def dream_door():
     finish(im, "dream_door")
 
 
+
+# ------------------------------------------------------------ Drop 3 panels
+def figure(d, x, ybase, scale=1.0, body=(30, 28, 40), head=(70, 56, 60), tilt=0, frames=None, bow=False):
+    """A silhouette seen from behind. tilt > 0 leans the head back; bow drops it."""
+    hw, hh = int(10 * scale), int(28 * scale)
+    headr = int(6 * scale)
+    d.rectangle([x - hw, ybase - hh, x + hw, ybase], fill=body)
+    hy = ybase - hh - headr + (int(6 * scale) if bow else -tilt)
+    hx = x + (int(3 * scale) if tilt else 0)
+    d.ellipse([hx - headr, hy - headr, hx + headr, hy + headr], fill=head)
+    if frames:
+        d.rectangle([hx - headr + 1, hy - 1, hx + headr - 1, hy + 1], fill=frames)
+
+
+def tower_shape(d, cx, top, base_w, height, col, outline):
+    d.polygon([(cx - base_w // 2, top + height), (cx + base_w // 2, top + height), (cx + base_w // 3, top), (cx - base_w // 3, top)], fill=col, outline=outline)
+
+
+def tower_1():
+    """The tower from the Spine at seven in the morning, every window teal."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (40, 36, 60), (150, 120, 120))
+    # the boulevard's blocks either side
+    d.polygon([(0, 60), (60, 50), (70, 150), (0, 150)], fill=(24, 22, 34))
+    windows(d, 4, 56, 64, 146, step=(8, 9), lit=0.4, color=lerp(AMBER, (24, 22, 34), 0.5), dark=(16, 14, 22), seed=31)
+    d.polygon([(260, 56), (320, 48), (320, 150), (250, 150)], fill=(24, 22, 34))
+    windows(d, 262, 54, 318, 146, step=(8, 9), lit=0.4, color=lerp(AMBER, (24, 22, 34), 0.5), dark=(16, 14, 22), seed=32)
+    # the tower: glass and metal musculature, every window teal
+    tower_shape(d, 160, -10, 120, 162, (22, 30, 40), (60, 80, 90))
+    windows(d, 112, 0, 208, 148, step=(6, 7), lit=0.97, color=TEAL, dark=(16, 24, 30), seed=33)
+    for y in range(6, 150, 22):
+        d.line([(104 + (150 - y) // 6, y), (216 - (150 - y) // 6, y)], fill=(70, 90, 100))
+    # the plaza, the car, the door
+    d.rectangle([0, 150, W, H], fill=(60, 64, 72))
+    d.rectangle([0, 150, W, 154], fill=(90, 94, 102))
+    d.rectangle([120, 134, 200, 152], fill=(14, 16, 24))
+    d.rectangle([150, 128, 170, 152], fill=(10, 12, 18))
+    d.rectangle([40, 158, 110, 178], fill=(18, 20, 28))
+    d.polygon([(50, 158), (100, 158), (92, 148), (58, 148)], fill=(26, 28, 38))
+    d.ellipse([44, 172, 58, 184], fill=(8, 8, 10)); d.ellipse([92, 172, 106, 184], fill=(8, 8, 10))
+    im = glow(im, [(160, 70, 60)], TEAL, radius=18, alpha=0.25)
+    vignette(im, 0.3)
+    noise(im, 4, 41)
+    finish(im, "cs_tower_1", 26)
+
+
+def tower_2():
+    """Floor 86: a wall of screens running the same three seconds, Turan's silhouette."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (16, 22, 30), (30, 40, 50))
+    r = random.Random(43)
+    for row in range(3):
+        for col in range(6):
+            x0, y0 = 8 + col * 52, 8 + row * 44
+            d.rectangle([x0, y0, x0 + 46, y0 + 38], fill=(12, 16, 22), outline=(40, 56, 66))
+            # the footage: two figures, a street
+            d.rectangle([x0 + 2, y0 + 2, x0 + 44, y0 + 36], fill=(26, 30, 38))
+            d.rectangle([x0 + 4, y0 + 26, x0 + 42, y0 + 36], fill=(38, 42, 52))
+            for fx in (x0 + 18, x0 + 28):
+                d.rectangle([fx - 3, y0 + 14, fx + 3, y0 + 30], fill=(8, 8, 12))
+                d.ellipse([fx - 3, y0 + 8, fx + 3, y0 + 14], fill=(8, 8, 12))
+            if r.random() < 0.3:
+                d.line([(x0 + 2, y0 + r.randint(4, 34)), (x0 + 44, y0 + r.randint(4, 34))], fill=TEAL)
+            # the stock ticker under each
+            d.rectangle([x0 + 2, y0 + 32, x0 + 44, y0 + 36], fill=(60, 14, 14))
+            d.line([(x0 + 4, y0 + 33), (x0 + 42, y0 + 35)], fill=RED)
+    # the table and the team's backs, Turan turned toward us
+    d.polygon([(0, 140), (W, 140), (W, H), (0, H)], fill=(24, 26, 34))
+    d.polygon([(30, 150), (290, 150), (320, 180), (0, 180)], fill=(40, 42, 54))
+    figure(d, 70, 176, 1.1, (28, 26, 36), (60, 50, 56))
+    figure(d, 250, 176, 1.1, (30, 26, 32), (70, 56, 60))
+    figure(d, 160, 170, 1.3, (44, 30, 36), (120, 90, 80))
+    d.ellipse([154, 118, 166, 130], fill=(120, 90, 80))
+    d.point((158, 124), fill=(10, 10, 10)); d.point((162, 124), fill=(10, 10, 10))
+    im = glow(im, [(160, 60, 40)], (90, 120, 140), radius=20, alpha=0.2)
+    vignette(im, 0.35)
+    noise(im, 4, 44)
+    finish(im, "cs_tower_2", 20)
+
+
+def drive_1():
+    """The Restricted Road at night through the windscreen: the checkpoint, sand across the lane."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (8, 8, 18), (40, 30, 40))
+    r = random.Random(51)
+    for _ in range(60):
+        im.putpixel((r.randint(0, W - 1), r.randint(0, 60)), (200, 200, 220))
+    # the flats and the road, converging
+    d.polygon([(0, 100), (W, 100), (W, H), (0, H)], fill=(70, 54, 40))
+    d.polygon([(100, 100), (220, 100), (320, H), (0, H)], fill=(30, 30, 36))
+    for i in range(6):
+        y = 104 + i * 14
+        w = 2 + i * 4
+        d.rectangle([160 - w // 2, y, 160 + w // 2, y + 5], fill=(120, 110, 90))
+    for _ in range(400):
+        x, y = r.randint(0, W - 1), r.randint(100, H - 1)
+        if r.random() < 0.5:
+            im.putpixel((x, y), lerp((70, 54, 40), SAND, r.random()))
+    # sand drifting across the lane
+    for _ in range(14):
+        x0 = r.randint(40, 280); y = r.randint(110, 178)
+        d.line([(x0, y), (x0 + r.randint(10, 60), y + r.randint(-2, 2))], fill=lerp(SAND, (30, 30, 36), 0.3))
+    # the checkpoint: a booth, a barrier up, a sleeping guard's lit frames
+    d.rectangle([200, 70, 236, 104], fill=(26, 28, 36), outline=(50, 52, 60))
+    d.rectangle([206, 78, 230, 92], fill=(14, 16, 24))
+    d.rectangle([214, 84, 218, 85], fill=TEAL)
+    d.line([(196, 104), (196, 60)], fill=(80, 80, 90), width=3)
+    d.line([(196, 62), (120, 50)], fill=(160, 40, 40), width=3)
+    # headlight cone
+    layer = Image.new("RGB", (W, H), BLACK)
+    ld = ImageDraw.Draw(layer)
+    ld.polygon([(120, 100), (200, 100), (300, H), (20, H)], fill=(60, 56, 40))
+    layer = layer.filter(ImageFilter.GaussianBlur(10))
+    im = Image.blend(im, Image.composite(layer, im, layer.convert("L")), 0.5)
+    d = ImageDraw.Draw(im)
+    # dashboard and wheel
+    d.polygon([(0, 140), (W, 140), (W, H), (0, H)], fill=(46, 40, 50))
+    d.ellipse([52, 146, 158, 250], outline=(88, 78, 92), width=9)
+    d.rectangle([180, 150, 240, 176], fill=(8, 12, 16), outline=(50, 56, 70))
+    d.rectangle([186, 156, 234, 160], fill=lerp(TEAL, BLACK, 0.3))
+    d.rectangle([186, 164, 220, 168], fill=lerp(RED, BLACK, 0.3))
+    vignette(im, 0.35)
+    noise(im, 4, 52)
+    finish(im, "cs_drive_1", 34)
+
+
+def drive_2():
+    """Lynx's sedan on the flats, doors open, under the cliff with the door in it."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (20, 14, 36), (110, 70, 70))
+    r = random.Random(61)
+    d.polygon([(0, 30), (W, 20), (W, 110), (0, 118)], fill=(70, 52, 40))
+    for _ in range(700):
+        x, y = r.randint(0, W - 1), r.randint(22, 116)
+        im.putpixel((x, y), lerp((70, 52, 40), (110, 80, 56), r.random()))
+    d.rectangle([150, 60, 182, 118], fill=(40, 36, 40), outline=(24, 20, 22))
+    d.ellipse([158, 80, 174, 92], outline=(16, 10, 8), width=2)
+    d.rectangle([0, 112, W, H], fill=(150, 108, 60))
+    for _ in range(600):
+        x, y = r.randint(0, W - 1), r.randint(112, H - 1)
+        im.putpixel((x, y), lerp((150, 108, 60), (200, 150, 90), r.random()))
+    # the sedan, doors open, a little sand on the roof
+    d.rectangle([60, 120, 190, 158], fill=(26, 28, 36), outline=(10, 10, 14))
+    d.polygon([(78, 120), (172, 120), (160, 104), (92, 104)], fill=(34, 36, 46), outline=(10, 10, 14))
+    d.rectangle([96, 106, 156, 118], fill=(40, 46, 60))
+    d.polygon([(60, 124), (36, 118), (36, 150), (60, 150)], fill=(30, 32, 42), outline=(10, 10, 14))
+    d.polygon([(190, 124), (214, 118), (214, 150), (190, 150)], fill=(30, 32, 42), outline=(10, 10, 14))
+    d.ellipse([70, 150, 92, 170], fill=(8, 8, 10)); d.ellipse([158, 150, 180, 170], fill=(8, 8, 10))
+    d.rectangle([180, 128, 188, 134], fill=(120, 30, 30))
+    d.line([(96, 104), (150, 102)], fill=SAND)
+    # headlights still on, into the sand
+    im = glow(im, [(190, 140, 10)], AMBER, radius=12, alpha=0.5)
+    vignette(im, 0.35)
+    noise(im, 5, 62)
+    finish(im, "cs_drive_2", 30)
+
+
+def vigil_1():
+    """Leaving Fargona: from the top of the steps, a street of lit faces tilted back."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (10, 8, 20), (40, 30, 60))
+    # the fractal above, faint, with the frames
+    r = random.Random(71)
+    for i in range(5):
+        rad = 20 + i * 18
+        d.ellipse([160 - rad, 40 - rad // 2, 160 + rad, 40 + rad // 2], outline=lerp((200, 120, 200), (40, 30, 60), 0.3 + i * 0.12))
+    # the street receding, lamps out, candles along the kerbs
+    d.polygon([(0, 90), (W, 90), (W, 160), (0, 160)], fill=(22, 20, 30))
+    d.polygon([(110, 90), (210, 90), (300, 160), (20, 160)], fill=(30, 28, 40))
+    glows = []
+    for row, (ybase, scale, n, seed) in enumerate([(104, 0.4, 24, 1), (118, 0.55, 18, 2), (136, 0.75, 13, 3), (160, 1.0, 9, 4)]):
+        rr = random.Random(seed + 70)
+        xs = sorted(rr.randint(30, W - 30) for _ in range(n))
+        for x in xs:
+            figure(d, x, ybase, scale, lerp((20, 18, 26), (36, 30, 44), rr.random()), (60, 50, 60), tilt=int(4 * scale), frames=TEAL)
+            glows.append((x + int(3 * scale), ybase - int(34 * scale), int(5 * scale)))
+    for x in range(20, 300, 24):
+        glows.append((x, 158, 3))
+        d.rectangle([x - 1, 154, x + 1, 160], fill=(240, 220, 160))
+    im = glow(im, glows, TEAL, radius=6, alpha=0.3)
+    d = ImageDraw.Draw(im)
+    # the steps, foreground
+    for i in range(4):
+        d.rectangle([0, 160 + i * 6, W, 166 + i * 6], fill=lerp((80, 84, 92), (40, 42, 48), i / 4))
+    vignette(im, 0.35)
+    noise(im, 4, 72)
+    finish(im, "cs_vigil_1", 22)
+
+
+def big_text(im, text, y, color):
+    """Draws text at twice the bitmap font's size, centred, a clear gap between words."""
+    words = text.split()
+    gap = 6
+    tmp = Image.new("RGB", (W, 12), BLACK)
+    td = ImageDraw.Draw(tmp)
+    widths = [int(td.textlength(w)) + 1 for w in words]
+    tw = sum(widths) + gap * (len(words) - 1)
+    x = (W - tw) / 2
+    for w, ww in zip(words, widths):
+        td.text((x, 0), w, fill=color)
+        x += ww + gap
+    tmp = tmp.resize((W * 2, 24), Image.NEAREST)
+    mask = tmp.convert("L").point(lambda v: 255 if v > 110 else 0)
+    layer = Image.new("RGB", (W * 2, 24), color)
+    big = Image.composite(layer, Image.new("RGB", (W * 2, 24), BLACK), mask)
+    big = big.crop((W // 2, 0, W // 2 + W, 24))
+    mask = mask.crop((W // 2, 0, W // 2 + W, 24))
+    im.paste(big, (0, y), mask)
+
+
+def ending(kind):
+    """The mirror, cleared, with Carl in it and the company he keeps behind him."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (22, 22, 30), (56, 52, 62))
+    # the stone mural eye and the mirror as its pupil
+    d.ellipse([10, 14, 310, 176], outline=(96, 90, 100), width=3)
+    d.ellipse([50, 34, 270, 156], outline=(96, 90, 100), width=2)
+    d.ellipse([96, 36, 224, 154], fill=(70, 76, 92), outline=(170, 170, 180), width=3)
+    r = random.Random(81)
+    for _ in range(600):
+        x, y = r.randint(98, 222), r.randint(38, 152)
+        if (x - 160) ** 2 / 4000 + (y - 95) ** 2 / 3400 < 1:
+            im.putpixel((x, y), lerp((70, 76, 92), (110, 118, 140), r.random()))
+    d = ImageDraw.Draw(im)
+    # behind Carl, in the glass
+    if kind == "company":
+        figure(d, 130, 128, 0.95, (60, 66, 90), (120, 96, 96))
+        figure(d, 192, 128, 0.95, (90, 66, 76), (130, 104, 104))
+        d.rectangle([130, 112, 136, 116], fill=(200, 60, 60))
+        d.rectangle([136, 132, 186, 142], fill=(20, 22, 32)); d.rectangle([182, 128, 188, 142], fill=(14, 16, 24))
+    elif kind == "investigator":
+        figure(d, 190, 130, 1.0, (60, 54, 66), (150, 110, 80))
+        d.rectangle([196, 116, 206, 120], fill=(40, 44, 50)); d.line([(196, 117), (204, 113)], fill=TEAL, width=2)
+    elif kind == "sleeper":
+        for i, x in enumerate(range(108, 216, 9)):
+            figure(d, x, 126 + (i % 2) * 5, 0.6, (46, 42, 56), (90, 76, 86), tilt=4, frames=TEAL)
+    # Carl, from behind, in the glass
+    if kind == "sleeper":
+        figure(d, 160, 150, 1.5, (44, 42, 54), (84, 66, 60), bow=True)
+    else:
+        figure(d, 160, 150, 1.5, (44, 42, 54), (84, 66, 60))
+        if kind == "company":
+            d.rectangle([150, 122, 158, 128], fill=TEAL)
+    words = {"company": "PROTECT THE BRAND", "investigator": "FIND OUT WHAT HAPPENED", "sleeper": "BOW", "none": ""}[kind]
+    if words:
+        big_text(im, words, 44, TEAL)
+    d = ImageDraw.Draw(im)
+    d.polygon([(0, 152), (W, 152), (W, H), (0, H)], fill=(44, 42, 50))
+    d.polygon([(80, 152), (240, 152), (262, 168), (58, 168)], fill=(68, 64, 72))
+    im = glow(im, [(160, 95, 48)], (150, 160, 190), radius=18, alpha=0.25)
+    vignette(im, 0.25)
+    noise(im, 4, 82 + len(kind))
+    finish(im, "ending_" + kind, 14)
+
+
+if __name__ == "__main__" and "--drop3" in __import__("sys").argv:
+    os.makedirs(OUT, exist_ok=True)
+    tower_1(); tower_2(); drive_1(); drive_2(); vigil_1()
+    for k in ("company", "investigator", "sleeper", "none"):
+        ending(k)
+    raise SystemExit
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     opening_car()

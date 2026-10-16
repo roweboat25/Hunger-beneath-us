@@ -15,7 +15,124 @@ func _init() -> void:
 func objective_text() -> String:
 	if Game.case_open("dorner") and not Game.has_flag("case_dorner_vigil"):
 		return "Dorner is in this crowd. Find him. (Talk with E, scan with F.)"
+	if Game.case_open("vigil"):
+		var step := Game.case_step("vigil")
+		if step >= 0:
+			return String(Game.CASES["vigil"]["steps"][step][1])
 	return super.objective_text()
+
+
+## The vigil case counts the mourners Carl scans.
+func scan(target: Node) -> void:
+	await super.scan(target)
+	if target != null and Game.case_open("vigil") and not Game.has_flag("case_vigil_mourners") and Game.glasses_on and String(target.id).begins_with("mourner"):
+		var n: int = Game.flags.get("vigil_scanned", 0) + 1
+		Game.flags["vigil_scanned"] = n
+		if n >= 3:
+			Game.case_done("vigil", "mourners")
+			await ui.think("Three of them, three dead accounts, three dates. Not one of these people was synced to themselves. The vigil wasn't for the dead. The dead were running it.")
+			ui.close()
+			Game.log_entry("Three mourners on Fargona Avenue scanned: each is synced to a dead person's account. The dead are running the vigil.")
+
+
+func _route_interact(id: String) -> void:
+	if Game.case_open("vigil"):
+		if (id == "bank_screen" or id == "bank_screen2") and Game.has_flag("case_vigil_mourners") and not Game.has_flag("case_vigil_screens"):
+			await _screens()
+			return
+		if id == "preacher" and Game.has_flag("case_vigil_screens") and not Game.has_flag("case_vigil_choice"):
+			await _preacher_case()
+			return
+	await super._route_interact(id)
+
+
+func _screens() -> void:
+	await ui.think("Sixty-one faces. Under each one a date, and under the date, a line of text that changed while I watched. They were posting. The dead were posting, tonight, from somewhere.")
+	ui.close()
+	var ok: bool = await interface("vigil_screens", "the vigil screens")
+	if ok or Game.connection >= 50.0:
+		Game.case_done("vigil", "screens")
+		Game.log_entry("Interfaced with the Fargona Banking screens: the sixty-one dead accounts post from the tower. They never left it.")
+	else:
+		await ui.think("The screens went back to faces. They'd let me try again.")
+		ui.close()
+
+
+func _preacher_case() -> void:
+	var p := npc("preacher")
+	p.face_toward(player.global_position)
+	await ui.say("", "'The Mimic,' the preacher said, before I'd spoken. The bag clicked on his shoulder. 'You've read the screens. You know where they post from. Ask me what you came to ask.'")
+	await ui.say("Carl", "The frames. Whose are they?", "carl")
+	await ui.say("", "'Theirs.' He nodded at the screens. 'The dead don't need them. The living do, to hear them. I collect, and I give, and the avenue fills.' He opened the bag. Dozens of pairs, lenses still warm, every one tagged with a name and a date.")
+	await ui.say("", "'Yours would help. You'd see her. Your girl, on the floor of her room, in the circle. You'd see what she sees.'")
+	var pick := await ui.choose(["Give him my frames.", "Take the bag.", "Walk away."])
+	match pick:
+		0:
+			await ui.think("I took them off and put them in his hand, and the avenue went dark and quiet, and then he put them back on my face himself, gently, the way you'd put glasses on a child.")
+			await ui.say("", "'Not yet,' he said. 'Later. You'll bring them yourself.' Through the lenses, for a second, Mira, on her floor, looking up at something, smiling.")
+			ui.close()
+			Game.set_flag("gave_frames")
+			Game.add_connection(6.0, "offered the frames")
+			Game.log_entry("Offered the preacher my frames. He put them back on me and said I'd bring them myself, later. For a second I saw Mira in the circle.")
+		1:
+			await ui.think("I took the bag off his shoulder. He let me. Sixty-one pairs of frames, warm, tagged. Evidence, if anyone would take it. The crowd turned, all at once, and smiled at me, and went back to the sky.")
+			ui.close()
+			Game.set_flag("took_bag")
+			Game.add_evidence("a bag of the dead's frames")
+			Game.add_pressure(3)
+			Game.add_trust("lynx", 1)
+			Game.log_entry("Took the preacher's bag: sixty-one pairs of ORA frames, each tagged with a dead person's name and date. Evidence.")
+		2:
+			await ui.think("I walked. He didn't follow. The hymn did, for a while.")
+			ui.close()
+	Game.case_done("vigil", "preacher")
+	await _vigil_choice()
+
+
+func _vigil_choice() -> void:
+	await ui.think("The vigil, then. Sixty-one dead accounts posting from the tower, two thousand living people synced to them, a man with a bag collecting the frames. What does the company hear?")
+	var pick := await ui.choose(["Report it. Have the avenue cleared.", "Let it run. Keep watching.", "Stand with them."])
+	var outcome := ""
+	match pick:
+		0:
+			outcome = "reported"
+			var line := "Thank you, Carl. A crew will clear Fargona tonight."
+			match Game.theory:
+				"drugs":
+					line = "Mass hysteria and Nixtra, and a bank sponsoring it. A crew clears Fargona tonight. Thank you, Carl."
+				"hacker":
+					line = "Dead accounts posting from the tower. Then the fork is inside the building. Don't repeat that. A crew clears Fargona tonight."
+				"beneath":
+					line = "Posting from the tower. From under it, you mean. Don't write that down anywhere. I'll have the avenue cleared, and I'll be very interested in who argues."
+			await ui.say("Turan", line, "turan")
+			await ui.think("The crew came while I was still on the steps. They worked fast and they sang while they worked, and nobody in the crowd minded being moved.")
+			ui.close()
+			Game.add_trust("turan", 2)
+			Game.add_pressure(-4)
+		1:
+			outcome = "ran"
+			await ui.think("I let it run. Somebody had to keep watching it, and the company would only have moved it somewhere I couldn't.")
+			ui.close()
+			Game.add_trust("lynx", 1)
+			Game.add_trust("turan", -1)
+			Game.add_pressure(2)
+			Game.add_connection(2.0, "let the vigil run")
+		2:
+			outcome = "joined"
+			await ui.think("I stood with them and put my head back. The lights were kind. The hymn had a line for me, and I knew it.")
+			await ui.say("", "'Yours we'll collect later,' the preacher said, somewhere behind me, kindly.")
+			ui.close()
+			Game.bowed += 1
+			Game.add_connection(6.0, "stood with the vigil")
+			var line := Game.find_glyph("vigil:joined")
+			if not line.is_empty():
+				await ui.say("", "\"" + line + "\"")
+				ui.close()
+	Game.case_done("vigil", "choice")
+	Game.resolve_case("vigil", outcome)
+	if not Game.has_flag("vigil_seen"):
+		Game.set_flag("vigil_seen")
+		await main.cutscene.play("vigil")
 
 
 func start() -> void:

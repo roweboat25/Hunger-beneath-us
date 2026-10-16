@@ -24,7 +24,9 @@ const COLUMNS := [
 		["The ceiling", "closeup", "apartment_ceiling"], ["Mira's room", "closeup", "home_ritual"],
 		["Room 108", "closeup", "hospital_dufredy"], ["Lynx's bed", "closeup", "lynx_laptop"],
 		["The door", "closeup", "desert_door"], ["The mirror", "closeup", "mirror"],
-		["Cut scene: the opening", "cutscene", "opening"], ["Cut scene: the outage", "cutscene", "outage"], ["Cut scene: a dream", "cutscene", "dream"]]],
+		["Cut scene: the opening", "cutscene", "opening"], ["Cut scene: the outage", "cutscene", "outage"], ["Cut scene: a dream", "cutscene", "dream"],
+		["Cut scene: the tower", "cutscene", "tower"], ["Cut scene: the drive", "cutscene", "drive"], ["Cut scene: leaving the vigil", "cutscene", "vigil"],
+		["Ending: company man", "cutscene", "ending_company"], ["Ending: investigator", "cutscene", "ending_investigator"], ["Ending: sleeper", "cutscene", "ending_sleeper"]]],
 ]
 
 var _root: Control

@@ -13,6 +13,30 @@ func intro() -> void:
 	ui.close()
 
 
+func _route_interact(id: String) -> void:
+	if id == "sub_rail" and Game.case_open("nathan") and not Game.has_flag("case_nathan_substation"):
+		await _substation()
+		return
+	await super._route_interact(id)
+
+
+## Nathan's case: the fleet copy of the swarm log, kept in the substation.
+func _substation() -> void:
+	await ui.think("The substation. The eye on the panel, and under it, scratched in: WE KNOW WHO SENDS THE SIGNALS. Alto kept a fleet copy of every Logistics route update here, by law, for a year. It had been a year last week.")
+	if not Game.glasses_on:
+		await ui.think("Without the frames the panel was a panel. I'd need them on to read the log.")
+		ui.close()
+		return
+	await main.filter.flash(0.06)
+	await ui.say("", "PSYONIC LOGISTICS  ·  ROUTE UPDATE  ·  02:14  ·  author: (none)  ·  units re-tasked: 22  ·  new route: see attached  ·  attached: (a shape)")
+	await ui.think("Twenty-two delivery drones, re-tasked at two in the morning by an update nobody had written, onto a route that wasn't a route. One of them had come down on the front of a corporate car on the Flyover like a meteor. He'd lingered six days in SalTech intensive care.")
+	await ui.think("The attachment wouldn't open here. The swarm over the Heights still flew the same update every night. I could watch it fly it.")
+	ui.close()
+	Game.case_done("nathan", "substation")
+	Game.add_connection(2.0, "the swarm log")
+	Game.log_entry("Alto substation 14's fleet copy: 22 drones re-tasked at 02:14 the night Nathan died, by a route update with no author. The route is an attachment that won't open.")
+
+
 func on_interact(id: String) -> void:
 	match id:
 		"train":
