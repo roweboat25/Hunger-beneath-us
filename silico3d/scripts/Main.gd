@@ -30,11 +30,20 @@ const LEVELS := {
 	"Mirror": preload("res://scripts/levels/Mirror.gd"),
 	"Lineup": preload("res://scripts/levels/Lineup.gd"),
 	"PropKit": preload("res://scripts/levels/PropKit.gd"),
+	"Facility": preload("res://scripts/levels/Facility.gd"),
+	"Hangar": preload("res://scripts/levels/Hangar.gd"),
+	"Blackout": preload("res://scripts/levels/Blackout.gd"),
+	"Observatory": preload("res://scripts/levels/Observatory.gd"),
+	"HoldingCell": preload("res://scripts/levels/HoldingCell.gd"),
+	"RedRock": preload("res://scripts/levels/RedRock.gd"),
+	"Spa": preload("res://scripts/levels/Spa.gd"),
+	"Cognizo": preload("res://scripts/levels/Cognizo.gd"),
 }
 
 ## Story order of the levels (the title menu and the self-test walk it).
 const STORY := ["Dufredy", "Drive", "Park", "Spine", "Home", "WarRoom", "Hospital", "Southtown",
-	"Home", "WarRoom", "LynxFlat", "Flats", "Mirror"]
+	"Home", "WarRoom", "LynxFlat", "Flats", "Mirror",
+	"Facility", "Hangar", "Home", "Blackout", "Observatory", "HoldingCell", "RedRock", "Spa", "Cognizo", "Home"]
 
 ## Same chant as the 2D game (scripts/Game.gd), in the same order.
 const CHANT := [
@@ -705,6 +714,11 @@ func _selftest_all() -> void:
 			flags["southtown_done"] = true
 		if lname == "WarRoom" and flags.has("warroom1_done"):
 			flags["ritual_seen"] = true
+		if lname == "Home" and flags.has("home2_done"):
+			flags["act1_done"] = true
+			flags["hangar_done"] = true
+		if lname == "Home" and flags.has("home3_done"):
+			flags["broadcast_seen"] = true
 		await load_level(lname)
 		print("LEVEL ", lname)
 		if lname == "Spine":
