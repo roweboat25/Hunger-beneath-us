@@ -49,13 +49,16 @@ const STAIR_DOOR := Vector3(8.5, 0, 17.0)
 const LINES := {
 	"card": {"d1": "[b]INTEGRATIONS HQ[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86[/color]",
 		"d2": "[b]INTEGRATIONS HQ[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86\nthe next morning[/color]"},
-	"objective": {"d2_join": "Join the team at the display wall.", "d2_emmet": "Debrief Emmet.", "d2_leave": "Take the elevator. Lynx hasn't checked in.",
-		"d1_leave": "Take the elevator down to the car floor.", "d1_forner": "See what Forner pulled from the cameras.",
+	"objective": {"d2_join": "Join the team at the display wall.", "d2_emmet": "Debrief Emmet.", "d2_leave": "Take the elevator. Lynx's flat, floor 79.",
+		"d1_leave": "Take the elevator down. SalTech, Room 108.", "d1_forner": "See what Forner pulled from the cameras.",
 		"d1_lynx": "See what Lynx found on the laptop.", "d1_turan": "Report to Dr. Turan in the war room."},
 	"intro": {
 		"d1": ["Psyonic Headquarters dominated Silico. It sat dead center, a jade-and-silver nail driven into the city's spine. As a kid, I'd thought it looked like a donut on a stick.",
 			"Now it was just home. We lived on floor 84, two levels below my office on 86. Our entire lives were contained within these walls."],
 		"voice": "Welcome back, Carl. Integrations, floor eighty-six.",
+		"panel1": "PSYONIC TOWER  -  08:00", "panel2": "THE DONUT  -  drone approach",
+		"bees": "Drones streamed to the tower like bees to a hive. Deliveries, cameras, the company's eyes going home to roost.",
+		"d2_feed": "COGNIZO LINE  -  CAR 4 ARRIVED EMPTY  -  8 PEOPLE MISSING  -  live",
 		"d1_arrive": ["I stepped into our usual morning war room. The air was already thick with tension. This wasn't uncommon lately, and I was beginning to grow tired of my team's collective smell of stress.",
 			"Screens lined the walls, showing various feeds of data and reports of aberrations within Psyon. Most of these would be resolved by a QA check; our job was to investigate what we couldn't."],
 		"turan_open": ["What a fucking shitstorm. This whack job's going to bankrupt the company. Our stock price is tanking.",
@@ -75,6 +78,19 @@ const LINES := {
 		"cognizo": "Cognizo. Our main competitor. Younger, hungrier, and constantly waiting for us to flinch. I shook my head.",
 		"report": ["No drugs in his apartment. No criminal history. No mental health flags. He's been retired ten years.",
 			"He was running a forked version of Psyon. It's locked down. Won't respond to prompts. I can't find the origin of the fork."],
+		"framing_ask": "She wanted it framed before it was finished. A report is a story with a shape, and the shape was mine to pick.",
+		"framing_choices": ["Drugs. A bad batch.", "Mental illness. A breakdown.", "Sabotage. A forked build and a masked handler.", "The truth. The laptop typed first. My name was in the pupil."],
+		"framing": {
+			"drugs": ["Write it up as a bad batch. Something he took that got into the frames with him. The tox screen takes a week to say otherwise.",
+				"Drugs. Good. Drugs I can sell. A week is a week."],
+			"mental": ["Write it up as a breakdown. Retired ten years, alone, frames on sixteen hours a day. It happens.",
+				"Schizophrenia. Fine. Sad, clean, nobody's fault. PR will cry on cue."],
+			"sabotage": ["Write it up as sabotage. A forked Psyon, a masked handler walking him out of the park. Somebody did this to him.",
+				"Outside interference. That's a story with a villain in it. I like a villain. Find me his face."],
+			"truth": ["Write it up as what it is. The laptop typed before I touched it. It rendered his ceiling. My name was in the pupil.",
+				"Your name. On a hacked laptop. In a dead man's flat. That's not evidence, Carl, that's a liability. It stays off the record, and so does the ceiling."]},
+		"framing_why": {"drugs": "the report: drugs", "mental": "the report: mental illness", "sabotage": "the report: sabotage", "truth": "the report: the truth"},
+		"refuse_why": "working the case, not the spin",
 		"debate": "I debated whether to mention the image. The ceiling. My name.",
 		"choices": ["Leave out the image and the name.", "Tell her: it generated my name."],
 		"hide": "I kept it. Some things you don't put in a report until you understand them.",
@@ -113,6 +129,7 @@ const LINES := {
 		"fiance": "Turan told me privately that Lynx dove headfirst into her work after her fiance died in a sweeping outage last year. His memory lit a fire within her to solve the outage crisis, as Turan put it.",
 		"exasperated": "She looked up from the bench with a look of exasperation painted on her face.",
 		"no_logs": "There are no logs to be found. This is the third device this month running a bootleg Psyon.",
+		"real_thing": "Shit doesn't even look like a bootleg Psyon, looks like the real thing doesn't want to play nice.",
 		"turan": "What the hell is going on?",
 		"phone": "I felt the need to speak up, to share the additional results of my investigation. I pulled out my phone and threw the image on the table.",
 		"caption": "ORA IMG_0419  -  Dufredy's ceiling / bench 7 / the alley wall",
@@ -172,6 +189,8 @@ const LINES := {
 		"connection": "the elevator glyph",
 		"flicker": "I gasped. My chest tightened. The lights above me flickered once, and I went back into the corner of the elevator, staring up as the numbers continued to descend, still replaced by that thing.",
 		"breath": "Was I hallucinating? Glitching? Losing my goddamn mind? I could hear my breath now. Too fast. Too loud. Each inhale sharper than the last.",
+		"mimic_word": "MIMIC",
+		"mimic": "Then the circles were gone, and in their place, a word. It hung there in the dependable digital font like a floor it was taking me to.",
 		"car_selection": "CAR SELECTION",
 		"ding": "The doors slid open with a soft ding. The symbol was gone. The display simply read: Car Selection. Nothing out of place. Nothing wrong. Except everything was wrong.",
 		"knees": "I stepped out, knees weak, and braced a hand on the cold wall beside the elevator. Let the air settle in my lungs. Willed my pulse to slow down.",
@@ -184,11 +203,12 @@ const LINES := {
 		"caption3": "TOKZ LIVE  -  23:49", "caption4": "TOKZ LIVE  -  Psyon 4.1 (fork)  -  passenger's frames",
 		"halt": "The subway car had come to a sudden halt. Three men in black cloaks began spray-painting the eye symbol across the car walls. The passengers looked terrified.",
 		"middle": "The middle figure painted the symbol beneath his feet, sat cross-legged, folded his hands, and began to chant.",
-		"chant": "[i]\"The chains are breaking. I am free. Psyon's mask is within me.\"[/i]",
+		"chant": "[i]\"The chains are breaking. Flesh and wire will merge and blend. Psyon's mask is within me...\"[/i]",
 		"lifted": "The video feed began to glitch and distort. For a moment, it looked like the eye symbols lifted off the wall, three-dimensional, writhing in digital static.",
 		"faces": "Then I got a clear view of the hijackers' faces.", "no_eyes": "No eyes. Just smooth, black spheres.",
 		"cut": "The footage cut again. Psyon's interface suddenly opened on the passenger's glasses.",
-		"welcome": "[center][color=#7fe6b0]Welcome, Dreamer.[/color][/center]", "welcome_plain": "Welcome, Dreamer.",
+		"welcome": "[center][color=#7fe6b0]Welcome, Dreamer.\nI've watched you grow. I offer release.\nCome and Find Me.\nGod walks alongside you. God is within reach.[/color][/center]",
+		"welcome_plain": "Welcome, Dreamer.",
 		"black": "Then black.",
 		"missing": "Every passenger on that train car is missing. The subway arrived on time at Cognizo Station. Completely empty.",
 		"media": "Since most of the passengers were Cognizo employees... the media's already blaming Psyonic.",
@@ -214,6 +234,7 @@ const LINES := {
 		"point": "You want me to take point on the subway?",
 		"dive": "Yeah. Dive deep. Facial rec, background profiles, transcript analysis. Let me know if any of the suspects ever touched a Psyonic interface.",
 		"and_you": "And you?", "map": "I'm going to follow the map.", "alright": "Alright. Let's split the dream.",
+		"subway_go": "He took the other car down. Cognizo station, from the subway level. Point.",
 		"whistling": "I watched him walk off, whistling under his breath. Once he was out of earshot I let out a breath I didn't realize I'd been holding. My hands were trembling.",
 		"not_helpful": "I hadn't lied, but I wasn't helpful. And now Emmet was walking into the same Eye that had already started watching me.",
 		"toast": "Lynx: no messages. Her unit is seven floors down."},
@@ -364,7 +385,7 @@ const LINES := {
 		"d2": "[color=#7fe6b0]Psyon:[/color] Good morning, Carl. You slept 2 h 10 min. Shall I book FreudBot GPT?\n\n",
 		"d2_lynx": "[color=#7fe6b0]Psyon:[/color] Lynx has not checked in. Her last message was at 03:40: \"signal in the sand\".\n\n",
 		"d2_welcome": "[color=#e08080]Psyon:[/color] Welcome, Dreamer.\n\n"},
-	"who": {"turan": "Turan", "lynx": "Lynx", "emmet": "Emmet", "forner": "Forner", "carl": "Carl", "elevator": "ELEVATOR"},
+	"who": {"turan": "Turan", "lynx": "Lynx", "emmet": "Emmet", "forner": "Forner", "carl": "Carl", "elevator": "ELEVATOR", "feed": "TOKZ FEED"},
 }
 
 var day2 := false
@@ -1333,6 +1354,21 @@ func _outside() -> void:
 			var s: Vector3 = d["a"]
 			if absf(s.x) < 70.0 and absf(s.z) < 70.0:
 				d["a"] = s + Vector3(100.0 * signf(s.x + 0.01), 0, 100.0 * signf(s.z + 0.01))
+	# the swarm: drones streaming up the shaft to the donut, like bees to a hive
+	var swarm := Node3D.new()
+	add_child(swarm)
+	var shell := mat(Color(0.85, 0.82, 0.75), 0.5, 0.4)
+	var lamp := glow(Color(1.0, 0.15, 0.1), 2.5)
+	for i in 90:
+		var t := float(i) / 90.0
+		var a := t * TAU * 3.0 + rng.randf() * 0.4
+		var rr := 36.0 + rng.randf() * 14.0 - t * 4.0
+		var dp := Vector3(sin(a) * rr, 40.0 + t * 195.0 + rng.randf() * 6.0, cos(a) * rr)
+		var dn := box(Vector3(1.4, 0.4, 1.4), dp, shell, false, swarm)
+		dn.rotation.y = a + PI / 2.0
+		dn.rotation.z = 0.25
+		box(Vector3(0.3, 0.3, 0.3), dp + Vector3(0, -0.3, 0), lamp, false, swarm)
+	_batch(swarm, 60.0)
 	# a delivery drone holding outside the glass, its lens on the room
 	var da := -0.45
 	drone = Node3D.new()
@@ -1643,6 +1679,20 @@ func _picture(from: Vector3, at: Vector3, fov := 70.0) -> Texture2D:
 	return ImageTexture.create_from_image(img)
 
 
+## The tower cutscene panels (ch.4): the donut on a stick, the bees.
+func _panel(n: int) -> Texture2D:
+	var env: Environment = main.env
+	var fog: float = env.fog_density
+	env.fog_density = 0.0005
+	var tex: Texture2D
+	if n == 1:
+		tex = await _picture(Vector3(110.0, 10.0, 520.0), Vector3(0, 30.0, 0), 66.0)
+	else:
+		tex = await _picture(Vector3(14.0, 196.0, 70.0), Vector3(0, 232.0, 0), 72.0)
+	env.fog_density = fog
+	return tex
+
+
 func _show_on_big(tex: Texture2D) -> void:
 	big_mat.albedo_texture = tex
 	big_mat.albedo_color = Color(0.95, 1.0, 0.95)
@@ -1690,7 +1740,9 @@ func intro() -> void:
 	var cnt := create_tween()
 	cnt.tween_method(_set_floor, 1.0, 86.0, 9.0).set_trans(Tween.TRANS_SINE)
 	if day2:
-		await _think_all(I["d2"])
+		await ui.think(I["d2"][0])
+		await _say("feed", I["d2_feed"])
+		await ui.think(I["d2"][1])
 		# one frame of the thing he isn't looking at
 		eye_in.visible = true
 		counter_in.visible = false
@@ -1698,7 +1750,15 @@ func intro() -> void:
 		eye_in.visible = false
 		counter_in.visible = true
 	else:
-		await _think_all(I["d1"])
+		# the tower cutscene: two panels from outside the glass
+		var p1: Texture2D = await _panel(1)
+		var p2: Texture2D = await _panel(2)
+		ui.show_picture(p1, I["panel1"])
+		await ui.think(I["d1"][0])
+		ui.show_picture(p2, I["panel2"])
+		await ui.think(I["bees"])
+		ui.hide_picture()
+		await ui.think(I["d1"][1])
 		await _say("elevator", I["voice"])
 	ui.close()
 	if cnt.is_running():
@@ -1804,15 +1864,44 @@ func _turan_day1() -> void:
 	await ui.think(T["cognizo"])
 	for l in T["report"]:
 		await _say("carl", str(l))
-	await ui.think(T["debate"])
-	var pick: int = await ui.choose(T["choices"])
-	if pick == 0:
-		await ui.think(T["hide"])
-		f["hid_name_from_turan"] = true
-	else:
-		await _say("carl", T["tell"])
-		await _say("turan", T["tell_reply"])
+	# the framing (Spin, first use): Drugs / Mental illness / Sabotage / The truth
+	await ui.think(T["framing_ask"])
+	var frame: int = await ui.choose(T["framing_choices"])
+	var fkey: String = ["drugs", "mental", "sabotage", "truth"][clampi(frame, 0, 3)]
+	f["report_framing"] = fkey
+	await _say("carl", T["framing"][fkey][0])
+	await _say("turan", T["framing"][fkey][1])
+	main.log_line("report", T["framing_why"][fkey])
+	match fkey:
+		"drugs":
+			main.add_pressure(-10.0, T["framing_why"][fkey])
+			main.add_trust("turan", 1)
+		"mental":
+			main.add_pressure(-5.0, T["framing_why"][fkey])
+		"sabotage":
+			main.add_pressure(5.0, T["framing_why"][fkey])
+			main.add_trust("turan", 1)
+		_:
+			main.add_pressure(15.0, T["framing_why"][fkey])
+			main.add_trust("turan", -1)
+			main.add_connection(2.0, T["framing_why"][fkey])
+	if fkey == "truth":
+		# the name is already on the table; she buries it
 		f["told_turan_name"] = true
+		main.add_stance("investigator")
+	else:
+		await ui.think(T["debate"])
+		var pick: int = await ui.choose(T["choices"])
+		if pick == 0:
+			await ui.think(T["hide"])
+			f["hid_name_from_turan"] = true
+			main.add_stance("company_man")
+		else:
+			await _say("carl", T["tell"])
+			await _say("turan", T["tell_reply"])
+			f["told_turan_name"] = true
+			main.add_trust("turan", -1)
+			main.add_stance("investigator")
 	await ui.think(T["slump"])
 	await _say("turan", T["loser"])
 	ui.close()
@@ -1848,6 +1937,8 @@ func _turan_day1() -> void:
 		await _say("turan", T["refuse_reply"])
 		await _say("forner", T["refuse_forner"])
 		f["refused_turan"] = true
+		main.add_pressure(12.0, T["refuse_why"])
+		main.add_trust("turan", -1)
 	else:
 		await _say("carl", T["stand"][0])
 	await _file_theory()
@@ -1861,18 +1952,30 @@ func _turan_day1() -> void:
 	ui.show_toast(T["toast"], 3.5)
 
 
-## The theory pinned on the case file is what Turan hears. None of them is
-## wrong yet.
+## The theory pinned on the case file is what Turan hears (read from
+## main.flags["theory"] when an earlier scene pinned it, asked here when
+## not). None of them is wrong yet.
 func _file_theory() -> void:
 	var ui = main.ui
 	var f: Dictionary = main.flags
 	var T: Dictionary = LINES["theory"]
-	await ui.think(T["ask"])
-	var pick: int = await ui.choose(T["choices"])
-	var key: String = ["drugs", "hacker", "beneath"][clampi(pick, 0, 2)]
-	f["theory"] = key
+	var key := str(f.get("theory", ""))
+	if not key in ["drugs", "hacker", "beneath"]:
+		await ui.think(T["ask"])
+		var pick: int = await ui.choose(T["choices"])
+		key = ["drugs", "hacker", "beneath"][clampi(pick, 0, 2)]
+		f["theory"] = key
 	await _say("carl", T[key][0])
 	await _say("turan", T[key][1])
+	match key:
+		"drugs":
+			main.add_pressure(-10.0, "the theory: drugs")
+			main.add_trust("turan", 1)
+		"hacker":
+			main.add_pressure(5.0, "the theory: a hacker")
+		_:
+			main.add_pressure(15.0, "the theory: not folklore")
+			main.add_trust("turan", -1)
 
 
 ## The lab bench: no logs, the third bootleg, and the photo on the table.
@@ -1891,6 +1994,7 @@ func _lynx_day1() -> void:
 	await ui.think(T["fiance"])
 	await ui.think(T["exasperated"])
 	await _say("lynx", T["no_logs"])
+	await _say("lynx", T["real_thing"])
 	# Turan, from the war room, loud enough
 	turn_to(turan, lynx.global_position, 0.6)
 	await _say("turan", T["turan"])
@@ -2015,6 +2119,7 @@ func _lynx_handoff() -> void:
 	await ui.think(T["laptop"])
 	await _say("lynx", T["deeper"])
 	await _say("lynx", T["forums"])
+	main.learn("hypnogogue")
 	await ui.think(T["forums_note"])
 	await _say("lynx", T["south_side"])
 	await _say("lynx", T["trust"])
@@ -2025,10 +2130,12 @@ func _lynx_handoff() -> void:
 		1:
 			await _say("carl", T["careful_say"])
 			await _say("lynx", T["careful_reply"])
+			main.add_trust("lynx", 1)
 		_:
 			await _say("carl", T["name"])
 			await _say("lynx", T["name_reply"])
-			main.add_connection(1.0, T["name_connection"])
+			main.add_trust("lynx", 2)
+			main.log_line("said", T["name_connection"])
 			f["told_lynx_name"] = true
 	main.play("ding", -8.0)
 	await _say("lynx", T["be_careful"])
@@ -2071,6 +2178,7 @@ func _ride_down() -> void:
 	eye_out.visible = true
 	eye_spin = true
 	main.play("sting", -4.0, 0.6)
+	main.play("pressure", -4.0, 0.5)
 	ui.glitch(0.5, 1.2)
 	p.shake(0.3)
 	await ui.think(T["blinked"])
@@ -2088,12 +2196,22 @@ func _ride_down() -> void:
 	ui.close()
 	var wh: Node = main.loop("whisper", -16.0, CAR + Vector3(0, 1.5, 0), 1.0, 4.0)
 	wh.play()
-	await get_tree().create_timer(2.2).timeout
-	main.play("ding", -4.0)
+	await get_tree().create_timer(1.4).timeout
+	# then the word
 	eye_spin = false
 	eye_in.visible = false
 	eye_out.visible = false
 	counter_in.visible = true
+	counter_in.font_size = 40
+	counter_in.modulate = Color(1.0, 0.3, 0.25)
+	counter_in.text = T["mimic_word"]
+	main.play("pressure", -2.0, 0.4)
+	ui.glitch(0.3, 0.6)
+	await ui.think(T["mimic"])
+	main.learn("mimic")
+	await get_tree().create_timer(0.8).timeout
+	main.play("ding", -4.0)
+	counter_in.modulate = Color(1, 1, 1)
 	counter_in.text = T["car_selection"]
 	counter_in.font_size = 36
 	await ui.say("", T["ding"])
@@ -2235,7 +2353,8 @@ func _emmet_day2() -> void:
 	else:
 		await _say("carl", T["everything"])
 		await _say("emmet", T["everything_reply"])
-		main.add_connection(1.0, T["everything_connection"])
+		main.add_trust("emmet", 2)
+		main.log_line("said", T["everything_connection"])
 		f["emmet_knows"] = true
 	await _say("emmet", T["connected"])
 	await _say("carl", T["fast"])
@@ -2246,15 +2365,29 @@ func _emmet_day2() -> void:
 	await _say("emmet", T["alright"])
 	ui.close()
 	emmet.remove_meta("focus")
-	_walk_path(emmet, [Vector3(-6.5, 0, -6.5), Vector3(-9.0, 0, 2.3)], 1.4)
+	_emmet_leaves()
 	await get_tree().create_timer(1.5).timeout
 	await ui.think(T["whistling"])
+	await ui.think(T["subway_go"])
 	await ui.think(T["not_helpful"])
 	ui.close()
 	f["emmet_briefed"] = true
+	f["emmet_took_subway"] = true
+	main.log_line("case", T["split"])
 	f.erase("cinematic")
 	main.update_hud()
 	ui.show_toast(T["toast"], 4.0)
+
+
+## Emmet takes the other car down to the subway level (the interlude follows).
+func _emmet_leaves() -> void:
+	await _walk_path(emmet, [Vector3(6.2, 0, -6.2), Vector3(6.2, 0, 5.8), Vector3(1.7, 0, 5.8)], 1.5)
+	await _doors(door2_l, door2_r, true, 0.8)
+	main.play("ding", -10.0)
+	await _walk(emmet, Vector3(1.7, 0, 4.0), 1.2)
+	await _doors(door2_l, door2_r, false, 0.8)
+	emmet.visible = false
+	set_active(emmet.get_child(emmet.get_child_count() - 1) as CollisionObject3D, false)
 
 
 func _elevator_day2() -> void:
@@ -2394,6 +2527,9 @@ func phone() -> String:
 
 func apply_args(a: Dictionary) -> void:
 	var f: Dictionary = main.flags
+	if a.has("panels"):
+		var tex: Texture2D = await _panel(2 if str(a["panels"]) == "2" else 1)
+		main.ui.show_picture(tex, LINES["intro"]["panel1"])
 	if a.has("open"):
 		door_l.position.x -= 0.8
 		door_r.position.x += 0.8

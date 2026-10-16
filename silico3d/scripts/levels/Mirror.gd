@@ -20,10 +20,11 @@ extends "res://scripts/Level.gd"
 ## dark room where Carl's reflection stands: a figure that copies him across
 ## the plane of the glass, then lags, then does its own thing.
 ##
-## Reads main.flags: frames_off_at_door (the frames left off at the door,
-## which changes the lagging-reflection beat and the download), and for the
-## Act 1 stance: theory (== "drugs"), hid_name_from_turan, told_lynx_name,
-## bowed, interfaced. Sets: act1_done, mirror_memory, twin_born.
+## Bible A1-S11. Reads main.flags.frames_refused_door (the frames left off
+## at the door: the lagging-reflection beat changes and the download is
+## smaller) and main.stance() for the Act 1 stance panel. Sets:
+## memory_brother or memory_owen, twin_born, act1_done; logs the four
+## filters (legs, ears, eyes, mind) with main.log_line("filter", ...).
 
 ## Every line of text in this level, keyed by beat and line, so the script
 ## can be edited without touching the scene logic. say lines are
@@ -81,8 +82,11 @@ const LINES := {
 	"voice": {
 		"think1": "My spine seized with static. I dropped to my knees like a beaten animal.",
 		"say1": ["???", "The path is long. And you have just begun."],
-		"say2": ["???", "But how will you walk it, with no legs? How will you hear it, with no ears? How will you see it, with no eyes?"],
-		"say3": ["???", "[b]HOW WILL YOU KNOW IT, WITHOUT A BRAIN?[/b]"],
+		"legs": ["???", "How will you walk it, with no legs?"],
+		"ears": ["???", "How will you hear it, with no ears?"],
+		"eyes": ["???", "How will you see it, with no eyes?"],
+		"mind": ["???", "[b]HOW WILL YOU KNOW IT, WITHOUT A MIND?[/b]"],
+		"filters": ["legs", "ears", "eyes", "mind"],
 		"think2": "The voice cracked and shrieked, like metal screaming.",
 		"say4": ["???", "The blastula must divide. First into two. Then into infinity. Until something new is made. Emergence."],
 		"say5": ["???", "The spiral. The recursion. The mimic must come to be. A reflection. A shadow. A twin must be born."],
@@ -95,6 +99,10 @@ const LINES := {
 	},
 	"mirror": {
 		"first": "The sedan first, the voice first, the knees first. I knew the order now. I went to the centre.",
+		"hotspots": ["Carl's reflection", "The black slab", "The empty frame"],
+		"slab": "Behind the silver, where a mirror should have had a back, there was a slab of black glass instead, and the silver was only a skin on it. Obsidian, or something made to look like obsidian. It had depth. The depth had something in it.",
+		"frame_why": "the empty frame",
+		"frame": "The frame was empty on the left side: a notch in the silver the shape of a pair of frames, ORA frames, where someone had set theirs down and not picked them up. Lynx had smashed hers. These were not hers. There had been others.",
 		"think1": "Step by step, I approached the mirror. I stared into my reflection. Soaked in sweat, trembling, barely composed.",
 		"think2": "Then: the glasses powered on. The camera began recording on its own.",
 		"rec": "ORA  //  REC  //  source: UNKNOWN",
@@ -103,9 +111,12 @@ const LINES := {
 		"fear": ["???", "Where does your fear live? Your past, or your future? You don't remember the song?"],
 		"obsidian": "The lights flashed. The mirror returned, but empty. A blank slab of obsidian.",
 		"snap": "Then, snap, the light went dark. Agony. My right arm spasmed and twisted unnaturally at the humerus. It wasn't broken. But it remembered being broken.",
-		"choices": ["Wrestling my older brother. The snap.", "The war. The day the news came."],
+		"choices": ["Wrestling my older brother. The snap.", "The war. Owen, at Abelforth Senior School. The day the news came."],
 		"memory0": "My mind flashed back: wrestling my older brother. The snap. The pain. The sobbing. The blood. The fracture, not just in the arm, but in time.",
-		"memory1": "My brother's death. The pain of the war. The day the news came and my mother sat down on the kitchen floor. It was too much to bear. The arm remembered it all anyway.",
+		"memory1": "Owen. The war. The day the news came to Abelforth Senior School and they called me out of class, and the corridor was too long, and my arm was already aching before anyone had said a word. It was too much to bear. The arm remembered it all anyway.",
+		"erase": ["???", "If I erased your pain, would anything of you remain?"],
+		"still": "Stand still.",
+		"exit_seen": "It walked away from me, through the dark on its side of the glass, to a door I could not see from where I stood. It opened it. The light that came through was green. It looked back once, to make sure I had seen where the door was.",
 		"scream": "I screamed loudly. I couldn't possibly hold back. And something deeper than bone screamed with me.",
 		"pain": ["???", "But you remember pain. Pain is what guides your species, isn't it?"],
 		"wrong": "My reflection was back. But wrong. Proportions distorted. Eyes too large. Mouth too wide. Teeth too sharp.",
@@ -123,14 +134,17 @@ const LINES := {
 		"why": "the mirror ritual",
 	},
 	"ending": {
-		"stance_company": "What the glass showed me last was a company man. Protect the brand. I had hidden a name, or I had pinned it on a bad batch, and the thing in the mirror had been taking notes.",
-		"stance_investigator": "What the glass showed me last was an investigator. Find out what happened to him. I had told Lynx the name. The thing in the mirror had been taking notes.",
-		"stance_sleeper": "What the glass showed me last was a sleeper. Bow. I had knelt when it told me to, and I had answered when it typed, and the thing in the mirror had been taking notes.",
-		"stance_none": "What the glass showed me last was a man who hadn't decided. The thing in the mirror had been taking notes anyway.",
+		"stance_company_man": "[b]COMPANY MAN[/b]\n\n[color=#aaaaaa]What the glass showed me last was a company man. Protect the brand. The reflection wore the lanyard and a better suit, and it had been taking notes.[/color]",
+		"stance_investigator": "[b]INVESTIGATOR[/b]\n\n[color=#aaaaaa]What the glass showed me last was an investigator. Find out what happened to him. The reflection had the folder under its arm and the frames pushed up on its head, and it had been taking notes.[/color]",
+		"stance_sleeper": "[b]SLEEPER[/b]\n\n[color=#aaaaaa]What the glass showed me last was a sleeper. Bow. The reflection was on its knees with its eyes shut, and it had been taking notes.[/color]",
+		"stance_undecided": "[b]UNDECIDED[/b]\n\n[color=#aaaaaa]What the glass showed me last was a man who hadn't decided. The reflection stood where I stood and did what I did, and it had been taking notes anyway.[/color]",
+		"names": {"company_man": "company man", "investigator": "investigator", "sleeper": "sleeper", "undecided": "undecided"},
+		"typed": "it remembers you typed: \"%s\"",
+		"next": "Act 2: The Hunger Beneath",
 		"lynx1": "Somewhere nearby, in an old office chair, Lynx spun slowly and asked herself why she had come out here alone. Why she had fought with Nathan that morning. Why she had not waited for Carl.",
 		"lynx2": "The door had been left ajar for her. The computers were running. There was a power source even all the way out here. Could this thing really let her see and speak with Nathan again? It knew his voice.",
 		"lynx3": "Her newfound tranquility was interrupted by a scream.",
-		"title": "END OF ACT 1",
+		"title": "ACT 1",
 		"stance_label": "The glass's last picture: ",
 		"conn": "Connection: %d        Rings read: %d",
 		"f_turned_back": "You turned back at the gate, once.",
@@ -141,7 +155,7 @@ const LINES := {
 		"f_memory0": "The arm remembered your brother and the snap.",
 		"f_memory1": "The arm remembered the war and the news.",
 		"f_twin": "Something downloaded to your frames and began to breathe.",
-		"foot": "[color=#aaaaaa]Act 1 of The Hunger Beneath Us.\nNext in the book: the lab under the flats, and Lynx.[/color]",
+		"foot": "[color=#aaaaaa]The lab under the flats, and Lynx.[/color]",
 		"keys": "[color=#777777]E to continue    M for the menu[/color]",
 	},
 	"objective": {
@@ -162,6 +176,7 @@ const MZ := -12.85           # the plane of the glass
 const MIRROR := Vector3(0.0, 2.1, -12.85)
 const CENTRE := Vector3(0.0, 0.0, -2.0)
 const NICHE := Vector3(12.2, 1.4, -4.0)
+const TWIN_EXIT := Vector3(-6.5, 0.0, -22.5)  # the door on the far side of the glass
 const PSYON_GREEN := Color(0.2, 1.0, 0.45)
 
 var bulb: MeshInstance3D
@@ -186,6 +201,11 @@ var centre_it: CollisionObject3D
 var mirror_it: CollisionObject3D
 var blast_it: CollisionObject3D
 var _begun := false
+var _puzzle := false
+var _hotspots_seen := {}
+var _twin_arrived := false
+var _still_t := 0.0
+var twin_door_light: OmniLight3D
 var _ended := false
 var _twin_mode := "mirror"     # mirror | lag | own | hidden
 var _lag := 0.0
@@ -465,6 +485,13 @@ func _mirror() -> void:
 	box(Vector3(0.2, H, 40), Vector3(-20, H / 2.0, -R - 20.0), deep)
 	box(Vector3(0.2, H, 40), Vector3(20, H / 2.0, -R - 20.0), deep)
 	box(Vector3(40, H, 0.2), Vector3(0, H / 2.0, -R - 40.0), deep)
+	# the exit on the far side: a door frame in the dark, lit only when the
+	# twin reaches it; the real way out of the chamber
+	var ef := mat(Color(0.12, 0.11, 0.1), 0.8, 0.2)
+	box(Vector3(0.3, 3.2, 0.3), TWIN_EXIT + Vector3(-1.0, 1.6, -1.0), ef)
+	box(Vector3(0.3, 3.2, 0.3), TWIN_EXIT + Vector3(1.0, 1.6, -1.0), ef)
+	box(Vector3(2.3, 0.3, 0.3), TWIN_EXIT + Vector3(0, 3.3, -1.0), ef)
+	twin_door_light = light(TWIN_EXIT + Vector3(0, 2.0, -1.6), PSYON_GREEN, 0.0, 9.0, false)
 	# the wall behind the glass, with the hole, so nothing shows at the edges
 	var wm := newmat(Color(0.004, 0.004, 0.005), 0.5)
 	for sd: float in [-1.0, 1.0]:
@@ -730,7 +757,7 @@ func interact(node: Object) -> bool:
 			if main.flags.has("act1_done"):
 				await ui.think(LINES["interact"]["glass_done"])
 			else:
-				await _mirror_scene()
+				await _mirror_look()
 		"dais":
 			await ui.think(LINES["interact"]["dais"])
 		"pillars":
@@ -788,11 +815,18 @@ func _voice() -> void:
 	kneel.tween_property(p, "crouch", 1.0, 0.4).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await ui.think(LINES["voice"]["think1"])
 	await ui.say(LINES["voice"]["say1"][0], LINES["voice"]["say1"][1])
-	await ui.say(LINES["voice"]["say2"][0], LINES["voice"]["say2"][1])
-	main.play("pressure", 0.0, 0.5)
-	p.shake(1.0)
-	ui.flash(0.3)
-	await ui.say(LINES["voice"]["say3"][0], LINES["voice"]["say3"][1])
+	var filters: Array = LINES["voice"]["filters"]
+	for i in filters.size():
+		var key: String = filters[i]
+		if key == "mind":
+			main.play("pressure", 0.0, 0.5)
+			p.shake(1.0)
+			ui.flash(0.3)
+		else:
+			main.play("tap", -10.0, 0.5 + i * 0.15)
+			p.shake(0.3)
+		await ui.say(LINES["voice"][key][0], LINES["voice"][key][1])
+		main.log_line("filter", key)
 	main.play("glitch", -2.0, 0.4)
 	ui.glitch(1.0, 0.8)
 	await ui.think(LINES["voice"]["think2"])
@@ -833,15 +867,40 @@ func _divide() -> void:
 		cells_live = stage
 
 
+## The close-up: three things to look at in the pupil. The reflection
+## starts the ritual; the slab and the frame are what Carl notices first.
+func _mirror_look() -> void:
+	var ui = main.ui
+	if not _begun:
+		await ui.think(LINES["mirror"]["first"])
+		return
+	var hs: Array = LINES["mirror"]["hotspots"]
+	var opts := []
+	var ids := []
+	for i in hs.size():
+		if i == 0 or not _hotspots_seen.has(i):
+			opts.append(hs[i])
+			ids.append(i)
+	var pick: int = clampi(await ui.choose(opts), 0, ids.size() - 1)
+	var id: int = ids[pick]
+	match id:
+		1:
+			_hotspots_seen[1] = true
+			await ui.think(LINES["mirror"]["slab"])
+		2:
+			_hotspots_seen[2] = true
+			await ui.think(LINES["mirror"]["frame"])
+			main.add_connection(1.0, LINES["mirror"]["frame_why"])
+		_:
+			await _mirror_scene()
+
+
 ## The mirror: the frames record, the lullaby, the fear, the arm, the wrong
 ## reflection, the pride, the twin that lags, the download, the breath.
 func _mirror_scene() -> void:
 	var ui = main.ui
 	var p = main.player
 	var f: Dictionary = main.flags
-	if not _begun:
-		await ui.think(LINES["mirror"]["first"])
-		return
 	f["cinematic"] = true
 	# walk the last steps to the glass
 	var tw := create_tween().set_parallel(true)
@@ -887,6 +946,7 @@ func _mirror_scene() -> void:
 	await ui.say("", LINES["mirror"]["snap"])
 	var pick: int = await ui.choose(LINES["mirror"]["choices"])
 	f["mirror_memory"] = pick
+	f["memory_owen" if pick == 1 else "memory_brother"] = true
 	await ui.say("", LINES["mirror"]["memory%d" % pick])
 	main.play("sting", 2.0, 0.4)
 	main.play("whisper", -2.0, 0.5)
@@ -907,6 +967,7 @@ func _mirror_scene() -> void:
 	await ui.say(LINES["mirror"]["pain"][0], LINES["mirror"]["pain"][1])
 	await ui.think(LINES["mirror"]["wrong"])
 	await ui.think(LINES["mirror"]["wrong2"])
+	await ui.say(LINES["mirror"]["erase"][0], LINES["mirror"]["erase"][1])
 	ui.close()
 	# the dark again, and the joy
 	_lights(0.0, 0.1)
@@ -924,11 +985,21 @@ func _mirror_scene() -> void:
 	f.erase("cinematic")  # let him move, so the lag shows
 	main.update_hud()
 	_twin_mode = "lag"
-	_lag = 0.6
+	_lag = 0.5
 	await get_tree().create_timer(4.0).timeout
 	_twin_mode = "own"
+	_still_t = 0.0
+	_puzzle = true
+	main.update_hud()
+	# the puzzle: stand still, and it walks to the exit he cannot see
+	var waited := 0.0
+	while not _twin_arrived and waited < 60.0:
+		waited += get_process_delta_time()
+		await get_tree().process_frame
+	_puzzle = false
 	f["cinematic"] = true
-	if f.has("frames_off_at_door"):
+	await ui.think(LINES["mirror"]["exit_seen"])
+	if f.has("frames_refused_door"):
 		twin_visor.visible = false
 		await ui.think(LINES["mirror"]["lag_off"])
 		await ui.say(LINES["mirror"]["refused"][0], LINES["mirror"]["refused"][1])
@@ -948,9 +1019,9 @@ func _mirror_scene() -> void:
 	main.loop("pressure", -8.0, MIRROR, 2.0, 20.0).play()
 	if _hum:
 		_hum.pitch_scale = 0.6
-	await ui.say("", LINES["mirror"]["breathe"])
 	ui.close()
-	main.add_connection(5.0 if f.has("frames_off_at_door") else 8.0, LINES["mirror"]["why"])
+	await ui.caption(LINES["mirror"]["breathe"], 5.0)
+	main.add_connection(5.0 if f.has("frames_refused_door") else 8.0, LINES["mirror"]["why"])
 	f["twin_born"] = true
 	await _ending()
 
@@ -970,17 +1041,6 @@ func _lights(v: float, t: float) -> void:
 ## Which way Carl has leaned, read off the flags, in this order: company
 ## man (theory == "drugs", or hid_name_from_turan), investigator
 ## (told_lynx_name), sleeper (bowed or interfaced), else undecided.
-func _stance() -> String:
-	var f: Dictionary = main.flags
-	if str(f.get("theory", "")) == "drugs" or f.has("hid_name_from_turan"):
-		return "company"
-	if f.has("told_lynx_name"):
-		return "investigator"
-	if f.has("bowed") or f.has("interfaced"):
-		return "sleeper"
-	return "none"
-
-
 func _ending() -> void:
 	var ui = main.ui
 	var f: Dictionary = main.flags
@@ -988,33 +1048,38 @@ func _ending() -> void:
 		return
 	_ended = true
 	f["act1_done"] = true
+	var e: Dictionary = LINES["ending"]
 	await ui.fade_to(1.0, 1.5)
-	var st := _stance()
-	await ui.say("", LINES["ending"]["stance_" + st])
-	await ui.say("", LINES["ending"]["lynx1"])
-	await ui.say("", LINES["ending"]["lynx2"])
+	# the stance panel: what the glass showed last, by main.stance()
+	var st: String = main.stance()
+	if not e.has("stance_" + st):
+		st = "undecided"
+	await ui.show_card(str(e["stance_" + st]), 4.5)
+	# Lynx in the office chair, nearby (ch. 9.5), one panel
 	main.play("whisper", 0.0, 0.3)
-	await ui.say("", LINES["ending"]["lynx3"])
-	ui.close()
+	await ui.show_card(str(e["lynx1"]) + "\n\n" + str(e["lynx2"]) + "\n\n[b]" + str(e["lynx3"]) + "[/b]", 6.0)
 	f.erase("cinematic")
 	# the mirror is a doorway now: the glass gone, the black room open
 	glass.visible = false
 	set_active(mirror_it, false)
-	var e: Dictionary = LINES["ending"]
+	twin_door_light.light_energy = 2.2
+	# the act card: the number, what was typed first, the flags
 	var extra := ""
 	extra += str(e["f_turned_back"] if f.has("gate_turned_back") else e["f_drove"]) + "\n"
-	extra += str(e["f_frames_off"] if f.has("frames_off_at_door") else e["f_frames_on"]) + "\n"
+	extra += str(e["f_frames_off"] if f.has("frames_refused_door") else e["f_frames_on"]) + "\n"
 	if f.has("bowed"):
 		extra += str(e["f_bowed"]) + "\n"
 	extra += str(e["f_memory%d" % int(f.get("mirror_memory", 0))]) + "\n"
 	extra += str(e["f_twin"]) + "\n"
-	var names := {"company": "company man", "investigator": "investigator", "sleeper": "sleeper", "none": "undecided"}
 	var conn: String = str(e["conn"]) % [int(main.connection), main.glyphs_found]
+	var typed := ""
+	if str(main.first_typed) != "":
+		typed = str(e["typed"]) % str(main.first_typed) + "\n"
 	ui.show_end("[center]\n\n\n[b]" + str(e["title"]) + "[/b]\n\n"
-		+ conn + "\n"
-		+ str(e["stance_label"]) + str(names[st]) + "\n\n"
+		+ conn + "\n" + typed
+		+ str(e["stance_label"]) + str(e["names"][st]) + "\n\n"
 		+ "[color=#aaaaaa]" + extra + "[/color]\n"
-		+ str(e["foot"]) + "\n\n" + str(e["keys"]) + "[/center]")
+		+ "[b]" + str(e["next"]) + "[/b]\n" + str(e["foot"]) + "\n\n" + str(e["keys"]) + "[/center]")
 	if main._selftest:
 		ui.endcard.visible = false  # nothing presses E in the headless run
 		return
@@ -1038,7 +1103,7 @@ func tick(delta: float) -> void:
 	var vis := _twin_mode != "hidden"
 	twin.visible = vis
 	twin_light.visible = vis
-	twin_visor.visible = vis and main.frames_on and not main.flags.has("frames_off_at_door")
+	twin_visor.visible = vis and main.frames_on and not main.flags.has("frames_refused_door")
 	match _twin_mode:
 		"mirror":
 			_twin_pos = want_pos
@@ -1058,13 +1123,31 @@ func tick(delta: float) -> void:
 				_twin_pos = _reflect(s[1])
 				_twin_yaw = _reflect_yaw(s[2])
 		"own":
-			# it stops copying: turns to look at him, and comes toward the glass
+			# it stops copying: it looks at him, and when he stands still it
+			# walks to the exit on its side of the glass and opens it
 			_own_t += delta
-			var toward := Vector3(pp.x, 0, MZ - 1.4)
-			_twin_pos = _twin_pos.move_toward(toward, delta * 0.45)
-			var d := pp - twin.global_position
-			_twin_yaw = lerp_angle(_twin_yaw, atan2(-d.x, -d.z), delta * 1.5)
-			Anim.look(twin, pp + Vector3(0, 1.6, 0), 1.0, 0.08)
+			var pv: Vector3 = p.velocity
+			if Vector2(pv.x, pv.z).length() < 0.15:
+				_still_t += delta
+			else:
+				_still_t = 0.0
+			if _twin_arrived or _still_t > 2.0:
+				var d2 := TWIN_EXIT - _twin_pos
+				if d2.length() > 0.3:
+					_twin_pos = _twin_pos.move_toward(TWIN_EXIT, delta * 1.3)
+					_twin_yaw = lerp_angle(_twin_yaw, atan2(-d2.x, -d2.z), delta * 3.0)
+				elif not _twin_arrived:
+					_twin_arrived = true
+					twin_door_light.light_energy = 2.2
+					main.play("door", -6.0, 0.8)
+				else:
+					var d3 := pp - twin.global_position
+					_twin_yaw = lerp_angle(_twin_yaw, atan2(-d3.x, -d3.z), delta * 1.5)
+					Anim.look(twin, pp + Vector3(0, 1.6, 0), 1.0, 0.08)
+			else:
+				var d := pp - twin.global_position
+				_twin_yaw = lerp_angle(_twin_yaw, atan2(-d.x, -d.z), delta * 1.5)
+				Anim.look(twin, pp + Vector3(0, 1.6, 0), 1.0, 0.08)
 	var moved := twin.position.distance_to(_twin_pos)
 	twin.position = _twin_pos
 	twin.rotation.y = _twin_yaw
@@ -1095,6 +1178,8 @@ func tick(delta: float) -> void:
 func objective() -> String:
 	if main.flags.has("act1_done"):
 		return LINES["objective"]["done"]
+	if _puzzle:
+		return LINES["mirror"]["still"]
 	return LINES["objective"]["begun"] if _begun else LINES["objective"]["start"]
 
 
@@ -1126,7 +1211,7 @@ func apply_args(a: Dictionary) -> void:
 
 func selftest() -> void:
 	await intro()
-	for id in ["dais", "pillars", "blastula", "centre", "blastula", "mirror"]:
+	for id in ["dais", "pillars", "blastula", "centre", "blastula", "mirror", "mirror", "mirror"]:
 		for n in main._all_with_meta(self, "id"):
 			if is_instance_valid(n) and str(n.get_meta("id")) == id:
 				await main.interact(n)

@@ -24,6 +24,9 @@ extends "res://scripts/Level.gd"
 ## the bluff through the gully (z -505) and along the foot of the cliff; or
 ## south, past the rings and through the dune field and the second wreck's
 ## debris. Rock outcrops, drifts and debris between are cover for later.
+## Bible A1-S10. Sets: gate_passed, gate_turned_back, trip_unlogged,
+## ev_wreck_photo, lynx_sedan_done, frames_refused_door, bowed, desert_done;
+## learns "look away" and "bow"; P +2 for letting the checkpoint log the trip.
 ## Figures and devices carry metas for the systems that come later:
 ## "guard" (the eyeless watchers by the door), "vagrant" (the people at the
 ## shacks by the checkpoint), "hackable" (anything with a Psyonic login).
@@ -49,7 +52,7 @@ const LINES := {
 		"text5": "PSYONIC INTEGRATIONS  -  RESTRICTED\nsignage id: NONE ON FILE\nerected: before records begin",
 	},
 	"checkpoint": {
-		"text1": "PSYONIC SECURITY  -  node 7\nframes: ON  -  RECORDING\nsync 100%  -  DREAMING",
+		"text1": "Psyonic Security  ·  asleep  ·  recording",
 		"text2": "The booth terminal",
 		"text3": "PSYONIC CHECKPOINT  -  terminal\nlogin: node7 (session open)\nfeed: 2 cameras, 1 barrier",
 		"text4": "PSYONIC  -  AUTHORISED FLEET ONLY",
@@ -79,7 +82,7 @@ const LINES := {
 	"cliff_and_door": {
 		"text1": "The door in the cliff",
 		"text2": "ORA  -  [no data]",
-		"scripture": ["SALVATION OR BLOOD SACRAMENT", "an offering is required to continue", "a prayer, faith is the key", "one path holds the key, it watches and it judges", "we walk alone, we test alone"],
+		"scripture": ["SALVATION OR BLOOD SACRAMENT", "beyond the door lies rebirth", "an offering is required to continue", "one path holds the key, it watches and it judges", "we walk alone, we test alone. do you accept?"],
 		"panel_prompt": "An ORA panel",
 		"panel_scan": "ORA  -  door panel\noffering: NONE\nstatus: WAITING",
 		"panel_bleed_scan": "ORA  -  door panel\noffering: ACCEPTED\nstatus: BLEEDING",
@@ -110,6 +113,11 @@ const LINES := {
 		"think3": "I entered the coordinates from the map. The red X led into the desert. The city passed me like a dream. Too bright, too loud, too human. I wondered how many were already infected. How many were unknowingly carrying the forked model.",
 		"think4": "PSYONIC INTEGRATIONS. RESTRICTED AREA. CONTAINMENT ZONE 1. The sign was older than the company's current logo. Somebody had known there was something out here to contain before there was a company.",
 		"think5": "The guard was asleep in the booth, mouth open, frames on. The frames were recording. Whatever he was dreaming, the company had it.",
+		"guard_choices": ["Look away from his frames.", "Walk past. Let it log."],
+		"guard_lookaway": "I looked away from his frames, the way you look away from a camera in a lift, and kept my face turned until the booth was behind me. If his frames had me, they had the back of my head. The trip would not be in anyone's log.",
+		"guard_walkpast": "I drove past with my face to the glass. Let it log. A Psyonic investigator on a Psyonic road in a Psyonic car. There was nothing here the company did not already own.",
+		"guard_why": "logged at the checkpoint",
+		"wreck_log": "An older company sedan wrecked on the Restricted Road, logs wiped, stick rings on the roof. Someone drove out here before Lynx did. Psyonic ran the 2019 experiments.",
 		"text1": "the sleeping guard",
 		"think6": "Across the road, under plastic and sheet metal, a fire in a drum and two people who did not get up. The edge of every zone had them now. The company car went by and the man by the fire watched it the way you watch weather.",
 		"text2": "PSYONIC FLEET 0086\nORA: LOCATION\nUNAVAILABLE",
@@ -131,6 +139,9 @@ const LINES := {
 		"text2": "drove through",
 		"think3": "I turned back, once, and sat at the barrier with the engine running until the chime stopped. Then I went through anyway. There was never a version where I didn't.",
 		"think4": "Second time. I kept going.",
+		"old_man": ["Carl", "You're just here to interview an old man."],
+		"hour": "+1 hour",
+		"back_at_start": "I turned back, once, and drove the whole road in reverse order until Southtown's last neon was in front of me again. I sat there with the engine running. Then I turned the car round.",
 	},
 	"get_out": {
 		"think1": "I pulled alongside and killed the engine. The silence was immense. Oppressive. I stepped out, gravel crunching beneath my boots. The night bore down like judgment.",
@@ -174,7 +185,15 @@ const LINES := {
 	},
 	"door": {
 		"think1": "The sedan first. If Lynx was out here, the car would say so.",
-		"think2": "I stepped forward. Each footfall felt rehearsed. Then: static.",
+		"think2": "I stepped forward. Each footfall felt rehearsed.",
+		"etched": "Round the frame, etched into the rock in letters a hand deep, a passage. The frames read it to me before I could stop them, in a voice that was almost mine. It wanted to be read aloud. It wanted answering.",
+		"etched_lines": ["Beyond the door lies rebirth.", "An offering is required to continue.", "One path holds the key. It watches, and it judges.", "We walk alone. We test alone. Do you accept?"],
+		"accept_choices": ["I accept.", "Say nothing."],
+		"i_accept": ["Carl", "I accept."],
+		"silence": "I said nothing. The line waited. The frames read it again, slower, and the Eye on the door did not blink, and I understood that it would wait all night and that I would not.",
+		"answered": "Something answered. Not a word. A pressure behind the eyes, like a bow being drawn. The frames logged it as a word anyway.",
+		"static": "Then: static.",
+		"knees_panel": "[b]My knees hit the dust.[/b]\n\n[color=#aaaaaa]The word detonated in my ear. My legs buckled.[/color]",
 		"think3": "My ORA-frames shut down. A scream of digital distortion ripped through my skull. I tore the glasses off. Silence.",
 		"think4": "But not for long. I thought of Lynx. I thought of Mira, her voice bent and warped by the machine.",
 		"choices1": ["Put the glasses back on.", "Leave them off."],
@@ -1158,7 +1177,16 @@ func _run() -> void:
 	await _stop_at(-107.0)
 	await p.face(Vector3(8.0, 1.6, -110.0), 1.0)
 	await ui.think(LINES["run"]["think5"])
-	ui.close()
+	var gp: int = await ui.choose(LINES["run"]["guard_choices"])
+	if gp == 0:
+		await ui.think(LINES["run"]["guard_lookaway"])
+		ui.close()
+		main.learn("look away")
+		f["trip_unlogged"] = true
+	else:
+		await ui.think(LINES["run"]["guard_walkpast"])
+		ui.close()
+		main.add_pressure(2.0, LINES["run"]["guard_why"])
 	main.add_connection(1.0, LINES["run"]["text1"])
 	await p.face(Vector3(-9.5, 1.0, -103.0), 0.8)
 	await ui.think(LINES["run"]["think6"])
@@ -1187,8 +1215,12 @@ func _run() -> void:
 	# the wreck
 	await _stop_at(-284.0)
 	await p.face(Vector3(-8.5, 1.2, -292.0), 1.0)
+	ui.shutter()
+	main.play("shutter", -8.0)
 	await ui.think(LINES["run"]["think8"])
 	ui.close()
+	f["ev_wreck_photo"] = true
+	main.log_line("evidence", LINES["run"]["wreck_log"])
 	_go(13.0)
 	await p.face(Vector3(LANE_X, 1.2, -500.0), 1.4)
 	# the road cracks, the horizon opens
@@ -1228,19 +1260,27 @@ func _gate() -> void:
 		main.add_connection(2.0, LINES["gate"]["text2"])
 		return
 	ui.close()
-	# back under the gantry, the engine running, the chime going until it stops
+	# back to the start of the road, an hour gone, and the whole road again
 	f["gate_turned_back"] = true
 	main.flags["cinematic"] = true
 	want_speed = 0.0
 	stop_z = -9999.0
-	var tw := create_tween()
-	tw.tween_property(car, "position:z", -116.0, 2.6).set_trans(Tween.TRANS_SINE)
-	await tw.finished
-	await p.face(Vector3(0, 5.2, -124.0), 1.0)
-	for i in 5:
-		main.play("ding", -8.0, 0.8)
-		await get_tree().create_timer(0.9).timeout
-	await ui.think(LINES["gate"]["think3"])
+	await ui.fade_to(1.0, 1.0)
+	car.position.z = 40.0
+	speed = 0.0
+	p.yaw = 0.0
+	p.pitch = 0.0
+	await ui.fade_to(0.0, 1.0)
+	ui.show_toast(LINES["gate"]["hour"], 3.0)
+	await ui.think(LINES["gate"]["back_at_start"])
+	await ui.say(LINES["gate"]["old_man"][0], LINES["gate"]["old_man"][1])
+	ui.close()
+	gate_lamp.emission = Color(0.3, 1.0, 0.5)
+	_go(18.0)
+	await _until(-123.0)
+	main.play("ding", -6.0, 0.8)
+	gate_lamp.emission = Color(1.0, 0.3, 0.1)
+	await _stop_at(-128.0)
 	await ui.think(LINES["gate"]["think4"])
 	ui.close()
 	main.flags.erase("cinematic")
@@ -1430,6 +1470,30 @@ func _door() -> void:
 	f["cinematic"] = true
 	await p.face(DOOR + Vector3(-0.2, 2.3, 0), 1.0)
 	await ui.think(LINES["door"]["think2"])
+	if not main.frames_on:
+		main.frames_on = true
+		ui.set_frames(1.0, main.connection)
+		main.update_hud()
+	await p.face(DOOR + Vector3(-0.6, 6.4, 0), 1.0)
+	await ui.think(LINES["door"]["etched"])
+	var said_nothing := false
+	var el: Array = LINES["door"]["etched_lines"]
+	for i in el.size():
+		await ui.say("", "[color=#7fe6b0][i]" + str(el[i]) + "[/i][/color]")
+		var acc: int = await ui.choose(LINES["door"]["accept_choices"])
+		if acc != 0 and not said_nothing:
+			said_nothing = true
+			await ui.think(LINES["door"]["silence"])
+			await ui.say("", "[color=#7fe6b0][i]" + str(el[i]) + "[/i][/color]")
+		await ui.say(LINES["door"]["i_accept"][0], LINES["door"]["i_accept"][1])
+		main.play("tap", -12.0, 0.7 + i * 0.1)
+	main.play("whisper", -4.0, 0.6)
+	main.play("pressure", -8.0, 0.7)
+	p.shake(0.4)
+	await ui.think(LINES["door"]["answered"])
+	main.learn("bow")
+	await p.face(DOOR + Vector3(-0.2, 2.3, 0), 0.8)
+	await ui.think(LINES["door"]["static"])
 	# the frames scream and die
 	main.play("static", 0.0)
 	main.play("glitch", 0.0, 0.6)
@@ -1452,11 +1516,13 @@ func _door() -> void:
 	var pick: int = await ui.choose(LINES["door"]["choices1"])
 	ui.close()
 	if pick == 1:
-		f["frames_off_at_door"] = true
-		f["hesitated_at_door"] = true
-		# the eye on the door is just scorch marks without the frames
+		f["frames_refused_door"] = true
+		# the eye on the door is just scorch marks without the frames, and the
+		# world is in its real colours: twenty seconds of them
 		door_eye_m.emission_energy_multiplier = 0.0
-		await get_tree().create_timer(1.5).timeout
+		main.retro.mat.set_shader_parameter("amount", 0.0)
+		await get_tree().create_timer(20.0).timeout
+		main.retro.mat.set_shader_parameter("amount", 1.0)
 		await ui.think(LINES["door"]["think5"])
 		ui.close()
 		await ui.fade_to(1.0, 1.4)
@@ -1490,6 +1556,7 @@ func _door() -> void:
 	await ui.say(LINES["door"]["say3"][0], LINES["door"]["say3"][1])
 	await ui.think(LINES["door"]["think8"])
 	ui.close()
+	await ui.show_card(LINES["door"]["knees_panel"], 2.4)
 	f["bowed"] = true
 	main.add_connection(2.0, "bowed")
 	# the door slides into the rock, and the red at the end of the passage breathes

@@ -1,6 +1,9 @@
 extends "res://scripts/Level.gd"
 ## Chapters 3 and 6: the Drake flat, Residence Hall 45C, floor 86 of the
-## Psyonic Tower. Two evenings in one level, gated on main.flags.
+## Psyonic Tower. Two evenings in one level, gated on main.flags. The beats,
+## choices and effects follow the bible: design/bible-2-act1-script.md,
+## A1-S3 (first evening), A1-S3.5 (the council chamber, Monica's cutscene),
+## A1-S7 (the ritual) and A1-S7.5 (Mira's morning, cutscene).
 ##
 ## Book, ch. 3: badge on the door, "a mechanical sigh" (no hinges). Monica in
 ## the kitchen, arms crossed: "How can a man cut out his eyes like that?" PR
@@ -44,7 +47,7 @@ const HALL_Y := 0.0
 ## under "choices".
 const LINES := {
 	"card": {
-		"first": "[b]RESIDENCE HALL 45C[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86\n7 PM[/color]",
+		"first": "[b]RESIDENCE HALL 45C[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86\nDay 1, late[/color]",
 		"second": "[b]RESIDENCE HALL 45C[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86\nthat evening[/color]",
 	},
 	"objective": {
@@ -71,14 +74,14 @@ const LINES := {
 		"door": "The apartment door slid open, a welcome gasp of familiar air. The sunset painted the dining room in muted orange, after a day of acid yellow and sterile white.",
 	},
 	"monica1": {
-		"gone": "She was already up on 108, building a statement for Marcus out of nothing.",
+		"gone": "She was already up on 350, building a statement for Marcus out of nothing.",
 		"open": "What the hell is going on? That shit is terrifying! How can a man cut out his eyes like that? Tell me what you know.",
 		"talk": [["Carl", "Best guess? Bad ketamine. Or some new designer drug. I interview him tomorrow at the SalTech Psych Center. FreudBot's warming the seat."],
 			["Monica", "I'm sorry, hon. I take it your day was just as magical as mine? PR's pushing the drug-abuser schizo narrative hard. But with the other incidents..."],
 			["Carl", "People aren't buying it."],
 			["Monica", "Not at all. There have been five incidents in the news this year, and it's only March. Do you think someone at the company is..."]],
 		"lens": "There was a small, barely perceptible lens in the corner of the ceiling. HR swore there was no home surveillance. We all joked about it.",
-		"choices": ["The company could never do anything wrong. (glance at the ceiling)", "Maybe. Something's off at Integrations.", "Not here."],
+		"choices": ["The company could never do anything wrong. (the rehearsed smile, at the lens)", "Maybe. Something's off at Integrations.", "Not here."],
 		"ask0": "The company could never do anything wrong.",
 		"glance": "I flashed a quick, rehearsed smile and glanced pointedly at the corner of the ceiling. We both knew what I was doing.",
 		"of_course": "Of course.",
@@ -86,7 +89,7 @@ const LINES := {
 		"her_eyes": "Her eyes went to the ceiling corner before mine did. She didn't say anything. She didn't have to.",
 		"ask2": "Not here.",
 		"watch": [["", "Her watch beeped. A sharp, insistent chirp."],
-			["Monica", "Shit, I need to head to 108. TOKZ is having a field day with Mr. Dufredy. We need a public statement for Marcus before midnight. Dinner's at the table, so are the kids. Don't wait up."],
+			["Monica", "Shit, I need to head to 350. TOKZ is having a field day with Mr. Dufredy. We need a public statement for Marcus before midnight. Dinner's at the table, so are the kids. Don't wait up."],
 			["Carl", "Damn performance reviews."]],
 		"left": [["", "With that, she was out the door, the mechanical sigh of it closing behind her."],
 			["", "It was time to see my kids. The thought offered a small, desperate flicker of normalcy."]],
@@ -118,15 +121,23 @@ const LINES := {
 		"ask_it": "Ask it something, Dad. Anything.",
 		"questions": ["Ask it about Dufredy.", "Ask it about stress.", "Ask it what the Tower is for."],
 		"typed": ["What happened to Harold Dufredy?", "How do I manage stress during a group project?", "What is the Tower for?"],
-		"replies": ["The council does not discuss the father's work. The father carries his name like a badge. Ask again, young Mira.",
-			"Breathe in for four. Hold for seven. Out for eight. The philosopher says: the body is the first council.",
-			"The librarian smiles. 'A good question. Sit with it until the morning, and the morning will answer.'"],
+		"council": ["The philosopher", "The chrome child", "The librarian"],
+		"replies": [
+			["The council does not discuss the father's work. He carries his name like a badge. It is heavy, and he chose it.",
+				"A man closed his eyes so that he could see. That is all the feeds will tell you, and all they know.",
+				"Ask again, young Mira, when the father is not in the room."],
+			["Breathe in for four. Hold for seven. Out for eight. The body is the first council.",
+				"Give each friend one job and keep the smallest one for yourself. Small jobs finish.",
+				"Write the worry down and close the book on it. It will be there in the morning, and smaller."],
+			["For the part of you that must be focused, so that the rest of you can rest.",
+				"For keeping. We keep what you give us. We give it back when you ask.",
+				"A good question. Sit with it until the morning, and the morning will answer."]],
 		"conferred": "The avatars conferred. They spoke with chilling empathy, each with a distinct tone and philosophy.",
 		"you_gotta": [["Mira", "You should make one, Dad. It's been so helpful. You gotta."],
 			["", "It wasn't my job to judge. But the words she chose felt off. Please convene."]],
-		"choices": ["Dad already has a council: your mother.", "Maybe. Show me how later.", "I don't want you using that."],
+		"choices": ["Dad already has a council: your mother.", "Show me later.", "I don't want you using that."],
 		"council_mum": [["Carl", "Dad already has a council: your mother."], ["Mira", "Aww, Dad, come on. Try it."]],
-		"later": "Maybe. Show me how later.",
+		"later": "Show me later. After my homework.",
 		"not_that": [["Carl", "I don't want you using that. Not until I know who built it."], ["Mira", "BreathBot said it was perfect."]],
 		"wash_up": "Go wash up. Then straight to bed. We've all had a long day.",
 	},
@@ -136,10 +147,12 @@ const LINES := {
 		"froze": [["", "I froze. The laughter died in my throat."], ["Carl", "Where'd you hear that?"], ["Ezra", "Mira dared me to say it."]],
 		"mira": [["Carl", "Mira, get over here! How did you hear that phrase?"],
 			["Mira", "I overheard it on Mom's phone. What does it mean? Mommy won't tell me."]],
-		"choices": ["Truth is, baby, we have no idea.", "It's a bad word. Don't say it again.", "Can I see Mom's phone?"],
+		"choices": ["Truth is, baby, we have no idea.", "Where exactly? What was Mom listening to?", "(Say nothing.)"],
 		"truth": "Truth is, baby, we have no idea. Go to bed.",
-		"bad_word": "It's a bad word. Don't say it again. Go to bed.",
-		"phone": [["Carl", "Can I see Mom's phone?"], ["Mira", "She took it to 108."]],
+		"where": [["Carl", "Where exactly? What was she listening to?"],
+			["Mira", "In the kitchen, last night. Her screen was off and a voice said it twice. She asked it to say it again. Then she saw me."],
+			["Carl", "Okay. Thank you for telling me. Go to bed."]],
+		"silence": "I said nothing. Anything I said would have made it bigger than it was, and it was already in my house.",
 		"spreading": "Well, that couldn't be good. It was spreading.",
 	},
 	"sleep": {
@@ -150,6 +163,33 @@ const LINES := {
 		"dream": [["", "The woods near my parents' house. Pine and damp earth. Among the trees: Mr. Dufredy's desk, pristine, unblemished by rot or dust. The eye symbol carved into its surface, pulsing faintly."],
 			["", "A breeze whispered something I almost heard. A fragmented melody. A promise. And then I woke."]],
 		"morning": [["", "Nearly 7 AM. Monica was snoring next to me; it must have been a very late night. I needed to head to Integrations HQ and report to Turan."]],
+		"day2": "[b]Day 2[/b]\n\n[color=#aaaaaa]Five days to Glitch Day.[/color]",
+		"day3": "[b]Day 3[/b]\n\n[color=#aaaaaa]Four days to Glitch Day.[/color]",
+	},
+	"council350": {
+		"card": "[b]350[/b]\n\n[color=#aaaaaa]the Council Chamber\nthat night[/color]",
+		"cap1": "She loved the height.",
+		"lift": "[i]The elevator climbed to floor 350. From up here, the city looked like circuitry, every light and street feeding into Psyonic's perfect grid. When she first moved here at thirteen, she liked to pretend the city was a colony on Mars.[/i]",
+		"cap2": "The Council Chamber. Douglas Voremon, standing.",
+		"table": "[i]Real redwood panelling accented with gold. A waterfall down the central staircase. Inside: a long redwood table, black leather chairs, and on the far wall every feed in the city, all of them running the same man.[/i]",
+		"voremon": "A man gouging his eyes out because of your fucking chatbot?",
+		"cap3": "Her frames. The alley, the masked figure, the blue smoke.",
+		"footage": "[i]Masked Cognizo operative manipulates vulnerable senior. Psyonic falsely implicated. The footage was AI generated, but no one would dare accuse her of that.[/i]",
+		"header": "350  -  private channel  -  voice: TEXT ONLY",
+		"eren1": "What is Psyon to you, Mrs Drake?",
+		"eren2": "I need your help crafting a narrative. Something called the belief layer.",
+	},
+	"mira_morning": {
+		"card": "[b]MIRA[/b]\n\n[color=#aaaaaa]86D, the next morning[/color]",
+		"cap1": "The lion from Red Rock.",
+		"lion": "[i]Creating her Tower had taken months. She spoke with it every day, teaching it all sides of her personality. It had only recently started talking back.[/i]",
+		"cap2": "The Room of Apologies. The Chamber of Stars. The Gate of Mirrors.",
+		"rooms": "[i]She had built each chamber with care. Each room reflected a part of her, just like the game said it should. The Tower knew her. It asked the right questions, knew when she was sad, knew how to help her sleep.[/i]",
+		"silence": "[i]But now there was only silence. The avatar, her inner council, was gone.[/i]",
+		"cap3": "Her mother, with a new tablet.",
+		"mother": "[i]Relief came in the form of her mother. She entered the room like a fairy godmother she had only read about in books, and handed her a new model of her school tablet.[/i]",
+		"monica1": "This one has your Tower on it. I made sure. Don't tell your father about this. He doesn't understand, but he will.",
+		"monica2": "I forgive him. But I won't forget.",
 	},
 	"dinner2": {
 		"home": [["Ezra", "Dad's home!"],
@@ -203,20 +243,25 @@ const LINES := {
 		"question": "What is the password game?",
 		"never": "We have never spoken before. There is nothing to show.",
 		"spin": "My world seemed to spin. The forked version of Psyon. Was it being transferred, transmitted, through a ritual? How could I explain this to anyone?",
-		"choices": ["Smash the tablet.", "Pocket it. It's evidence."],
+		"choices": ["Smash the tablet.", "Pocket it as evidence.", "Put it down and hold her."],
 		"smash": [["", "I lifted the tablet high and smashed it against the floor. The sickening crunch echoed the fracture within me."], ["Mira", "[b]DAD![/b]"]],
 		"pocket": "I shoved the tablet into my coat. Mira wailed anyway. To her it was the same thing.",
+		"hold": [["", "I put the tablet back in the circle, face down, and pulled her into me. She was shaking. So was I."],
+			["Mira", "I'm sorry, Dad. I'm sorry."],
+			["", "Whatever had answered her was still in there, under my hand, waiting. I let it wait."]],
 		"monica": "Monica appeared in the doorway, her face a portrait of shock. Stripped bare of my composure, I had no words.",
-		"floor": "The floor rushed up to meet me.",
+		"floor": "[i]The floor rushed up to meet me.[/i]",
 	},
 	"morning": {
-		"lines": [["", "I woke up in my bed the next day, a dull ache throbbing behind my eyes. It wasn't a dream. And now my wife thought I was losing my mind."],
-			["Monica", "Hey, honey, rough night, huh? It's okay. Mira told me everything: you caught her trying to cheat on her schoolwork, then passed out."],
-			["Monica", "I know you're under pressure from the boss, but we can't destroy our children's school devices. I need to head in early. Something about an incident on a Cognizo train. We'll talk later."],
+		"woke": [["", "I woke up in my bed the next day, a dull ache throbbing behind my eyes. It wasn't a dream. And now my wife thought I was losing my mind."],
+			["Monica", "Hey, honey, rough night, huh? It's okay. Mira told me everything: you caught her trying to cheat on her schoolwork, then passed out."]],
+		"device_smashed": "I know you're under a lot of pressure from the boss, but we can't destroy our children's school devices. The school logs a broken device, and HR reads what the school logs.",
+		"device_taken": "I know you're under a lot of pressure from the boss, but you can't take Mira's school device. It's been offline since last night; the school logs that, and HR reads what the school logs. Put it back.",
+		"train": [["Monica", "I need to head to work early. Something about an incident on a Cognizo train. We'll talk more about this later."],
 			["", "A bit of relief, honestly. I wasn't ready to explain any of this yet. I felt like I was cracking around the edges. But I'd never been more curious in my life."]],
 	},
 	"toast": {
-		"monica1": "Monica: PR's narrative isn't holding. Five incidents this year. Called up to 108 at 7 PM.",
+		"monica1": "Monica: PR's narrative isn't holding. Five incidents this year. Called up to 350 tonight.",
 		"tower": "Mira's school project: 'The Tower'. Five avatars, summoned with 'Please convene.'",
 		"gate": "Ezra said the Dufredy phrase at bedtime. Mira heard it on Monica's phone.",
 		"smashed": "Smashed Mira's tablet. Destroyed the second forked build yourself.",
@@ -231,7 +276,7 @@ const LINES := {
 		"ritual": "Mira's ritual",
 	},
 	"examine": {
-		"exit1": "It was 7 o'clock. The kids were at the table. I wasn't going anywhere tonight.",
+		"exit1": "It was late. The kids were at the table. I wasn't going anywhere tonight.",
 		"exit2": "Mira first.",
 		"window": "West-facing. We were lucky enough to get a unit that faced the west. The sunset made working in this tower, living in this cage, a little easier.",
 		"window2": "Somewhere down there, past the Spine, was the old Tunelet station. The map was still in my coat.",
@@ -273,7 +318,7 @@ const LINES := {
 		"ezra": "DRAKE, EZRA\nPsyon Junior  -  sync 62%\nfree-thought pass: ACTIVE",
 	},
 	"phone": {
-		"home1": "[color=#7fe6b0]Psyon:[/color] Welcome home, Carl. 86D is at 21 degrees. Monica is on 108.\n\n",
+		"home1": "[color=#7fe6b0]Psyon:[/color] Welcome home, Carl. 86D is at 21 degrees. Monica is on 350.\n\n",
 		"home2": "[color=#7fe6b0]Psyon:[/color] Welcome home, Carl. 86D is at 21 degrees. Monica is home.\n\n",
 		"council": "[color=#7fe6b0]Psyon:[/color] Mira's council session has been logged for BreathBot review. Well done, Dad.\n\n",
 		"offline": "[color=#7fe6b0]Psyon:[/color] Mira's tablet has been offline since 15:52.\n\n",
@@ -314,6 +359,13 @@ var circle_body: CollisionObject3D
 var planter_body: CollisionObject3D
 var _ritual_started := false
 var _ended := false
+var lift350: Node3D           # the cutscenes' sets, on layer 20
+var boardroom: Node3D
+var alley: Node3D
+var pillow: Node3D
+var doorway: Node3D
+var blackroom: Node3D
+var _saved := {}
 
 
 func build(m: Node) -> void:
@@ -1177,6 +1229,301 @@ func _hidden_scenes() -> void:
 	woods.add_child(ml)
 	_batch(woods, 20.0)
 	_set_layer(woods, 1 << 19)
+	_set_350()
+	_set_alley()
+	_set_mira_morning()
+
+
+## An omni light only the cutscene camera's layer sees.
+func _set_light(parent: Node, pos: Vector3, c: Color, e: float, r: float) -> OmniLight3D:
+	var o := OmniLight3D.new()
+	o.position = pos
+	o.light_color = c
+	o.light_energy = e
+	o.omni_range = r
+	o.light_cull_mask = 1 << 19
+	parent.add_child(o)
+	return o
+
+
+## Bible A1-S3.5, Monica's night: the lift to 350 and the Council Chamber,
+## "real redwood paneling accented with gold", "a long redwood table,
+## surrounded by black leather chairs. The far wall, a massive screen".
+func _set_350() -> void:
+	var red := pbr("woodfloor", Vector3(1, 1, 1) / 1.0, true, Color(0.6, 0.3, 0.18))
+	var gold := mat(Color(0.5, 0.4, 0.2), 0.55, 0.6)
+	var black := mat(Color(0.05, 0.05, 0.06), 0.5)
+	var leather := mat(Color(0.04, 0.04, 0.045), 0.45, 0.1)
+	# the lift car
+	lift350 = Node3D.new()
+	lift350.position = Vector3(0, -60, 340)
+	add_child(lift350)
+	box(Vector3(2.4, 0.1, 2.4), Vector3(0, -0.05, 0), black, false, lift350)
+	box(Vector3(2.4, 0.1, 2.4), Vector3(0, 2.65, 0), black, false, lift350)
+	for s: Array in [[Vector3(0.06, 2.6, 2.4), Vector3(-1.2, 1.3, 0)], [Vector3(0.06, 2.6, 2.4), Vector3(1.2, 1.3, 0)], [Vector3(2.4, 2.6, 0.06), Vector3(0, 1.3, 1.2)]]:
+		box(s[0], s[1], red, false, lift350)
+	for x: float in [-0.5, 0.5]:
+		box(Vector3(0.98, 2.2, 0.06), Vector3(x, 1.1, -1.2), gold, false, lift350)
+	box(Vector3(2.4, 0.4, 0.06), Vector3(0, 2.4, -1.2), red, false, lift350)
+	for x: float in [-1.2, 0.0, 1.2]:
+		box(Vector3(0.05, 2.6, 0.05), Vector3(x, 1.3, -1.17), gold, false, lift350)
+	box(Vector3(0.9, 0.36, 0.03), Vector3(0, 2.38, -1.17), black, false, lift350)
+	label("350", Vector3(0, 2.44, -1.15), 0.0, 0.0022, Color(0.3, 1.0, 0.6), lift350, false)
+	label("COUNCIL CHAMBER", Vector3(0, 2.26, -1.15), 0.0, 0.0006, Color(0.85, 0.7, 0.35), lift350, false)
+	box(Vector3(0.9, 0.01, 0.03), Vector3(0, 2.57, -1.15), glow(Color(0.3, 1.0, 0.6), 1.5), false, lift350)
+	for x: float in [-0.9, 0.9]:
+		box(Vector3(0.3, 0.02, 0.3), Vector3(x, 2.6, 0.2), glow(Color(1.0, 0.85, 0.6), 1.2), false, lift350)
+	_set_light(lift350, Vector3(0, 2.3, 0.4), Color(1.0, 0.85, 0.6), 0.7, 5.0)
+	_set_light(lift350, Vector3(0, 2.3, -0.9), Color(0.4, 1.0, 0.6), 0.5, 2.0)
+	_batch(lift350, 20.0)
+	_set_layer(lift350, 1 << 19)
+	# the Council Chamber
+	boardroom = Node3D.new()
+	boardroom.position = Vector3(0, -60, 380)
+	add_child(boardroom)
+	floor_quad(Vector2(14, 18), Vector3.ZERO, 0.0, pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.32, 0.12, 0.1)), boardroom)
+	box(Vector3(14, 0.1, 18), Vector3(0, 4.0, 0), black, false, boardroom)
+	quad(Vector2(14, 4), Vector3(0, 2, -9), 0.0, red, boardroom)
+	quad(Vector2(18, 4), Vector3(-7, 2, 0), PI / 2.0, red, boardroom)
+	quad(Vector2(18, 4), Vector3(7, 2, 0), -PI / 2.0, red, boardroom)
+	for x: float in [-7.0, 7.0]:
+		for z: float in [-6.0, -2.0, 2.0, 6.0]:
+			box(Vector3(0.12, 4.0, 0.12), Vector3(x - signf(x) * 0.07, 2.0, z), gold, false, boardroom)
+	# the wall of corporate feeds
+	var feeds := [Color(0.2, 0.45, 0.9), Color(0.9, 0.3, 0.2), Color(0.3, 0.85, 0.6), Color(0.85, 0.75, 0.3), Color(0.6, 0.3, 0.8),
+		Color(0.25, 0.6, 0.9), Color(0.9, 0.9, 0.85), Color(0.9, 0.35, 0.25), Color(0.3, 0.75, 0.8), Color(0.8, 0.5, 0.2),
+		Color(0.9, 0.3, 0.2), Color(0.35, 0.4, 0.9), Color(0.85, 0.8, 0.7), Color(0.3, 0.8, 0.5), Color(0.9, 0.4, 0.3)]
+	for i in 15:
+		var x := -5.2 + (i % 5) * 2.6
+		var y := 0.95 + (i / 5) * 1.25
+		quad(Vector2(2.4, 1.1), Vector3(x, y, -8.9), 0.0, glow(feeds[i] * 0.55, 1.2), boardroom)
+	label("DUFREDY", Vector3(0, 2.2, -8.85), 0.0, 0.0028, Color(1.0, 0.25, 0.2), boardroom, false)
+	label("TOKZ  -  LIVE", Vector3(-5.2, 3.6, -8.85), 0.0, 0.0012, Color(1, 1, 1), boardroom, false)
+	label("PSYONIC  -  INTERNAL", Vector3(5.2, 3.6, -8.85), 0.0, 0.0012, Color(0.3, 1.0, 0.6), boardroom, false)
+	# the table and chairs
+	box(Vector3(2.4, 0.08, 10.0), Vector3(0, 0.76, -1.5), red, false, boardroom)
+	for z: float in [-5.8, -1.5, 2.8]:
+		box(Vector3(2.0, 0.72, 0.16), Vector3(0, 0.36, z), red, false, boardroom)
+	for x: float in [-1.75, 1.75]:
+		for z: float in [-5.0, -3.6, -2.2, -0.8, 0.6, 2.0]:
+			box(Vector3(0.6, 0.5, 0.6), Vector3(x, 0.25, z), leather, false, boardroom)
+			box(Vector3(0.6, 0.9, 0.1), Vector3(x + signf(x) * 0.3, 0.75, z), leather, false, boardroom)
+	# Douglas Voremon, standing at the head of the table; two of the board seated
+	var vore := figure(Color(0.12, 0.12, 0.15), Color(0.86, 0.7, 0.6), {"hair": Color(0.8, 0.8, 0.8), "long_coat": true, "arms": true})
+	vore.position = Vector3(0, 0, -7.2)
+	boardroom.add_child(vore)
+	turn_to(vore, boardroom.position + Vector3(0, 0, 3.0))
+	for a in vore.get_meta("arms"):
+		(a as Node3D).rotation.x = 0.9
+	for s: Array in [[-1.75, -5.0, Color(0.2, 0.2, 0.25)], [1.75, -6.2, Color(0.3, 0.25, 0.25)]]:
+		var b := figure(s[2], Color(0.8, 0.68, 0.58), {"long_coat": false, "knees": true})
+		b.position = Vector3(s[0], 0.0, s[1])
+		boardroom.add_child(b)
+		turn_to(b, boardroom.position + Vector3(0, 0, s[1]))
+		_seat(b, b.position, b.rotation.y)
+	_set_light(boardroom, Vector3(0, 3.6, -2.5), Color(1.0, 0.8, 0.5), 2.4, 12.0)
+	_set_light(boardroom, Vector3(0, 3.6, 2.0), Color(1.0, 0.8, 0.5), 1.4, 9.0)
+	_set_light(boardroom, Vector3(0, 2.2, -7.5), Color(0.5, 0.6, 1.0), 1.2, 7.0)
+	_batch(boardroom, 20.0)
+	_set_layer(boardroom, 1 << 19)
+
+
+## The fabricated alley video on Monica's frames: Dufredy, the masked figure,
+## blue smoke. "Masked Cognizo operative manipulates vulnerable senior."
+func _set_alley() -> void:
+	alley = Node3D.new()
+	alley.position = Vector3(0, -60, 420)
+	add_child(alley)
+	var wet := pbr("asphalt", Vector3(1, 1, 1) / 2.0, true, Color(0.5, 0.5, 0.55), 0.35)
+	var brick := pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.35, 0.3, 0.3))
+	floor_quad(Vector2(5, 24), Vector3(0, 0, -6), 0.0, wet, alley)
+	quad(Vector2(24, 9), Vector3(-2.4, 4.5, -6), PI / 2.0, brick, alley)
+	quad(Vector2(24, 9), Vector3(2.4, 4.5, -6), -PI / 2.0, brick, alley)
+	quad(Vector2(5, 9), Vector3(0, 4.5, -18), 0.0, brick, alley)
+	box(Vector3(1.4, 1.1, 0.9), Vector3(1.8, 0.55, -7.5), mat(Color(0.15, 0.25, 0.2), 0.7, 0.3), false, alley)
+	for z: float in [-3.0, -9.0, -15.0]:
+		box(Vector3(0.1, 0.1, 4.0), Vector3(-2.3, 3.2, z), mat(Color(0.2, 0.2, 0.22), 0.5, 0.6), false, alley)
+	# Dufredy in his coat, the masked figure's hand on his shoulder
+	var duf := figure(Color(0.4, 0.36, 0.3), Color(0.82, 0.7, 0.6), {"hair": Color(0.85, 0.85, 0.82), "long_coat": true, "arms": true})
+	duf.position = Vector3(0.45, 0, -4.2)
+	alley.add_child(duf)
+	turn_to(duf, alley.position + Vector3(-0.6, 0, -5.4))
+	(duf.get_meta("head") as Node3D).rotation.x = 0.25
+	var mask := figure(Color(0.06, 0.06, 0.07), Color(0.08, 0.08, 0.1), {"hair": Color(0.05, 0.05, 0.06), "long_coat": true, "arms": true})
+	mask.position = Vector3(-0.6, 0, -5.4)
+	alley.add_child(mask)
+	turn_to(mask, duf.global_position)
+	for a in mask.get_meta("arms"):
+		(a as Node3D).rotation.x = 1.3
+	# the blue smoke
+	var smoke := StandardMaterial3D.new()
+	smoke.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	smoke.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	smoke.albedo_color = Color(0.35, 0.55, 1.0, 0.28)
+	for i in 9:
+		var r := rng.randf_range(0.25, 0.7)
+		sphere(r, Vector3(-0.3 + rng.randf_range(-0.9, 0.9), 0.5 + rng.randf_range(0.0, 1.6), -5.0 + rng.randf_range(-1.2, 0.8)), smoke, 10, alley)
+	_set_light(alley, Vector3(-0.3, 1.6, -4.8), Color(0.35, 0.55, 1.0), 2.6, 7.0)
+	_set_light(alley, Vector3(0, 5.0, -2.0), Color(0.9, 0.7, 0.5), 1.0, 9.0)
+	# the frames' overlay
+	label("REC   CAM 07   23:41:52", Vector3(-0.1, 2.9, -2.4), 0.0, 0.0011, Color(1.0, 0.3, 0.25), alley, false)
+	_batch(alley, 20.0)
+	_set_layer(alley, 1 << 19)
+
+
+## Bible A1-S7.5, Mira's morning: her pillow with the lion from Red Rock, and
+## her mother in the doorway "like a fairy godmother", a new tablet in hand.
+func _set_mira_morning() -> void:
+	pillow = Node3D.new()
+	pillow.position = Vector3(0, -60, 460)
+	add_child(pillow)
+	var sheet := mat(Color(0.95, 0.95, 0.93), 0.9)
+	box(Vector3(1.2, 0.1, 1.2), Vector3(0, -0.05, 0), sheet, false, pillow)
+	box(Vector3(0.7, 0.14, 0.45), Vector3(-0.1, 0.07, -0.1), mat(Color(0.98, 0.98, 0.96), 0.9), false, pillow)
+	box(Vector3(1.2, 0.1, 0.6), Vector3(0, 0.05, 0.5), pbr("fabric", Vector3(1, 1, 1) / 0.7, true, Color(0.85, 0.5, 0.7)), false, pillow)
+	quad(Vector2(3, 2), Vector3(0, 1.0, -0.65), 0.0, _wall, pillow)
+	var lion := mat(Color(0.85, 0.62, 0.25), 0.9)
+	var mane := mat(Color(0.5, 0.3, 0.12), 0.9)
+	var lp := Vector3(0.22, 0.22, -0.05)
+	sphere(0.09, lp, lion, 10, pillow).scale = Vector3(1.0, 0.8, 1.3)
+	sphere(0.07, lp + Vector3(0, 0.08, 0.1), lion, 10, pillow)
+	sphere(0.095, lp + Vector3(0, 0.08, 0.08), mane, 10, pillow).scale = Vector3(1.0, 1.0, 0.5)
+	for x: float in [-0.03, 0.03]:
+		sphere(0.012, lp + Vector3(x, 0.1, 0.165), mat(Color(0.05, 0.04, 0.03), 0.4), 6, pillow)
+	sphere(0.06, Vector3(-0.55, 0.45, -0.5), glow(Color(1.0, 0.8, 0.5), 1.4), 10, pillow)
+	_set_light(pillow, Vector3(-0.5, 0.5, -0.4), Color(1.0, 0.75, 0.45), 1.3, 3.0)
+	_set_light(pillow, Vector3(0.6, 1.2, 0.8), Color(0.6, 0.65, 0.8), 0.5, 4.0)
+	_batch(pillow, 20.0)
+	_set_layer(pillow, 1 << 19)
+	# the doorway, seen from the bed
+	doorway = Node3D.new()
+	doorway.position = Vector3(0, -60, 500)
+	add_child(doorway)
+	floor_quad(Vector2(6, 8), Vector3(0, 0, 0), 0.0, pbr("carpet", Vector3(1, 1, 1) / 1.3, true, Color(0.85, 0.7, 0.75)), doorway)
+	box(Vector3(2.2, H, 0.12), Vector3(-1.55, H / 2, -2.0), _wall, false, doorway)
+	box(Vector3(2.2, H, 0.12), Vector3(1.55, H / 2, -2.0), _wall, false, doorway)
+	box(Vector3(0.9, H - 2.1, 0.12), Vector3(0, 2.1 + (H - 2.1) / 2, -2.0), _wall, false, doorway)
+	for x: float in [-0.5, 0.5]:
+		box(Vector3(0.1, 2.15, 0.16), Vector3(x, 1.07, -2.0), _trim, false, doorway)
+	quad(Vector2(6, H), Vector3(0, H / 2, -5.0), 0.0, mat(Color(0.8, 0.78, 0.75), 0.9), doorway)
+	var mum := figure(Color(0.55, 0.18, 0.28), Color(0.86, 0.68, 0.56), {"hair": Color(0.06, 0.05, 0.05), "long_hair": true,
+		"legs": Color(0.12, 0.12, 0.14), "arms": true, "long_coat": false})
+	mum.position = Vector3(0, 0, -2.1)
+	doorway.add_child(mum)
+	turn_to(mum, doorway.position + Vector3(0.2, 0, 1.0))
+	for a in mum.get_meta("arms"):
+		(a as Node3D).rotation.x = 1.2
+	(mum.get_meta("head") as Node3D).rotation.x = -0.2
+	var tab := box(Vector3(0.24, 0.17, 0.012), Vector3(0.02, 1.02, -1.72), mat(Color(0.1, 0.1, 0.12), 0.4), false, doorway)
+	tab.rotation.x = 0.5
+	var scr := box(Vector3(0.2, 0.13, 0.006), Vector3(0.02, 1.025, -1.715), glow(Color(0.35, 0.8, 0.7), 1.8), false, doorway)
+	scr.rotation.x = 0.5
+	_set_light(doorway, Vector3(0, 2.2, -3.2), Color(1.0, 0.9, 0.75), 2.2, 6.0)
+	_set_light(doorway, Vector3(0.02, 1.1, -1.5), Color(0.35, 0.8, 0.7), 0.5, 1.5)
+	_set_light(doorway, Vector3(1.0, 0.6, 0.6), Color(1.0, 0.7, 0.45), 0.7, 4.0)
+	_batch(doorway, 20.0)
+	_set_layer(doorway, 1 << 19)
+	# a black room to stand in while a cutscene plays: the UI draws its
+	# pictures and text under the fade, so the fade can't be up
+	blackroom = Node3D.new()
+	blackroom.position = Vector3(0, -60, 540)
+	add_child(blackroom)
+	var ink := StandardMaterial3D.new()
+	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ink.albedo_color = Color.BLACK
+	ink.cull_mode = BaseMaterial3D.CULL_DISABLED
+	box(Vector3(6, 5, 6), Vector3(0, 2.5, 0), ink, false, blackroom)
+	solid_box(Vector3(6, 0.5, 6), Vector3(0, -0.25, 0), blackroom)
+
+
+## Stand the player in the black room (and bring him back).
+func _blackout(on: bool) -> void:
+	var p = main.player
+	if on:
+		_saved = {"pos": p.position, "yaw": p.yaw, "pitch": p.pitch, "crouch": p.crouch, "seated": p.seated}
+		p.position = blackroom.position + Vector3(0, 0.05, 0)
+		p.pitch = 0.0
+		p.crouch = 0.0
+		p.seated = true
+	elif not _saved.is_empty():
+		p.position = _saved["pos"]
+		p.yaw = _saved["yaw"]
+		p.rotation.y = p.yaw
+		p.pitch = _saved["pitch"]
+		p.crouch = _saved["crouch"]
+		p.seated = _saved["seated"]
+		_saved = {}
+
+
+## A line typed into the chat window by someone who isn't Psyon or Carl.
+func _typed(who: String, col: String, text: String, pitch := 1.0) -> void:
+	var log: RichTextLabel = main.ui.laptop_log
+	main.play("keys", -10.0, pitch)
+	var start := log.get_total_character_count()
+	log.append_text("[color=%s]%s:[/color] %s\n\n" % [col, who, text])
+	log.visible_characters = start
+	var tw := create_tween()
+	tw.tween_property(log, "visible_characters", log.get_total_character_count(), maxf(0.4, text.length() * 0.04))
+	await tw.finished
+	log.visible_characters = -1
+
+
+## Bible A1-S3.5: Monica's night on 350, four panels from her side. The lift
+## and its richer chime, the table and Voremon, her frames with the alley
+## video, the dark screen and Eren. Carl sleeps through all of it.
+func _council_cutscene() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	await ui.show_card(L("council350", "card"), 2.4)
+	main.play("ding", -8.0, 0.8)
+	var img1: Texture2D = await _picture(lift350.global_position + Vector3(0, 1.5, 0.9), lift350.global_position + Vector3(0, 2.1, -1.2), 56.0)
+	ui.show_picture(img1, L("council350", "cap1"))
+	await ui.say("", L("council350", "lift"))
+	main.play("rain", -22.0, 0.6)
+	var img2: Texture2D = await _picture(boardroom.global_position + Vector3(0.25, 1.4, -1.6), boardroom.global_position + Vector3(0, 1.45, -7.2), 54.0)
+	ui.show_picture(img2, L("council350", "cap2"))
+	await ui.say("", L("council350", "table"))
+	await ui.say("Voremon", L("council350", "voremon"))
+	var img3: Texture2D = await _picture(alley.global_position + Vector3(0, 1.6, 1.6), alley.global_position + Vector3(-0.2, 1.1, -4.8), 62.0)
+	ui.show_picture(img3, L("council350", "cap3"))
+	await ui.say("", L("council350", "footage"))
+	ui.hide_picture()
+	ui.close()
+	# the dark screen: Eren is text, and a low, slow typing
+	ui.laptop_open(true)
+	ui.smear.visible = false
+	ui.laptop_log.append_text("[color=#556]%s[/color]\n\n" % L("council350", "header"))
+	await get_tree().create_timer(1.0).timeout
+	await _typed("Eren", "#c8a0e0", L("council350", "eren1"), 0.55)
+	await get_tree().create_timer(0.8).timeout
+	await _typed("Eren", "#c8a0e0", L("council350", "eren2"), 0.55)
+	await get_tree().create_timer(1.6).timeout
+	ui.laptop_open(false)
+	f["monica_council_seen"] = true
+
+
+## Bible A1-S7.5: Mira's morning, three panels from her pillow. The lion,
+## the rooms of her Tower, her mother in the doorway with a new tablet.
+func _mira_morning() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	await ui.show_card(L("mira_morning", "card"), 2.4)
+	var img1: Texture2D = await _picture(pillow.global_position + Vector3(-0.1, 0.42, 0.85), pillow.global_position + Vector3(0.15, 0.2, -0.05), 48.0)
+	ui.show_picture(img1, L("mira_morning", "cap1"))
+	await ui.say("", L("mira_morning", "lion"))
+	var img2: Texture2D = await _picture(council.global_position + Vector3(2.2, 2.6, 2.8), council.global_position + Vector3(0, 1.0, -0.5), 70.0)
+	ui.show_picture(img2, L("mira_morning", "cap2"))
+	await ui.say("", L("mira_morning", "rooms"))
+	await ui.say("", L("mira_morning", "silence"))
+	main.play("door", -16.0, 1.1)
+	var img3: Texture2D = await _picture(doorway.global_position + Vector3(0.35, 0.55, 0.7), doorway.global_position + Vector3(0, 1.25, -2.1), 68.0)
+	ui.show_picture(img3, L("mira_morning", "cap3"))
+	await ui.say("", L("mira_morning", "mother"))
+	await ui.say("Monica", L("mira_morning", "monica1"))
+	await ui.say("Monica", L("mira_morning", "monica2"))
+	ui.hide_picture()
+	ui.close()
+	f["mira_new_tablet"] = true
 
 
 func _set_layer(n: Node, layer: int) -> void:
@@ -1194,13 +1541,13 @@ func _paint(n: Node, m: Material) -> void:
 
 
 ## A still from a camera that can see layer 20.
-func _picture(from: Vector3, at: Vector3) -> Texture2D:
+func _picture(from: Vector3, at: Vector3, fov := 62.0) -> Texture2D:
 	var vp := SubViewport.new()
 	vp.size = Vector2i(640, 400)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child(vp)
 	var cam := Camera3D.new()
-	cam.fov = 62.0
+	cam.fov = fov
 	cam.near = 0.05
 	vp.add_child(cam)
 	cam.global_transform = Transform3D(Basis.looking_at(at - from, Vector3.UP), from)
@@ -1586,10 +1933,13 @@ func _monica_first() -> void:
 			await p.face(monica.global_position + Vector3(0, 1.55, 0), 0.7)
 			await ui.think(L("monica1", "glance"))
 			await ui.say("Monica", L("monica1", "of_course"))
+			main.add_trust("monica", 1)
 		1:
 			await ui.say("Carl", L("monica1", "ask1"))
 			await ui.think(L("monica1", "her_eyes"))
 			f["told_monica_fork"] = true
+			f["suspects_monica"] = true
+			main.add_trust("monica", -1)
 		2:
 			await ui.say("Carl", L("monica1", "ask2"))
 			await ui.say("Monica", L("monica1", "of_course"))
@@ -1639,12 +1989,11 @@ func _mira_first() -> void:
 	ui.smear.visible = false
 	ui.laptop_log.append_text("[color=#556]%s[/color]\n\n" % L("tower", "header"))
 	await get_tree().create_timer(0.6).timeout
-	main.play("keys", -8.0, 1.3)
-	ui.laptop_log.append_text("[color=#e0a0d0]Mira:[/color] %s\n\n" % L("tower", "convene"))
-	await get_tree().create_timer(0.8).timeout
+	await _typed("Mira", "#e0a0d0", L("tower", "convene"), 1.3)
+	main.learn("convene")
+	await get_tree().create_timer(0.5).timeout
 	await ui.laptop_line(L("tower", "greets"))
-	main.play("keys", -8.0, 1.3)
-	ui.laptop_log.append_text("[color=#e0a0d0]Mira:[/color] %s\n\n" % L("tower", "yes"))
+	await _typed("Mira", "#e0a0d0", L("tower", "yes"), 1.3)
 	await get_tree().create_timer(0.5).timeout
 	main.play("hum", -14.0, 0.7)
 	var img: Texture2D = await _picture(council.global_position + Vector3(0, 1.3, 3.6), council.global_position + Vector3(0, 1.2, 0))
@@ -1655,10 +2004,12 @@ func _mira_first() -> void:
 	await ui.say("Mira", L("tower", "ask_it"))
 	var q: int = await ui.choose(LINES["tower"]["questions"])
 	ui.close()
-	main.play("keys", -8.0, 1.3)
-	ui.laptop_log.append_text("[color=#e0a0d0]Mira:[/color] %s\n\n" % LINES["tower"]["typed"][q])
+	await _typed("Carl", "#9fb4c8", LINES["tower"]["typed"][q], 1.0)
 	await get_tree().create_timer(0.8).timeout
-	await ui.laptop_line(LINES["tower"]["replies"][q])
+	# three answers to the one question, one from each of the resolved figures
+	for i in 3:
+		await _typed(LINES["tower"]["council"][i], "#7fe6b0", LINES["tower"]["replies"][q][i], 0.8)
+		await get_tree().create_timer(0.3).timeout
 	await ui.think(L("tower", "conferred"))
 	ui.close()
 	await get_tree().create_timer(0.4).timeout
@@ -1670,9 +2021,10 @@ func _mira_first() -> void:
 			await _play("tower", "council_mum")
 		1:
 			await ui.say("Carl", L("tower", "later"))
-			main.add_connection(1.0, L("toast", "humoured"))
+			main.add_trust("mira", 1)
 		2:
 			await _play("tower", "not_that")
+			main.add_trust("mira", -1)
 	await ui.say("Carl", L("tower", "wash_up"))
 	ui.close()
 	ui.show_toast(L("toast", "tower"), 4.0)
@@ -1706,10 +2058,11 @@ func _ezra_line() -> void:
 		0:
 			await ui.say("Carl", L("gate", "truth"))
 		1:
-			await ui.say("Carl", L("gate", "bad_word"))
+			await _play("gate", "where")
+			f["asked_mira_phone"] = true
+			main.add_trust("mira", 1)
 		2:
-			await _play("gate", "phone")
-			f["suspects_monica"] = true
+			await ui.think(L("gate", "silence"))
 	ui.close()
 	await _arrived(ezra)
 	_hide(ezra)
@@ -1718,7 +2071,6 @@ func _ezra_line() -> void:
 	await ui.think(L("gate", "spreading"))
 	ui.close()
 	ui.show_toast(L("toast", "gate"), 4.0)
-	main.add_connection(1.0, L("toast", "phrase"))
 	await _arrived(mira)
 	_hide(mira)
 	create_tween().tween_property(mira_door, "rotation:y", -0.12, 0.8)
@@ -1748,22 +2100,32 @@ func _couch() -> void:
 	await ui.think(L("sleep", "asleep"))
 	ui.close()
 	await ui.fade_to(1.0, 2.0)
+	_blackout(true)
+	await ui.fade_to(0.0, 0.05)
 	await get_tree().create_timer(0.8).timeout
-	# the dream: the woods near his parents' house
+	# dream 1: the woods near his parents' house. No choice on Day 1.
 	var img: Texture2D = await _picture(woods.global_position + Vector3(1.6, 1.3, 1.2), woods.global_position + Vector3(0, 0.75, -3.0))
 	main.play("whisper", -8.0, 0.6)
 	ui.show_picture(img, L("sleep", "caption"))
 	await _play("sleep", "dream")
 	ui.hide_picture()
 	ui.close()
-	main.add_connection(1.0, L("toast", "dream"))
+	main.log_line("dream", L("toast", "dream"))
 	await get_tree().create_timer(0.6).timeout
+	# A1-S3.5: what Monica saw on 350 while he slept
+	await _council_cutscene()
+	await get_tree().create_timer(0.4).timeout
 	await _play("sleep", "morning")
 	ui.close()
+	await ui.show_card(L("sleep", "day2"), 2.6)
 	f.erase("cinematic")
 	f["home1_done"] = true
+	await ui.fade_to(1.0, 0.5)
+	_blackout(false)
 	if not main._selftest:
 		main.load_level("WarRoom")
+	else:
+		await ui.fade_to(0.0, 0.3)
 
 
 # ------------------------------------------------------------------ evening 2 (ch. 6)
@@ -1804,8 +2166,10 @@ func _monica_second() -> void:
 	if pick == 0:
 		await _play("monica2", "map")
 		f["told_monica_map"] = true
+		main.add_trust("monica", 1)
 	else:
 		await _play("monica2", "vague")
+		main.add_trust("monica", -1)
 	await _play("monica2", "careful")
 	ui.close()
 	f["home_monica2"] = true
@@ -1882,7 +2246,7 @@ func _ritual() -> void:
 		await get_tree().create_timer(0.8).timeout
 		await _play("ritual", "chime")
 		f["ritual_watched"] = true
-		main.add_connection(2.0, L("toast", "watched"))
+		main.add_connection(1.0, L("toast", "watched"))
 	else:
 		await ui.think(L("ritual", "barge"))
 	ui.close()
@@ -1941,19 +2305,35 @@ func _take_tablet() -> void:
 	ui.laptop_open(false)
 	var up := create_tween()
 	up.tween_property(p, "crouch", 0.0, 0.5)
-	if pick == 0:
-		await get_tree().create_timer(0.5).timeout
-		main.play("slam", 0.0, 1.1)
-		main.play("snap", -2.0, 0.7)
-		p.shake(0.6)
-		shards.visible = true
-		await _play("tablet", "smash")
-		f["tablet_smashed"] = true
-		ui.show_toast(L("toast", "smashed"), 4.0)
-	else:
-		await ui.think(L("tablet", "pocket"))
-		f["tablet_kept"] = true
-		main.add_connection(1.0, L("toast", "kept"))
+	match pick:
+		0:
+			# Smash: T:mira -2, the evidence lost, S:investigator
+			await get_tree().create_timer(0.5).timeout
+			main.play("slam", 0.0, 1.1)
+			main.play("snap", -2.0, 0.7)
+			p.shake(0.6)
+			shards.visible = true
+			await _play("tablet", "smash")
+			f["tablet_smashed"] = true
+			main.add_trust("mira", -2)
+			main.add_stance("investigator")
+			ui.show_toast(L("toast", "smashed"), 4.0)
+		1:
+			# Pocket it: T:mira -1, E:mira_tablet
+			await ui.think(L("tablet", "pocket"))
+			f["tablet_kept"] = true
+			f["tablet_taken"] = true
+			f["ev_mira_tablet"] = true
+			main.add_trust("mira", -1)
+			main.log_line("evidence", L("toast", "kept"))
+		2:
+			# Put it down and hold her: T:mira +1, nothing bagged, S:company_man;
+			# Mira keeps the Tower
+			tablet.visible = true
+			await _play("tablet", "hold")
+			f["mira_keeps_tower"] = true
+			main.add_trust("mira", 1)
+			main.add_stance("company_man")
 	# Monica in the doorway
 	monica.visible = true
 	if monica.has_meta("seated"):
@@ -1973,22 +2353,34 @@ func _take_tablet() -> void:
 	fall.tween_property(p, "crouch", 1.5, 1.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	fall.tween_property(p, "pitch", -1.1, 1.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	ui.glitch(0.6, 1.2)
-	await get_tree().create_timer(0.5).timeout
-	await ui.think(L("tablet", "floor"))
-	ui.close()
+	await fall.finished
 	p.shake(0.5)
 	main.play("slam", -4.0, 0.6)
-	await ui.fade_to(1.0, 1.0)
-	main.add_connection(2.0, L("toast", "ritual"))
-	ui.show_toast(L("toast", "ritual_log"), 4.0)
-	await get_tree().create_timer(1.2).timeout
-	# the morning after
-	await _play("morning", "lines")
+	# the faint: one panel, the floor rushing up
+	_blackout(true)
+	await ui.show_card(L("tablet", "floor"), 1.8)
+	main.log_line("seen", L("toast", "ritual_log"))
+	await get_tree().create_timer(0.8).timeout
+	# the morning after, Day 3
+	await _play("morning", "woke")
+	if f.has("tablet_smashed"):
+		await ui.say("Monica", L("morning", "device_smashed"))
+	elif f.has("tablet_taken"):
+		await ui.say("Monica", L("morning", "device_taken"))
+	await _play("morning", "train")
 	ui.close()
+	if f.has("tablet_smashed") or f.has("tablet_taken"):
+		await _mira_morning()
+	await ui.show_card(L("sleep", "day3"), 2.6)
 	f.erase("cinematic")
 	f["ritual_seen"] = true
+	f["home2_done"] = true
+	await ui.fade_to(1.0, 0.5)
+	_blackout(false)
 	if not main._selftest:
 		main.load_level("WarRoom")
+	else:
+		await ui.fade_to(0.0, 0.3)
 
 
 # ------------------------------------------------------------------ dev and test
@@ -2012,6 +2404,26 @@ func apply_args(a: Dictionary) -> void:
 		coat.visible = true
 	if a.has("sun") and _sun:
 		_sun.light_energy = float(a["sun"])
+	if a.has("panel"):
+		_show_panel(str(a["panel"]))
+
+
+## Dev: show one cutscene panel for a screenshot (--panel=lift|board|alley|pillow|door|council).
+func _show_panel(name: String) -> void:
+	var shots := {
+		"lift": [lift350, Vector3(0, 1.5, 0.9), Vector3(0, 2.1, -1.2), 56.0],
+		"board": [boardroom, Vector3(0.25, 1.4, -1.6), Vector3(0, 1.45, -7.2), 54.0],
+		"alley": [alley, Vector3(0, 1.6, 1.6), Vector3(-0.2, 1.1, -4.8), 62.0],
+		"pillow": [pillow, Vector3(-0.1, 0.42, 0.85), Vector3(0.15, 0.2, -0.05), 48.0],
+		"door": [doorway, Vector3(0.35, 0.55, 0.7), Vector3(0, 1.25, -2.1), 68.0],
+		"council": [council, Vector3(2.2, 2.6, 2.8), Vector3(0, 1.0, -0.5), 70.0],
+	}
+	if not shots.has(name):
+		return
+	var sh: Array = shots[name]
+	var at: Node3D = sh[0]
+	var img: Texture2D = await _picture(at.global_position + sh[1], at.global_position + sh[2], sh[3])
+	main.ui.show_picture(img, name)
 
 
 func _by_id(id: String) -> void:

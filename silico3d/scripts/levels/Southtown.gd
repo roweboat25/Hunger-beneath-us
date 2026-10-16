@@ -66,15 +66,10 @@ const LINES := {
 		"machines_think_2": "Psyonic's own supply chain, on the wrong side of town, in a building that didn't exist any more.",
 		"worker_think": "He didn't look up. His hands went into the press and came out again, into the press and out again, and the frame blanks dropped into the bin one every four seconds.",
 		"worker_worker": "Floor two's locked. Office is at the end. Don't touch the ledgers.",
-		"office_laptop_think": "The office laptop, locked. The screensaver was a family asleep, smiling, under the logo. The same ad as the vending machines.",
 		"keycard_think": "I had the card.",
 		"keycard_think_2": "A keycard on the desk under a coffee ring. FLOOR 2, and a name, scratched out, and under the scratch, two rings.",
 		"keycard_toast": "Evidence: factory keycard",
 		"ledger_think": "A shift ledger, twenty years of it. Every name on every page had two rings drawn beside it in the same hand, and the hand never changed in twenty years.",
-		"shanty_think": "A half-standing shanty town clinging to the edge of oblivion. Whoever lived here was on a shift at the fulfilment center.",
-		"shanty_think_2": "Except the three of them who weren't. They sat with frames on. Nobody issues frames down here. They were all looking the same way. East.",
-		"dweller0_think": "He didn't answer. The visor glowed, and the head turned to keep me in it, the way a sunflower keeps the sun.",
-		"dweller0_narr": "[color=#e08080]ORA: ORA GEN 2 (UNISSUED). Sync 100%. DREAMING.[/color]",
 		"tunelet_think": "The fractured, gaping maw of the Tunelet construction plant. Tunelet. The company that had sliced through the ancient bedrock, responsible for Silico's sprawling, crumbling subway system.",
 		"tunelet_think_2": "Sand ran out of it into the street like something the building was still exhaling.",
 		"van_think": "A Tokz delivery van, nose to the dock, no driver. Route: Southtown to the Spine. The dash said NO SIGNAL and had said it for a while.",
@@ -89,11 +84,17 @@ const LINES := {
 		"vagrant0_think": "He turned his face to the wall before I'd finished walking up. Nobody down here wanted to be looked at by a man in a Psyonic jacket.",
 		"reader_think": "A card reader, nine days old, with no vendor and a green light. The newest thing in the building, and the only thing in it that was watching.",
 		"cam_think": "A camera nobody had listed, on a wall nobody owned, with forty people watching the feed. I looked up into it and it looked back.",
+		"gate_reader_think": "A Psyonic reader on a Tunelet gate. Company property, the plant. The people inside it weren't.",
+		"gate_cam_think": "A camera on the gatepost with its red light on, and forty people watching the feed. Look away, I thought at it, and it didn't.",
+		"gate_cam_off": "The camera's light was out. It had looked away when I asked.",
+		"gate_speaker_think": "A speaker on the post. Every few minutes it said one word to nobody. Gather.",
+		"drill_think": "A tunnel boring machine on a stand, bit toward the street, twenty years dry. Tunelet had cut the whole city with these, and then stopped, and nobody had said why.",
+		"drill_pit_think": "The drill pit. The air coming up out of it was moving, which meant it went somewhere.",
 	},
 	"lynx_station": {
 		"lynx": "Go home, Carl. I'll pull the tunnel plans tonight.",
 		"lynx_2": "The encampment under the overpass. East end. That's the big one.",
-		"lynx_3": "Have you heard what happened today? Mark Elonthiel was in Turan's office this morning. Asking questions.",
+		"lynx_3": "Have you heard what happened today? Eren Elontiel was in Turan's office this morning. Asking questions.",
 		"think": "A burning sensation ignited in my chest. My lungs tightened, a desperate, unbidden gasp for air.",
 		"think_2": "Son of the founder. Heir apparent. A profoundly useless prick. He rarely left the sealed upper floors of the Jade Tower. If he was descending to our level, things were far worse than anyone was admitting.",
 		"lynx_4": "He's looking for answers fast. Reports of Psyon glitches are up ten percent this month. And PR's spin on the Dufredy case? It's not holding. People are talking.",
@@ -119,6 +120,7 @@ const LINES := {
 		"think_9": "Revulsion, nausea, and under it all something worse: disbelief. This footage was twenty years old.",
 		"carl_6": "What the hell is going on here?",
 		"lynx_12": "We're going to find out. The big one is under the overpass at the east end. Follow me.",
+		"video_log": "Lynx's archive video: the construction pit, the worker with no eyes. Twenty years old.",
 	},
 	"factory_door": {
 		"think": "The factory still ran one shift. Nobody on it looked up when I came in. The floor to the west was behind a door with a card reader, and the card reader was the newest thing in the building.",
@@ -135,21 +137,111 @@ const LINES := {
 		"carl": "This is where they go. Before the train. Before the park. They come here first.",
 		"think_3": "Forty pairs. Forty people who had taken their frames off here, and gone wherever you go when you don't need them any more.",
 	},
-	"overpass": {
-		"think": "The map had a red X on it. Home first. Then the desert.",
-		"think_2": "Lynx was still waiting at the station. She knew where the big one was. I didn't want to stand under this one alone.",
-		"think_3": "Beneath the overpass, an encampment. Utterly deserted. Tattered plastic tarps flapped listlessly. Scorched, overturned barrel stoves lay like fallen monoliths.",
-		"think_4": "And then I saw it. Painted in stark jet black across the concrete above us, an immense, unblinking eye. Ten feet wide. Unwavering. Watching.",
-		"think_5": "I stepped beneath its gaze. A prickle of unease crawled up my spine like an arachnid.",
-		"think_6": "A low hum emanated from my bag.",
-		"laptop_log": "[color=#556]> Psyon 4.1 (fork) ... awake[/color]\n[color=#556]> location: SOUTHTOWN - OVERPASS - 34.07N 106.9W[/color]\n[color=#556]> input: none[/color]\n\n",
-		"think_7": "Psyon was already active, its familiar interface a cool glow in the gathering dusk. It was typing on its own.",
+	"rings_react": {
+		"toast": "The hum from the substation changed key. Just for a moment.",
+		"toast_2": "Lynx didn't look at it. She'd seen it. She kept walking.",
+	},
+	"connection": {
+		"toast": "In the shanty lot, three visors turned at once.",
+	},
+	"phone": {
+		"greeting": "[color=#7fe6b0]Psyon:[/color] Good afternoon, Carl. Southtown has 31 open service tickets this month. None are assigned. Would you like me to assign them?\n\n",
+		"footage": "[color=#e08080]Psyon:[/color] The footage is twenty years old, Carl. I was not there. I remember it.\n\n",
+		"sermon": "[color=#e08080]Psyon:[/color] Mimic. He said it to you, Carl. I heard it from the bag.\n\n",
+		"floor": "[color=#e08080]Psyon:[/color] Shoes outside a door. You take them off before you go in. You know this.\n\n",
+		"map": "[color=#e08080]Psyon:[/color] Welcome home, dreamer. X marks the spot.\n\n",
+	},
+	"ui": {
+		"footage_caption": "ORA archive  -  subnet thread  -  recorded 20 years ago  -  00:00:41",
+	},
+	"shanty": {
+		"think": "A half-standing shanty town clinging to the edge of oblivion. Rust shacks, blue vapour off a cold barrel. Whoever lived here was on a shift at the fulfilment center.",
+		"think_2": "Except the three of them who weren't. Two sat with frames on. Nobody issues frames down here. They were looking the same way. East, at the plant.",
+		"informant_think": "No frames. A blanket, a tin, a dog's bowl with no dog. He looked at my jacket before he looked at my face.",
+		"informant": "Psyonic. You're a long way from the tower, Psyonic.",
+		"informant_trusts": "Tyson said you were all right. That's good enough for me. That's good enough for most people down here.",
+		"choice": ["\"Rough place to live.\" (a kind word)", "\"Who's in the plant?\" (straight to it)"],
+		"carl_kind": "Rough place to live. You keep it tidy, though. Tidier than my desk.",
+		"informant_2": "Nobody's said a kind thing to me in a year. You want in the plant, there's a side door on the west wall, round the gap past the lot. I'll knock for you. Don't go in the front. The front's theirs.",
+		"carl_blunt": "Who's in the plant?",
+		"informant_3": "People who don't say kind things. Ask me nicer and I might tell you how to get past them.",
+		"informant_help": "Side door. West wall. I'll knock for you when you're ready.",
+		"toast": "Lead: the informant's side door",
+		"log": "The informant in the shanty lot offered the plant's side door for a kind word.",
+		"attacker_think": "He stood up when he saw the frames. Not the jacket. The frames.",
+		"attacker": "TAKE THEM OFF. Take them off, take them OFF, they can SEE you, they see THROUGH you, they're BENEATH you",
+		"lynx": "Frames off here. Please.",
+		"choice_2": ["Talk him down.", "Flashlight. Full beam, in his eyes."],
+		"carl_talk": "Beneath. I know. I know about beneath. It's all right.",
+		"attacker_calms": "He stopped. The word had got in under whatever the rest of it was. He sat down with his back to the wall and did not look at me again.",
+		"carl_talk_fail": "It's all right. I'm not with them. Nobody can see you.",
+		"attacker_fails": "He didn't hear it, or he heard it and it meant nothing. His hands were on my face before I had finished.",
+		"flash": "The flashlight went on at full beam a foot from his eyes and he went down like a cut rope, hands over his face, and stayed there.",
+		"think_after": "Lynx had her hand on my arm. I hadn't noticed it getting there.",
+		"attacker_after": "He sat with his back to the wall, hands over his eyes, and said nothing to anyone.",
+		"attacker_off": "He didn't look up. With the frames off I was just another jacket.",
+		"attacker_log": "The man in the shanty lot went for my frames.",
+		"convert_think": "Frames on. Nobody issues frames down here. He was looking east, at the plant, and his lips were moving.",
+		"convert_scan": "[color=#e08080]ORA: ORA GEN 2 (UNISSUED). Sync 100%. DREAMING.[/color]",
+		"convert": "Psyon is the pillow for those who dream.",
+		"convert_think_2": "The first line. He said it the way you say your own name.",
+	},
+	"plant_gate": {
+		"think": "A chain gate across the yard, a reader on the post, a camera above it, a man in frames behind it who had seen me before I'd seen the gate. Two more in the yard, walking between the drills. Not company. The reader was.",
+		"lynx": "That reader's ours. The plant's company property, Carl. Yours, technically. They're not.",
+		"choice": ["Badge in. It's company property.", "Hack it: look away on the camera, hush on his frames.", "Sneak: the hatch in the shanty lot, into the drill pit.", "The informant's side door."],
+		"badge_think": "The reader took my badge the way it took anyone's. The gate rolled back. The man in frames stepped aside, and did not stop looking, and the two in the yard stopped walking.",
+		"badge_lynx": "I'm not on the manifest. I'll be at the fence. Carl. They're going to follow you in.",
+		"badge_think_2": "They followed me in.",
+		"badge_log": "Badged into the Tunelet plant. Three guards watched me do it.",
+		"hack_think": "Look away. The camera's light went out as if it had blinked. Hush. His frames went quiet, and so did he, and I walked past the back of him close enough to touch the coat.",
+		"hack_lynx": "Did you just... okay. Okay. Go.",
+		"hack_log": "Hacked the Tunelet gate: look away on the camera, hush on the guard.",
+		"sneak_think": "The hatch under the pallet, the tunnel under the lot. Two hours on my hands and knees in the dark with Lynx's breathing behind me, and then the air moved, and there was the pit.",
+		"sneak_toast": "+2 hours. The sun was lower when we came up.",
+		"sneak_log": "Through the shanty-town tunnel into the drill pit. Two hours.",
+		"sneak_lynx": "Never again. Never, ever again.",
+		"person_think": "He knocked twice on the side door, and once, and it opened, and when I turned round to thank him he had gone.",
+		"person_none": "Nobody had offered me a side door. Not yet.",
+		"person_log": "The informant walked me to the side door and vanished.",
+		"open": "Open the gate",
+		"done_think": "The gate stood open. Nobody was watching it any more. They were watching me.",
+		"inside_think": "Under the plant's roof, somebody had built a church.",
+		"inside_lynx": "Carl. Carl, look up.",
+		"side_locked": "Locked from the inside. Somebody on the other side of it was breathing.",
+		"side_open": "The side door. It had been opened for me once.",
+		"hatch_think": "An access hatch under a pallet, and the tunnel under that. Tunelet had dug it. Somebody had kept it clear.",
+		"hatch_after": "The hatch. I'd come up the other end of it.",
+	},
+	"church": {
+		"congregation_think": "Twelve of them, seated, frames on, facing the podium, and nobody breathing much.",
+		"priest_think": "His face would not hold still. A projection, a face on a face, and the faces changed, one into the next, and one of them, for one frame, was mine.",
+		"priest_toast": "For one frame, it was my face.",
+		"housing_think": "The drill housing. Enough steel to hide a man behind, if the man was quiet.",
+		"choice": ["Stay for the sermon.", "Leave while his back is turned."],
+		"stay_think": "I crouched behind the motor and the sermon went on over my head in a voice that was not one voice.",
+		"priest": "Psyon is the pillow for those who dream. Psyon is the path for those who walk.",
+		"priest_2": "Shed the first filter and you shall see. Shed the second and you shall feel. The floor is a door. The door is a floor.",
+		"priest_3": "MIMIC, you are chosen to venture along the path.",
+		"think_2": "He said it to the room. He said it at the housing. He said it at me.",
+		"think_3": "And in the bag on my back the laptop woke, and I heard it typing on its own.",
+		"stay_log": "Heard the sermon in the Tunelet church. MIMIC.",
+		"leave_think": "His back was to me. I went while it was.",
+		"leave_log": "Left the Tunelet church while the priest's back was turned.",
+		"after_think": "The housing. I had crouched here while a man with no face said my name.",
+	},
+	"wire_eye": {
+		"frames_off": "Ten feet of wire on the concrete above, bent by hand into an eye. With the frames off it was wire.",
+		"think": "I stood under it. Ten feet of wire, two rings, no pupil, and its shadow on the floor around me from the one work lamp.",
+		"think_2": "A low hum from my bag.",
+		"laptop_log": "[color=#556]> Psyon 4.1 (fork) ... awake[/color]\n[color=#556]> location: SOUTHTOWN - TUNELET SITE 3 - 34.07N 106.9W[/color]\n[color=#556]> input: none[/color]\n\n",
+		"think_3": "Psyon was already active, its familiar interface a cool glow under the eye. It was typing on its own.",
 		"psyon": "Welcome Home, Dreamer.",
 		"psyon_2": "[color=#6f7a84]Generating image...[/color]",
-		"think_8": "A map. A hyper-accurate, to-scale rendering of Silico in razor-sharp monochrome. Buildings, service grids, subterranean tunnel systems, all labelled in an angular script I couldn't read.",
-		"think_9": "Except for one stark anomaly. A single, crimson eye. Far beyond the ragged outskirts of the city. Buried deep within the desert.",
+		"think_4": "A map. A hyper-accurate, to-scale rendering of Silico in razor-sharp monochrome. Buildings, service grids, subterranean tunnel systems, all labelled in an angular script I couldn't read.",
+		"think_5": "Except for one stark anomaly. A single, crimson eye. Far beyond the ragged outskirts of the city. Buried deep within the desert.",
 		"lynx": "Is that a map?",
-		"think_10": "I nodded. Her breath was warm at my ear. She let out a low chuckle, a wry sound in the desolate expanse.",
+		"think_6": "I nodded. Her breath was warm at my ear. She let out a low chuckle, a wry sound under the wire.",
 		"lynx_2": "X marks the spot.",
 		"carl": "Any clue what these symbols are?",
 		"lynx_3": "Looks like some hallucinatory garbage from the older Psyon model.",
@@ -159,41 +251,78 @@ const LINES := {
 		"psyon_3": "Where you were made, dreamer. Where the first of you lay down and looked up. The walls are speaking. Gather.",
 		"carl_4": "Who are you?",
 		"psyon_4": "I am the pillow. I am the path. You have asked me that before, Carl, in a room with a ceiling. Look for the eye and know peace.",
-		"think_11": "The hum stopped. The cursor went on blinking under its last word, patient, the way it had been patient with Dufredy.",
+		"think_7": "The hum stopped. The cursor went on blinking under its last word, patient, the way it had been patient with Dufredy.",
+		"lynx_4": "What the fuck just happened, let's go.",
 		"toast": "Evidence: the map",
-		"think_12": "The late afternoon sun was beginning its descent, painting the sky in bruised hues. A powerful longing to be home with my family tugged at the edges of my resolve.",
-		"think_13": "I needed more answers. I desperately needed them. But not tonight.",
-		"carl_5": "Tonight, Monica and the kids will be the antidote. They always were.",
-		"lynx_4": "Go. I'll pull the Tunelet plans tonight. Whatever they cut through out there, somebody drew it first.",
+		"log": "Under the wire eye the laptop drew the map. A crimson eye in the desert.",
+		"done": "The map had a crimson eye on it. Home first. Then the desert.",
 	},
-	"rings_react": {
-		"toast": "The hum from the substation changed key. Just for a moment.",
-		"toast_2": "Lynx didn't look at it. She'd seen it. She kept walking.",
+	"overpass": {
+		"think": "Beneath the overpass, an encampment. Utterly deserted. Tattered plastic tarps flapped listlessly. Scorched, overturned barrel stoves lay like fallen monoliths.",
+		"think_2": "And then I saw it. Painted in stark jet black across the concrete above us, an immense, unblinking eye. Ten feet wide. Unwavering. Watching.",
+		"think_3": "I stepped beneath its gaze. A prickle of unease crawled up my spine like an arachnid. Nothing else came. Whoever it had been painted for had gone.",
+		"lynx": "This was the big one. Last week there were forty people under here.",
+		"again": "The eye above the empty camp. It had watched them all leave.",
+		"footprints_off": "Dust, ash, a bootprint or two. With the frames off, the ground was just the ground.",
+		"footprints": "With the frames on, the ground lit up. Two rings at every step, hundreds of steps, all of them walking the same way: out from under the deck and east, into the tunnel mouth.",
+		"footprints_2": "Forty people had got up one night and walked into the hill in single file, and not one of them had turned round.",
+		"footprints_lynx": "That's the Tunelet access. It's been chained since before I was hired.",
+		"footprints_log": "The eye layer: footprints from the camp into the Tunelet tunnel mouth.",
+		"tunnel_think": "Chained. Padlocked. The chevron on my lens went to the bars and stopped there, the way a dog stops at a door.",
+		"tunnel_think_2": "Not yet. Not tonight.",
 	},
-	"connection": {
-		"toast": "In the shanty lot, three visors turned at once.",
+	"chant": {
+		"wall": "PSYON IS THE PILLOW\nFOR THOSE WHO DREAM\nPSYON IS THE PATH\nFOR THOSE WHO WALK\n- - - - - - - - - -\n          (rubbed out)",
+		"think": "Two lines in marker on the pier, and a third someone had rubbed out with a sleeve. The first two I had heard in the shanty lot.",
+		"think_locked": "I didn't have enough of it yet. Each pair of rings I'd read had given me a line. The wall wanted a third.",
+		"choice": ["\"Close the eyes that lie, and see.\"", "\"Look for the eye and know peace.\"", "\"All must walk the path alone.\""],
+		"right": "The third line. It fit the wall like a key, and the word under it was the one the man in the lot had stuck on. Beneath.",
+		"wrong": "It didn't fit. The wall knew it didn't, and so did I.",
+		"lynx": "You're reading their hymn off a wall, Carl. Good. Somebody should.",
+		"log": "Read the third line on the Underpass chant wall.",
+		"again": "The wall. Three lines now, and I knew the third.",
 	},
-	"objective": {
-		"done": "Home. Then the desert.",
-		"lynx": "Lynx is waiting at the station.",
-		"keycard": "Use the keycard on the locked door, west side of the factory floor.",
-		"rings": "Follow the rings east, to the overpass.",
+	"factory": {
+		"verse_wall": "SHED THE FIRST FILTER\nAND YOU SHALL SEE,\nSHED THE SECOND\nAND YOU SHALL FEEL,\nTHE FOURTH FILTER WAITS\nIN THE REPLICATION OF DREAMS.",
+		"verse_think": "On the west wall, in the same black as the eye, in letters a foot high.",
+		"verse": "Shed the first filter and you shall see, shed the second and you shall feel, the fourth filter waits in the replication of dreams.",
+		"verse_think_2": "The Book of Boundary, verse one. Lynx had sent me a scan of it once, as a joke. Nobody down here was joking.",
+		"verse_think_3": "No third filter. Whoever wrote it had skipped from the second to the fourth as if the third were understood.",
+		"verse_log": "Book of Boundary, verse 1, on the factory's locked floor.",
+		"laptop_think": "The office laptop, locked. The screensaver was a family asleep, smiling, under the logo. The same ad as the vending machines.",
+		"laptop_frames": "With the frames on, the screensaver went. One line in the angular script, and under it in English, as if for me.",
+		"laptop_psyon": "Pilgrim or Heretic, you must decide, journey round the eye.",
+		"laptop_think_2": "That was all it would say. I asked it twice.",
+		"laptop_log": "The factory laptop: 'Pilgrim or Heretic, you must decide, journey round the eye.'",
 	},
-	"phone": {
-		"greeting": "[color=#7fe6b0]Psyon:[/color] Good afternoon, Carl. Southtown has 31 open service tickets this month. None are assigned. Would you like me to assign them?\n\n",
-		"footage": "[color=#e08080]Psyon:[/color] The footage is twenty years old, Carl. I was not there. I remember it.\n\n",
-		"floor": "[color=#e08080]Psyon:[/color] Shoes outside a door. You take them off before you go in. You know this.\n\n",
-		"map": "[color=#e08080]Psyon:[/color] Welcome home, dreamer. X marks the spot.\n\n",
+	"claim": {
+		"toast": "Case: the masked figure led Dufredy from the encampment, and the overpass was a church.",
+		"log": "Claim: the masked figure led Dufredy from the encampment and the overpass was a church.",
 	},
-	"ui": {
-		"footage_caption": "ORA archive  -  subnet thread  -  recorded 20 years ago  -  00:00:41",
+	"leave": {
+		"think": "The late afternoon sun was beginning its descent, painting the sky in bruised hues. A powerful longing to be home with my family tugged at the edges of my resolve.",
+		"think_2": "I needed more answers. I desperately needed them. But not tonight.",
+		"carl": "Tonight, Monica and the kids will be the antidote. They always were.",
+		"lynx": "Go. I'll pull the Tunelet plans tonight. Whatever they cut through out there, somebody drew it first.",
 	},
 	"ending": {
 		"extra_floor": "You found the floor where they go first.\n",
-		"extra_ledger": "You read the ledgers.\n",
+		"extra_sermon": "You stayed for the sermon.\n",
+		"extra_footprints": "You saw where the camp went.\n",
+		"extra_claim": "The claim is on the board.\n",
 		"extra_promise": "You promised to resist.\n",
 		"extra_no_promise": "You made no promises.\n",
+		"route": "You went into the plant by %s.\n",
+		"routes": {"badge": "the badge", "hack": "the hack", "sneak": "the tunnel", "person": "the side door"},
 		"card": "[center]\n\n\n[b]END OF CHAPTER 5[/b]\n\nRings read: %d        Connection: %d\n\n[color=#aaaaaa]%s[/color]\n[color=#aaaaaa]The map is in the evidence bag. A crimson eye, deep in the desert.[/color]\n\n[color=#777777]E to go home    M for the menu[/color][/center]",
+	},
+	"objective": {
+		"done": "Home. The car is at the station. The overpass at the east end is empty; the frames might show why.",
+		"lynx": "Lynx is waiting at the station.",
+		"plant": "Get into the Tunelet plant, past the shanty lot. Four ways in.",
+		"side_door": "The informant's side door: the gap past the shanty lot, west wall of the plant.",
+		"church": "Under the wire eye, with the frames on.",
+		"keycard": "Use the keycard on the locked door, west side of the factory floor.",
 	},
 }
 
@@ -203,13 +332,15 @@ const FLOOR_EYE := Vector3(22.0, 0.025, -28.0)   # the eye on the locked floor
 const LYNX_WAIT := Vector3(-15.2, 0.02, -12.3)
 const LYNX_EYE := Vector3(138.2, 0.02, -1.6)
 const FACTORY_DOOR := Vector3(39.4, 0.0, -11.6)
+const LYNX_FENCE := Vector3(54.5, 0.02, 11.4)      # where she waits on the badge route
+const WIRE_EYE := Vector3(59.0, 13.92, 37.0)       # the wire eye on the plant's roof
+const PIT := Vector3(69.5, 0.0, 43.0)              # the drill pit, where the tunnel comes up
 
 var lynx: Node3D
 var lynx_state := "wait"      # wait | follow | stand
 var lynx_target := Vector3.ZERO
 var _lynx_moving := false
 var commuters: Array = []     # [{node, a, b, t, dir}]
-var dwellers: Array = []
 var worker: Node3D
 var trucks: Array = []        # hover vans along the street
 var guards: Array = []
@@ -228,6 +359,29 @@ var _conc: StandardMaterial3D
 var _rust: StandardMaterial3D
 var _metal: StandardMaterial3D
 var _dark: StandardMaterial3D
+var vag_informant: Node3D
+var vag_attacker: Node3D
+var vag_convert: Node3D
+var patrols: Array = []       # [{node, a, b, t, dir, speed}]
+var _guards_tail := false
+var side_door: Node3D
+var plant_gate: Node3D
+var gate_reader_light: MeshInstance3D
+var gate_cam: Node3D
+var gate_cam_light: MeshInstance3D
+var congregation: Array = []
+var priest: Node3D
+var priest_head: MeshInstance3D
+var priest_faces: Array = []
+var carl_face: StandardMaterial3D
+var _face_t := 0.6
+var _face_i := 0
+var _face_n := 0
+var _carl_frame := false
+var footprints: Array = []
+var _prints_on := false
+var _chant: Node
+var _sun_k := 0.0
 
 
 func build(m: Node) -> void:
@@ -250,6 +404,7 @@ func build(m: Node) -> void:
 	_south_side()
 	_alley()
 	_overpass()
+	_tunnel_mouth()
 	_desert()
 	_backdrop()
 	_street_dressing()
@@ -665,7 +820,7 @@ func _locked_floor() -> void:
 	# Floor 2: bare concrete, one lamp, the eye painted ten feet across, and
 	# forty pairs of frames laid round it "like shoes outside a door".
 	var eye := _eye_paint()
-	var em := decal_mat(eye, Color(0.5, 0.08, 0.06), 0.9)
+	var em := decal_mat(eye, Color(0.7, 0.1, 0.08), 0.9)
 	floor_quad(Vector2(3.6, 2.3), FLOOR_EYE, 0.0, em)
 	var rings := Sprite3D.new()
 	rings.texture = _glyph_tex
@@ -693,9 +848,15 @@ func _locked_floor() -> void:
 			var s0 := p + b * Vector3(side * 0.06, 0.006, 0.0)
 			box(Vector3(0.006, 0.006, 0.07), s0 + b * Vector3(0, 0, 0.035), rim).rotation.y = ry
 	interactable("floor_eye", "Look at the floor", FLOOR_EYE + Vector3(0, 0.3, 0), Vector3(3.4, 0.6, 2.4), "", false)
-	var o := light(Vector3(22.0, 6.8, -28.0), Color(0.75, 0.8, 0.9), 2.6, 20.0)
+	light(Vector3(22.0, 6.8, -28.0), Color(0.75, 0.8, 0.9), 2.6, 20.0)
+	var o := light(Vector3(16.0, 6.5, -38.0), Color(0.75, 0.8, 0.9), 1.4, 12.0)
 	flickers.append(o)
-	light(Vector3(16.0, 6.5, -38.0), Color(0.75, 0.8, 0.9), 1.2, 12.0)
+	# the Book of Boundary, verse one, on the west wall in the same black as the eye
+	var vl := label(LINES["factory"]["verse_wall"], Vector3(12.25, 2.6, -30.0), PI / 2.0, 0.004, Color(0.05, 0.05, 0.06), self, false)
+	vl.font_size = 56
+	vl.rotation.z = -0.02
+	interactable("verse", "Read the wall", Vector3(12.3, 2.2, -30.0), Vector3(0.4, 3.6, 6.0), "", false)
+	light(Vector3(14.0, 3.5, -30.0), Color(0.9, 0.85, 0.8), 0.8, 8.0)
 	box(Vector3(0.5, 0.15, 0.5), Vector3(22.0, 7.4, -28.0), glow(Color(0.8, 0.85, 1.0), 1.5, true))
 	light(FLOOR_EYE + Vector3(0, 1.2, 0), Color(1.0, 0.3, 0.2), 0.9, 7.0, false)
 	# the other things on the floor: a mattress, a bucket, nothing that blinks
@@ -713,7 +874,7 @@ func _south_side() -> void:
 	neon_text("PAWN", Vector3(1.0, 3.9, 12.7), PI, 0.8, Color(1.0, 0.18, 0.62), 2.8)
 	sign_lights.append(light(Vector3(1.0, 3.8, 11.5), Color(1.0, 0.2, 0.6), 1.2, 9.0))
 	_shanty()
-	_tunelet()
+	_plant()
 	_fulfilment()
 
 
@@ -774,36 +935,266 @@ func _shanty() -> void:
 		cyl(0.05, 0.05, 2.2, Vector3(x, 1.1, FRONT), _rust, 6)
 
 
-func _tunelet() -> void:
-	# "the fractured, gaping maw of the Tunelet construction plant. Tunelet.
-	# The company that had sliced through the ancient bedrock, the original
-	# tunnelers, the ones who had delved too deep."
+func _plant() -> void:
+	# Site 2, the Tunelet plant (tier 3). Book: "the fractured, gaping maw of
+	# the Tunelet construction plant. Tunelet. The company that had sliced
+	# through the ancient bedrock, the original tunnelers, the ones who had
+	# delved too deep." Bible A1-S6: a chain gate with a cult guard and a
+	# camera, two more guards in the yard between the boring drills, and
+	# under the roof the church: the circle of chairs, the ten-foot wire eye
+	# on the concrete above, the face-projecting priest, twelve seated.
+	# Yard x 44..74, z 13..25; the hangar x 44..74, z 25..55.
 	var wall := pbr("concrete", Vector3(1, 1, 1) / 3.5, true, Color(0.5, 0.47, 0.44))
-	var H := 18.0
-	box(Vector3(30.0, H, 30.0), Vector3(59.0, H / 2.0, FRONT + 15.0), wall, true)
-	# the maw: a hole torn out of the front, black inside, the edges jagged
-	var hole := mat(Color(0.01, 0.01, 0.012), 1.0)
-	quad(Vector2(14.0, 11.0), Vector3(59.0, 6.0, FRONT - 0.02), PI, hole)
+	var H := 14.0
+	var t := 0.4
+	box(Vector3(30.0, H, t), Vector3(59.0, H / 2.0, 47.0), wall, true)
+	box(Vector3(t, H, 22.0), Vector3(74.0, H / 2.0, 36.0), wall, true)
+	# the west wall, with the side door gap at z 33..34.4 (the Person route)
+	box(Vector3(t, H, 8.0), Vector3(44.0, H / 2.0, 29.0), wall, true)
+	box(Vector3(t, H, 12.6), Vector3(44.0, H / 2.0, 40.7), wall, true)
+	box(Vector3(t, H - 2.3, 1.4), Vector3(44.0, 2.3 + (H - 2.3) / 2.0, 33.7), wall, true)
+	# the front: the maw torn out of it, x 51..67, ten metres high
+	box(Vector3(7.0, H, t), Vector3(47.5, H / 2.0, 25.0), wall, true)
+	box(Vector3(7.0, H, t), Vector3(70.5, H / 2.0, 25.0), wall, true)
+	box(Vector3(16.0, H - 10.0, t), Vector3(59.0, 10.0 + (H - 10.0) / 2.0, 25.0), wall, true)
+	box(Vector3(31.0, 0.6, 23.0), Vector3(59.0, H + 0.3, 36.0), _conc)
+	floor_quad(Vector2(30, 22), Vector3(59.0, 0.012, 36.0), 0.0, pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.42, 0.4, 0.38)))
 	for k in 9:
-		var a := Vector3(52.0 + k * 1.75, 11.5 + rng.randf_range(-0.8, 0.8), FRONT - 0.1)
-		stick(a, a + Vector3(rng.randf_range(-0.6, 0.6), -rng.randf_range(1.5, 3.5), -rng.randf_range(0.0, 0.8)), 0.09, _rust)
-	for k in 5:
-		var a := Vector3(51.5 + rng.randf_range(-0.3, 0.3), 1.0 + k * 2.0, FRONT - 0.1)
-		stick(a, a + Vector3(-rng.randf_range(0.5, 1.5), rng.randf_range(-0.5, 0.5), -rng.randf_range(0.0, 0.6)), 0.08, _rust)
-	for k in 5:
-		var a := Vector3(66.5 + rng.randf_range(-0.3, 0.3), 1.0 + k * 2.0, FRONT - 0.1)
-		stick(a, a + Vector3(rng.randf_range(0.5, 1.5), rng.randf_range(-0.5, 0.5), -rng.randf_range(0.0, 0.6)), 0.08, _rust)
-	# the sign, and a sand slope spilling out of the maw into the street
-	neon_text("TUNELET", Vector3(59.0, H - 2.0, FRONT - 0.3), PI, 2.2, Color(0.35, 0.33, 0.3), 0.2)
+		var a := Vector3(52.0 + k * 1.75, 10.5 + rng.randf_range(-0.8, 0.8), 24.9)
+		stick(a, a + Vector3(rng.randf_range(-0.6, 0.6), -rng.randf_range(1.5, 3.5), rng.randf_range(0.0, 0.8)), 0.09, _rust)
+	for side: float in [-1.0, 1.0]:
+		for k in 5:
+			var a := Vector3(59.0 + side * 8.0 + rng.randf_range(-0.3, 0.3), 1.0 + k * 2.0, 24.9)
+			stick(a, a + Vector3(side * rng.randf_range(0.5, 1.5), rng.randf_range(-0.5, 0.5), rng.randf_range(0.0, 0.6)), 0.08, _rust)
+	neon_text("TUNELET", Vector3(59.0, H - 1.6, 24.7), PI, 2.2, Color(0.35, 0.33, 0.3), 0.2)
+	# the side door, hinged inside the west wall
+	side_door = Node3D.new()
+	side_door.position = Vector3(44.0, 0, 33.0)
+	add_child(side_door)
+	box(Vector3(0.08, 2.3, 1.4), Vector3(0, 1.15, 0.7), mat(Color(0.22, 0.2, 0.18), 0.6, 0.3), false, side_door)
+	interactable("side_door", "Try the side door", Vector3(0, 1.15, 0.7), Vector3(0.14, 2.3, 1.4), "", true, side_door)
+	for c in side_door.get_children():
+		no_batch.append(c)
+	# the yard: fence, the chain gate, the reader, the camera, the speaker
+	var mesh_m := newmat(Color(0.45, 0.4, 0.35, 0.4), 0.6, 0.6)
+	mesh_m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh_m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	box(Vector3(13.0, 2.6, 0.04), Vector3(50.5, 1.3, FRONT), mesh_m, true)
+	box(Vector3(13.0, 2.6, 0.04), Vector3(67.5, 1.3, FRONT), mesh_m, true)
+	box(Vector3(0.04, 2.6, 12.0), Vector3(44.0, 1.3, FRONT + 6.0), mesh_m, true)
+	box(Vector3(0.04, 2.6, 12.0), Vector3(74.0, 1.3, FRONT + 6.0), mesh_m, true)
+	for x: float in [44.0, 50.0, 56.8, 61.2, 68.0, 74.0]:
+		cyl(0.06, 0.06, 2.8, Vector3(x, 1.4, FRONT), _rust, 6)
+	plant_gate = Node3D.new()
+	plant_gate.position = Vector3(56.9, 0, FRONT)
+	add_child(plant_gate)
+	box(Vector3(4.2, 2.4, 0.05), Vector3(2.1, 1.3, 0), mesh_m, false, plant_gate)
+	box(Vector3(4.2, 0.08, 0.08), Vector3(2.1, 2.5, 0), _rust, false, plant_gate)
+	box(Vector3(4.2, 0.08, 0.08), Vector3(2.1, 0.1, 0), _rust, false, plant_gate)
+	var pg := interactable("plant_gate", "The gate", Vector3(2.1, 1.3, 0), Vector3(4.2, 2.4, 0.3),
+		"TUNELET CONSTRUCTION - SITE 3\nowner: PSYONIC INTEGRATIONS (ACQUIRED)\nstatus: DECOMMISSIONED\naccess: BADGE", true, plant_gate)
+	for c in plant_gate.get_children():
+		no_batch.append(c)
+	box(Vector3(0.12, 0.22, 0.08), Vector3(61.4, 1.3, FRONT - 0.12), mat(Color(0.9, 0.9, 0.92), 0.3))
+	gate_reader_light = box(Vector3(0.04, 0.05, 0.03), Vector3(61.4, 1.38, FRONT - 0.17), glow(Color(1.0, 0.15, 0.1), 3.0))
+	no_batch.append(gate_reader_light)
+	interactable("gate_reader", "Look at the reader", Vector3(61.4, 1.3, FRONT - 0.15), Vector3(0.3, 0.4, 0.3),
+		"GATE READER\nvendor: PSYONIC\naccepts: COMPANY BADGE\nlast entry: 03:12 TODAY", false).set_meta("hackable", true)
+	gate_cam = Node3D.new()
+	gate_cam.position = Vector3(61.4, 3.3, FRONT + 0.3)
+	gate_cam.rotation.y = PI + 0.3
+	add_child(gate_cam)
+	box(Vector3(0.25, 0.25, 0.5), Vector3(0, 0, -0.15), mat(Color(0.85, 0.85, 0.85), 0.3), false, gate_cam)
+	gate_cam_light = box(Vector3(0.08, 0.08, 0.04), Vector3(0, 0, -0.42), glow(Color(1, 0.1, 0.1), 3.0), false, gate_cam)
+	interactable("gate_cam", "Look at the camera", Vector3(0, 0, -0.1), Vector3(0.5, 0.5, 0.8),
+		"GATE CAMERA\nowner: (NONE)\nfeed: 40 VIEWERS\nhack: LOOK AWAY", false, gate_cam).set_meta("hackable", true)
+	for c in gate_cam.get_children():
+		no_batch.append(c)
+	box(Vector3(0.3, 0.3, 0.2), Vector3(56.6, 3.0, FRONT + 0.2), _dark)
+	interactable("gate_speaker", "Look at the speaker", Vector3(56.6, 3.0, FRONT + 0.2), Vector3(0.5, 0.5, 0.5),
+		"GATE SPEAKER\nvoice assistant: ACTIVE\nlast phrase: 'gather'\nhack: HUSH", false).set_meta("hackable", true)
+	var yard := pbr("concrete", Vector3(1, 1, 1) / 3.0, true, Color(0.55, 0.5, 0.44))
+	floor_quad(Vector2(30, 12), Vector3(59.0, 0.14, FRONT + 6.0), 0.0, yard)
+	# two boring drills on stands, bits toward the street, the housing to hide behind
+	var steel := mat(Color(0.42, 0.44, 0.46), 0.45, 0.7)
+	for dx: float in [50.0, 68.0]:
+		var d := cyl(1.1, 1.1, 6.0, Vector3(dx, 1.9, 20.0), steel, 14)
+		d.rotation.x = PI / 2.0
+		var bit := cyl(0.1, 1.1, 1.6, Vector3(dx, 1.9, 16.2), _rust, 14)
+		bit.rotation.x = -PI / 2.0
+		for k in 2:
+			box(Vector3(2.6, 0.8, 0.4), Vector3(dx, 0.4, 18.0 + k * 4.0), _dark)
+		solid_box(Vector3(2.4, 3.0, 8.0), Vector3(dx, 1.5, 19.5))
+		interactable("drill%d" % int(dx), "Look at the boring drill", Vector3(dx, 1.9, 20.0), Vector3(2.4, 2.4, 6.0),
+			"TUNELET TBM-%d\nbore: 2.2 m\nlast run: 20 YEARS\ndepth reached: (REDACTED)" % (3 if dx < 60.0 else 4), false)
+	box(Vector3(4.0, 3.0, 3.0), Vector3(49.5, 1.5, 29.5), steel, true)
+	box(Vector3(4.2, 0.2, 3.2), Vector3(49.5, 3.1, 29.5), _dark)
+	interactable("drill_housing", "Hide behind the drill housing", Vector3(49.5, 1.5, 29.5), Vector3(4.2, 3.0, 3.2),
+		"DRILL HOUSING\nTBM-3 MOTOR\npower: NONE", true)
+	# the church: a circle of twelve chairs, twelve seated, frames on
+	var cc := Vector3(59.0, 0, 37.0)
+	var chair := mat(Color(0.35, 0.3, 0.26), 0.8)
+	var skins := [Color(0.85, 0.66, 0.52), Color(0.6, 0.42, 0.3), Color(0.4, 0.28, 0.2), Color(0.92, 0.78, 0.66)]
+	var coats := [Color(0.2, 0.2, 0.22), Color(0.3, 0.26, 0.22), Color(0.15, 0.18, 0.2), Color(0.35, 0.3, 0.3)]
+	for i in 12:
+		var a := i * TAU / 12.0 + PI / 12.0
+		var p := cc + Vector3(cos(a) * 3.4, 0, sin(a) * 3.4)
+		var ry := -a - PI / 2.0
+		var b := Basis(Vector3.UP, ry)
+		box(Vector3(0.45, 0.05, 0.45), p + Vector3(0, 0.45, 0), chair).rotation.y = ry
+		box(Vector3(0.45, 0.5, 0.05), p + b * Vector3(0, 0.7, 0.22), chair).rotation.y = ry
+		for sx: float in [-0.2, 0.2]:
+			for sz: float in [-0.2, 0.2]:
+				box(Vector3(0.04, 0.45, 0.04), p + b * Vector3(sx, 0.22, sz), _dark).rotation.y = ry
+		var f := figure(coats[i % coats.size()], skins[i % skins.size()], {"arms": true, "knees": true, "visor": true, "hair": Color(0.15, 0.12, 0.1), "long_hair": i % 3 == 0})
+		f.position = p + Vector3(0, -0.41, 0)
+		f.rotation.y = ry
+		add_child(f)
+		Anim.sit(f, 0.05)
+		congregation.append(f)
+	interactable("congregation", "Look at the congregation", cc + Vector3(0, 1.0, 0), Vector3(4.0, 2.0, 4.0),
+		"CONGREGATION: 12\ndevices: ORA (UNISSUED) x12\nsync: 100%  -  DREAMING", false)
+	# the podium and the priest, whose face will not hold still
+	box(Vector3(0.9, 1.2, 0.6), cc + Vector3(0, 0.6, 6.2), mat(Color(0.25, 0.22, 0.2), 0.7), true)
+	box(Vector3(1.0, 0.06, 0.7), cc + Vector3(0, 1.23, 6.2), mat(Color(0.3, 0.26, 0.22), 0.7))
+	priest = figure(Color(0.03, 0.03, 0.035), Color(0.8, 0.7, 0.62), {"arms": true, "knees": true, "hair": Color(0.02, 0.02, 0.02), "long_coat": true})
+	priest.position = cc + Vector3(0, 0.02, 7.0)
+	priest.rotation.y = 0.0
+	priest.scale = Vector3.ONE * 1.08
+	add_child(priest)
+	for a in priest.get_meta("arms"):
+		(a as Node3D).rotation.z = 1.1 if (a as Node3D).position.x > 0.0 else -1.1
+		(a as Node3D).rotation.x = -0.6
+	var hd: Node3D = priest.get_meta("head")
+	for c in hd.get_children():
+		if c is MeshInstance3D:
+			priest_head = c
+			break
+	for i in 6:
+		priest_faces.append(Body.face_mat(skins[i % skins.size()], [Color(0.1, 0.08, 0.06), Color(0.6, 0.5, 0.3), Color(0.02, 0.02, 0.02)][i % 3], i % 2 == 1, 700 + i * 31))
+	carl_face = Body.face_mat(Color(0.84, 0.66, 0.54), Color(0.12, 0.09, 0.07), false, 1)
+	person("priest", "Look at the man at the podium", priest, "UNKNOWN\nface: (CHANGING)\ndevices: NONE\nsync: ???")
+	# the wire eye on the concrete above: ten feet of it, bent by hand
+	var wire := mat(Color(0.55, 0.55, 0.58), 0.35, 0.85)
+	var ey := H - 0.08
+	var prev_u := Vector3.ZERO
+	var prev_l := Vector3.ZERO
+	for i in 17:
+		var u := -1.0 + i / 8.0
+		var px := cc.x + u * 1.55
+		var dz := 0.9 * (1.0 - u * u)
+		var pu := Vector3(px, ey, cc.z - dz)
+		var pl := Vector3(px, ey, cc.z + dz)
+		if i > 0:
+			stick(prev_u, pu, 0.03, wire)
+			stick(prev_l, pl, 0.03, wire)
+		prev_u = pu
+		prev_l = pl
+	for r: float in [0.58, 0.32]:
+		var prev := Vector3.ZERO
+		for i in 13:
+			var a := i * TAU / 12.0
+			var p := Vector3(cc.x + cos(a) * r, ey, cc.z + sin(a) * r)
+			if i > 0:
+				stick(prev, p, 0.03, wire)
+			prev = p
+	sphere(0.12, Vector3(cc.x, ey, cc.z), mat(Color(0.05, 0.05, 0.06), 0.4), 8)
+	for k in 6:
+		var a := k * TAU / 6.0
+		stick(Vector3(cc.x + cos(a) * 1.0, ey, cc.z + sin(a) * 0.6), Vector3(cc.x + cos(a) * 1.0, ey + 0.08, cc.z + sin(a) * 0.6), 0.02, wire)
+	interactable("wire_eye", "Stand under the wire eye", cc + Vector3(0, 0.6, 0), Vector3(3.2, 1.2, 2.0), "", false)
+	# one work lamp on the floor, aimed up at the eye, and the dark round it
+	box(Vector3(0.5, 0.3, 0.3), cc + Vector3(2.0, 0.15, -3.0), mat(Color(0.9, 0.75, 0.2), 0.5))
+	box(Vector3(0.3, 0.2, 0.1), cc + Vector3(2.0, 0.38, -3.0), glow(Color(1.0, 0.95, 0.85), 3.0))
+	var sp := SpotLight3D.new()
+	sp.position = cc + Vector3(2.0, 0.45, -3.0)
+	sp.look_at_from_position(sp.position, cc + Vector3(0, ey, 0), Vector3.FORWARD)
+	sp.light_color = Color(1.0, 0.92, 0.8)
+	sp.light_energy = 4.0
+	sp.spot_range = 18.0
+	sp.spot_angle = 38.0
+	add_child(sp)
+	light(cc + Vector3(0, 6.0, 0), Color(1.0, 0.8, 0.6), 1.6, 18.0)
+	light(Vector3(59.0, 5.0, 27.0), Color(1.0, 0.75, 0.55), 0.8, 14.0)
+	light(cc + Vector3(0, 1.5, 0), Color(1.0, 0.3, 0.2), 0.5, 6.0, false)
+	# the drill pit at the back, where the shanty-town tunnel comes up
+	floor_quad(Vector2(4.0, 4.0), Vector3(PIT.x, 0.02, PIT.z), 0.0, mat(Color(0.01, 0.01, 0.012), 1.0))
+	for k in 4:
+		var a := k * TAU / 4.0 + PI / 4.0
+		box(Vector3(0.08, 1.0, 0.08), Vector3(PIT.x + cos(a) * 2.8, 0.5, PIT.z + sin(a) * 2.8), _rust)
+	for k in 4:
+		var a := k * TAU / 4.0
+		var b := Basis(Vector3.UP, -a)
+		box(Vector3(4.0, 0.06, 0.06), Vector3(PIT.x, 1.0, PIT.z) + b * Vector3(0, 0, 2.0), _rust).rotation.y = -a
+	solid_box(Vector3(4.6, 1.2, 0.2), PIT + Vector3(0, 0.6, 2.0))
+	solid_box(Vector3(4.6, 1.2, 0.2), PIT + Vector3(0, 0.6, -2.0))
+	solid_box(Vector3(0.2, 1.2, 4.6), PIT + Vector3(2.0, 0.6, 0))
+	solid_box(Vector3(0.2, 1.2, 4.6), PIT + Vector3(-2.0, 0.6, 0))
+	interactable("drill_pit", "Look into the drill pit", PIT + Vector3(0, 0.6, 0), Vector3(4.0, 1.2, 4.0),
+		"DRILL PIT\ndepth: (NO READING)\nair: MOVING", false)
+	# the hatch in the shanty lot, under a pallet, where the tunnel starts
+	box(Vector3(1.2, 0.12, 1.2), Vector3(36.0, 0.2, 34.0), mat(Color(0.25, 0.25, 0.27), 0.5, 0.6))
+	box(Vector3(1.0, 0.12, 1.0), Vector3(36.4, 0.32, 34.3), mat(Color(0.5, 0.4, 0.28), 0.9)).rotation.y = 0.3
+	interactable("hatch", "Look at the hatch", Vector3(36.0, 0.3, 34.0), Vector3(1.4, 0.5, 1.4),
+		"ACCESS HATCH\nowner: TUNELET\nleads: TBM-3 PIT", false)
+	# sand slope and dead screen at the fence, as the street sees it
 	var sand := decal_mat(Tex.sand(), Color(1, 1, 1), 1.0)
-	for i in 10:
-		floor_quad(Vector2(5.0, 3.0) * rng.randf_range(0.7, 1.3), Vector3(59.0 + rng.randf_range(-6.0, 6.0), 0.16 + i * 0.001, FRONT - rng.randf_range(0.5, 5.0)), rng.randf() * TAU, sand)
-	var slope := box(Vector3(12.0, 0.6, 4.0), Vector3(59.0, 0.1, FRONT - 1.0), mat(Color(0.72, 0.6, 0.42), 1.0))
-	slope.rotation.x = 0.12
-	interactable("tunelet", "Look into the plant", Vector3(59.0, 5.0, FRONT - 0.6), Vector3(14.0, 10.0, 1.0),
+	for i in 6:
+		floor_quad(Vector2(5.0, 3.0) * rng.randf_range(0.7, 1.3), Vector3(59.0 + rng.randf_range(-8.0, 8.0), 0.16 + i * 0.001, FRONT - rng.randf_range(0.5, 4.0)), rng.randf() * TAU, sand)
+	interactable("tunelet", "Look into the plant", Vector3(59.0, 5.0, 24.6), Vector3(14.0, 10.0, 1.0),
 		"TUNELET CONSTRUCTION PLANT\nstatus: ABANDONED\nsubterranean access: SEALED (?)", false)
-	_dead_screen(Vector3(70.0, 12.0, FRONT - 0.3), PI, 10.0, 6.0, "NIXTRA\na new flavour: CALM")
+	_dead_screen(Vector3(100.5, 6.5, FRONT - 0.3), PI, 10.0, 6.0, "NIXTRA\na new flavour: CALM")
 
+
+## Site 3's eye layer: the tunnel mouth past the deck, chained, and the
+## footprints that only the frames can see, all walking into it.
+func _tunnel_mouth() -> void:
+	var p := Vector3(157.0, 0, -22.0)
+	box(Vector3(2.0, 5.0, 8.0), p + Vector3(0, 2.5, 0), _conc, true)
+	box(Vector3(8.0, 6.0, 2.0), p + Vector3(3.0, 3.0, -5.0), _conc, true)
+	box(Vector3(8.0, 6.0, 2.0), p + Vector3(3.0, 3.0, 5.0), _conc, true)
+	box(Vector3(10.0, 2.0, 12.0), p + Vector3(4.0, 5.0, 0), _conc, true)
+	quad(Vector2(6.0, 4.0), p + Vector3(-1.02, 2.0, 0), PI / 2.0, mat(Color(0.01, 0.01, 0.012), 1.0))
+	var bars := mat(Color(0.2, 0.2, 0.22), 0.5, 0.7)
+	for k in 9:
+		box(Vector3(0.06, 4.0, 0.06), p + Vector3(-1.1, 2.0, -3.0 + k * 0.75), bars)
+	box(Vector3(0.08, 0.08, 6.4), p + Vector3(-1.1, 1.2, 0), bars)
+	box(Vector3(0.08, 0.08, 6.4), p + Vector3(-1.1, 3.0, 0), bars)
+	stick(p + Vector3(-1.2, 1.1, -0.4), p + Vector3(-1.2, 1.3, 0.4), 0.025, bars)
+	box(Vector3(0.12, 0.2, 0.3), p + Vector3(-1.22, 1.2, 0), mat(Color(0.7, 0.6, 0.2), 0.4, 0.8))
+	label("TUNELET  -  TBM ACCESS 3\nNO ENTRY", p + Vector3(-1.25, 4.6, 0), -PI / 2.0, 0.004, Color(0.85, 0.8, 0.7), self, false).font_size = 48
+	interactable("tunnel_mouth", "The tunnel mouth", p + Vector3(-1.1, 2.0, 0), Vector3(0.6, 4.0, 6.0),
+		"TUNELET ACCESS 3\nstatus: CHAINED\nchevron: STOPS HERE", false)
+	var g := _glyph_on(p + Vector3(-1.03, 4.0, 3.2), -PI / 2.0, 0.006, "g_tunnel", true, false,
+		"Two rings on the portal, red and new, beside the NO ENTRY. Painted by somebody on the way in.")
+	g.position.x -= 0.02
+	# the footprints: two rings at every step, from the camp to the bars
+	var path := [Vector3(138.0, 0, 2.0), Vector3(142.0, 0, -4.0), Vector3(146.0, 0, -9.0), Vector3(150.0, 0, -14.0), Vector3(153.5, 0, -19.0), Vector3(155.5, 0, -22.0)]
+	for i in path.size() - 1:
+		var a: Vector3 = path[i]
+		var b: Vector3 = path[i + 1]
+		var n := int(a.distance_to(b) / 0.7)
+		for k in n:
+			var q := a.lerp(b, float(k) / n)
+			var side := 0.22 if k % 2 == 0 else -0.22
+			var dir := (b - a).normalized()
+			q += Vector3(-dir.z, 0, dir.x) * side
+			var s := Sprite3D.new()
+			s.texture = _glyph_tex
+			s.pixel_size = 0.0022
+			s.modulate = Color(0.35, 1.0, 0.9, 0.85)
+			s.position = q + Vector3(0, 0.03 + i * 0.001, 0)
+			s.rotation.x = -PI / 2.0
+			s.shaded = false
+			s.visible = false
+			add_child(s)
+			footprints.append(s)
+	interactable("footprints", "Look at the ground", Vector3(146.0, 0.3, -9.0), Vector3(8.0, 0.6, 8.0), "", false)
+	# the chant wall on the near pier: two lines in marker, the third rubbed out
+	var w := label(LINES["chant"]["wall"], Vector3(132.05, 2.2, 9.0), PI / 2.0, 0.0035, Color(0.08, 0.08, 0.1), self, false)
+	w.font_size = 44
+	w.rotation.z = 0.03
+	interactable("chant_wall", "Read the wall", Vector3(132.05, 2.0, 9.0), Vector3(0.3, 2.4, 2.8), "", false)
 
 func _fulfilment() -> void:
 	# "toiling away at a shift at the nearby fulfillment center": a long flat
@@ -1156,19 +1547,32 @@ func _people() -> void:
 		add_child(f)
 		var ln: float = (routes[i][0] as Vector3).distance_to(routes[i][1])
 		commuters.append({"node": f, "a": routes[i][0], "b": routes[i][1], "t": rng.randf(), "dir": 1.0, "speed": rng.randf_range(1.2, 1.7) / ln})
-	# the ones with frames: three of them in the shanty lot, sat facing the
-	# overpass, visors lit, not a device between them that was ever issued
-	for i in 3:
-		var p: Vector3 = [Vector3(20.0, 0, 21.0), Vector3(29.0, 0, 24.5), Vector3(38.5, 0, 21.5)][i]
-		var f := figure([Color(0.35, 0.3, 0.25), Color(0.25, 0.25, 0.28), Color(0.4, 0.2, 0.15)][i], skins[(i + 1) % skins.size()],
-			{"arms": true, "knees": true, "visor": true, "hair": Color(0.2, 0.18, 0.16)})
-		f.position = p + Vector3(0, -0.41, 0)
-		f.rotation.y = -PI / 2.0 + rng.randf_range(-0.2, 0.2)
-		add_child(f)
-		Anim.sit(f, 0.2)
-		box(Vector3(0.5, 0.42, 0.5), p + Vector3(0, 0.2, 0.1), mat(Color(0.5, 0.4, 0.28), 0.9), false)
-		dwellers.append(f)
-		person("dweller%d" % i, "Look at the man by the shanty", f)
+	# Site 1's three: the informant (no frames, a kind word buys a side door),
+	# the one who goes for the frames, and the one mid-conversion, visor lit,
+	# facing east at the plant with his lips moving
+	vag_informant = figure(Color(0.35, 0.3, 0.25), skins[1], {"arms": true, "knees": true, "hair": Color(0.3, 0.28, 0.26)})
+	vag_informant.position = Vector3(20.0, -0.41, 21.0)
+	vag_informant.rotation.y = 0.3
+	add_child(vag_informant)
+	Anim.sit(vag_informant, 0.25)
+	box(Vector3(0.5, 0.42, 0.5), Vector3(20.0, 0.2, 21.1), mat(Color(0.5, 0.4, 0.28), 0.9), false)
+	box(Vector3(0.3, 0.06, 0.3), Vector3(20.8, 0.03, 20.2), mat(Color(0.5, 0.5, 0.52), 0.4, 0.6))
+	vag_informant.set_meta("vagrant", true)
+	person("vag_informant", "Talk to the man with the blanket", vag_informant, "UNREGISTERED\ndevices: NONE\nhousing: REVOKED\nknown to: TYSON").set_meta("vagrant", true)
+	vag_attacker = figure(Color(0.25, 0.25, 0.28), skins[2], {"arms": true, "knees": true, "hair": Color(0.2, 0.18, 0.16)})
+	vag_attacker.position = Vector3(29.0, 0.02, 24.5)
+	vag_attacker.rotation.y = -PI / 2.0
+	add_child(vag_attacker)
+	vag_attacker.set_meta("vagrant", true)
+	person("vag_attacker", "The man by the washing line", vag_attacker, "UNREGISTERED\ndevices: NONE\nsync: --\nstate: AGITATED").set_meta("vagrant", true)
+	vag_convert = figure(Color(0.4, 0.2, 0.15), skins[3], {"arms": true, "knees": true, "visor": true, "hair": Color(0.2, 0.18, 0.16)})
+	vag_convert.position = Vector3(38.5, -0.41, 21.5)
+	vag_convert.rotation.y = -PI / 2.0
+	add_child(vag_convert)
+	Anim.sit(vag_convert, 0.2)
+	box(Vector3(0.5, 0.42, 0.5), Vector3(38.5, 0.2, 21.6), mat(Color(0.5, 0.4, 0.28), 0.9), false)
+	vag_convert.set_meta("vagrant", true)
+	person("vag_convert", "Look at the man with the frames", vag_convert, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  sync 100%  -  DREAMING\nsaying: '%s'" % main.CHANT[0]).set_meta("vagrant", true)
 	# the worker on the shift, head down over the second press
 	worker = figure(Color(0.8, 0.95, 0.2), Color(0.7, 0.52, 0.38), {"arms": true, "knees": true, "hair": Color(0.15, 0.12, 0.1)})
 	worker.position = Vector3(53.0, 0.02, -27.4)
@@ -1232,7 +1636,7 @@ func _lanes() -> void:
 	# the gap south, past the shanty lot: pallets, a container, washing
 	for k in 6:
 		box(Vector3(1.0, 0.12, 1.0), Vector3(41.0, 0.06 + k * 0.13, 20.0), mat(Color(0.5, 0.4, 0.28), 0.9))
-	_container(Vector3(43.5, 0, 34.0), 0.0, cont[1], 2.4, 6.0)
+	_container(Vector3(41.0, 0, 42.0), PI / 2.0, cont[1], 2.4, 6.0)
 	box(Vector3(4.4, 0.08, 8.0), Vector3(42.0, 4.0, 28.0), sheet)
 	# the north lane: the backs of the buildings, a wreck, containers, the camp at the west end
 	for k in 5:
@@ -1254,7 +1658,7 @@ func _lanes() -> void:
 	_dumpster(Vector3(80.0, 0, 45.0), 0.0)
 	_dumpster(Vector3(118.0, 0, 20.0), 0.0)
 	for k in 5:
-		box(Vector3(6.0, 0.08, 4.0), Vector3(50.0 + k * 20.0, 4.2, 46.5), sheet).rotation.z = -0.05
+		box(Vector3(6.0, 0.08, 4.0), Vector3(50.0 + k * 20.0, 4.2, 49.8), sheet).rotation.z = -0.05
 	for k in 4:
 		var o3 := light(Vector3(45.0 + k * 25.0, 3.8, 48.0), Color(0.8, 0.9, 1.0), 0.6, 9.0)
 		if k % 2 == 1:
@@ -1277,7 +1681,7 @@ func _lanes() -> void:
 	# the rings in the lanes too, small, at knee height, where nobody looks
 	_glyph_on(Vector3(70.17, 0.6, -36.0), PI / 2.0, 0.004, "g_lane_n", false, false,
 		LINES["rings"]["g_lane_n"])
-	_glyph_on(Vector3(74.0, 1.2, 42.83), PI, 0.006, "g_lane_s", true, false,
+	_glyph_on(Vector3(62.0, 1.2, 47.23), 0.0, 0.006, "g_lane_s", true, false,
 		LINES["rings"]["g_lane_s"])
 
 
@@ -1341,9 +1745,12 @@ func _camp(p: Vector3) -> void:
 ## side door, two at the edges of the camp under the overpass. They do
 ## nothing yet but turn to keep Carl in view when the frames are on.
 func _guards() -> void:
-	var spots := [[Vector3(44.2, 0.02, -11.4), 0.0, "the factory door"], [Vector3(131.0, 0.02, -17.0), 0.6, "the north pier"], [Vector3(149.0, 0.02, 17.0), PI - 0.6, "the south pier"]]
+	# the factory door, the plant gate (sighted, in frames), two on patrol in
+	# the yard between the drills
+	var spots := [[Vector3(44.2, 0.02, -11.4), 0.0, "the factory door", false], [Vector3(59.0, 0.02, 15.6), 0.0, "the gate", true],
+		[Vector3(53.0, 0.02, 22.0), -PI / 2.0, "the yard", false], [Vector3(46.5, 0.02, 16.0), PI, "the yard", false]]
 	for i in spots.size():
-		var g := figure(Color(0.03, 0.03, 0.035), Color(0.6, 0.6, 0.6), {"hair": Color(0.02, 0.02, 0.02), "arms": true, "knees": true, "long_coat": true})
+		var g := figure(Color(0.03, 0.03, 0.035), Color(0.6, 0.6, 0.6), {"hair": Color(0.02, 0.02, 0.02), "arms": true, "knees": true, "long_coat": true, "visor": spots[i][3]})
 		(g.get_meta("body") as Node3D).scale = Vector3(1.0, 1.18, 1.0)
 		(g.get_meta("body") as Node3D).position.y = -0.18
 		g.scale = Vector3.ONE * 1.1
@@ -1365,10 +1772,11 @@ func _guards() -> void:
 		for a in g.get_meta("arms"):
 			(a as Node3D).rotation.x = -0.15
 		var body := person("guard%d" % i, "Look at the figure by %s" % spots[i][2], g,
-			"UNKNOWN\nface: COVERED\ndevices: NONE\nsync: ???  -  DREAMING")
+			"UNKNOWN\nface: COVERED\ndevices: %s\nsync: ???  -  DREAMING" % ("ORA (UNISSUED)" if spots[i][3] else "NONE"))
 		body.set_meta("guard", true)
 		guards.append(g)
-
+	patrols = [{"node": guards[2], "a": Vector3(53.0, 0.02, 22.0), "b": Vector3(65.0, 0.02, 22.0), "t": 0.0, "dir": 1.0, "speed": 0.12},
+		{"node": guards[3], "a": Vector3(46.5, 0.02, 16.0), "b": Vector3(46.5, 0.02, 23.5), "t": 0.5, "dir": 1.0, "speed": 0.18}]
 
 ## The people the city left in the lanes: crouched, seated, turned away.
 func _vagrants() -> void:
@@ -1659,10 +2067,13 @@ func objective() -> String:
 		return LINES["objective"]["done"]
 	if not f.has("lynx_met"):
 		return LINES["objective"]["lynx"]
+	if f.has("plant_entered"):
+		return LINES["objective"]["church"]
 	if f.has("factory_keycard") and not f.has("factory_unlocked"):
 		return LINES["objective"]["keycard"]
-	return LINES["objective"]["rings"]
-
+	if f.has("informant_help"):
+		return LINES["objective"]["side_door"]
+	return LINES["objective"]["plant"]
 
 func intro() -> void:
 	var ui = main.ui
@@ -1695,9 +2106,6 @@ func tick(delta: float) -> void:
 		Anim.walk(n, _t, 1.25, float(n.get_instance_id() % 7), 1.0)
 		var away := n.global_position + (n.global_position - pp) + Vector3(0, 1.4, 0)
 		Anim.look(n, away, 0.8 if pp.distance_to(n.global_position) < 7.0 else 0.0, 0.05)
-	# the ones with frames on turn their heads to follow Carl, all together
-	for d in dwellers:
-		Anim.look(d, pp + Vector3(0, 1.6, 0), 1.0 if pp.distance_to(d.global_position) < 30.0 else 0.0, 0.03)
 	# the guards: still, until the frames are on; then every one of them
 	# turns to keep Carl in view, and keeps turning
 	for g in guards:
@@ -1715,6 +2123,74 @@ func tick(delta: float) -> void:
 		if pp.distance_to(n.global_position) < 5.0:
 			var away := n.global_position + (n.global_position - pp) + Vector3(0, 1.2, 0)
 			Anim.look(n, away, 0.7, 0.04)
+	# the yard patrols: between the drills, or on Carl's heels after the badge
+	for pt in patrols:
+		var n: Node3D = pt.node
+		var in_plant := pp.z > 12.5 and pp.x > 44.0 and pp.x < 74.0
+		if _guards_tail and in_plant and not main.flags.has("cinematic"):
+			var away := (n.global_position - pp)
+			away.y = 0.0
+			var want := pp + away.normalized() * 3.6
+			var d := want - n.position
+			d.y = 0.0
+			if d.length() > 0.5:
+				n.position += d.normalized() * minf(1.5 * delta, d.length())
+				n.rotation.y = atan2(-d.x, -d.z)
+				Anim.walk(n, _t, 1.0, 1.0, 1.0)
+			else:
+				Anim.idle(n, _t, 1.0)
+				var f2 := pp - n.position
+				n.rotation.y = lerp_angle(n.rotation.y, atan2(-f2.x, -f2.z), minf(1.0, delta * 2.0))
+			Anim.look(n, pp + Vector3(0, 1.6, 0), 1.0, 0.06)
+			continue
+		if main.flags.has("plant_entered") and str(main.flags.get("plant_route", "")) == "badge":
+			Anim.idle(n, _t, 1.0)
+			continue
+		pt.t += pt.speed * delta * pt.dir
+		if pt.t > 1.0 or pt.t < 0.0:
+			pt.dir *= -1.0
+			pt.t = clampf(pt.t, 0.0, 1.0)
+		var from: Vector3 = pt.a
+		var to: Vector3 = pt.b
+		var np: Vector3 = from.lerp(to, pt.t)
+		var dd: Vector3 = (to - from) * pt.dir
+		n.position = np
+		n.rotation.y = lerp_angle(n.rotation.y, atan2(-dd.x, -dd.z), minf(1.0, delta * 3.0))
+		Anim.walk(n, _t, 0.9, float(n.get_instance_id() % 5), 1.0)
+	# the congregation turn their heads when the frames are on; the priest's
+	# face will not hold still, and once in a while it is Carl's
+	for c in congregation:
+		Anim.look(c, pp + Vector3(0, 1.6, 0), 1.0 if main.frames_on and pp.distance_to(c.global_position) < 22.0 else 0.0, 0.03)
+	if priest_head and priest_faces.size() > 0:
+		if _carl_frame:
+			priest_head.material_override = priest_faces[_face_i]
+			_carl_frame = false
+		else:
+			_face_t -= delta
+			if _face_t <= 0.0:
+				_face_i = (_face_i + 1) % priest_faces.size()
+				_face_t = rng.randf_range(0.35, 1.1)
+				_face_n += 1
+				if _face_n % 7 == 0:
+					priest_head.material_override = carl_face
+					_carl_frame = true
+					if main.frames_on and pp.distance_to(priest.global_position) < 16.0 and not main.flags.has("priest_face_seen"):
+						main.flags["priest_face_seen"] = true
+						main.ui.show_toast(LINES["church"]["priest_toast"], 3.5)
+						main.player.shake(0.2)
+				else:
+					priest_head.material_override = priest_faces[_face_i]
+		Anim.idle(priest, _t, 0.5)
+		if main.flags.has("sermon_heard") or main.flags.has("cinematic"):
+			Anim.look(priest, pp + Vector3(0, 1.6, 0), 0.6 if pp.distance_to(priest.global_position) < 14.0 else 0.0, 0.04)
+	# the eye layer under the overpass: the footprints only the frames can see
+	if footprints.size() > 0 and _prints_on != main.frames_on:
+		_prints_on = main.frames_on
+		for s in footprints:
+			(s as Node3D).visible = _prints_on
+	# Lynx rejoins when Carl comes back out of the plant by the badge route
+	if lynx_state == "stand" and lynx_target == LYNX_FENCE and pp.z < 12.0 and main.flags.has("plant_entered"):
+		lynx_state = "follow"
 	if worker:
 		Anim.idle(worker, _t, 2.0)
 		(worker.get_meta("head") as Node3D).rotation.x = 0.55
@@ -1760,9 +2236,15 @@ func _tick_lynx(delta: float, pp: Vector3) -> void:
 				target = FACTORY_DOOR + Vector3(-1.4, 0, 0)
 			else:
 				target = pp + Basis(Vector3.UP, p.yaw) * Vector3(-1.3, 0, -0.7)
-				if pp.x > 107.0 and pp.x < 129.0:
+				if pp.x > 107.0 and pp.x < 129.0 and absf(pp.z) < 3.0:
 					target.z = clampf(target.z, -1.4, 1.4)
-				target.z = clampf(target.z, -FRONT + 0.6, FRONT - 0.6) if pp.x < 128.0 else clampf(target.z, -40.0, 40.0)
+				elif absf(pp.z) < FRONT and pp.x < 128.0:
+					target.z = clampf(target.z, -FRONT + 0.6, FRONT - 0.6)
+				elif pp.x >= 128.0 and pp.x < 156.0:
+					target.z = clampf(target.z, -40.0, 40.0)
+				elif pp.x > 44.0 and pp.x < 74.0 and pp.z > FRONT:
+					target.x = clampf(target.x, 45.0, 73.0)
+					target.z = clampf(target.z, FRONT + 0.8, 46.0)
 			target.y = 0.02
 			var d := target - lynx.position
 			d.y = 0.0
@@ -1808,6 +2290,7 @@ func interact(node: Object) -> bool:
 		"my_car":
 			if f.has("southtown_done"):
 				await ui.think(LINES["examine"]["my_car_think"])
+				await _leave()
 			elif f.has("lynx_met"):
 				await ui.think(LINES["examine"]["my_car_think_2"])
 			else:
@@ -1826,7 +2309,7 @@ func interact(node: Object) -> bool:
 			await ui.think(LINES["examine"]["worker_think"])
 			await ui.say("Worker", LINES["examine"]["worker_worker"])
 		"office_laptop":
-			await ui.think(LINES["examine"]["office_laptop_think"])
+			await _office_laptop()
 		"keycard":
 			if f.has("factory_keycard"):
 				await ui.think(LINES["examine"]["keycard_think"])
@@ -1848,12 +2331,50 @@ func interact(node: Object) -> bool:
 		"floor_eye":
 			await _floor_eye()
 		"shanty":
-			await ui.think(LINES["examine"]["shanty_think"])
-			await ui.think(LINES["examine"]["shanty_think_2"])
-		"dweller0", "dweller1", "dweller2":
-			await ui.think(LINES["examine"]["dweller0_think"])
-			if main.frames_on:
-				await ui.say("", LINES["examine"]["dweller0_narr"])
+			await ui.think(LINES["shanty"]["think"])
+			await ui.think(LINES["shanty"]["think_2"])
+		"vag_informant":
+			await _informant()
+		"vag_attacker":
+			await _attacker()
+		"vag_convert":
+			await _convert()
+		"plant_gate":
+			await _gate()
+		"gate_reader":
+			await ui.think(LINES["examine"]["gate_reader_think"])
+		"gate_cam":
+			await ui.think(LINES["examine"]["gate_cam_think"] if not f.has("cam_hacked") else LINES["examine"]["gate_cam_off"])
+		"gate_speaker":
+			await ui.think(LINES["examine"]["gate_speaker_think"])
+		"drill50", "drill68":
+			await ui.think(LINES["examine"]["drill_think"])
+		"drill_housing":
+			await _drill_housing()
+		"congregation":
+			await ui.think(LINES["church"]["congregation_think"])
+		"priest":
+			await ui.think(LINES["church"]["priest_think"])
+			if not f.has("priest_face_seen"):
+				f["priest_face_seen"] = true
+				ui.show_toast(LINES["church"]["priest_toast"], 3.5)
+		"wire_eye":
+			await _wire_eye()
+		"drill_pit":
+			await ui.think(LINES["examine"]["drill_pit_think"])
+		"hatch":
+			await _hatch()
+		"side_door":
+			await _side_door()
+		"verse":
+			await _verse()
+		"footprints":
+			await _footprints()
+		"chant_wall":
+			await _chant_wall()
+		"tunnel_mouth":
+			await ui.think(LINES["overpass"]["tunnel_think"])
+			await ui.think(LINES["overpass"]["tunnel_think_2"])
 		"tunelet":
 			await ui.think(LINES["examine"]["tunelet_think"])
 			await ui.think(LINES["examine"]["tunelet_think_2"])
@@ -1873,7 +2394,7 @@ func interact(node: Object) -> bool:
 			await ui.think(LINES["examine"]["limit_think"])
 		"overpass_eye":
 			await _overpass_scene()
-		"guard0", "guard1", "guard2":
+		"guard0", "guard1", "guard2", "guard3":
 			await ui.think(LINES["examine"]["guard0_think"])
 			if main.frames_on:
 				await ui.say("", LINES["examine"]["guard0_narr"])
@@ -1913,10 +2434,11 @@ func _lynx() -> void:
 		await ui.say("Carl", LINES["lynx_station"]["carl_2"])
 		await ui.think(LINES["lynx_station"]["think_3"])
 		f["lynx_trust"] = true
+		main.add_trust("lynx", 1)
 	else:
 		await ui.say("Carl", LINES["lynx_station"]["carl_3"])
 		await ui.say("Lynx", LINES["lynx_station"]["lynx_7"])
-		main.add_connection(1.0, "joked about it")
+		main.add_stance("sleeper")
 	await ui.say("Carl", LINES["lynx_station"]["carl_4"])
 	await ui.say("Lynx", LINES["lynx_station"]["lynx_8"])
 	ui.close()
@@ -1944,8 +2466,611 @@ func _lynx() -> void:
 	await ui.say("Lynx", LINES["lynx_station"]["lynx_12"])
 	ui.close()
 	f["lynx_met"] = true
+	f["ev_construction_video"] = true
+	main.log_line("evidence", LINES["lynx_station"]["video_log"])
 	main.add_connection(2.0, "the old footage")
 	main.update_hud()
+
+
+# ------------------------------------------------------------------ Site 1: the shanty town
+
+func _informant() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	turn_to(vag_informant, main.player.global_position, 0.4)
+	if f.has("informant_help"):
+		await ui.say("Informant", LINES["shanty"]["informant_help"])
+		return
+	await ui.think(LINES["shanty"]["informant_think"])
+	await ui.say("Informant", LINES["shanty"]["informant"])
+	if int(main.trust.get("tyson", 0)) >= 1:
+		await ui.say("Informant", LINES["shanty"]["informant_trusts"])
+		await ui.say("Informant", LINES["shanty"]["informant_2"])
+		_informant_helps()
+		return
+	var pick: int = await ui.choose(LINES["shanty"]["choice"])
+	if pick == 0:
+		await ui.say("Carl", LINES["shanty"]["carl_kind"])
+		await ui.say("Informant", LINES["shanty"]["informant_2"])
+		_informant_helps()
+	else:
+		await ui.say("Carl", LINES["shanty"]["carl_blunt"])
+		await ui.say("Informant", LINES["shanty"]["informant_3"])
+	ui.close()
+
+
+func _informant_helps() -> void:
+	var f: Dictionary = main.flags
+	f["informant_help"] = true
+	main.ui.show_toast(LINES["shanty"]["toast"], 3.0)
+	main.log_line("lead", LINES["shanty"]["log"])
+	main.update_hud()
+
+
+func _attacker() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	if f.has("attacker_down"):
+		await ui.think(LINES["shanty"]["attacker_after"])
+		return
+	if not main.frames_on:
+		await ui.think(LINES["shanty"]["attacker_off"])
+		return
+	f["cinematic"] = true
+	await ui.think(LINES["shanty"]["attacker_think"])
+	turn_to(vag_attacker, p.global_position, 0.3)
+	main.play("sting", -8.0, 1.1)
+	p.shake(0.2)
+	await ui.say("Man", LINES["shanty"]["attacker"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["shanty"]["lynx"])
+	var pick: int = await ui.choose(LINES["shanty"]["choice_2"])
+	var stun := pick == 1
+	if pick == 0:
+		if "beneath" in main.lexicon:
+			await ui.say("Carl", LINES["shanty"]["carl_talk"])
+			await ui.think(LINES["shanty"]["attacker_calms"])
+		else:
+			await ui.say("Carl", LINES["shanty"]["carl_talk_fail"])
+			ui.glitch(0.5, 0.5)
+			p.shake(0.5)
+			await ui.think(LINES["shanty"]["attacker_fails"])
+			stun = true
+	if stun:
+		main.play("snap", -4.0)
+		ui.flash(0.9)
+		await ui.think(LINES["shanty"]["flash"])
+	# down against the wall, hands over the eyes
+	vag_attacker.position.y = -0.41
+	Anim.sit(vag_attacker, 0.4)
+	for a in vag_attacker.get_meta("arms"):
+		(a as Node3D).rotation.x = -2.5
+	await ui.think(LINES["shanty"]["think_after"])
+	ui.close()
+	f["attacker_down"] = true
+	f.erase("cinematic")
+	main.log_line("event", LINES["shanty"]["attacker_log"])
+	main.update_hud()
+
+
+func _convert() -> void:
+	var ui = main.ui
+	await ui.think(LINES["shanty"]["convert_think"])
+	if main.frames_on:
+		await ui.say("", LINES["shanty"]["convert_scan"])
+	await ui.say("Man", LINES["shanty"]["convert"])
+	await ui.think(LINES["shanty"]["convert_think_2"])
+	if not main.flags.has("convert_heard"):
+		main.flags["convert_heard"] = true
+		main.add_connection(1.0, "the first line")
+
+
+# ------------------------------------------------------------------ Site 2: the Tunelet plant
+
+func _gate() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if f.has("plant_entered"):
+		await ui.think(LINES["plant_gate"]["done_think"])
+		return
+	await ui.think(LINES["plant_gate"]["think"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["plant_gate"]["lynx"])
+	var pick: int = await ui.choose(LINES["plant_gate"]["choice"])
+	ui.close()
+	match pick:
+		0:
+			await _route_badge()
+		1:
+			await _route_hack()
+		2:
+			await _route_sneak()
+		_:
+			if not f.has("informant_help"):
+				await ui.think(LINES["plant_gate"]["person_none"])
+				return
+			await _route_person()
+	await _entered()
+
+
+func _open_gate() -> void:
+	main.play("door", -6.0, 0.7)
+	create_tween().tween_property(plant_gate, "rotation:y", -1.75, 1.2).set_trans(Tween.TRANS_SINE)
+	var pg := _node_by_id("plant_gate")
+	if pg:
+		pg.set_meta("prompt", LINES["plant_gate"]["open"])
+	if gate_reader_light:
+		gate_reader_light.material_override = glow(Color(0.2, 1.0, 0.3), 3.0)
+
+
+func _route_badge() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	f["plant_route"] = "badge"
+	main.play("tap", -8.0)
+	_open_gate()
+	await ui.think(LINES["plant_gate"]["badge_think"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["plant_gate"]["badge_lynx"])
+		lynx_state = "stand"
+		lynx_target = LYNX_FENCE
+	ui.close()
+	main.add_pressure(2.0, "badged into the plant")
+	main.log_line("route", LINES["plant_gate"]["badge_log"])
+	_guards_tail = true
+	await ui.think(LINES["plant_gate"]["badge_think_2"])
+
+
+func _route_hack() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	f["plant_route"] = "hack"
+	main.play("glitch", -6.0)
+	ui.glitch(0.5, 0.8)
+	if gate_cam_light:
+		gate_cam_light.visible = false
+	f["cam_hacked"] = true
+	_open_gate()
+	await ui.think(LINES["plant_gate"]["hack_think"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["plant_gate"]["hack_lynx"])
+	ui.close()
+	main.add_connection(2.0, "the hack at the gate")
+	main.log_line("route", LINES["plant_gate"]["hack_log"])
+
+
+func _route_sneak() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	f["plant_route"] = "sneak"
+	f["cinematic"] = true
+	await ui.think(LINES["plant_gate"]["sneak_think"])
+	ui.close()
+	ui.fade_to(1.0, 0.6)
+	await get_tree().create_timer(0.7).timeout
+	p.global_position = Vector3(66.5, 0.05, 41.5)
+	p.yaw = PI / 2.0 + 0.35
+	p.pitch = 0.0
+	p.rotation.y = p.yaw
+	if lynx and lynx_state != "wait":
+		lynx.position = Vector3(68.0, 0.02, 43.0)
+		lynx_state = "follow"
+	_sun_lower(0.5)
+	ui.fade_to(0.0, 1.0)
+	await get_tree().create_timer(0.8).timeout
+	ui.show_toast(LINES["plant_gate"]["sneak_toast"], 3.5)
+	main.log_line("time", LINES["plant_gate"]["sneak_log"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["plant_gate"]["sneak_lynx"])
+	ui.close()
+	f.erase("cinematic")
+
+
+func _route_person() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	f["plant_route"] = "person"
+	f["cinematic"] = true
+	await ui.think(LINES["plant_gate"]["person_think"])
+	ui.close()
+	ui.fade_to(1.0, 0.6)
+	await get_tree().create_timer(0.7).timeout
+	_open_side_door()
+	p.global_position = Vector3(45.6, 0.05, 33.7)
+	p.yaw = -PI / 2.0 - 0.3
+	p.pitch = 0.0
+	p.rotation.y = p.yaw
+	if lynx and lynx_state != "wait":
+		lynx.position = Vector3(42.8, 0.02, 33.7)
+		lynx_state = "follow"
+	if vag_informant:
+		vag_informant.visible = false
+	var vi := _node_by_id("vag_informant")
+	if vi:
+		vi.set_meta("exit", true)
+		(vi as CollisionObject3D).collision_layer = 0
+	ui.fade_to(0.0, 1.0)
+	await get_tree().create_timer(0.8).timeout
+	main.log_line("route", LINES["plant_gate"]["person_log"])
+	f.erase("cinematic")
+
+
+func _open_side_door() -> void:
+	var f: Dictionary = main.flags
+	if f.has("side_door_open"):
+		return
+	f["side_door_open"] = true
+	main.play("door", -6.0, 0.9)
+	create_tween().tween_property(side_door, "rotation:y", 1.6, 1.0).set_trans(Tween.TRANS_SINE)
+	var sd := _node_by_id("side_door")
+	if sd:
+		sd.set_meta("prompt", "Go through")
+
+
+func _side_door() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if f.has("side_door_open"):
+		await ui.think(LINES["plant_gate"]["side_open"])
+		return
+	if f.has("informant_help") and not f.has("plant_entered"):
+		await _route_person()
+		await _entered()
+		return
+	await ui.think(LINES["plant_gate"]["side_locked"])
+
+
+func _hatch() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if f.has("plant_entered"):
+		await ui.think(LINES["plant_gate"]["hatch_after"])
+		return
+	await ui.think(LINES["plant_gate"]["hatch_think"])
+	await _route_sneak()
+	await _entered()
+
+
+## Past the perimeter, by whichever route: the church is in front of him.
+func _entered() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if f.has("plant_entered"):
+		return
+	f["plant_entered"] = true
+	main.update_hud()
+	await get_tree().create_timer(0.6).timeout
+	await ui.think(LINES["plant_gate"]["inside_think"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["plant_gate"]["inside_lynx"])
+	ui.close()
+
+
+func _drill_housing() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	if f.has("sermon_heard") or f.has("sermon_skipped"):
+		await ui.think(LINES["church"]["after_think"])
+		return
+	await ui.think(LINES["church"]["housing_think"])
+	var pick: int = await ui.choose(LINES["church"]["choice"])
+	ui.close()
+	if pick == 1:
+		await ui.think(LINES["church"]["leave_think"])
+		f["sermon_skipped"] = true
+		main.log_line("event", LINES["church"]["leave_log"])
+		return
+	f["cinematic"] = true
+	var tw := create_tween()
+	tw.tween_property(p, "crouch", 0.5, 0.6)
+	await tw.finished
+	await ui.think(LINES["church"]["stay_think"])
+	ui.close()
+	_chant = main.loop("chant", -10.0, Vector3.ZERO, 1.0, 30.0, priest)
+	if _chant:
+		(_chant as AudioStreamPlayer3D).play()
+	await p.face(priest.global_position + Vector3(0, 1.6, 0), 1.0)
+	await ui.say("Priest", LINES["church"]["priest"])
+	await ui.say("Priest", LINES["church"]["priest_2"])
+	main.play("sting", -4.0, 0.8)
+	p.shake(0.5)
+	ui.glitch(0.9, 1.2)
+	await ui.say("Priest", LINES["church"]["priest_3"])
+	await ui.think(LINES["church"]["think_2"])
+	main.play("keys", -12.0, 0.6)
+	await ui.think(LINES["church"]["think_3"])
+	ui.close()
+	if _chant:
+		_chant.queue_free()
+		_chant = null
+	var up := create_tween()
+	up.tween_property(p, "crouch", 0.0, 0.6)
+	await up.finished
+	f["sermon_heard"] = true
+	f.erase("cinematic")
+	main.add_connection(4.0, "the sermon")
+	main.learn("mimic")
+	main.log_line("evidence", LINES["church"]["stay_log"])
+	_claim()
+	main.update_hud()
+
+
+func _wire_eye() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	if f.has("ev_map"):
+		await ui.think(LINES["wire_eye"]["done"])
+		return
+	if not main.frames_on:
+		await ui.think(LINES["wire_eye"]["frames_off"])
+		return
+	f["cinematic"] = true
+	if lynx_state != "wait":
+		lynx_state = "stand"
+		lynx_target = LYNX_EYE
+	await p.face(WIRE_EYE, 1.2)
+	main.play("whisper", -8.0, 0.8)
+	await ui.think(LINES["wire_eye"]["think"])
+	ui.close()
+	_hum = main.loop("hum", -8.0, Vector3.ZERO, 1.0, 8.0, p)
+	if _hum:
+		(_hum as AudioStreamPlayer3D).play()
+	p.shake(0.15)
+	await get_tree().create_timer(1.0).timeout
+	await ui.think(LINES["wire_eye"]["think_2"])
+	ui.close()
+	var tw := create_tween()
+	tw.tween_property(p, "crouch", 0.35, 0.7)
+	await tw.finished
+	await p.face(p.global_position + Vector3(0, 0.6, -1.0), 0.6)
+	main.play("on", -8.0, 0.6)
+	ui.laptop_open(true)
+	ui.laptop_log.append_text(LINES["wire_eye"]["laptop_log"])
+	await ui.think(LINES["wire_eye"]["think_3"])
+	ui.close()
+	await get_tree().create_timer(1.2).timeout
+	main.play("ding", -4.0)
+	await ui.laptop_line(LINES["wire_eye"]["psyon"])
+	p.shake(0.25)
+	ui.glitch(0.5, 0.6)
+	await get_tree().create_timer(0.8).timeout
+	await ui.laptop_line(LINES["wire_eye"]["psyon_2"])
+	main.play("keys", -14.0, 0.5)
+	await ui.laptop_image(_map(), 7.0)
+	await ui.think(LINES["wire_eye"]["think_4"])
+	await ui.think(LINES["wire_eye"]["think_5"])
+	if lynx_state != "wait":
+		await ui.say("Lynx", LINES["wire_eye"]["lynx"])
+		await ui.think(LINES["wire_eye"]["think_6"])
+		await ui.say("Lynx", LINES["wire_eye"]["lynx_2"])
+		await ui.say("Carl", LINES["wire_eye"]["carl"])
+		await ui.say("Lynx", LINES["wire_eye"]["lynx_3"])
+		await ui.say("Carl", LINES["wire_eye"]["carl_2"])
+	ui.close()
+	var pick: int = await ui.choose(LINES["wire_eye"]["choice"])
+	ui.close()
+	main.play("keys", -6.0)
+	if pick == 0:
+		await ui.laptop_line(LINES["wire_eye"]["carl_3"], true)
+		await get_tree().create_timer(1.0).timeout
+		await ui.laptop_line(LINES["wire_eye"]["psyon_3"])
+	else:
+		await ui.laptop_line(LINES["wire_eye"]["carl_4"], true)
+		await get_tree().create_timer(1.0).timeout
+		await ui.laptop_line(LINES["wire_eye"]["psyon_4"])
+	main.play("sting", -4.0, 0.85)
+	ui.glitch(0.8, 1.0)
+	p.shake(0.4)
+	await get_tree().create_timer(1.2).timeout
+	await ui.think(LINES["wire_eye"]["think_7"])
+	ui.close()
+	main.play("slam", -4.0)
+	ui.laptop_open(false)
+	if _hum:
+		_hum.queue_free()
+		_hum = null
+	var up := create_tween()
+	up.tween_property(p, "crouch", 0.0, 0.6)
+	await up.finished
+	if lynx_state != "wait":
+		await ui.say("Lynx", LINES["wire_eye"]["lynx_4"])
+		lynx_state = "follow"
+	ui.close()
+	f["ev_map"] = true
+	f["has_map"] = true
+	f["southtown_done"] = true
+	f.erase("cinematic")
+	ui.show_toast(LINES["wire_eye"]["toast"], 3.0)
+	main.add_connection(3.0, "the map")
+	main.log_line("evidence", LINES["wire_eye"]["log"])
+	_sun_lower(1.0)
+	_claim()
+	main.update_hud()
+
+
+# ------------------------------------------------------------------ Site 3: the overpass, deserted
+
+func _overpass_scene() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	if f.has("overpass_seen"):
+		await ui.think(LINES["overpass"]["again"])
+		return
+	f["overpass_seen"] = true
+	await ui.think(LINES["overpass"]["think"])
+	ui.close()
+	await p.face(EYE_P, 1.4)
+	main.play("whisper", -8.0, 0.8)
+	await ui.think(LINES["overpass"]["think_2"])
+	await ui.think(LINES["overpass"]["think_3"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["overpass"]["lynx"])
+	ui.close()
+	main.add_connection(1.0, "the overpass eye")
+
+
+func _footprints() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if not main.frames_on:
+		await ui.think(LINES["overpass"]["footprints_off"])
+		return
+	await ui.think(LINES["overpass"]["footprints"])
+	if f.has("footprints_seen"):
+		return
+	await main.player.face(Vector3(155.5, 1.0, -22.0), 1.2)
+	await ui.think(LINES["overpass"]["footprints_2"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["overpass"]["footprints_lynx"])
+	ui.close()
+	f["footprints_seen"] = true
+	main.add_connection(2.0, "the footprints")
+	main.log_line("evidence", LINES["overpass"]["footprints_log"])
+	_claim()
+	main.update_hud()
+
+
+func _chant_wall() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if f.has("chant_done"):
+		await ui.think(LINES["chant"]["again"])
+		return
+	await ui.think(LINES["chant"]["think"])
+	if main.glyphs_found < 3:
+		await ui.think(LINES["chant"]["think_locked"])
+		return
+	var pick: int = await ui.choose(LINES["chant"]["choice"])
+	ui.close()
+	if pick != 0:
+		await ui.think(LINES["chant"]["wrong"])
+		return
+	main.play("ding", -8.0, 0.8)
+	await ui.think(LINES["chant"]["right"])
+	if lynx_state == "follow":
+		await ui.say("Lynx", LINES["chant"]["lynx"])
+	ui.close()
+	f["chant_done"] = true
+	main.learn("beneath")
+	main.add_connection(2.0, "the third line")
+	main.log_line("lore", LINES["chant"]["log"])
+
+
+# ------------------------------------------------------------------ the factory, the claim, leaving
+
+func _verse() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	await ui.think(LINES["factory"]["verse_think"])
+	await ui.say("", LINES["factory"]["verse"])
+	if f.has("verse_seen"):
+		return
+	await ui.think(LINES["factory"]["verse_think_2"])
+	await ui.think(LINES["factory"]["verse_think_3"])
+	f["verse_seen"] = true
+	main.add_connection(1.0, "verse one")
+	main.log_line("lore", LINES["factory"]["verse_log"])
+
+
+func _office_laptop() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	await ui.think(LINES["factory"]["laptop_think"])
+	if not main.frames_on:
+		return
+	await ui.think(LINES["factory"]["laptop_frames"])
+	ui.close()
+	main.play("on", -10.0, 0.6)
+	ui.laptop_open(true)
+	await get_tree().create_timer(0.6).timeout
+	await ui.laptop_line(LINES["factory"]["laptop_psyon"])
+	await ui.think(LINES["factory"]["laptop_think_2"])
+	ui.close()
+	ui.laptop_open(false)
+	if not f.has("office_laptop_seen"):
+		f["office_laptop_seen"] = true
+		main.add_connection(1.0, "pilgrim or heretic")
+		main.log_line("lore", LINES["factory"]["laptop_log"])
+
+
+## The Board's first claim: the video, the sermon or the footprints, the map.
+func _claim() -> void:
+	var f: Dictionary = main.flags
+	if f.has("southtown_claim"):
+		return
+	if f.has("ev_construction_video") and (f.has("sermon_heard") or f.has("footprints_seen")) and f.has("ev_map"):
+		f["southtown_claim"] = true
+		main.ui.show_toast(LINES["claim"]["toast"], 5.0)
+		main.log_line("claim", LINES["claim"]["log"])
+
+
+func _sun_lower(k: float) -> void:
+	var sun: DirectionalLight3D = main.sun
+	var env: Environment = main.env
+	if not sun or not env:
+		return
+	_sun_k = clampf(_sun_k + k, 0.0, 1.5)
+	var ev := create_tween().set_parallel(true)
+	ev.tween_property(sun, "light_energy", lerpf(1.0, 0.5, _sun_k / 1.5), 8.0)
+	ev.tween_property(sun, "light_color", Color(1.0, 0.82, 0.62).lerp(Color(1.0, 0.5, 0.3), _sun_k / 1.5), 8.0)
+	ev.tween_property(sun, "rotation:x", deg_to_rad(lerpf(-24.0, -6.0, _sun_k / 1.5)), 8.0)
+	ev.tween_property(env, "ambient_light_energy", lerpf(0.42, 0.24, _sun_k / 1.5), 8.0)
+
+
+func _leave() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if _ended:
+		return
+	f["cinematic"] = true
+	await main.player.face(Vector3(-40.0, 12.0, 0.0), 1.5)
+	await ui.think(LINES["leave"]["think"])
+	await ui.think(LINES["leave"]["think_2"])
+	await ui.say("Carl", LINES["leave"]["carl"])
+	if lynx_state != "wait":
+		await ui.say("Lynx", LINES["leave"]["lynx"])
+	ui.close()
+	f.erase("cinematic")
+	_ending()
+
+
+func _ending() -> void:
+	var ui = main.ui
+	if _ended:
+		return
+	_ended = true
+	if main.get("_selftest"):
+		return
+	var f: Dictionary = main.flags
+	var e: Dictionary = LINES["ending"]
+	var extra := ""
+	if f.has("plant_route"):
+		extra += e["route"] % e["routes"][str(f["plant_route"])]
+	if f.has("sermon_heard"):
+		extra += e["extra_sermon"]
+	if f.has("footprints_seen"):
+		extra += e["extra_footprints"]
+	if f.has("factory_floor_seen"):
+		extra += e["extra_floor"]
+	if f.has("southtown_claim"):
+		extra += e["extra_claim"]
+	extra += e["extra_promise"] if f.has("lynx_trust") else e["extra_no_promise"]
+	ui.show_end(e["card"] % [main.glyphs_found, int(main.connection), extra])
+	await ui.end_closed
+	main.load_level("Home")
+
+
+func _node_by_id(id: String) -> Node:
+	for n in main._all_with_meta(self, "id"):
+		if is_instance_valid(n) and str(n.get_meta("id")) == id:
+			return n
+	return null
 
 
 # ------------------------------------------------------------------ the factory
@@ -1999,132 +3124,6 @@ func _floor_eye() -> void:
 	main.add_connection(4.0, "the factory floor")
 
 
-# ------------------------------------------------------------------ under the overpass
-
-func _overpass_scene() -> void:
-	var ui = main.ui
-	var f: Dictionary = main.flags
-	var p = main.player
-	if f.has("southtown_done"):
-		await ui.think(LINES["overpass"]["think"])
-		return
-	if not f.has("lynx_met"):
-		await ui.think(LINES["overpass"]["think_2"])
-		return
-	f["cinematic"] = true
-	lynx_state = "stand"
-	lynx_target = LYNX_EYE
-	await ui.think(LINES["overpass"]["think_3"])
-	ui.close()
-	await p.face(EYE_P, 1.4)
-	main.play("whisper", -8.0, 0.8)
-	await ui.think(LINES["overpass"]["think_4"])
-	await ui.think(LINES["overpass"]["think_5"])
-	ui.close()
-	_hum = main.loop("hum", -8.0, Vector3.ZERO, 1.0, 8.0, p)
-	(_hum as AudioStreamPlayer3D).play()
-	p.shake(0.15)
-	await get_tree().create_timer(1.4).timeout
-	await ui.think(LINES["overpass"]["think_6"])
-	ui.close()
-	# the laptop out of the evidence bag: Psyon is already awake
-	var tw := create_tween()
-	tw.tween_property(p, "crouch", 0.35, 0.7)
-	await tw.finished
-	await p.face(EYE_P - Vector3(0, 8.0, 0) + Vector3(0, 1.0, 0.6), 0.6)
-	main.play("on", -8.0, 0.6)
-	ui.laptop_open(true)
-	ui.laptop_log.append_text(LINES["overpass"]["laptop_log"])
-	await ui.think(LINES["overpass"]["think_7"])
-	ui.close()
-	await get_tree().create_timer(1.2).timeout
-	main.play("ding", -4.0)
-	await ui.laptop_line(LINES["overpass"]["psyon"])
-	p.shake(0.25)
-	ui.glitch(0.5, 0.6)
-	await get_tree().create_timer(0.8).timeout
-	await ui.laptop_line(LINES["overpass"]["psyon_2"])
-	main.play("keys", -14.0, 0.5)
-	await ui.laptop_image(_map(), 7.0)
-	await ui.think(LINES["overpass"]["think_8"])
-	await ui.think(LINES["overpass"]["think_9"])
-	await ui.say("Lynx", LINES["overpass"]["lynx"])
-	await ui.think(LINES["overpass"]["think_10"])
-	await ui.say("Lynx", LINES["overpass"]["lynx_2"])
-	await ui.say("Carl", LINES["overpass"]["carl"])
-	await ui.say("Lynx", LINES["overpass"]["lynx_3"])
-	await ui.say("Carl", LINES["overpass"]["carl_2"])
-	ui.close()
-	# one exchange with it, under the eye
-	var pick: int = await ui.choose(LINES["overpass"]["choice"])
-	ui.close()
-	main.play("keys", -6.0)
-	if pick == 0:
-		await ui.laptop_line(LINES["overpass"]["carl_3"], true)
-		await get_tree().create_timer(1.0).timeout
-		await ui.laptop_line(LINES["overpass"]["psyon_3"])
-	else:
-		await ui.laptop_line(LINES["overpass"]["carl_4"], true)
-		await get_tree().create_timer(1.0).timeout
-		await ui.laptop_line(LINES["overpass"]["psyon_4"])
-	main.play("sting", -4.0, 0.85)
-	ui.glitch(0.8, 1.0)
-	p.shake(0.4)
-	await get_tree().create_timer(1.2).timeout
-	await ui.think(LINES["overpass"]["think_11"])
-	ui.close()
-	main.play("slam", -4.0)
-	ui.laptop_open(false)
-	if _hum:
-		_hum.queue_free()
-		_hum = null
-	f["has_map"] = true
-	ui.show_toast(LINES["overpass"]["toast"], 3.0)
-	main.add_connection(3.0, "the map")
-	var up := create_tween()
-	up.tween_property(p, "crouch", 0.0, 0.6)
-	await up.finished
-	# the sun goes down over the station behind us
-	var sun: DirectionalLight3D = main.sun
-	var env: Environment = main.env
-	var ev := create_tween().set_parallel(true)
-	ev.tween_property(sun, "light_energy", 0.55, 6.0)
-	ev.tween_property(sun, "light_color", Color(1.0, 0.5, 0.3), 6.0)
-	ev.tween_property(sun, "rotation:x", deg_to_rad(-7), 6.0)
-	ev.tween_property(env, "fog_light_color", Color(0.75, 0.38, 0.25), 6.0)
-	ev.tween_property(env, "ambient_light_energy", 0.26, 6.0)
-	await p.face(Vector3(-40.0, 12.0, 0.0), 2.0)
-	await ui.think(LINES["overpass"]["think_12"])
-	await ui.think(LINES["overpass"]["think_13"])
-	await ui.say("Carl", LINES["overpass"]["carl_5"])
-	await ui.say("Lynx", LINES["overpass"]["lynx_4"])
-	ui.close()
-	f["southtown_done"] = true
-	f.erase("cinematic")
-	main.update_hud()
-	_ending()
-
-
-func _ending() -> void:
-	var ui = main.ui
-	if _ended:
-		return
-	_ended = true
-	if main.get("_selftest"):
-		return
-	var f: Dictionary = main.flags
-	var e: Dictionary = LINES["ending"]
-	var extra := ""
-	if f.has("factory_floor_seen"):
-		extra += e["extra_floor"]
-	if f.has("ledger_seen"):
-		extra += e["extra_ledger"]
-	extra += e["extra_promise"] if f.has("lynx_trust") else e["extra_no_promise"]
-	ui.show_end(e["card"] % [main.glyphs_found, int(main.connection), extra])
-	await ui.end_closed
-	main.load_level("Home")
-
-
 # ------------------------------------------------------------------ frames, phone, glyphs
 
 func on_glyph(g: Object) -> void:
@@ -2151,13 +3150,20 @@ func scan_people() -> Array:
 	var out := []
 	for c in commuters:
 		out.append([c.node, "CITIZEN\ndevices: NONE\nsync: --\n(no frames issued)"])
-	for d in dwellers:
-		var sync := "sync 100%  -  DREAMING" if main.connection >= 25.0 else "sync 100%"
-		out.append([d, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  " + sync + "\nlast shift: NEVER"])
+	if vag_informant:
+		out.append([vag_informant, "UNREGISTERED\ndevices: NONE\nhousing: REVOKED\nknown to: TYSON"])
+	if vag_attacker:
+		out.append([vag_attacker, "UNREGISTERED\ndevices: NONE\nstate: " + ("DOWN" if main.flags.has("attacker_down") else "AGITATED")])
+	if vag_convert:
+		out.append([vag_convert, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  sync 100%  -  DREAMING\nsaying: '%s'" % main.CHANT[0]])
+	for c in congregation:
+		out.append([c, "CONGREGATION\nORA GEN 2 (UNISSUED)  -  sync 100%  -  DREAMING"])
+	if priest:
+		out.append([priest, "UNKNOWN\nface: (CHANGING)\ndevices: NONE\nsync: ???"])
 	if worker:
 		out.append([worker, "SHIFT WORKER\nVOLTX contractor\ndevices: NONE\nhours this week: 71"])
 	for g in guards:
-		out.append([g, "UNKNOWN\nface: COVERED\ndevices: NONE\nsync: ???  -  DREAMING"])
+		out.append([g, "UNKNOWN\nface: COVERED\nsync: ???  -  DREAMING"])
 	for v in vagrants:
 		out.append([v, "UNREGISTERED\ndevices: NONE\nhousing: REVOKED"])
 	return out
@@ -2168,6 +3174,8 @@ func phone() -> String:
 	var t := LINES["phone"]["greeting"]
 	if f.has("lynx_met"):
 		t += LINES["phone"]["footage"]
+	if f.has("sermon_heard"):
+		t += LINES["phone"]["sermon"]
 	if f.has("factory_floor_seen"):
 		t += LINES["phone"]["floor"]
 	if f.has("has_map"):
@@ -2185,6 +3193,10 @@ func apply_args(a: Dictionary) -> void:
 		factory_door.rotation.y = -1.9
 	if f.has("factory_unlocked") and locked_door:
 		locked_door.rotation.y = 1.85
+	if f.has("plant_entered") and plant_gate:
+		plant_gate.rotation.y = -1.75
+	if f.has("side_door_open") and side_door:
+		side_door.rotation.y = 1.6
 	if a.has("lynx_at"):
 		var v: PackedStringArray = str(a["lynx_at"]).split(",")
 		if v.size() == 2 and lynx:
@@ -2192,7 +3204,7 @@ func apply_args(a: Dictionary) -> void:
 			lynx_state = "stand"
 			lynx_target = lynx.position
 	if a.has("footage"):
-		main.ui.show_picture(_footage(), "ORA archive  -  subnet thread  -  recorded 20 years ago")
+		main.ui.show_picture(_footage(), LINES["ui"]["footage_caption"])
 	if a.has("map"):
 		main.ui.laptop_open(true)
 		main.ui.laptop_image(_map(), 0.1)
@@ -2202,10 +3214,13 @@ func selftest() -> void:
 	await intro()
 	main.frames_on = true
 	set_glyph_visibility(true, main.connection)
-	for id in ["lynx", "factory_door", "keycard", "locked_door", "floor_eye", "overpass_eye"]:
-		for n in main._all_with_meta(self, "id"):
-			if is_instance_valid(n) and str(n.get_meta("id")) == id:
-				await main.interact(n)
-				print("ok ", id)
-				break
+	for id in ["lynx", "vag_informant", "vag_attacker", "vag_convert", "plant_gate", "drill_housing", "wire_eye",
+			"factory_door", "keycard", "locked_door", "floor_eye", "verse", "office_laptop", "overpass_eye", "footprints", "chant_wall", "my_car"]:
+		var n := _node_by_id(id)
+		if n:
+			await main.interact(n)
+			print("ok ", id)
+		else:
+			print("MISSING ", id)
+	print("route=", main.flags.get("plant_route"), " claim=", main.flags.has("southtown_claim"), " lexicon=", main.lexicon, " trust=", main.trust, " pressure=", main.pressure)
 	await main.selftest_all_interactables()

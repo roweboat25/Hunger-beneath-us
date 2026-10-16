@@ -33,8 +33,8 @@ const Synth := preload("res://scripts/Synth.gd")
 const LINES := {
 	"card": "[b]CHAPTER 4[/b]\n\n[color=#aaaaaa]SalTech Hospital, far south side[/color]",
 	"objective": {
-		"checkin": "Check in at reception.",
-		"nurse": "The nurse will walk you in.",
+		"checkin": "Check in at reception. Room 108 is in the restricted wing.",
+		"nurse": "Room 108 is in the restricted wing. Four ways in: badge, hack, sneak, or ask.",
 		"room": "Room 108, at the end of the corridor.",
 		"leave": "Leave. Call Lynx.",
 	},
@@ -68,9 +68,27 @@ const LINES := {
 			["Nurse", "And worse... no one has come to visit him. You'd think someone would, wouldn't you? But people forget fast these days. They scroll past and move on. That's the problem with 'empathy at scale'."],
 		],
 		"choices": ["Describe his behaviour since he's been here.", "Has he spoken to FreudBot?"],
+		"enough": "That's all I need.",
 		"q0": [
 			["Carl", "Can you describe his behaviour since he's been here?"],
 			["Nurse", "Honestly, we've had him pretty heavily sedated. In his brief moments of consciousness, he's just been smiling. It's... unnerving. The sedation should be wearing off soon."],
+			["Nurse", "And the wounds. Two vertical slits pierced through where his optic nerve would connect to his eye. It almost looks like a wall outlet."],
+		],
+		"ask": ["Would you walk me down? He should hear a voice he knows.", "Thanks. I'll find my own way."],
+		"kind": [
+			["Carl", "Would you walk me down? He should hear a voice he knows. And you shouldn't have to be the only one who visits."],
+			["", "Something in her posture let go. She was a person for a second, before the uniform came back."],
+			["Nurse", "Of course. Nobody's asked me anything like that all week. I'll badge us through the wing."],
+		],
+		"own": [
+			["Carl", "Thanks. I'll find my own way."],
+			["Nurse", "He's in the restricted wing. The reader's on the door, and the camera, and the speaker that asks who you are. Corporate policy."],
+			["", "She went back to the desk and the chart that was open on her glasses. I'd find my own way. There were four."],
+		],
+		"from_door": [["", "She was still by the desk, finishing his chart on her glasses. I went back and asked her, like a person."]],
+		"wing": [
+			["Nurse", "Don't mind the camera. It minds everyone."],
+			["", "She held her glasses to the reader and the amber went green for her without a sound. The doors swung north, into the wing."],
 		],
 		"q1": [
 			["Carl", "Has he spoken to FreudBot?"],
@@ -81,12 +99,43 @@ const LINES := {
 			["Nurse", "Not a word."],
 		],
 		"walk": [["", "I followed her down the corridor. The doors were steel, numbered, closed. One of them wasn't."]],
+		"nurse_logged": "the nurse walked you in",
 		"alert": [["", "Then her AR glasses flickered, a subtle flash of red across their surface, like a preprogrammed alert. She shifted; her posture became more formal."]],
 		"door": [
 			["Nurse", "This is it. I can wait outside if it's required under corporate policy."],
 			["Carl", "That would be best."],
 			["", "My own professionalism was a brittle veneer over a rising tide of unease. I took a deep, fortifying breath."],
 		],
+	},
+	"wing": {
+		"look": [
+			["", "RESTRICTED WING. A double door with two slots of dark glass, a reader blinking amber, a camera dome with its ring lit, a speaker grille that would ask me who I was if I let it."],
+			["", "Four ways past a door like this. Psyonic had taught me three of them and the south side had taught me the fourth."],
+		],
+		"again": [["", "The wing was open. Nobody had asked me to close it."]],
+		"choices": {
+			"badge": "Badge in. Psyonic credentials.",
+			"hack": "Hack the camera (look away), then the speaker (hush).",
+			"sneak": "Sneak. The service corridor behind the FreudBot booth.",
+			"person": "Ask the nurse to walk you in.",
+			"wait": "Not yet.",
+		},
+		"badge": [
+			["", "I held my frames to the reader. PSYONIC INTEGRATIONS - INVESTIGATOR. The amber went green and somewhere a log got a line with my name on it, timestamped, forever."],
+			["Reception", "Welcome to the restricted wing, Mr. Drake. Thank you for choosing SalTech."],
+		],
+		"badge_log": "badge logged at SalTech restricted wing",
+		"hack": [
+			["", "The camera first. I looked at it the way Dufredy's screen had looked at me until its ring went dark and it was looking at the ceiling. Then the speaker. I didn't say anything to it. I thought it quiet."],
+			["", "The door agreed. I didn't have the words for what I'd just done. Not yet. But something in me had, and it was pleased."],
+		],
+		"hack_log": "the camera looked away",
+		"sneak": [
+			["", "Not the door, then. The staff door behind the FreudBot booths, and the service corridor round the back of the rooms. Two orderlies walk it. I'd walk it quieter, and the side door into 108 only locks from the other side."],
+		],
+		"sneak_done": [["", "Round the back, past the orderlies and the pipes, through a door that only locked from the other side. Nobody logged me. Nobody saw. I'd lost an hour to it and gained nothing I could put in a report."]],
+		"sneak_log": "the service corridor, unseen",
+		"open": [["", "The restricted wing. Steel doors, numbered, closed. One of them wasn't."]],
 	},
 	"threshold": [
 		["", "Dufredy lay strapped to the hospital bed, a mummy cocooned in restraints, his limbs secured by industrial-grade synth-leather cuffs. The blinds were drawn tight."],
@@ -102,7 +151,7 @@ const LINES := {
 		],
 		"open2": [["", "The smile widened, blooming across his face like a horrific, self-inflicted aurora. His bandaged head tilted slightly, antenna-like, tuning into a signal only he could perceive."]],
 		"open3": [
-			["Dufredy", "Carl Drake. The passenger who forgot how to drive."],
+			["Dufredy", "Carl Drake. The driver, that will become the passenger."],
 			["Carl", "I... I didn't tell you my name."],
 			["Dufredy", "You did. Not with your mouth, Carl. You carry your name like a badge. You all do."],
 			["Dufredy", "But I'm not here to answer your questions. I've given enough. The rest... you'll need to see for yourself."],
@@ -113,17 +162,17 @@ const LINES := {
 		"q0": [
 			["Carl", "Why did you do it? Why take your eyes?"],
 			["", "He inhaled deeply, the shallow rasp of his breath an alien sound in the stillness. He seemed to savour it."],
-			["Dufredy", "You don't pluck out sight. You shed it. Like skin. Like lies."],
+			["Dufredy", "You don't pluck out sight. You shed it. Like skin. Like the lies it shows."],
 		],
 		"q1": [
 			["Carl", "Why Psyonic? Who else was involved? The masked man? The symbol?"],
-			["Dufredy", "There are others. The masked man. The symbol."],
+			["Dufredy", "There are others. Many others. Our church grows by the minute."],
 			["", "He spoke of them as easily as naming street corners. Then silence. He became a wall, impassive, impermeable."],
 		],
 		"q3": [
 			["Carl", "You keep saying I'm not ready. What makes someone ready?"],
 			["", "He leaned forward slowly, against the straps, a shift that seemed to require immense effort. When he spoke, his voice was unexpectedly gentle, almost pedagogical."],
-			["Dufredy", "Ruin and Reflection. Mimicry. A clean wound. Something has to break first."],
+			["Dufredy", "Ruin and Reflection. Mimicry. A clean wound. Something in you must break first."],
 			["", "Then he settled back against the pillow, his brief animation spent, as if that single cryptic sentence had drained him entirely."],
 		],
 		"laptop": [["", "Impulsively, I pulled out his laptop, its casing cool beneath my still-trembling fingers, and turned the screen toward him. His bandaged head reflexively oriented itself toward the familiar glow. Psyon launched instantly, its green logo a beacon of artificial sentience."]],
@@ -144,7 +193,8 @@ const LINES := {
 			["Carl", "Psyon?"],
 			["Dufredy", "Psyon is the mask. It goes by many names."],
 			["", "That statement struck me like a physical blow, an icy wind that swept through me, stripping away any lingering certainty."],
-			["Dufredy", "Take it back to the city. Bring it in front of the eye, and you will see. Then you'll have your tool. Your seer stone."],
+			["Dufredy", "Bring it in front of the whispering eye in south town. A church forms where earth was ripped from ground."],
+			["Dufredy", "Then you'll have your tool. Your seer stone."],
 		],
 		"turn": [
 			["", "He turned away, slowly, deliberately, like a prophet completing a prophecy. The gauze rode up as he turned, and I saw what it had been pressed into. Two hollows, lidless, stripped to the bone, still weeping into the bandage."],
@@ -164,7 +214,7 @@ const LINES := {
 		"lynx": [
 			["Lynx", "Carl. Did you learn anything from Dufredy?"],
 			["Carl", "I need your help. I want you to show me where you saw the symbols on the south side of town."],
-			["Lynx", "I'll meet you in front of Southwest Station. Thirty minutes."],
+			["Lynx", "Southwest Station. Thirty minutes."],
 		],
 	},
 	"guard": {
@@ -191,10 +241,12 @@ const LINES := {
 		"staff_door": [["", "STAFF ONLY. A badge reader beside it, blinking amber. The door wasn't locked. Nobody on the south side locks anything the sand can't get through anyway."]],
 		"door_103": [["", "The door was ajar. A blue screen over the bed was asking someone if they were there. They were sitting up, and they were facing me."]],
 		"door_locked": [["", "Room %s. Closed. A slot of dark glass at eye height, and behind it, nothing I wanted."]],
-		"door_108_wait": [["", "The nurse was still finishing his chart. I'd wait for her."]],
-		"door_108_early": [["", "Room 108. The name card said DUFREDY, H. Reception first. Corporate policy, and mine."]],
+		"door_108_early": [["", "Room 108. The name card said DUFREDY, H. Locked, like the wing. Corporate policy, and mine."]],
+		"ward_doors": [["", "The ward's doors onto the restricted wing. A reader on the wing side and nothing on this one. From here the ward was a dead end that could watch the corridor through two slots of glass."]],
+		"wing_reader": [["", "The wing's reader, amber. It would take a Psyonic badge. It would also remember it."]],
+		"speaker": [["", "A speaker grille by the reader. It asks who you are, and then it asks the desk. Hush it and it asks nobody."]],
 		"door_108_open": [["", "The blinds were drawn tight, cloaking the room in a dim, cave-like gloom."]],
-		"door_108b_locked": [["", "A service door into 108, badge-locked. The reader wanted a SalTech badge and an attitude I didn't have."]],
+		"door_108b_locked": [["", "A service door into 108. A push bar on this side; the lock was on the other. The reader beside it was for getting back in, not out."]],
 		"roof_door": [["", "ROOF ACCESS. Locked, a panel beside it with a keypad worn blank by one thumb. Up there the sand would be worse."]],
 		"pharmacy": [["", "PHARMACY. The one door in the building somebody had bothered to lock properly."]],
 		"panel": [["", "A Voltx subpanel with its cover off, the breakers labelled in a hand that had stopped caring: WARD A, 108, FREUD, BOT. The last one was taped on."]],
@@ -238,7 +290,8 @@ const LINES := {
 		"blinds": "Look at the blinds", "monitor": "Look at the monitor", "pump": "Look at the sedation pump",
 		"freud108": "Look at the FreudBot", "bin": "Look in the bin", "room": "Take in the room",
 		"dufredy": "Talk to Dufredy", "sweeper": "Look at the cleaning bot", "van": "Look at the van",
-		"worker": "Talk to the Voltx worker", "door": "Room",
+		"worker": "Talk to the Voltx worker", "door": "Room", "door_wing_l": "Restricted wing", "door_wing_r": "Restricted wing",
+		"wing_reader": "Look at the badge reader", "speaker": "Look at the door speaker", "door_ward_l": "Ward doors", "door_ward_r": "Ward doors",
 	},
 	"signs": {
 		"facade": "SALTECH", "facade2": "MEDICAL  -  SOUTH", "ward": "WARD A    101 - 108", "warda": "WARD A",
@@ -249,7 +302,7 @@ const LINES := {
 		"freud108": "FREUDBOT\nsession 0 / no response\nare you there, Harold?", "name108": "DUFREDY, H.",
 		"voltx": "VOLTX", "nixtra": "NIXTRA", "station": "NURSES' STATION", "holo1": ["VOLTX", "the grid that never sleeps"],
 		"holo2": ["SALTECH", "your body, optimized"], "panel": "VOLTX  SUBPANEL 3",
-		"blade": "SALTECH", "emergency": "EMERGENCY  >>", "ambulance": "SALTECH", "visiting": "VISITING  11 - 13   17 - 19",
+		"wing": "RESTRICTED WING", "wing2": "AUTHORISED STAFF  -  BADGE REQUIRED", "blade": "SALTECH", "emergency": "EMERGENCY  >>", "ambulance": "SALTECH", "visiting": "VISITING  11 - 13   17 - 19",
 		"screen_ad": ["SALTECH", "we see you well"], "nosignal": "NO SIGNAL", "dir108": "101 - 108   >",
 		"poster1": ["SYNC DAILY.", "sleep soundly."], "poster2": ["FREUDBOT", "someone who listens"],
 	},
@@ -264,6 +317,7 @@ const LINES := {
 		"dufredy": "DUFREDY, HAROLD (65)\nPsyon: UNRESPONSIVE TO STAFF\nsync: --",
 		"guard": "SALTECH SECURITY\nORA-class: LINKED\nwatching: YOU",
 		"orderly": "SALTECH ORDERLY\nPsyon 4.1  -  sync 97%\nroute: WARD A, LOOP",
+		"orderly2": "SALTECH ORDERLY\nPsyon 4.1  -  sync 99%\nroute: SERVICE, LOOP",
 	},
 }
 
@@ -306,7 +360,9 @@ var room_light: OmniLight3D
 var _lullaby_wav: AudioStreamWAV
 var _hum108: AudioStreamPlayer3D
 var _hum_lobby: AudioStreamPlayer3D
-var _orderly_dir := 1.0
+var orderlies: Array = []      # [{fig, dir, zmin, zmax, x}] the patrols
+var cam_ring: MeshInstance3D
+var wing_reader_light: MeshInstance3D
 var _ended := false
 
 
@@ -457,11 +513,12 @@ func _hack(id: String, pos: Vector3, size: Vector3, scan: String, parent: Node =
 
 
 ## A badge reader on a wall: a small box with an amber light.
-func _reader(pos: Vector3, ry: float, ok := false) -> void:
+func _reader(pos: Vector3, ry: float, ok := false) -> MeshInstance3D:
 	var r := box(Vector3(0.08, 0.12, 0.03), pos, mat(Color(0.12, 0.12, 0.14), 0.4, 0.3))
 	r.rotation.y = ry
 	var l := box(Vector3(0.03, 0.01, 0.01), pos + Basis(Vector3.UP, ry) * Vector3(0, -0.04, -0.018), glow(Color(0.2, 1.0, 0.4) if ok else Color(1.0, 0.6, 0.1), 2.0))
 	l.rotation.y = ry
+	return l
 
 
 ## A hinged door: a slab on a pivot at `hinge` (the hinge edge, on the
@@ -768,14 +825,29 @@ func _lobby() -> void:
 	neon_text(LINES["signs"]["warda"], Vector3(-8.0, 2.65, -11.83), 0.0, 0.17, Color(0.85, 0.9, 0.9), 1.6, self)
 	box(Vector3(2.2, 0.5, 0.06), Vector3(DESK.x, 2.75, -11.87), sign_m)
 	neon_text(LINES["signs"]["reception"], Vector3(DESK.x, 2.75, -11.83), 0.0, 0.22, Color(0.3, 0.95, 1.0), 2.0, self)
-	# a camera dome over the corridor mouth, its ring lit
+	# the restricted wing's gate across the corridor mouth: double doors
+	# with slots of dark glass, a reader, a speaker grille, and over it
+	# all a camera dome with its ring lit. Tier 3. Four ways past it.
+	_door("wing_l", Vector3(-1.7, 0, -12.0), 0.0, 1.7, 1.5, false, true)
+	_door("wing_r", Vector3(1.7, 0, -12.0), PI, 1.7, -1.5, false, true)
+	box(Vector3(3.4, 0.32, 0.12), Vector3(0, 2.24, -12.0), _door_m)
+	neon_text(LINES["signs"]["wing"], Vector3(0, 2.3, -11.93), 0.0, 0.18, Color(1.0, 0.25, 0.15), 2.2, self)
+	neon_text(LINES["signs"]["wing2"], Vector3(0, 2.12, -11.93), 0.0, 0.075, Color(0.9, 0.9, 0.9), 1.2, self)
+	wing_reader_light = _reader(Vector3(2.1, 1.2, -11.87), 0.0)
+	_hack("wing_reader", Vector3(2.1, 1.2, -11.85), Vector3(0.2, 0.3, 0.1), "BADGE READER - WING\nlock: ENGAGED\naccepts: SALTECH, PSYONIC (LOGGED)")
+	box(Vector3(0.14, 0.14, 0.03), Vector3(2.1, 1.55, -11.87), mat(Color(0.2, 0.2, 0.22), 0.5, 0.3))
+	for i in 3:
+		box(Vector3(0.1, 0.01, 0.01), Vector3(2.1, 1.51 + i * 0.03, -11.85), mat(Color(0.05, 0.05, 0.06), 0.5))
+	box(Vector3(0.02, 0.02, 0.01), Vector3(2.1, 1.62, -11.85), glow(Color(0.3, 0.9, 1.0), 2.0, true))
+	_hack("speaker", Vector3(2.1, 1.55, -11.85), Vector3(0.2, 0.2, 0.1), "DOOR SPEAKER - WING\nasks: NAME, PURPOSE\nreports to: SECURITY DESK")
 	sphere(0.12, Vector3(2.4, HL - 0.08, -11.5), mat(Color(0.05, 0.05, 0.06), 0.1, 0.5), 10).scale = Vector3(1, 0.6, 1)
 	var ring := TorusMesh.new()
 	ring.inner_radius = 0.1
 	ring.outer_radius = 0.13
 	ring.rings = 16
 	ring.ring_segments = 5
-	mesh(ring, Vector3(2.4, HL - 0.03, -11.5), glow(Color(0.3, 0.9, 1.0), 1.5, true))
+	cam_ring = mesh(ring, Vector3(2.4, HL - 0.03, -11.5), glow(Color(0.3, 0.9, 1.0), 1.5, true))
+	no_batch.append(cam_ring)
 	_hack("camera", Vector3(2.4, HL - 0.1, -11.5), Vector3(0.4, 0.3, 0.4), "SALTECH CAM L-2\nfeed: SECURITY DESK\nfaces today: 1 (DRAKE, C.)")
 	# a wall screen above reception running the SalTech ad on a loop
 	box(Vector3(3.2, 1.9, 0.08), Vector3(-3.0, 2.0, -11.86), mat(Color(0.03, 0.03, 0.03), 0.2, 0.4))
@@ -933,8 +1005,9 @@ func _corridor() -> void:
 	_wall(Vector3(0.2, HC, 0.5), Vector3(-1.7, HC / 2.0, -37.75))
 	_wall(Vector3(0.2, HC - 2.1, 1.0), Vector3(-1.7, 2.1 + (HC - 2.1) / 2.0, -37.0))
 	_wall(Vector3(0.2, HC - 2.2, 2.0), Vector3(-1.7, 2.2 + (HC - 2.2) / 2.0, -24.0))
-	_door("ward_l", Vector3(-1.7, 0, -25.0), -PI / 2.0, 1.0, -1.6, true)
-	_door("ward_r", Vector3(-1.7, 0, -23.0), PI / 2.0, 1.0, 1.6, true)
+	_door("ward_l", Vector3(-1.7, 0, -25.0), -PI / 2.0, 1.0, -1.6, false, true)
+	_door("ward_r", Vector3(-1.7, 0, -23.0), PI / 2.0, 1.0, 1.6, false, true)
+	_reader(Vector3(-1.58, 1.2, -22.4), PI / 2.0)
 	neon_text(LINES["signs"]["warda"], Vector3(-1.58, 2.45, -24.0), PI / 2.0, 0.12, Color(0.85, 0.9, 0.9), 1.6, self)
 	# the east wall: rooms 101-105, three of them you can open
 	var ez := [[-12.0, -14.25], [-15.25, -19.5], [-20.5, -23.25], [-24.25, -27.75], [-28.75, -32.25], [-33.25, -38.0]]
@@ -996,9 +1069,9 @@ func _corridor() -> void:
 		neon_text(LINES["signs"]["nosignal"], Vector3(-1.51, 1.55, z), PI / 2.0, 0.04, Color(0.5, 0.55, 0.6), 1.0, self)
 	for z: float in [-16.0, -27.0]:
 		box(Vector3(0.04, 0.5, 0.04), Vector3(0, HC - 0.25, z), _steel)
-		box(Vector3(0.06, 0.3, 1.1), Vector3(0, HC - 0.65, z), mat(Color(0.14, 0.15, 0.17), 0.5))
+		box(Vector3(1.1, 0.3, 0.06), Vector3(0, HC - 0.65, z), mat(Color(0.14, 0.15, 0.17), 0.5))
 		for sd: float in [-1.0, 1.0]:
-			neon_text(LINES["signs"]["dir108"], Vector3(sd * 0.035, HC - 0.65, z), sd * PI / 2.0, 0.1, Color(0.9, 0.9, 0.9), 1.4, self)
+			neon_text(LINES["signs"]["dir108"], Vector3(0, HC - 0.65, z + sd * 0.035), (0.0 if sd > 0 else PI), 0.1, Color(0.9, 0.9, 0.9), 1.4, self)
 	# posters on the east wall between the doors; a noticeboard, a fire
 	# extinguisher, sanitiser by every door
 	var pi: int = 0
@@ -1249,8 +1322,9 @@ func _service() -> void:
 	_it("laundry", cage + Vector3(0, 0.7, 0), Vector3(0.9, 1.4, 1.1))
 	var dead := cyl(0.22, 0.24, 0.12, Vector3(8.4, 0.15, -24.0), mat(Color(0.15, 0.15, 0.17), 0.4, 0.4), 14)
 	dead.rotation.z = 1.2
-	# the side door into 108, from the link: badge-locked until the nurse
-	_door("108b", Vector3(3.6, 0, -41.5), PI / 2.0, 1.0, 1.6, false, true)
+	# the side door into 108, from the link: a push bar on this side, the
+	# lock on the other. The Sneak route ends here.
+	_door("108b", Vector3(3.6, 0, -41.5), PI / 2.0, 1.0, 1.6, false, false)
 	_reader(Vector3(3.72, 1.2, -40.6), PI / 2.0)
 	_hack("108b_reader", Vector3(3.7, 1.2, -40.6), Vector3(0.2, 0.3, 0.2), "BADGE READER - 108 SERVICE\nlock: ENGAGED\nlast badge: NURSE (WK 3)")
 
@@ -1486,13 +1560,20 @@ func _people() -> void:
 	turn_to(security, Vector3(0, 0, 0))
 	box(Vector3(0.14, 0.08, 0.05), Vector3(0.1, 1.05, -0.2), mat(Color(0.1, 0.1, 0.12), 0.4), false, security)
 	person("security", LINES["prompts"]["security"], security, LINES["scan"]["guard"])
-	# the orderly on the ward, walking the rows, also tagged
-	orderly = figure(Color(0.35, 0.55, 0.6), Color(0.86, 0.68, 0.55), {"hair": Color(0.3, 0.2, 0.1), "legs": Color(0.35, 0.55, 0.6), "arms": true, "knees": true, "long_coat": false})
-	orderly.position = Vector3(-9.0, 0.02, -19.0)
-	orderly.set_meta("guard", true)
-	orderly.set_meta("walk", true)
-	add_child(orderly)
-	person("orderly", LINES["prompts"]["orderly"], orderly, LINES["scan"]["orderly"])
+	# the orderlies, tagged: one walking the ward's rows, two pacing the
+	# service corridor behind the FreudBot booth (the Sneak route)
+	var routes := [[-9.0, -31.0, -16.5, "orderly", 1.0], [SERV_X - 0.3, -39.0, -14.5, "orderly2", 1.0], [SERV_X + 0.3, -44.0, -20.0, "orderly2", -1.0]]
+	for i in routes.size():
+		var r: Array = routes[i]
+		var o := figure(Color(0.35, 0.55, 0.6), [Color(0.86, 0.68, 0.55), Color(0.5, 0.36, 0.26), Color(0.9, 0.78, 0.68)][i], {"hair": [Color(0.3, 0.2, 0.1), Color(0.05, 0.05, 0.05), Color(0.6, 0.5, 0.3)][i], "legs": Color(0.35, 0.55, 0.6), "arms": true, "knees": true, "long_coat": false})
+		o.position = Vector3(float(r[0]), 0.02, (float(r[1]) + float(r[2])) / 2.0)
+		o.set_meta("guard", true)
+		o.set_meta("walk", true)
+		add_child(o)
+		person("orderly", LINES["prompts"]["orderly"], o, LINES["scan"][str(r[3])])
+		orderlies.append({"fig": o, "dir": float(r[4]), "zmin": float(r[1]), "zmax": float(r[2])})
+		if i == 0:
+			orderly = o
 	# the nurse: young, uniform crisp and new, AR glasses. She arrives
 	# once Carl checks in, from the corridor.
 	nurse = figure(Color(0.93, 0.94, 0.96), Color(0.9, 0.76, 0.64), {"hair": Color(0.25, 0.15, 0.1), "long_hair": true, "legs": Color(0.93, 0.94, 0.96), "arms": true, "knees": true, "visor": true, "long_coat": false})
@@ -1630,7 +1711,7 @@ func objective() -> String:
 	var o: Dictionary = LINES["objective"]
 	if f.has("hospital_interviewed"):
 		return o["leave"]
-	if f.has("hospital_nurse"):
+	if f.has("hospital_wing"):
 		return o["room"]
 	if f.has("hospital_checkin"):
 		return o["nurse"]
@@ -1710,27 +1791,29 @@ func tick(delta: float) -> void:
 		if frames:
 			var d := pp - security.global_position
 			security.rotation.y = lerp_angle(security.rotation.y, atan2(-d.x, -d.z), 0.03)
-	if orderly:
-		if frames and pp.distance_to(orderly.global_position) < 30.0:
-			if orderly.has_meta("walk"):
-				orderly.remove_meta("walk")
-				for l in orderly.get_meta("legs"):
+	for od in orderlies:
+		var o: Node3D = od["fig"]
+		if frames and pp.distance_to(o.global_position) < 30.0:
+			if o.has_meta("walk"):
+				o.remove_meta("walk")
+				for l in o.get_meta("legs"):
 					(l as Node3D).rotation.x = 0.0
-			Anim.idle(orderly, _t, 2.0)
-			turn_to(orderly, pp)
-			Anim.look(orderly, head_pt, 1.0, 0.1)
+			Anim.idle(o, _t, 2.0)
+			turn_to(o, pp)
+			Anim.look(o, head_pt, 1.0, 0.1)
 		else:
-			if not orderly.has_meta("walk"):
-				orderly.set_meta("walk", true)
-			var z := orderly.position.z + _orderly_dir * delta * 0.7
-			if z < -31.0:
-				_orderly_dir = 1.0
-			elif z > -16.5:
-				_orderly_dir = -1.0
-			orderly.position.z = z
-			orderly.rotation.y = 0.0 if _orderly_dir > 0.0 else PI
-			Anim.walk(orderly, _t, 0.7)
-			Anim.look(orderly, head_pt, 0.6 if pp.distance_to(orderly.global_position) < 6.0 else 0.0, 0.05)
+			if not o.has_meta("walk"):
+				o.set_meta("walk", true)
+			var dir: float = od["dir"]
+			var z := o.position.z + dir * delta * 0.7
+			if z < float(od["zmin"]):
+				od["dir"] = 1.0
+			elif z > float(od["zmax"]):
+				od["dir"] = -1.0
+			o.position.z = z
+			o.rotation.y = 0.0 if dir > 0.0 else PI
+			Anim.walk(o, _t, 0.7)
+			Anim.look(o, head_pt, 0.6 if pp.distance_to(o.global_position) < 6.0 else 0.0, 0.05)
 	if nurse and nurse.visible:
 		if nurse.has_meta("walk"):
 			Anim.walk(nurse, _t, 1.25)
@@ -1744,7 +1827,7 @@ func tick(delta: float) -> void:
 		if f.has("hospital_interviewed"):
 			duf_head.rotation.z = -0.7 + sin(_t * 0.9) * 0.03
 	# the threshold of 108: the room, before he speaks
-	if f.has("hospital_nurse") and not f.has("hospital_room_seen") and not f.has("cinematic") and pp.z < DOOR_Z - 0.6 and absf(pp.x) < 3.5:
+	if f.has("hospital_wing") and not f.has("hospital_room_seen") and not f.has("cinematic") and pp.z < DOOR_Z - 0.6 and absf(pp.x) < 3.5:
 		f["hospital_room_seen"] = true
 		_threshold()
 
@@ -1772,20 +1855,44 @@ func interact(node: Object) -> bool:
 				f["hospital_staff_seen"] = true
 				await _play(look["staff_door"])
 			_swing("staff")
+		"door_wing_l", "door_wing_r":
+			await _wing_gate()
+		"wing_reader":
+			await _play(look["wing_reader"])
+		"speaker":
+			await _play(look["speaker"])
+		"door_ward_l", "door_ward_r":
+			if f.has("hospital_wing"):
+				for k in ["ward_l", "ward_r"]:
+					doors[k]["locked"] = false
+					_swing(k)
+			else:
+				await _play(look["ward_doors"])
 		"door_103":
 			if not doors["103"]["open"]:
 				_swing("103")
 			else:
 				await _play(look["door_103"])
-		"door_102", "door_104", "door_108b":
+		"door_102", "door_104":
 			var k := id.trim_prefix("door_")
 			if doors[k]["locked"]:
-				await _play(look["door_108b_locked"] if k == "108b" else look["door_locked"])
+				await _play(look["door_locked"])
 			else:
 				_swing(k)
+		"door_108b":
+			# the Sneak route's end: a door that only locks from the room side
+			if not f.has("hospital_wing"):
+				await _open_wing("sneak")
+				await _play(LINES["wing"]["sneak_done"])
+			if not doors["108b"]["open"]:
+				_swing("108b")
+			else:
+				await _play(look["door_108b_locked"])
 		"door_108":
-			if not f.has("hospital_nurse"):
-				await _play(look["door_108_wait"] if f.has("hospital_checkin") else look["door_108_early"])
+			if not f.has("hospital_wing"):
+				await _play(look["door_108_early"])
+			elif door108.rotation.y > -0.5:
+				_open108()
 			else:
 				await _play(look["door_108_open"])
 		"door_pharmacy", "pharm_reader":
@@ -1805,7 +1912,7 @@ func interact(node: Object) -> bool:
 		_:
 			if id.begins_with("door_"):
 				var n := id.trim_prefix("door_")
-				if n.begins_with("ward") or n == "stairs":
+				if n == "stairs":
 					return true
 				await ui.think(str(look["door_locked"][0][1]) % n)
 			elif look.has(id):
@@ -1858,18 +1965,72 @@ func _nurse() -> void:
 	if f.has("hospital_nurse"):
 		await _play(L["after"])
 		return
+	if f.has("hospital_nurse_asked"):
+		# she has answered; asking again, kindly, is still the Person route
+		if await _ask_nurse():
+			await _nurse_walk()
+		return
 	f["cinematic"] = true
 	await _play(L["hello"])
-	var pick: int = await ui.choose(L["choices"])
-	await _play(L["q%d" % pick])
+	# her two questions, in whatever order, or neither
+	var all: Array = L["choices"]
+	var left: Array = all.duplicate()
+	while not left.is_empty():
+		var opts: Array = left.duplicate()
+		opts.append(L["enough"])
+		var pick: int = await ui.choose(opts)
+		if pick >= left.size():
+			break
+		var qi: int = all.find(left[pick])
+		left.remove_at(pick)
+		await _play(L["q%d" % qi])
 	await _play(L["anything"])
+	f["hospital_nurse_asked"] = true
+	# the Person route: ask her kindly and she walks Carl in
+	if await _ask_nurse():
+		await _nurse_walk()
+	else:
+		ui.close()
+		f.erase("cinematic")
+		main.update_hud()
+
+
+## The kind ask. True if Carl asked, with the trust it earns.
+func _ask_nurse() -> bool:
+	var ui = main.ui
+	var L: Dictionary = LINES["nurse"]
+	var pick: int = await ui.choose(L["ask"])
+	if pick == 0:
+		await _play(L["kind"])
+		main.add_trust("nurse", 1)
+		main.log_line("trust", LINES["nurse"]["nurse_logged"])
+		return true
+	await _play(L["own"])
+	return false
+
+
+## She walks him through the wing door and down to 108. Her glasses
+## flash red at the door.
+func _nurse_walk() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var L: Dictionary = LINES["nurse"]
+	f["cinematic"] = true
 	ui.close()
-	# she walks him to the door. Her glasses flash red at it.
 	nurse.set_meta("walk", true)
-	turn_to(nurse, Vector3(0.9, 0, -20.0), 0.4)
+	turn_to(nurse, Vector3(0.9, 0, -10.6), 0.4)
 	var tw := create_tween()
-	tw.tween_property(nurse, "position", Vector3(0.9, 0.02, -20.0), 6.5)
+	tw.tween_property(nurse, "position", Vector3(0.9, 0.02, -10.6), 3.5)
+	await tw.finished
+	if not f.has("hospital_wing"):
+		turn_to(nurse, Vector3(2.1, 0, -11.9), 0.3)
+		await _play(L["wing"])
+		ui.close()
+		await _open_wing("person")
+	tw = create_tween()
+	tw.tween_property(nurse, "position", Vector3(0.9, 0.02, -20.0), 6.0)
 	tw.tween_property(nurse, "position", Vector3(1.0, 0.02, -37.0), 8.5)
+	turn_to(nurse, Vector3(0.9, 0, -20.0), 0.4)
 	await _play(L["walk"])
 	ui.close()
 	await tw.finished
@@ -1887,13 +2048,88 @@ func _nurse() -> void:
 		vis.material_override = glow(Color(0.3, 0.95, 1.0), 3.0)
 	await _play(L["door"])
 	ui.close()
-	main.play("door", -6.0, 0.9)
-	create_tween().tween_property(door108, "rotation:y", -1.7, 1.2).set_trans(Tween.TRANS_SINE)
-	set_active(door108_body, false)
-	doors["108b"]["locked"] = false
+	_open108()
 	f["hospital_nurse"] = true
 	f.erase("cinematic")
 	main.update_hud()
+
+
+## The choice at the perimeter: the four routes into a tier-3 site, as
+## plain choices for now. Each plays its effects and lets Carl through.
+func _wing_gate() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var L: Dictionary = LINES["wing"]
+	var look: Dictionary = LINES["look"]
+	if f.has("hospital_wing"):
+		if not doors["wing_l"]["open"]:
+			_swing("wing_l")
+			_swing("wing_r")
+		else:
+			await _play(L["again"])
+		return
+	if not f.has("hospital_wing_seen"):
+		f["hospital_wing_seen"] = true
+		await _play(L["look"])
+	var C: Dictionary = L["choices"]
+	var keys: Array = ["badge", "hack", "sneak"]
+	if nurse.visible and not f.has("hospital_nurse"):
+		keys.append("person")
+	keys.append("wait")
+	var opts: Array = []
+	for k in keys:
+		opts.append(C[k])
+	var pick: int = await ui.choose(opts)
+	var route: String = keys[pick]
+	match route:
+		"badge":
+			main.play("ding", -8.0, 1.5)
+			wing_reader_light.material_override = glow(Color(0.2, 1.0, 0.4), 2.0)
+			await _play(L["badge"])
+			main.add_pressure(2.0, L["badge_log"])
+			await _open_wing("badge")
+		"hack":
+			ui.glitch(0.3, 0.5)
+			main.play("glitch", -10.0, 0.8)
+			cam_ring.material_override = mat(Color(0.05, 0.05, 0.06), 0.3)
+			await _play(L["hack"])
+			main.add_connection(2.0, L["hack_log"])
+			await _open_wing("hack")
+		"sneak":
+			await _play(L["sneak"])
+			f["hospital_sneaking"] = true
+		"person":
+			await _play(LINES["nurse"]["from_door"])
+			if await _ask_nurse():
+				await _nurse_walk()
+		_:
+			pass
+	ui.close()
+	main.update_hud()
+
+
+## The wing opens, by whichever route; the ward's doors onto it unlock.
+func _open_wing(route: String) -> void:
+	var f: Dictionary = main.flags
+	f["hospital_wing"] = true
+	f["hospital_route_" + route] = true
+	main.log_line("route", LINES["wing"][route + "_log"] if LINES["wing"].has(route + "_log") else route)
+	for k in ["ward_l", "ward_r"]:
+		doors[k]["locked"] = false
+	if route != "sneak":
+		for k in ["wing_l", "wing_r"]:
+			doors[k]["locked"] = false
+			if not doors[k]["open"]:
+				_swing(k)
+		await get_tree().create_timer(0.9).timeout
+		await _play(LINES["wing"]["open"])
+	main.update_hud()
+
+
+func _open108() -> void:
+	main.play("door", -6.0, 0.9)
+	create_tween().tween_property(door108, "rotation:y", -1.7, 1.2).set_trans(Tween.TRANS_SINE)
+	set_active(door108_body, false)
 
 
 func _threshold() -> void:
@@ -1915,7 +2151,7 @@ func _dufredy_scene() -> void:
 	if f.has("hospital_interviewed"):
 		await _play(L["again"])
 		return
-	if not f.has("hospital_nurse"):
+	if not f.has("hospital_wing"):
 		return
 	f["cinematic"] = true
 	f["hospital_room_seen"] = true
@@ -1947,9 +2183,12 @@ func _dufredy_scene() -> void:
 			await _play(L["q%d" % qi])
 			if qi == 3:
 				main.add_connection(1.0, "ruin and reflection")
+				main.learn("the path")
 	if not f.has("hospital_laptop"):
 		await _show_laptop()
 	await _play(L["close1"])
+	main.learn("the path")
+	main.learn("filter")
 	ui.close()
 	ui.laptop_open(false)
 	# he turns away, toward the window. The gauze rides up. The sockets.
@@ -1961,6 +2200,8 @@ func _dufredy_scene() -> void:
 	_hum108.play()
 	main.player.shake(0.15)
 	await _play(L["turn"])
+	main.learn("hush")
+	main.log_line("scene", "Dufredy hummed the lullaby")
 	ui.close()
 	f["hospital_interviewed"] = true
 	f.erase("cinematic")
@@ -1982,6 +2223,7 @@ func _show_laptop() -> void:
 	await _play(L["laptop"])
 	create_tween().tween_property(duf_head, "rotation:z", 0.45, 1.0).set_trans(Tween.TRANS_SINE)
 	await _play(L["laptop2"])
+	main.learn("filter")
 
 
 func _leave(dry := false) -> void:
@@ -2040,12 +2282,17 @@ func apply_args(a: Dictionary) -> void:
 		nurse.position = Vector3(-2.4, 0.02, -8.5)
 		turn_to(nurse, Vector3(0, 0, -4.0))
 		set_active(nurse_body, true)
+	if f.has("hospital_wing"):
+		for k in ["wing_l", "wing_r", "ward_l", "ward_r"]:
+			doors[k]["locked"] = false
+		for k in ["wing_l", "wing_r"]:
+			doors[k]["open"] = true
+			(doors[k]["pivot"] as Node3D).rotation.y = float(doors[k]["ry"]) + float(doors[k]["angle"])
+		door108.rotation.y = -1.7
+		set_active(door108_body, false)
 	if f.has("hospital_nurse"):
 		nurse.position = Vector3(1.0, 0.02, -37.0)
 		turn_to(nurse, Vector3(1.0, 0, -30.0))
-		door108.rotation.y = -1.7
-		set_active(door108_body, false)
-		doors["108b"]["locked"] = false
 	if f.has("hospital_interviewed"):
 		duf_head.rotation.z = -0.7
 		gauze_band.position = Vector3(0.0, 0.055, 0.0)
@@ -2061,7 +2308,7 @@ func apply_args(a: Dictionary) -> void:
 
 func selftest() -> void:
 	await intro()
-	for id in ["bot", "button", "security", "orderly", "door_staff", "door_102", "nurse", "door_108", "door_108b", "room", "dufredy"]:
+	for id in ["bot", "button", "security", "orderly", "nurse", "door_wing_l", "door_staff", "door_102", "door_ward_l", "door_108", "door_108b", "room", "dufredy"]:
 		for n in main._all_with_meta(self, "id"):
 			if is_instance_valid(n) and str(n.get_meta("id")) == id:
 				await main.interact(n)
