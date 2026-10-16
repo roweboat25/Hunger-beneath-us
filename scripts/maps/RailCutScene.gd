@@ -25,6 +25,9 @@ func on_interact(id: String) -> void:
 		"sign":
 			await ui.think("COGNIZO TRANSIT. KEEP OFF THE TRACKS. Under it, older: PSYONIC INTEGRATIONS. SAFE STREETS FOR SILICO. Under that, two rings.")
 			ui.close()
+		"plaza_sign":
+			await ui.think("Steps down off the cutting, and a sign with an arrow: RED ROCK PLAZA. Somebody had added, in marker, AND THE GOD WHO ANSWERS.")
+			ui.close()
 		"watcher":
 			if not npc_visible("watcher"):
 				return

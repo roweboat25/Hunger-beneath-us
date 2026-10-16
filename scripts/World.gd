@@ -17,8 +17,12 @@ const EXITS := {
 	"DornerFlat": {"exit": ["Lamplight", Vector2i(41, 10)]},
 	"Cognizo": {"exit:west": ["ParkAve", Vector2i(37, 8)], "exit:south": ["RailCut", Vector2i(37, 3)],
 		"door:CognizoStation": ["CognizoStation", Vector2i(2, 8)]},
-	"RailCut": {"exit:east": ["Cognizo", Vector2i(45, 17)], "exit:west": ["Southtown", Vector2i(48, 7)]},
-	"CognizoStation": {"exit": ["Cognizo", Vector2i(24, 10)]},
+	"RailCut": {"exit:east": ["Cognizo", Vector2i(45, 17)], "exit:west": ["Southtown", Vector2i(48, 7)], "exit:south": ["RedRock", Vector2i(53, 12)]},
+	"CognizoStation": {"exit": ["Cognizo", Vector2i(24, 10)], "exit:redrock": ["RedRock", Vector2i(5, 17)]},
+	"RedRock": {"exit:subway": ["CognizoStation", Vector2i(26, 8)], "exit:east": ["RailCut", Vector2i(37, 13)],
+		"door:Casino": ["Casino", Vector2i(10, 10)], "door:Lushon": ["Lushon", Vector2i(11, 10)]},
+	"Casino": {"exit": ["RedRock", Vector2i(8, 9)]},
+	"Lushon": {"exit": ["RedRock", Vector2i(23, 9)]},
 	"CanalWalk": {"exit:north": ["Lamplight", Vector2i(20, 17)], "exit:south": ["Park", Vector2i(3, 14)]},
 	"Underpass": {"exit:north": ["Spine", Vector2i(35, 19)], "exit:south": ["Southtown", Vector2i(3, 6)]},
 	"Flyover": {"exit:south": ["Spine", Vector2i(21, 10)], "exit:north": ["Heights", Vector2i(23, 17)]},
@@ -39,7 +43,7 @@ const EXITS := {
 }
 
 ## Where the company car parks in each district, for fast travel.
-const CAR_SPOTS := {"Spine": Vector2i(15, 15), "Heights": Vector2i(16, 14), "Lamplight": Vector2i(8, 10), "ZetaPark": Vector2i(11, 10), "Cognizo": Vector2i(10, 15)}
+const CAR_SPOTS := {"Spine": Vector2i(15, 15), "Heights": Vector2i(16, 14), "Lamplight": Vector2i(8, 10), "ZetaPark": Vector2i(11, 10), "Cognizo": Vector2i(10, 15), "RedRock": Vector2i(46, 16)}
 
 ## Interiors that are not plot beats: their doors are always open.
 ## Street exits that only open once the plot has reached them: map -> exit id -> [flag, line].
@@ -47,7 +51,7 @@ const EXIT_GATES := {
 	"RestrictedRoad": {"exit:east": ["lynx_apartment_done", "The flats. Sand to the horizon, the checkpoint logging every step, and nothing out there I had a reason for. Not yet."]},
 }
 
-const SIDE_INTERIORS := ["CognizoStation", "Factory", "DornerFlat"]
+const SIDE_INTERIORS := ["CognizoStation", "Factory", "DornerFlat", "Casino", "Lushon"]
 
 ## Places that open only once a flag is set: target -> [flag, what Carl thinks at the door].
 const GATES := {
@@ -56,7 +60,7 @@ const GATES := {
 }
 
 ## Outdoor maps. Anything else is an interior.
-const STREETS := ["Lamplight", "Spine", "ZetaPark", "CanalWalk", "Underpass", "Flyover", "Heights", "HillRoad", "Cognizo", "RailCut", "ParkAve", "Southtown", "RestrictedRoad", "Fargona"]
+const STREETS := ["Lamplight", "Spine", "ZetaPark", "CanalWalk", "Underpass", "Flyover", "Heights", "HillRoad", "Cognizo", "RailCut", "ParkAve", "Southtown", "RestrictedRoad", "Fargona", "RedRock"]
 
 const PLACE_NAMES := {
 	"Apartment": "the Lamplight, Dufredy's building", "Park": "Harmony Green", "Home": "home",
@@ -67,6 +71,7 @@ const PLACE_NAMES := {
 	"Cognizo": "Cognizo Quarter", "CognizoStation": "Cognizo Station", "RailCut": "the Rail Cut", "ParkAve": "Park Avenue",
 	"RestrictedRoad": "the Restricted Road", "Desert": "the sand flats", "Factory": "the factory",
 	"Fargona": "Fargona Avenue", "DornerFlat": "Dorner's flat",
+	"RedRock": "Red Rock Plaza", "Casino": "the casino on Red Rock Plaza", "Lushon": "Lushon Tavern",
 }
 
 ## What the objective line says to take, per map and exit.
@@ -80,7 +85,9 @@ const HINTS := {
 	"ZetaPark": {"exit:west": "West, back to the Spine.", "exit:east": "East along Park Avenue.", "door:LynxApartment": "The red building with the red eye beside it."},
 	"ParkAve": {"exit:west": "West, back to Zeta and Park.", "exit:east": "East into Cognizo Quarter.", "door:Fargona": "The steps in the top wall, middle of the avenue."},
 	"Cognizo": {"exit:west": "West along Park Avenue.", "exit:south": "The steps down to the rail cut, bottom right.", "door:CognizoStation": "The dark building in the middle: the subway."},
-	"RailCut": {"exit:east": "East along the cutting to Cognizo.", "exit:west": "West along the cutting to Southwest Station."},
+	"RailCut": {"exit:east": "East along the cutting to Cognizo.", "exit:west": "West along the cutting to Southwest Station.", "exit:south": "The steps down at the bottom right, to Red Rock Plaza."},
+	"RedRock": {"exit:east": "East, out of the plaza to the rail cut.", "exit:subway": "The subway stairs, bottom left.", "door:Casino": "The casino, west end of the plaza.", "door:Lushon": "Lushon's, under the red lanterns."},
+	"CognizoStation": {"exit": "The stairs up, left.", "exit:redrock": "The Red Rock line, far end of the platform."},
 	"Southtown": {"exit": "The station front, bottom left, back to the Underpass.", "exit:east": "East, out along the rail cut.", "exit:south": "South past the overpass, the restricted road.", "door:Factory": "The factory, the red brick in the middle."},
 	"RestrictedRoad": {"exit:west": "West, back to Southtown.", "exit:east": "East, into the flats."},
 	"CanalWalk": {"exit:north": "North, up the steps to Lamplight.", "exit:south": "South along the canal to the park."},

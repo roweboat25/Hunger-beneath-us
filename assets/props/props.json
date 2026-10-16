@@ -14,6 +14,11 @@
   "solid": 1,
   "w": 64
  },
+ "bar_counter": {
+  "h": 48,
+  "solid": 1,
+  "w": 96
+ },
  "barrel": {
   "h": 37,
   "solid": 1,
@@ -114,6 +119,11 @@
   "solid": 1,
   "w": 64
  },
+ "bottle": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
+ },
  "box": {
   "h": 14,
   "solid": 1,
@@ -164,6 +174,11 @@
   "solid": 1,
   "w": 32
  },
+ "cashier_cage": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
+ },
  "cave": {
   "h": 96,
   "solid": 0,
@@ -203,6 +218,11 @@
   "h": 48,
   "solid": 1,
   "w": 32
+ },
+ "club_stairs": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
  },
  "cobweb": {
   "h": 32,
@@ -292,6 +312,11 @@
  "dishes": {
   "h": 12,
   "solid": 0,
+  "w": 32
+ },
+ "dispenser": {
+  "h": 48,
+  "solid": 1,
   "w": 32
  },
  "drain": {
@@ -389,10 +414,20 @@
   "solid": 0,
   "w": 64
  },
+ "graffiti_count": {
+  "h": 32,
+  "solid": 0,
+  "w": 160
+ },
  "graffiti_danger": {
   "h": 47,
   "solid": 0,
   "w": 96
+ },
+ "graffiti_god": {
+  "h": 32,
+  "solid": 0,
+  "w": 160
  },
  "graffiti_green": {
   "h": 49,
@@ -403,6 +438,16 @@
   "h": 53,
   "solid": 0,
   "w": 96
+ },
+ "graffiti_mimic": {
+  "h": 32,
+  "solid": 0,
+  "w": 160
+ },
+ "graffiti_sea": {
+  "h": 32,
+  "solid": 0,
+  "w": 160
  },
  "grass_tuft": {
   "h": 9,
@@ -479,6 +524,11 @@
   "solid": 0,
   "w": 32
  },
+ "lantern_red": {
+  "h": 32,
+  "solid": 0,
+  "w": 32
+ },
  "laptop_closed": {
   "h": 14,
   "solid": 0,
@@ -519,12 +569,22 @@
   "solid": 0,
   "w": 64
  },
+ "neon_casino": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
  "neon_freud": {
   "h": 32,
   "solid": 0,
   "w": 64
  },
  "neon_hotel": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
+ "neon_lushon": {
   "h": 32,
   "solid": 0,
   "w": 64
@@ -679,6 +739,11 @@
   "solid": 1,
   "w": 32
  },
+ "red_pillar": {
+  "h": 192,
+  "solid": 1,
+  "w": 96
+ },
  "reeds": {
   "h": 53,
   "solid": 0,
@@ -713,6 +778,11 @@
   "h": 14,
   "solid": 0,
   "w": 32
+ },
+ "round_table": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
  },
  "rug_blue": {
   "h": 64,
@@ -749,6 +819,21 @@
   "solid": 1,
   "w": 32
  },
+ "slot_machine": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "slot_machine_dark": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "smoothie_stand": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
  "sofa_blue": {
   "h": 31,
   "solid": 1,
@@ -773,6 +858,11 @@
   "h": 31,
   "solid": 1,
   "w": 96
+ },
+ "speaker_stack": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
  },
  "steam_puff": {
   "h": 48,

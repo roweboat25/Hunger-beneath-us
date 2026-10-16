@@ -33,7 +33,7 @@ var _light_tex: Texture2D
 var _puff_tex: Array[Texture2D] = []
 
 
-func setup(map: Node2D) -> void:
+func setup(map: Node2D, rain := true) -> void:
 	_light_tex = load(LIGHT_TEX)
 	_puff_tex = [load("res://assets/props/steam_puff.png"), load("res://assets/props/steam_puff2.png")]
 	var ground: TileMapLayer = map.get_node_or_null("Ground")
@@ -65,7 +65,7 @@ func setup(map: Node2D) -> void:
 			_add_light(s, Color("ffc46a"), LAMP_SCALE, 0.75, true, false)
 	_set_day_night()
 	Game.outage_changed.connect(_on_outage)
-	if Game.is_night():
+	if rain and Game.is_night():
 		_make_rain(map)
 
 

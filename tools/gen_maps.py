@@ -876,7 +876,7 @@ def fargona():
     return m
 
 
-def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
+def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None, neon=None):
     """A building face spanning x0..x1 with the bottom wall row at y_top+height, a door at `door`."""
     top, bot = f"brick_{style}_top", f"brick_{style}_bot"
     mid = f"brick_{style}_mid" if f"brick_{style}_mid" in ATLAS else top
@@ -896,7 +896,7 @@ def storefront(m, x0, x1, door, style, windows, y_top=0, height=6, sign=None):
     if sign:
         m.decal(sign, door - 1, yb - 2)
     # cyberpunk: a neon sign over every door, a tube beside some
-    kind, color = NEON_KINDS[NEON_STATE[0] % len(NEON_KINDS)]
+    kind, color = neon or NEON_KINDS[NEON_STATE[0] % len(NEON_KINDS)]
     NEON_STATE[0] += 1
     m.prop(kind, door - 1, yb - 3, solid=0, meta={"neon": color})
     if NEON_STATE[0] % 2 == 0 and door - 3 >= x0:
@@ -912,7 +912,7 @@ ASPHALT_WET = ["asphalt_wet"] * 6 + ["asphalt_wet2"] * 4 + ["asphalt_wet3", "asp
 
 ## How much cyberpunk dressing a street gets: 2 downtown, 1 edges, 0 none.
 CYBER_LEVEL = {"Spine": 2, "Cognizo": 2, "ParkAve": 2, "ZetaPark": 2, "Lamplight": 2, "Southtown": 2, "Fargona": 2,
-               "Underpass": 1, "CanalWalk": 1, "Flyover": 1, "RailCut": 1, "HillRoad": 1, "Heights": 1, "RestrictedRoad": 0}
+               "RedRock": 2, "Underpass": 1, "CanalWalk": 1, "Flyover": 1, "RailCut": 1, "HillRoad": 1, "Heights": 1, "RestrictedRoad": 0}
 
 
 def cyberpunk(m):
@@ -1329,6 +1329,8 @@ def cognizo_station():
     m.trigger("board", 12, 1, 2)
     m.trigger("tablet", 23, 7)
     m.trigger("edge", 1, 10, 28, 1, on_enter=True)
+    m.decal("poster", 27, 1)
+    m.trigger("redrock_line", 26, 9, 2, 1)
     m.trigger("exit", 0, 9, on_enter=True, once=False)
     m.player = (2, 8)
     return m
@@ -1357,6 +1359,9 @@ def railcut():
     m.trigger("sign", 0, 4)
     m.exit("exit:west", 0, 11, 1, 3)
     m.exit("exit:east", 39, 2, 1, 3)
+    m.fill(36, 14, 38, 15, ["cement_dark"]); m.decal("cement_stairs", 36, 15); m.decal("cement_stairs", 37, 15); m.decal("cement_stairs", 38, 15)
+    m.trigger("plaza_sign", 35, 14)
+    m.exit("exit:south", 36, 15, 3, 1)
     m.player = (2, 12)
     return m
 
@@ -1457,8 +1462,124 @@ def factory():
     return m
 
 
+SANDSTONE = ["sandstone"] * 6 + ["sandstone2"] * 3 + ["sandstone3", "sandstone4"]
+
+
+def redrock():
+    """Red Rock Plaza (chapter 19): the mall of Silico. A gigantic pillar of red
+    stone in a park flanked by shops and restaurants; a casino, Lushon Tavern,
+    basement clubs, a smoothie stand, handlers in the alleys. Hot, dry air."""
+    m = street_base("RedRock", "RedRockScene.gd", 56, 20, 91)
+    storefront(m, 1, 13, 7, "sand", windows=(3, 11), sign="poster2", neon=("neon_casino", "f5be5a"))      # the casino
+    storefront(m, 16, 28, 22, "sand", windows=(18, 26), sign="poster_blank", neon=("neon_lushon", "e63c28"))  # Lushon Tavern
+    storefront(m, 31, 42, 36, "sand", windows=(32, 34, 40), sign="poster3")                                  # a Nixtra outlet, shut
+    storefront(m, 45, 54, 50, "sand", windows=(46, 54), sign="poster")                                       # the club above the club
+    # two alleys between the fronts, dead ends in shadow
+    for ax in (14, 15, 29, 30):
+        for ay in range(2, 7):
+            m.clear_wall(ax, ay)
+            m.ground[ay][ax] = "cement_dark"
+    m.decal("graffiti_god", 16, 2); m.decal("glyph_red", 29, 1); m.decal("graffiti_sea", 45, 2)
+    m.decal("graffiti_green", 0, 4); m.decal("graffiti_band", 43, 4)
+    # the plaza: sandstone, the pillar, benches, cactus, patches of grass gone brown
+    m.fill(0, 10, 55, 14, SANDSTONE)
+    m.prop("red_pillar", 26, 15, id="pillar")
+    m.prop("tree_small", 12, 13); m.prop("tree_small", 42, 13); m.prop("bush_dark", 24, 13); m.prop("bush_dark", 30, 13)
+    for x, y in ((11, 11), (19, 14), (36, 10), (45, 14), (25, 10), (29, 10)):
+        m.prop("grass_tuft", x, y, solid=0)
+    m.decal("rock_tiny", 7, 13); m.decal("rock_tiny", 48, 11)
+    m.prop("planter", 23, 11); m.prop("planter", 31, 11); m.prop("cactus", 21, 13); m.prop("cactus", 34, 13)
+    m.prop("bench", 22, 15); m.prop("bench", 32, 15); m.prop("bench", 9, 12); m.prop("bench", 46, 12)
+    m.prop("smoothie_stand", 38, 8, id="smoothie")
+    m.prop("club_stairs", 49, 7, solid=0, id="club"); m.prop("speaker_stack", 47, 7); m.prop("speaker_stack", 52, 7)
+    m.prop("lamp_post", 4, 9); m.prop("lamp_post", 20, 9); m.prop("lamp_post", 44, 9)
+    m.prop("lamp_post", 12, 16); m.prop("lamp_post", 40, 16)
+    m.prop("sedan", 16, 12); m.prop("car_blue", 48, 13)
+    m.prop("bin", 1, 8); m.prop("bin", 30, 8); m.prop("bin", 55, 16); m.prop("planter_small", 15, 8)
+    for x, y in ((6, 9), (18, 15), (33, 9), (51, 16), (24, 8)):
+        m.decal("bottle", x, y)
+    m.decal("blood", 42, 15); m.decal("paper", 8, 16); m.decal("paper3", 28, 9); m.decal("paper2", 50, 11)
+    m.scatter(["cement_crack", "cement_crack2"], [(3, 8), (27, 7), (37, 16), (53, 8)])
+    # bottom band: the backs of the next block, the subway stairs at x 4-6
+    m.wall(0, 18, 3, 19, "brick_sand_mid"); m.wall(7, 18, 55, 19, "brick_sand_mid")
+    m.wall(0, 18, 3, 18, "brick_sand_top"); m.wall(7, 18, 55, 18, "brick_sand_top")
+    m.decal("cement_stairs", 4, 19); m.decal("cement_stairs", 5, 19); m.decal("cement_stairs", 6, 19)
+    m.decal("graffiti_mimic", 10, 18); m.decal("graffiti_count", 40, 18); m.decal("poster3", 24, 18); m.decal("glyph", 32, 18)
+    # the man with Carl's face, in the alley, only with the frames on and only once Carl is far enough in
+    m.npc("mimic", 14, 5, "down", sprite="carl", meta={"min_connection": 50, "scan": "DRAKE, C. - PSYONIC INTEGRATIONS\nPsyon 4.1 - sync 100%\nstatus: WAITING FOR YOU", "scan_bad": True, "scan_name": "Carl Drake"})
+    m.glyph("rr_god", 18, 6, deep=True); m.glyph("rr_alley", 14, 6); m.glyph("rr_mimic", 12, 18); m.glyph("rr_count", 42, 18, deep=True); m.glyph("rr_pillar", 28, 16)
+    m.trigger("door:Casino", 7, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("door:Lushon", 22, 8, 2, 1, on_enter=True, once=False)
+    m.trigger("outlet", 36, 7, 2)
+    m.trigger("pillar", 26, 16, 3, 1)
+    m.trigger("smoothie", 38, 8, 2)
+    m.trigger("club", 49, 7, 2)
+    m.trigger("alley_w", 14, 7, 2); m.trigger("alley_e", 29, 7, 2)
+    m.trigger("subway_sign", 3, 17)
+    m.exit("exit:east", 55, 7, 1, 11)
+    m.exit("exit:subway", 4, 19, 3, 1)
+    m.player = (27, 17)
+    return m
+
+
+def casino():
+    """The small casino by the subway stairs: slot machines, a cashier cage,
+    and the chant on the walls in paint that is still wet."""
+    m = Map("Casino", "CasinoScene.gd", 22, 13, ["carpet_red"] * 30 + ["diamond_dark"], seed=93)
+    m.void_border()
+    m.top_wall("navy", 1, 20)
+    m.ground[12][10] = "shadow_floor"; m.clear_wall(10, 12)
+    m.decal("graffiti_god", 2, 0); m.decal("graffiti_sea", 9, 0); m.decal("glyph_red", 17, 1); m.decal("glyph_red", 19, 0)
+    for x in (3, 5, 7, 9, 11, 13):
+        m.prop("slot_machine", x, 4, id="slot_" + str(x), meta={"neon": "f5be5a"})
+    for x in (3, 5, 7, 9):
+        m.prop("slot_machine_dark", x, 8, id="slot_dark_" + str(x))
+    m.prop("slot_machine", 11, 8, meta={"neon": "f5be5a"}); m.prop("slot_machine", 13, 8, meta={"neon": "f5be5a"})
+    m.prop("cashier_cage", 16, 3, id="cage"); m.prop("vending_dark", 19, 3); m.prop("bin", 19, 10); m.prop("chair_office", 17, 6)
+    m.decal("rug_red", 16, 8); m.decal("bottle", 6, 6); m.decal("bottle", 12, 10); m.decal("paper", 15, 11); m.decal("blood", 4, 10)
+    m.decal("glyph", 8, 11)
+    m.npc("gambler", 6, 6, "up", sprite="forner", meta={"say": "'Don't. They're all paying out the same thing tonight.' He didn't look round. 'Three eyes. Every pull. Three eyes.'", "scan": "UNREGISTERED\nORA frames: NONE\ncredit: 0\nlast spin: EYE EYE EYE", "scan_name": "A gambler"})
+    m.glyph("ca_wall", 19, 1, deep=True); m.glyph("ca_floor", 15, 11)
+    m.trigger("machines", 3, 5, 11, 1)
+    m.trigger("dark_machines", 3, 9, 7, 1)
+    m.trigger("cage", 16, 3, 2)
+    m.trigger("words_god", 2, 2, 5)
+    m.trigger("words_sea", 9, 2, 5)
+    m.trigger("exit", 10, 12, on_enter=True, once=False)
+    m.player = (10, 10)
+    return m
+
+
+def lushon():
+    """Lushon Tavern: an upscale speakeasy with an Asian flare, red lanterns on
+    every wall, a Psyon drink dispenser, and the big round table at the back."""
+    m = Map("Lushon", "LushonScene.gd", 24, 13, WOOD_DARK, seed=97)
+    m.void_border()
+    m.top_wall("navy", 1, 22, windows=[(14, "dark")])
+    m.ground[12][11] = "shadow_floor"; m.clear_wall(11, 12)
+    for x in (2, 6, 10, 17, 21):
+        m.prop("lantern_red", x, 1, lift=10, solid=0, meta={"neon": "ff5a3c"})
+    m.prop("bar_counter", 2, 3, id="counter"); m.prop("dispenser", 6, 3, id="dispenser"); m.prop("shelf", 7, 1, lift=6, solid=0)
+    m.prop("round_table", 18, 5, id="table"); m.prop("chair_front", 17, 4); m.prop("chair_front", 20, 4); m.prop("chair_back", 18, 7); m.prop("chair_back", 19, 7)
+    m.prop("table_wood", 9, 7); m.prop("chair_back", 9, 8); m.prop("chair_front", 9, 6)
+    m.prop("table_wood", 13, 8); m.prop("chair_back", 13, 9); m.prop("chair_front", 13, 7)
+    m.prop("lamp_floor", 22, 10); m.prop("planter_small", 1, 10); m.prop("bin", 1, 6)
+    m.decal("rug_red", 11, 4); m.decal("rug_red", 16, 9); m.decal("painting2", 4, 0); m.decal("poster_blank", 19, 0)
+    m.npc("barkeep", 3, 2, "down", sprite="ezra")
+    m.npc("patron", 16, 8, "left", sprite="nurse", meta={"say": "'You're with the tower? Then you've got a car outside and you can leave whenever you want.' She turned her glass. 'The rest of us wait for the lanterns to tell us when.'", "scan": "NIXTRA - LOGISTICS\nPsyon 4.1 - sync 88%\nmood: ELEVATED", "scan_name": "A patron"})
+    m.glyph("lu_back", 22, 1, deep=True); m.glyph("lu_bar", 4, 1)
+    m.trigger("counter", 2, 3, 3)
+    m.trigger("dispenser", 6, 3)
+    m.trigger("table", 18, 5, 2)
+    m.trigger("lanterns", 10, 1)
+    m.trigger("window", 14, 1)
+    m.trigger("exit", 11, 12, on_enter=True, once=False)
+    m.player = (11, 10)
+    return m
+
+
 MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
-        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona]
+        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona, redrock, casino, lushon]
 
 
 def main():

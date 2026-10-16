@@ -51,6 +51,18 @@
   3,
   3
  ],
+ "brick_sand_bot": [
+  1,
+  7
+ ],
+ "brick_sand_mid": [
+  0,
+  7
+ ],
+ "brick_sand_top": [
+  15,
+  6
+ ],
  "carpet_navy": [
   13,
   0
@@ -214,6 +226,22 @@
  "sand2": [
   1,
   2
+ ],
+ "sandstone": [
+  11,
+  6
+ ],
+ "sandstone2": [
+  12,
+  6
+ ],
+ "sandstone3": [
+  13,
+  6
+ ],
+ "sandstone4": [
+  14,
+  6
  ],
  "shadow_floor": [
   14,

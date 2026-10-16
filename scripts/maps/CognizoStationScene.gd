@@ -45,6 +45,13 @@ func on_interact(id: String) -> void:
 				return
 			_train_done = true
 			await _train()
+		"redrock_line":
+			await ui.think("RED ROCK LINE, the sign said, and under it the next car: 4 MIN. Red Rock Plaza, the mall of Silico. Every weekend the whole tower went there to forget the tower.")
+			var pick := await ui.choose(["Board the next car.", "Not now."])
+			ui.close()
+			if pick == 0:
+				await main.filter.flash(0.1)
+				await travel("exit:redrock")
 		"exit":
 			await travel("exit")
 

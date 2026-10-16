@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
 [ext_resource type="Script" path="res://scripts/maps/CognizoStationScene.gd" id="2_script"]
@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/paper.png" id="tex_paper"]
 [ext_resource type="Texture2D" path="res://assets/props/paper3.png" id="tex_paper3"]
 [ext_resource type="Texture2D" path="res://assets/props/pillar.png" id="tex_pillar"]
+[ext_resource type="Texture2D" path="res://assets/props/poster.png" id="tex_poster"]
 [ext_resource type="Texture2D" path="res://assets/props/poster2.png" id="tex_poster2"]
 [ext_resource type="Texture2D" path="res://assets/props/poster3.png" id="tex_poster3"]
 [ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
@@ -179,6 +180,11 @@ texture = ExtResource("tex_drain")
 position = Vector2(848, 448)
 offset = Vector2(0, -26)
 texture = ExtResource("tex_drain")
+
+[node name="D21_poster" type="Sprite2D" parent="Decals"]
+position = Vector2(880, 64)
+offset = Vector2(0, -12.5)
+texture = ExtResource("tex_poster")
 
 [node name="Actors" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -359,6 +365,14 @@ on_enter = true
 
 [node name="Shape" type="CollisionShape2D" parent="Interactables/Edge"]
 shape = SubResource("Rect_896x32")
+
+[node name="RedrockLine" type="Area2D" parent="Interactables"]
+position = Vector2(864, 304)
+script = ExtResource("4_interact")
+id = "redrock_line"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/RedrockLine"]
+shape = SubResource("Rect_64x32")
 
 [node name="Exit" type="Area2D" parent="Interactables"]
 position = Vector2(16, 304)
