@@ -18,9 +18,9 @@ const SKINS := [Color(0.85, 0.66, 0.52), Color(0.6, 0.42, 0.3), Color(0.4, 0.28,
 	Color(0.92, 0.78, 0.66), Color(0.7, 0.52, 0.38)]
 
 
-func setup(m: Node) -> void:
+func setup(m: Node, lvl: Node) -> void:
 	main = m
-	city = m.city
+	city = lvl
 	rng.seed = 77
 	_visor_cyan = city.glow(Color(0.3, 0.95, 1.0), 3.0)
 	_visor_red = city.glow(Color(1.0, 0.08, 0.05), 9.0)
@@ -39,76 +39,8 @@ func setup(m: Node) -> void:
 	_statics()
 
 
-## A low-poly person facing -Z. Kept deliberately plain: a placeholder for a real model.
 func figure(coat: Color, skin: Color, visor: bool, separate_arms := false) -> Node3D:
-	var root := Node3D.new()
-	var coat_m: StandardMaterial3D = city.mat(coat, 0.7)
-	var skin_m: StandardMaterial3D = city.mat(skin, 0.6)
-	var legs := []
-	for side: float in [-1.0, 1.0]:
-		var hip := Node3D.new()
-		hip.position = Vector3(side * 0.1, 0.86, 0)
-		root.add_child(hip)
-		city.box(Vector3(0.14, 0.86, 0.16), Vector3(0, -0.43, 0), city.mat(Color(0.06, 0.06, 0.07)), false, hip)
-		legs.append(hip)
-	# coat, torso and (for walkers) arms as one mesh: fewer draw calls
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var skirt := CylinderMesh.new()
-	skirt.top_radius = 0.22
-	skirt.bottom_radius = 0.3
-	skirt.height = 0.55
-	skirt.radial_segments = 10
-	skirt.rings = 1
-	st.append_from(skirt, 0, Transform3D(Basis(), Vector3(0, 0.95, 0)))
-	var cm := CapsuleMesh.new()
-	cm.radius = 0.21
-	cm.height = 0.75
-	cm.radial_segments = 10
-	cm.rings = 4
-	st.append_from(cm, 0, Transform3D(Basis(), Vector3(0, 1.3, 0)))
-	var am := CapsuleMesh.new()
-	am.radius = 0.065
-	am.height = 0.7
-	am.radial_segments = 6
-	am.rings = 2
-	var arms := []
-	for side: float in [-1.0, 1.0]:
-		if separate_arms:
-			var sh := Node3D.new()
-			sh.position = Vector3(side * 0.26, 1.55, 0)
-			root.add_child(sh)
-			city.mesh(am, Vector3(0, -0.33, 0), coat_m, sh)
-			arms.append(sh)
-		else:
-			st.append_from(am, 0, Transform3D(Basis(), Vector3(side * 0.26, 1.22, 0)))
-	var body := MeshInstance3D.new()
-	body.mesh = st.commit()
-	body.material_override = coat_m
-	root.add_child(body)
-	var head := Node3D.new()
-	head.position = Vector3(0, 1.72, 0)
-	root.add_child(head)
-	var hm := SphereMesh.new()
-	hm.radius = 0.12
-	hm.height = 0.27
-	hm.radial_segments = 12
-	hm.rings = 6
-	city.mesh(hm, Vector3.ZERO, skin_m, head)
-	var hair := SphereMesh.new()
-	hair.radius = 0.125
-	hair.height = 0.16
-	hair.radial_segments = 12
-	hair.rings = 4
-	city.mesh(hair, Vector3(0, 0.07, 0.02), city.mat(Color(0.05, 0.04, 0.04), 0.9), head)
-	var v: MeshInstance3D = null
-	if visor:
-		v = city.box(Vector3(0.21, 0.045, 0.03), Vector3(0, 0.02, -0.11), _visor_cyan, false, head)
-	root.set_meta("legs", legs)
-	root.set_meta("arms", arms)
-	root.set_meta("head", head)
-	root.set_meta("visor", v)
-	return root
+	return city.figure(coat, skin, {"visor": visor, "arms": separate_arms})
 
 
 func _statics() -> void:

@@ -5,6 +5,31 @@ extends CanvasLayer
 
 signal advanced
 signal picked(i: int)
+signal end_closed
+
+const REVEAL_SHADER := """
+shader_type canvas_item;
+// Psyon drawing an image the slow way: coarse blocks first, then rows
+// resolving top to bottom, like the early days of image generation.
+uniform float reveal = 0.0;
+uniform float blocks = 8.0;
+float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+void fragment() {
+	vec2 uv = UV;
+	vec2 cell = vec2(blocks) * vec2(1.6, 1.0);
+	vec2 q = (floor(uv * cell) + 0.5) / cell;
+	vec4 coarse = texture(TEXTURE, q);
+	vec4 fine = texture(TEXTURE, uv);
+	float row = smoothstep(reveal - 0.04, reveal, 1.0 - uv.y);
+	vec4 c = mix(fine, coarse, row);
+	// the early-days look: coarse tones and a colour cast
+	c.rgb = floor(c.rgb * vec3(1.05, 0.98, 0.9) * 10.0 + 0.5) / 10.0;
+	float noise = h(floor(uv * vec2(120.0, 80.0)) + vec2(TIME * 3.0));
+	c.rgb = mix(c.rgb, vec3(noise * 0.25), row * 0.5);
+	c.rgb *= 0.92 + 0.08 * sin(uv.y * 600.0);
+	COLOR = vec4(c.rgb, 1.0);
+}
+"""
 
 const FRAMES_SHADER := """
 shader_type canvas_item;
@@ -63,6 +88,18 @@ var title: ColorRect
 var pause: ColorRect
 var endcard: ColorRect
 var end_text: RichTextLabel
+var fade: ColorRect
+var card_text: RichTextLabel
+var caption_l: Label
+var laptop: PanelContainer
+var laptop_log: RichTextLabel
+var laptop_img: TextureRect
+var smear: Control
+var picture: PanelContainer
+var picture_img: TextureRect
+var picture_cap: Label
+var shutter_r: ColorRect
+var menu_buttons: Array = []
 var busy := false
 var _typing := false
 var _tw: Tween
@@ -101,9 +138,30 @@ func setup(m: Node) -> void:
 	toast.modulate.a = 0.0
 	_build_dialogue()
 	_build_phone()
-	_build_title()
+	_build_laptop()
+	_build_picture()
+	caption_l = _label(22, Color(1, 1, 1))
+	caption_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption_l.modulate.a = 0.0
+	shutter_r = ColorRect.new()
+	shutter_r.color = Color(1, 1, 1, 0)
+	shutter_r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(shutter_r)
 	_build_pause()
 	_build_end()
+	fade = ColorRect.new()
+	fade.color = Color(0, 0, 0, 0)
+	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(fade)
+	card_text = RichTextLabel.new()
+	card_text.bbcode_enabled = true
+	card_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_text.add_theme_font_size_override("normal_font_size", 22)
+	card_text.add_theme_font_size_override("bold_font_size", 40)
+	card_text.modulate.a = 0.0
+	fade.add_child(card_text)
+	_build_title()
 	get_viewport().size_changed.connect(_fit)
 	_fit()
 
@@ -171,19 +229,43 @@ func _build_phone() -> void:
 
 func _build_title() -> void:
 	title = ColorRect.new()
-	title.color = Color(0, 0, 0, 0.93)
+	title.color = Color(0, 0, 0, 0.94)
 	root.add_child(title)
 	var t := RichTextLabel.new()
 	t.bbcode_enabled = true
 	t.set_anchors_preset(Control.PRESET_FULL_RECT)
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	t.add_theme_font_size_override("normal_font_size", 20)
 	t.add_theme_font_size_override("bold_font_size", 44)
-	t.text = ("[center]\n\n[b]THE HUNGER BENEATH US[/b]\n[color=#6fe8d0]SILICO  -  THE SPINE  -  first-person test[/color]\n\n"
-		+ "[color=#aaaaaa]Night. Rain. The tower in the middle of it like a pin through a map.[/color]\n\n"
-		+ "Mouse or arrow keys look    WASD walk    Shift hurry\nE examine / talk    G frames    F scan (frames on)    P Psyon\n\n"
-		+ "[color=#888888]Headphones. Lights off.[/color]\n\n[color=#ffffff]Click to begin[/color][/center]")
+	t.text = ("[center]\n\n[b]THE HUNGER BENEATH US[/b]\n[color=#6fe8d0]SILICO  -  first person  -  proof of concept[/color]\n\n"
+		+ "Mouse or arrow keys look    WASD walk    Shift hurry\nE examine / talk    G frames    F scan (frames on)    P Psyon    M this menu\n\n"
+		+ "[color=#888888]Headphones. Lights off.[/color][/center]")
 	title.add_child(t)
 	title.mouse_filter = Control.MOUSE_FILTER_STOP
+	var vb := VBoxContainer.new()
+	vb.name = "menu"
+	vb.add_theme_constant_override("separation", 14)
+	title.add_child(vb)
+	var opts := [["1   Chapters 1 and 2:  The Dufredy case", "Day. The apartment, the eyes, the park, the witnesses."],
+		["2   The Spine at night", "The first test: the rings, the outage, the tower's eye."]]
+	for i in opts.size():
+		var bt := Button.new()
+		bt.text = opts[i][0] + "\n" + opts[i][1]
+		bt.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		bt.add_theme_font_size_override("font_size", 20)
+		var sb := _panel_style(0.6)
+		bt.add_theme_stylebox_override("normal", sb)
+		var sbh := _panel_style(0.9)
+		sbh.border_color = Color(0.5, 1.0, 0.9, 1.0)
+		bt.add_theme_stylebox_override("hover", sbh)
+		bt.add_theme_stylebox_override("focus", sbh)
+		bt.add_theme_stylebox_override("pressed", sbh)
+		bt.add_theme_color_override("font_color", Color(0.85, 0.9, 0.88))
+		bt.add_theme_color_override("font_hover_color", Color(0.5, 1.0, 0.9))
+		var idx := i
+		bt.pressed.connect(func(): main.pick(idx))
+		vb.add_child(bt)
+		menu_buttons.append(bt)
 
 
 func _build_pause() -> void:
@@ -221,6 +303,24 @@ func _fit() -> void:
 	pause.size = s
 	endcard.size = s
 	crosshair.position = s / 2.0 - Vector2(2, 2)
+	fade.size = s
+	card_text.position = Vector2(0, s.y * 0.38)
+	card_text.size = Vector2(s.x, s.y * 0.4)
+	shutter_r.size = s
+	caption_l.position = Vector2(s.x * 0.12, s.y - 150.0)
+	caption_l.size = Vector2(s.x * 0.76, 110)
+	var lw := minf(820.0, s.x - 60.0)
+	laptop.position = Vector2((s.x - lw) / 2.0, 24)
+	laptop.size = Vector2(lw, s.y - 270.0)
+	laptop.custom_minimum_size = Vector2(lw, s.y - 270.0)
+	smear.position = laptop.position + Vector2(lw * 0.58, 10)
+	var pw := minf(560.0, s.x - 60.0)
+	picture.position = Vector2((s.x - pw) / 2.0, 40)
+	picture.custom_minimum_size = Vector2(pw, 0)
+	picture.size = Vector2(pw, 0)
+	var menu := title.get_node("menu") as Control
+	menu.position = Vector2((s.x - minf(640.0, s.x - 40.0)) / 2.0, s.y * 0.52)
+	menu.size = Vector2(minf(640.0, s.x - 40.0), 0)
 	prompt.size = Vector2(s.x, 30)
 	prompt.position = Vector2(0, s.y * 0.58)
 	objective.position = Vector2(24, 18)
@@ -236,6 +336,169 @@ func _fit() -> void:
 	phone.position = Vector2(s.x - 360.0, s.y * 0.18)
 	phone.size = Vector2(330, 420)
 	phone.custom_minimum_size = Vector2(330, 420)
+
+
+func _build_laptop() -> void:
+	laptop = PanelContainer.new()
+	var sb := _panel_style(0.96)
+	sb.bg_color = Color(0.02, 0.02, 0.025, 0.97)
+	sb.border_color = Color(0.25, 0.25, 0.28, 1.0)
+	sb.set_border_width_all(10)
+	sb.set_corner_radius_all(6)
+	laptop.add_theme_stylebox_override("panel", sb)
+	laptop.visible = false
+	root.add_child(laptop)
+	var vb := VBoxContainer.new()
+	laptop.add_child(vb)
+	var top := Label.new()
+	top.text = "IONWARE  //  PSYON 4.1  //  user: DUFREDY_H"
+	top.add_theme_font_size_override("font_size", 15)
+	top.add_theme_color_override("font_color", Color(0.5, 0.55, 0.55))
+	vb.add_child(top)
+	laptop_log = RichTextLabel.new()
+	laptop_log.bbcode_enabled = true
+	laptop_log.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	laptop_log.scroll_following = true
+	laptop_log.add_theme_font_size_override("normal_font_size", 21)
+	laptop_log.add_theme_font_size_override("bold_font_size", 21)
+	laptop_log.add_theme_color_override("default_color", Color(0.85, 0.88, 0.85))
+	vb.add_child(laptop_log)
+	laptop_img = TextureRect.new()
+	laptop_img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	laptop_img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	laptop_img.custom_minimum_size = Vector2(0, 300)
+	laptop_img.visible = false
+	var sm := ShaderMaterial.new()
+	var sh := Shader.new()
+	sh.code = REVEAL_SHADER
+	sm.shader = sh
+	laptop_img.material = sm
+	vb.add_child(laptop_img)
+	# smears of dried blood across the screen: "a blood-stained screen"
+	smear = Control.new()
+	smear.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	smear.visible = false
+	root.add_child(smear)
+	var r := RandomNumberGenerator.new()
+	r.seed = 108
+	for i in 9:
+		var c := ColorRect.new()
+		c.color = Color(0.22, 0.0, 0.0, r.randf_range(0.3, 0.6))
+		c.size = Vector2(r.randf_range(30, 170), r.randf_range(8, 30))
+		c.rotation = r.randf_range(-0.9, 0.2)
+		c.position = Vector2(r.randf_range(10, 150), r.randf_range(40, 260))
+		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		smear.add_child(c)
+	for i in 5:
+		var d := ColorRect.new()
+		d.color = Color(0.18, 0.0, 0.0, 0.55)
+		d.size = Vector2(r.randf_range(3, 6), r.randf_range(20, 90))
+		d.position = Vector2(r.randf_range(40, 180), r.randf_range(60, 200))
+		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		smear.add_child(d)
+
+
+func _build_picture() -> void:
+	picture = PanelContainer.new()
+	picture.add_theme_stylebox_override("panel", _panel_style(0.95))
+	picture.visible = false
+	root.add_child(picture)
+	var vb := VBoxContainer.new()
+	picture.add_child(vb)
+	picture_img = TextureRect.new()
+	picture_img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture_img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture_img.custom_minimum_size = Vector2(0, 320)
+	vb.add_child(picture_img)
+	picture_cap = Label.new()
+	picture_cap.add_theme_font_size_override("font_size", 16)
+	picture_cap.add_theme_color_override("font_color", Color(0.7, 0.75, 0.75))
+	picture_cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(picture_cap)
+
+
+func show_picture(tex: Texture2D, cap: String) -> void:
+	picture_img.texture = tex
+	picture_cap.text = cap
+	picture.visible = true
+
+
+func hide_picture() -> void:
+	picture.visible = false
+
+
+func laptop_open(on: bool) -> void:
+	laptop.visible = on
+	smear.visible = on
+	if on:
+		laptop_log.text = ""
+		laptop_img.visible = false
+
+
+## A line in the chat window, typed out.
+func laptop_line(text: String, carl := false) -> void:
+	var col := "#9fb4c8" if carl else "#7fe6b0"
+	var who := "you" if carl else "Psyon"
+	var start := laptop_log.get_total_character_count()
+	laptop_log.append_text("[color=%s]%s:[/color] %s\n\n" % [col, who, text])
+	laptop_log.visible_characters = start
+	var tw := create_tween()
+	tw.tween_property(laptop_log, "visible_characters", laptop_log.get_total_character_count(), maxf(0.4, text.length() * (0.05 if carl else 0.035)))
+	await tw.finished
+	laptop_log.visible_characters = -1
+
+
+## Psyon draws a picture, slowly. Resolves over `secs`.
+func laptop_image(tex: Texture2D, secs := 6.0) -> void:
+	laptop_img.texture = tex
+	laptop_img.visible = true
+	var m := laptop_img.material as ShaderMaterial
+	m.set_shader_parameter("reveal", 0.0)
+	var tw := create_tween()
+	tw.tween_method(func(v): m.set_shader_parameter("reveal", v), 0.0, 1.05, secs)
+	await tw.finished
+
+
+func fade_to(a: float, t := 0.6) -> void:
+	var tw := create_tween()
+	tw.tween_property(fade, "color:a", a, t)
+	await tw.finished
+
+
+## A chapter card on black, then fade in.
+func show_card(text: String, secs := 2.6) -> void:
+	fade.color.a = 1.0
+	card_text.text = "[center]" + text + "[/center]"
+	var tw := create_tween()
+	tw.tween_property(card_text, "modulate:a", 1.0, 0.8)
+	tw.tween_interval(secs)
+	tw.tween_property(card_text, "modulate:a", 0.0, 0.8)
+	tw.tween_property(fade, "color:a", 0.0, 1.2)
+	await tw.finished
+
+
+## Subtitles that run on their own (for the drive, where Carl just watches).
+func caption(text: String, secs := 4.0) -> void:
+	caption_l.text = text
+	var tw := create_tween()
+	tw.tween_property(caption_l, "modulate:a", 1.0, 0.5)
+	tw.tween_interval(secs)
+	tw.tween_property(caption_l, "modulate:a", 0.0, 0.6)
+	await tw.finished
+
+
+## The camera on the frames taking a photo.
+func shutter() -> void:
+	shutter_r.color.a = 0.85
+	create_tween().tween_property(shutter_r, "color:a", 0.0, 0.35)
+
+
+func show_title(on: bool) -> void:
+	title.visible = on
+	if on:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if menu_buttons.size() > 0:
+			menu_buttons[0].grab_focus()
 
 
 # ------------------------------------------------------------------ frames overlay
@@ -328,13 +591,23 @@ func _draw_choices() -> void:
 
 func _input(e: InputEvent) -> void:
 	if title.visible:
-		if (e is InputEventMouseButton and e.pressed) or (e is InputEventKey and e.pressed and not e.echo):
+		if e is InputEventKey and e.pressed and not e.echo:
+			if e.keycode == KEY_1 or e.keycode == KEY_KP_1:
+				main.pick(0)
+			elif e.keycode == KEY_2 or e.keycode == KEY_KP_2:
+				main.pick(1)
+			elif (e.keycode == KEY_ESCAPE or e.keycode == KEY_M) and main.started:
+				show_title(false)
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			else:
+				return
 			get_viewport().set_input_as_handled()
-			main.start()
 		return
-	if endcard.visible and e.is_action_pressed("interact"):
-		get_viewport().set_input_as_handled()
-		endcard.visible = false
+	if endcard.visible:
+		if e.is_action_pressed("interact"):
+			get_viewport().set_input_as_handled()
+			endcard.visible = false
+			end_closed.emit()
 		return
 	if pause.visible:
 		if e is InputEventMouseButton and e.pressed:

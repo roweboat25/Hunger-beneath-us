@@ -1,20 +1,27 @@
 extends Node3D
-## Silico in first person: a test slice of the Spine at night.
-## Carl walks the boulevard toward the Psyonic tower. With the frames on (G)
-## he reads the two-ring glyphs; each decodes a line of the chant and raises
-## the connection. At 25 the power goes and the crowd turns to watch him. At
-## 50 the tower opens its eye. Walking the garden path to the tower ends it.
+## Silico in first person. Main owns what carries between places: Carl
+## (the player), the screen (UI), the frames, the connection, story flags,
+## sound, and loading levels. Each level (scripts/levels/) builds its place
+## and runs its own scenes through the hooks in Level.gd.
+##
+## Chapters 1 and 2 of the book: Dufredy's apartment -> the officer at the
+## door -> the drive -> Harmony Green park. Separately: the Spine at night.
 ##
 ## Dev/test arguments (after "--" on the command line, or ?key=value in the
-## browser URL): conn=N, frames=1, at=x,y,z, yaw=deg, pitch=deg, eye=1,
-## outage=1, scan=1, shot=path.png, wait=frames, selftest=1.
+## browser URL): level=Dufredy|Drive|Park|Spine, flags=a,b, conn=N,
+## frames=1, at=x,y,z, yaw=deg, pitch=deg, eye=1, outage=1, scan=1,
+## shot=path.png, wait=frames, selftest=1, debug=1.
 
-const CityS := preload("res://scripts/City.gd")
 const PlayerS := preload("res://scripts/Player.gd")
 const UIS := preload("res://scripts/UI.gd")
-const CrowdS := preload("res://scripts/Crowd.gd")
-const TrafficS := preload("res://scripts/Traffic.gd")
 const Synth := preload("res://scripts/Synth.gd")
+
+const LEVELS := {
+	"Dufredy": preload("res://scripts/levels/Dufredy.gd"),
+	"Drive": preload("res://scripts/levels/Drive.gd"),
+	"Park": preload("res://scripts/levels/Park.gd"),
+	"Spine": preload("res://scripts/levels/Spine.gd"),
+}
 
 ## Same chant as the 2D game (scripts/Game.gd), in the same order.
 const CHANT := [
@@ -30,12 +37,13 @@ const CHANT := [
 	"Gather, sleeper. Gather.",
 ]
 
-var city: Node3D
+var level: Node3D
+var level_name := ""
 var player: CharacterBody3D
 var ui: CanvasLayer
 var crowd: Node3D
-var traffic: Node3D
 var env: Environment
+var sun: DirectionalLight3D
 
 var connection := 0.0
 var frames_on := false
@@ -43,15 +51,15 @@ var flags := {}
 var glyphs_found := 0
 var outage := false
 var started := false
+var loading := false
 var shot_mode := false
 var sfx := {}
+var amb := {}
 var _sfx_pool: Array = []
-var _amb := {}
 var _scan_labels: Array = []
 var _target: Object = null
-var _ended := false
 var _phone_on := false
-var _listened := false
+var _rain: CPUParticles3D
 var _args := {}
 var _selftest := false
 
@@ -61,29 +69,16 @@ func _ready() -> void:
 	_args = _read_args()
 	_make_sounds()
 	_setup_env()
-	city = CityS.new()
-	add_child(city)
-	city.build(self)
 	player = PlayerS.new()
 	add_child(player)
-	player.position = Vector3(5.5, 0.2, 104.0)
 	player.locked = true
 	player.stepped.connect(_on_step)
-	traffic = TrafficS.new()
-	add_child(traffic)
-	traffic.setup(self)
-	crowd = CrowdS.new()
-	add_child(crowd)
-	crowd.setup(self)
-	_rain()
+	_make_rain()
 	ui = UIS.new()
 	add_child(ui)
 	ui.setup(self)
-	city.set_glyph_visibility(false, 0.0)
-	_ambience()
-	_update_hud()
-	if not _args.is_empty():
-		_apply_args()
+	if _args.has("shot") or _args.has("selftest") or _args.has("level"):
+		_dev_start.call_deferred()
 
 
 # ------------------------------------------------------------------ setup
@@ -111,11 +106,22 @@ func _setup_input() -> void:
 	_key("frames", [KEY_G])
 	_key("scan", [KEY_F])
 	_key("psyon", [KEY_P])
+	_key("menu", [KEY_M])
 	_key("release", [KEY_ESCAPE])
 
 
 func _setup_env() -> void:
 	env = Environment.new()
+	var we := WorldEnvironment.new()
+	we.environment = env
+	add_child(we)
+	sun = DirectionalLight3D.new()
+	add_child(sun)
+	_reset_env()
+
+
+## Night on the Spine is the default; day levels override in setup_env.
+func _reset_env() -> void:
 	env.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var psm := ProceduralSkyMaterial.new()
@@ -141,19 +147,14 @@ func _setup_env() -> void:
 	env.fog_light_color = Color(0.16, 0.11, 0.12)
 	env.fog_density = 0.0055
 	env.fog_sky_affect = 0.35
-	var we := WorldEnvironment.new()
-	we.environment = env
-	add_child(we)
-	var moon := DirectionalLight3D.new()
-	moon.light_color = Color(0.55, 0.6, 0.8)
-	moon.light_energy = 0.18
-	moon.shadow_enabled = true
-	moon.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_ONLY
-	moon.rotation = Vector3(deg_to_rad(-48), deg_to_rad(35), 0)
-	add_child(moon)
+	sun.light_color = Color(0.55, 0.6, 0.8)
+	sun.light_energy = 0.18
+	sun.shadow_enabled = true
+	sun.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_ONLY
+	sun.rotation = Vector3(deg_to_rad(-48), deg_to_rad(35), 0)
 
 
-func _rain() -> void:
+func _make_rain() -> void:
 	var p := CPUParticles3D.new()
 	p.amount = 2200
 	p.lifetime = 0.9
@@ -178,6 +179,7 @@ func _rain() -> void:
 	p.mesh = q
 	p.position = Vector3(0, 14, -6)
 	player.add_child(p)
+	_rain = p
 
 
 func _make_sounds() -> void:
@@ -193,7 +195,24 @@ func _make_sounds() -> void:
 	sfx["whisper"] = Synth.whisper()
 	sfx["car"] = Synth.car()
 	sfx["fire"] = Synth.fire()
-	for i in 6:
+	sfx["flies"] = Synth.flies()
+	sfx["snap"] = Synth.snap()
+	sfx["tap"] = Synth.tap()
+	sfx["ding"] = Synth.ding()
+	sfx["keys"] = Synth.keys()
+	sfx["slam"] = Synth.slam()
+	sfx["siren"] = Synth.siren()
+	sfx["engine"] = Synth.engine()
+	sfx["wind"] = Synth.wind()
+	sfx["murmur"] = Synth.murmur()
+	sfx["jingle"] = Synth.jingle()
+	sfx["static"] = Synth.static_hiss()
+	sfx["vacuum"] = Synth.vacuum()
+	sfx["pressure"] = Synth.pressure()
+	sfx["shutter"] = Synth.shutter()
+	sfx["door"] = Synth.door()
+	sfx["room"] = Synth.room()
+	for i in 8:
 		var ap := AudioStreamPlayer.new()
 		add_child(ap)
 		_sfx_pool.append(ap)
@@ -209,7 +228,8 @@ func play(key: String, db := 0.0, pitch := 1.0) -> void:
 			return
 
 
-func _loop(key: String, db: float, at = null, unit := 4.0, max_d := 40.0) -> Node:
+## A looping sound for the current level, flat or placed in the world.
+func loop(key: String, db: float, at = null, unit := 4.0, max_d := 40.0, parent: Node = null) -> Node:
 	var ap: Node
 	if at == null:
 		ap = AudioStreamPlayer.new()
@@ -221,42 +241,95 @@ func _loop(key: String, db: float, at = null, unit := 4.0, max_d := 40.0) -> Nod
 		ap.max_distance = max_d
 		ap.position = at
 	ap.stream = sfx[key]
-	add_child(ap)
-	_amb[key] = ap
+	(parent if parent else level).add_child(ap)
+	var name_k := key
+	var n := 2
+	while amb.has(name_k):
+		name_k = "%s%d" % [key, n]
+		n += 1
+	amb[name_k] = ap
 	return ap
 
 
-func _ambience() -> void:
-	_loop("rain", -9.0)
-	_loop("hum", -13.0)
-	_loop("chant", 0.0, Vector3(-13.4, 1.6, 14.0), 3.0, 30.0)
-	_loop("fire", -2.0, Vector3(-30.0, 1.0, -30.0), 2.0, 20.0)
+# ------------------------------------------------------------------ levels
 
-
-func _start_ambience() -> void:
-	for k in _amb:
-		_amb[k].play()
-
-
-# ------------------------------------------------------------------ flow
-
-func start() -> void:
-	if started:
-		return
-	started = true
-	ui.title.visible = false
+## From the title menu: 0 = chapters 1 and 2, 1 = the Spine.
+func pick(i: int) -> void:
+	ui.show_title(false)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	player.locked = false
-	_start_ambience()
-	await get_tree().create_timer(1.2).timeout
-	await ui.think("The Spine. One long boulevard between the places that mattered, and the tower in the middle of it like a pin through a map.")
-	await ui.think("The rot never reached the tower. Everything around it existed in anticipation of something, a silent, electric tension humming in the wet air.")
-	await ui.think("With the frames on, the walls had started to have opinions.")
-	ui.close()
+	started = true
+	_reset_story()
+	load_level("Dufredy" if i == 0 else "Spine")
 
+
+func _reset_story() -> void:
+	connection = 0.0
+	frames_on = false
+	flags = {}
+	glyphs_found = 0
+	outage = false
+	ui.set_frames(0.0, 0.0)
+
+
+func load_level(lname: String) -> void:
+	if loading:
+		return
+	loading = true
+	player.locked = true
+	if level and not shot_mode:
+		await ui.fade_to(1.0, 0.8)
+	ui.close()
+	ui.laptop_open(false)
+	ui.hide_picture()
+	if _phone_on:
+		toggle_phone()
+	for l in _scan_labels:
+		if is_instance_valid(l):
+			l.queue_free()
+	_scan_labels.clear()
+	amb.clear()
+	crowd = null
+	if level:
+		remove_child(level)
+		level.queue_free()
+	_reset_env()
+	level = LEVELS[lname].new()
+	level_name = lname
+	add_child(level)
+	level.build(self)
+	level.setup_env(env, sun)
+	_rain.visible = level.rain
+	_rain.emitting = level.rain
+	player.seated = false
+	player.velocity = Vector3.ZERO
+	player.position = level.spawn
+	player.yaw = deg_to_rad(level.spawn_yaw)
+	player.pitch = 0.0
+	player.rotation.y = player.yaw
+	level.set_glyph_visibility(frames_on, connection)
+	level.ambience()
+	for k in amb:
+		amb[k].play()
+	update_hud()
+	if shot_mode:
+		ui.fade.color.a = 0.0
+		loading = false
+		return
+	if level.card != "":
+		await ui.show_card(level.card)
+	else:
+		await ui.fade_to(0.0, 0.8)
+	loading = false
+	level.intro()
+
+
+# ------------------------------------------------------------------ input and the frame loop
 
 func _unhandled_input(e: InputEvent) -> void:
 	if not started:
+		return
+	if e.is_action_pressed("menu") and not ui.title.visible:
+		ui.show_title(true)
 		return
 	if e.is_action_pressed("release"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -264,7 +337,7 @@ func _unhandled_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		return
-	if ui.busy or player.locked:
+	if ui.busy or player.locked or loading:
 		return
 	if e.is_action_pressed("interact") and _target:
 		interact(_target)
@@ -277,33 +350,30 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func _process(_d: float) -> void:
-	if not started:
+	if not started or not level:
 		return
-	player.locked = ui.busy or flags.has("cinematic")
+	player.locked = ui.busy or flags.has("cinematic") or loading or ui.title.visible
 	if player.global_position.y < -4.0:
 		player.global_position = Vector3(player.global_position.x, 0.5, player.global_position.z)
 		player.velocity = Vector3.ZERO
 	if _args.has("debug") and Engine.get_process_frames() % 10 == 0:
 		print("pos ", player.global_position, " fps ", Engine.get_frames_per_second())
-	_target = null if ui.busy else player.looked_at()
+	_target = null if (ui.busy or player.seated) else player.looked_at()
 	if _target and is_instance_valid(_target):
 		ui.prompt.text = "E   " + str(_target.get_meta("prompt"))
 	else:
 		ui.prompt.text = ""
 	ui.crosshair.color.a = 0.9 if _target else 0.4
-	if flags.has("eye_open") and not _ended and player.global_position.z < -196.0:
-		_ended = true
-		_ending()
 
 
 func toggle_frames() -> void:
 	frames_on = not frames_on
 	play("on" if frames_on else "off", -6.0)
 	ui.set_frames(1.0 if frames_on else 0.0, connection)
-	city.set_glyph_visibility(frames_on, connection)
+	level.set_glyph_visibility(frames_on, connection)
 	if frames_on:
 		ui.glitch(0.4, 0.4)
-	_update_hud()
+	update_hud()
 
 
 func add_connection(v: float, why: String) -> void:
@@ -311,25 +381,15 @@ func add_connection(v: float, why: String) -> void:
 	connection = minf(100.0, connection + v)
 	ui.show_toast("Connection +%d   %s" % [int(v), why], 2.5)
 	ui.set_frames(1.0 if frames_on else 0.0, connection)
-	city.set_glyph_visibility(frames_on, connection)
-	_update_hud()
-	if old < 25.0 and connection >= 25.0:
-		_outage()
-	elif old < 50.0 and connection >= 50.0:
-		_eye()
+	level.set_glyph_visibility(frames_on, connection)
+	update_hud()
+	level.on_connection(old, connection)
 
 
-func _update_hud() -> void:
-	var obj := ""
-	if flags.has("eye_open"):
-		obj = "Walk to the tower."
-	elif flags.has("outage_done"):
-		obj = "Keep reading the rings. Some of them are red now."
-	elif frames_on or glyphs_found > 0:
-		obj = "Find the two-ring signs with the frames on. E to read them."
-	else:
-		obj = "Walk the Spine toward the tower.   G puts the frames on."
-	ui.objective.text = obj
+func update_hud() -> void:
+	if not level:
+		return
+	ui.objective.text = level.objective()
 	if frames_on:
 		ui.status.text = "FRAMES ON    CONNECTION %d" % int(connection)
 		ui.status.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3) if connection >= 25.0 else Color(0.5, 1.0, 0.9))
@@ -339,57 +399,20 @@ func _update_hud() -> void:
 
 
 func _on_step() -> void:
-	play("step", -16.0, randf_range(0.85, 1.15))
+	play("step", level.step_db if level else -16.0, randf_range(0.85, 1.15))
 
 
 # ------------------------------------------------------------------ interactions
 
 func interact(node: Object) -> void:
-	var id: String = node.get_meta("id")
 	if node.has_meta("glyph"):
 		await _glyph(node)
 		return
-	match id:
-		"preacher":
-			await _preacher()
-		"vending":
-			await ui.think("Psyonic-branded water. Three credits. The screen on the front looped the same ad: a family asleep, smiling, under a logo.")
-		"shuttle_stop":
-			if frames_on:
-				await ui.think("The SalTech shuttle stop. A timetable, and under it, two rings in marker. The shuttle hadn't run since the second incident.")
-			else:
-				await ui.think("The SalTech shuttle stop. SERVICE SUSPENDED. Something was scrawled under the timetable, too faint to make out in the rain.")
-		"tower_sign":
-			await ui.think("PSYONIC INTEGRATIONS. The lobby cameras tracked me as I walked by, the way they tracked everyone. The difference was that I used to find that comforting.")
-		"camp":
-			await ui.think("A camp on the vacant lot. Clean, like the one in the park. Rules. Whoever lived here had rules, and a fire, and nothing that blinked.")
-			if frames_on:
-				await ui.think("The frames found nothing here to label. No device, no sync score, no name. It was the only quiet place on the street.")
-		"charger":
-			await ui.think("A charge post for the company fleet. It logged every charge, every trip, every passenger. Free car rides, they'd called it in the offer letter.")
-		"my_car":
-			await ui.think("My company car, on the charge bay. The microphone in the dash had never once been off. Tonight I wanted to walk.")
-		"underpass":
-			if connection >= 50.0:
-				await ui.think("The dark at the bottom of the stairs had a rhythm now. Three even beats and a breath. Somebody down there was keeping time for the whole city.")
-			else:
-				await ui.think("The stairs down to the underpass and the chant wall. Water ran down them in a sheet, and from the bottom came the sound of something dripping in rhythm. Not tonight.")
-		"sweeper":
-			await ui.think("A Voltx cleaning bot, sweeping the same square metre of sidewalk. A perfect ring, over and over, and the sand came straight back.")
-		"press_1":
-			await ui.think("The media scrum, waiting under the tower for a statement.")
-			await ui.say("Reporter", "They said nine. It's eleven. They always say nine.")
-		"press_2":
-			await ui.say("Reporter", "Is it true he said it told him to? The eyeless guy? Off the record. Everything's off the record, nothing records any more.")
-		"cop":
-			await ui.say("Officer", "Psyonic. Course you are. Shame no surveillance is working on this whole block. Course it isn't.")
-		"kiosk":
-			await ui.think("A city terminal kiosk. Transit, bills, FreudBot bookings. Someone had scrawled the eye on the inside of the screen bezel. From the inside.")
-		"pylon":
-			await ui.think("A transit tube pylon. The elevated tubes all ran to the tower; from up there, Turan liked to say, the city looked like circuitry.")
-		_:
-			await ui.think("Nothing I could make sense of.")
+	var handled: bool = await level.interact(node)
+	if not handled:
+		await ui.think("Nothing I could make sense of.")
 	ui.close()
+	update_hud()
 
 
 func _glyph(g: Object) -> void:
@@ -411,25 +434,7 @@ func _glyph(g: Object) -> void:
 	await ui.say("", "[color=#6fe8d0]The rings resolved the way a word does when you stop trying to read it.[/color]\n\n[b]" + line + "[/b]")
 	ui.close()
 	add_connection(6.0 if g.get_meta("deep") else 5.0, "the rings")
-
-
-func _preacher() -> void:
-	if _listened:
-		await ui.say("Eyeless man", "Gather, sleeper. Gather.")
-		ui.close()
-		return
-	await ui.think("He stood in the middle of the sidewalk with his face turned up to the rain, and where his eyes should have been there was only clean, healed skin.")
-	await ui.say("Eyeless man", "Psyon is the pillow for those who dream. Psyon is the path for those who walk.")
-	var pick: int = await ui.choose(["Walk on.", "Listen."])
-	if pick == 1:
-		_listened = true
-		await ui.say("Eyeless man", "Close the eyes that lie, and see. The floor is a door. The door is a floor.")
-		await ui.think("He said it like a lullaby. I stood there longer than I meant to. The frames had started recording before I told them to.")
-		ui.close()
-		add_connection(4.0, "listened to the preacher")
-	else:
-		await ui.think("I walked on. Behind me the chant kept the same even pace, like it hadn't needed me at all.")
-		ui.close()
+	level.on_glyph(g)
 
 
 func scan() -> void:
@@ -442,17 +447,14 @@ func scan() -> void:
 	_scan_labels.clear()
 	play("on", -10.0, 1.4)
 	var me := player.global_position
-	for n in _all_with_meta(city, "scan"):
+	for n in _all_with_meta(level, "scan"):
 		var p: Vector3 = (n as Node3D).global_position
 		if p.distance_to(me) < 26.0:
 			_card(p + Vector3(0, 1.5, 0), str(n.get_meta("scan")))
-	var near: Array = crowd.peds.duplicate()
-	near.sort_custom(func(a, b): return a.node.global_position.distance_to(me) < b.node.global_position.distance_to(me))
-	for i in mini(5, near.size()):
-		var n: Node3D = near[i].node
+	for pair in level.scan_people():
+		var n: Node3D = pair[0]
 		if n.global_position.distance_to(me) < 26.0:
-			var sync := "sync 100%  -  DREAMING" if connection >= 25.0 else "sync %d%%" % (90 + (i * 7) % 10)
-			_card(n.global_position + Vector3(0, 2.2, 0), "CITIZEN\nPsyon 4.1  -  " + sync + "\nsleep score: 100")
+			_card(n.global_position + Vector3(0, 2.2, 0), str(pair[1]))
 	get_tree().create_timer(7.0).timeout.connect(func():
 		for l in _scan_labels:
 			if is_instance_valid(l):
@@ -493,80 +495,9 @@ func toggle_phone() -> void:
 		return
 	var sync := 94 + int(connection / 10.0)
 	var t := "[b]PSYON[/b]   [color=#888888]sync %d%%[/color]\n\n" % mini(sync, 100)
-	t += "[color=#7fe6b0]Psyon:[/color] Good evening, Carl. You're walking. Your heart rate says you'd rather be driving.\n\n"
-	if glyphs_found > 0:
-		t += "[color=#7fe6b0]Psyon:[/color] You've been reading the walls. I can help with that. Reading is what I'm for.\n\n"
-	if connection >= 25.0:
-		t += "[color=#e08080]Psyon:[/color] The outage was localised and brief. Nobody was looking at you. Everyone was looking at you.\n\n"
-	if connection >= 50.0:
-		t += "[color=#e08080]Psyon:[/color] Gather, sleeper. The tower remembers you. Come closer.\n\n"
+	t += level.phone()
 	t += "[color=#888888](P to put the phone away)[/color]"
 	ui.phone_text.text = t
-
-
-# ------------------------------------------------------------------ set pieces
-
-func _outage() -> void:
-	flags["outage_seen"] = true
-	await get_tree().create_timer(1.0).timeout
-	outage = true
-	flags["cinematic"] = true
-	play("outage", 2.0)
-	player.shake(0.7)
-	city.set_power(false, 0.5)
-	crowd.everyone_faces(player.global_position)
-	create_tween().tween_property(_amb["hum"], "volume_db", -40.0, 1.0)
-	create_tween().tween_property(_amb["chant"], "volume_db", 6.0, 3.0)
-	await get_tree().create_timer(0.8).timeout
-	flags.erase("cinematic")
-	ui.show_toast("The power went. All of it. Every window on the Spine at once. Only the tower stayed lit.", 4.0)
-	await get_tree().create_timer(5.0).timeout
-	play("whisper", -2.0)
-	await get_tree().create_timer(4.0).timeout
-	for i in 3:
-		city.set_power(true, 0.04)
-		await get_tree().create_timer(0.1).timeout
-		city.set_power(false, 0.04)
-		await get_tree().create_timer(0.3).timeout
-	city.set_power(true, 0.2)
-	crowd.everyone_faces(player.global_position)
-	play("sting", -2.0)
-	ui.flash(0.6)
-	ui.glitch(0.6, 0.8)
-	create_tween().tween_property(_amb["hum"], "volume_db", -13.0, 2.0)
-	create_tween().tween_property(_amb["chant"], "volume_db", 0.0, 3.0)
-	outage = false
-	flags["outage_done"] = true
-	_update_hud()
-	ui.show_toast("When the lights came back, every one of them was looking at me.", 5.0)
-
-
-func _eye() -> void:
-	flags["eye_open"] = true
-	await get_tree().create_timer(1.0).timeout
-	flags["cinematic"] = true
-	play("sting", 0.0, 0.8)
-	ui.glitch(1.0, 1.6)
-	player.shake(0.5)
-	city.open_eye()
-	await player.face(Vector3(0, 540.0, city.TOWER_Z), 2.2)
-	play("whisper", 0.0, 0.9)
-	ui.show_toast("The tower was looking back.", 5.0)
-	await get_tree().create_timer(2.0).timeout
-	flags.erase("cinematic")
-	_update_hud()
-
-
-func _ending() -> void:
-	flags["cinematic"] = true
-	await ui.think("The garden path. Cacti and palms, a sterile nod to the desert outside. The cameras on their poles turned to watch me come.")
-	await ui.think("Up there, in the middle of the donut on its stick, the eye didn't blink. It didn't need to. It had been watching me since I was a kid craning my neck at it.")
-	ui.close()
-	flags.erase("cinematic")
-	ui.show_end("[center]\n\n\n[b]END OF THE TEST SLICE[/b]\n\n"
-		+ "Rings read: %d of %d        Connection: %d\n\n" % [glyphs_found, city.glyphs.size(), int(connection)]
-		+ "[color=#aaaaaa]A first-person test of Silico, built from the book.\nThe tower lobby, the flats and the lab under them would come next.[/color]\n\n"
-		+ "[color=#777777]E to keep walking[/color][/center]")
 
 
 # ------------------------------------------------------------------ dev args and screenshots
@@ -585,11 +516,24 @@ func _read_args() -> Dictionary:
 	return a
 
 
-func _apply_args() -> void:
-	if _args.has("noglow"):
-		env.glow_enabled = false
-	if _args.has("nofog"):
-		env.fog_enabled = false
+func _dev_start() -> void:
+	shot_mode = _args.has("shot") or _args.has("selftest")
+	started = true
+	ui.show_title(false)
+	if _args.has("conn"):
+		connection = float(_args["conn"])
+	if _args.has("flags"):
+		for f in str(_args["flags"]).split(","):
+			flags[f] = true
+	if _args.has("frames"):
+		frames_on = true
+		ui.set_frames(1.0, connection)
+	if _args.has("selftest"):
+		_selftest_all()
+		return
+	await load_level(str(_args.get("level", "Spine")))
+	if not shot_mode:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if _args.has("noui"):
 		ui.overlay.visible = false
 	if _args.has("at"):
@@ -600,32 +544,14 @@ func _apply_args() -> void:
 		player.yaw = deg_to_rad(float(_args["yaw"]))
 	if _args.has("pitch"):
 		player.pitch = deg_to_rad(float(_args["pitch"]))
-	if _args.has("conn"):
-		connection = float(_args["conn"])
-		if connection >= 25.0:
-			flags["outage_seen"] = true
-			flags["outage_done"] = true
-		if connection >= 50.0:
-			flags["eye_open"] = true
-			city.open_eye()
-	if _args.has("eye"):
-		flags["eye_open"] = true
-		city.open_eye()
-	if _args.has("frames"):
-		frames_on = true
-		ui.set_frames(1.0, connection)
-	city.set_glyph_visibility(frames_on, connection)
-	if _args.has("outage"):
-		outage = true
-		city.set_power(false, 0.01)
-		crowd.everyone_faces(player.global_position)
-	_update_hud()
-	if _args.has("shot") or _args.has("selftest"):
-		shot_mode = true
-		started = true
-		ui.title.visible = false
+	level.apply_args(_args)
+	if _args.has("crouch"):
+		player.crouch = float(_args["crouch"])
+	level.set_glyph_visibility(frames_on, connection)
+	update_hud()
+	if shot_mode:
 		player.locked = false
-		_run_test.call_deferred()
+		_run_test()
 
 
 func _run_test() -> void:
@@ -643,39 +569,54 @@ func _run_test() -> void:
 		var img := get_viewport().get_texture().get_image()
 		img.save_png(str(_args["shot"]))
 		print("SHOT ", _args["shot"])
-	if _args.has("selftest"):
-		await _selftest_all()
 	get_tree().quit()
 
 
-## Fires every interactable and glyph with dialogue auto-advancing, then
-## drives the outage and the eye, so a headless run catches script errors.
+## Plays every level headless with dialogue auto-advancing: each level's
+## own scripted run (or every interactable twice, so the second pass gets
+## past story gates), so a run catches script errors end to end.
 func _selftest_all() -> void:
 	_selftest = true
+	Engine.time_scale = 4.0
 	var pump := func():
 		while _selftest:
 			await get_tree().process_frame
 			ui.advanced.emit()
 			ui.picked.emit(1)
 	pump.call()
-	frames_on = true
-	connection = 30.0
-	city.set_glyph_visibility(true, connection)
-	var nodes := _all_with_meta(city, "id") + _all_with_meta(crowd, "id")
-	for n in nodes:
-		await interact(n)
-		print("ok ", n.get_meta("id"))
-	scan()
-	toggle_phone()
-	toggle_phone()
-	connection = 20.0
-	add_connection(6.0, "test")
-	await get_tree().create_timer(16.0).timeout
-	add_connection(30.0, "test")
-	await get_tree().create_timer(6.0).timeout
-	player.position = Vector3(0, 0.2, -200)
-	await get_tree().create_timer(1.0).timeout
-	_process(0.016)
-	await get_tree().create_timer(1.0).timeout
+	var only := str(_args.get("level", ""))
+	for lname in ["Dufredy", "Drive", "Park", "Spine"]:
+		if only != "" and only != lname:
+			continue
+		await load_level(lname)
+		print("LEVEL ", lname)
+		if lname == "Spine":
+			frames_on = true
+			connection = 30.0
+			flags["outage_done"] = true
+			level.set_glyph_visibility(true, connection)
+		await level.selftest()
+		if lname == "Spine":
+			scan()
+			toggle_phone()
+			toggle_phone()
+			connection = 20.0
+			flags.erase("outage_done")
+			add_connection(6.0, "test")
+			await get_tree().create_timer(16.0).timeout
+			add_connection(30.0, "test")
+			await get_tree().create_timer(6.0).timeout
+			player.position = Vector3(0, 0.2, -200)
+			await get_tree().create_timer(2.0).timeout
 	print("SELFTEST DONE glyphs=", glyphs_found, " conn=", connection, " flags=", flags.keys())
 	_selftest = false
+	get_tree().quit()
+
+
+## Every interactable in the level, twice (the second pass gets past gates).
+func selftest_all_interactables() -> void:
+	for pass_i in 2:
+		for n in _all_with_meta(level, "id"):
+			if is_instance_valid(n) and not n.has_meta("exit"):
+				await interact(n)
+				print("ok ", n.get_meta("id"))

@@ -16,9 +16,9 @@ const LANES := [[-6.5, 5.5, 1.0], [-3.0, 9.0, 1.0], [3.0, 9.0, -1.0], [6.5, 5.5,
 const TOWER_TOP := Vector3(0, 470, -330)
 
 
-func setup(m: Node) -> void:
+func setup(m: Node, lvl: Node) -> void:
 	main = m
-	city = m.city
+	city = lvl
 	rng.seed = 5
 	var paints := [Color(0.05, 0.05, 0.06), Color(0.6, 0.62, 0.65), Color(0.5, 0.08, 0.1),
 		Color(0.08, 0.2, 0.3), Color(0.85, 0.85, 0.82)]

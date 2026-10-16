@@ -1,48 +1,44 @@
-extends Node3D
-## Builds the Spine from code: the boulevard, the blocks either side, the
-## vacant lot with the camp, the transit tube, the plaza and the tower.
+extends "res://scripts/Level.gd"
+## The Spine at night: the first test slice. Builds the boulevard, the blocks
+## either side, the vacant lot with the camp, the transit tube, the plaza and
+## the tower, and runs the slice: read the two-ring glyphs with the frames on,
+## the power goes at 25, the tower opens its eye at 50, walk to the tower.
 ## Layout (metres): the street runs north along -Z from the underpass (z 130)
 ## to the plaza (z -170); the tower stands at z -330.
 ## Book, ch. 3: "a jade-and-silver nail driven into the city's spine", a donut
 ## on a stick, the base "like musculature ... four pairs of biceps", a garden
 ## path of cacti and palms, transit tubes converging on it, drones like bees.
 
-const Tex := preload("res://scripts/Tex.gd")
+const CrowdS := preload("res://scripts/Crowd.gd")
+const TrafficS := preload("res://scripts/Traffic.gd")
 
 const STREET_S := 130.0
 const STREET_N := -170.0
 const TOWER_Z := -330.0
 const FRONT := 17.0  # building fronts at x = +-17
 
-var main: Node
-var rng := RandomNumberGenerator.new()
-
-var lamps: Array = []          # [OmniLight3D, base energy]
-var power_mats: Array = []     # [StandardMaterial3D, base emission energy]
-var neon_labels: Array = []    # [Label3D, base modulate]
-var screens: Array = []        # [Node3D normal content, Sprite3D eye glyph]
-var flickers: Array = []       # OmniLight3D that stutter
-var blinkers: Array = []       # MeshInstance3D red aircraft lights
 var cameras: Array = []        # Node3D lobby cameras that track Carl
-var glyphs: Array = []         # Area3D
 var pods: Array = []
 var tower_eye: MeshInstance3D
 var tower_eye_open := false
 var fire_light: OmniLight3D
 var sweeper: Node3D
-var powered := true
-var _t := 0.0
+var crowd: Node3D
+var traffic: Node3D
+var _listened := false
+var _ended := false
 
 var _concrete: StandardMaterial3D
 var _jade: StandardMaterial3D
 var _metal: StandardMaterial3D
-var _glyph_tex: Texture2D
 
 
 func build(m: Node) -> void:
 	main = m
 	rng.seed = 1984
-	_glyph_tex = Tex.glyph()
+	spawn = Vector3(5.5, 0.2, 104.0)
+	rain = true
+	card = "THE SPINE\n[color=#888888]night, after the second incident[/color]"
 	_concrete = mat(Color(0.13, 0.13, 0.14), 0.9)
 	_jade = mat(Color(0.16, 0.42, 0.34), 0.28, 0.75)
 	_metal = mat(Color(0.25, 0.26, 0.28), 0.45, 0.6)
@@ -63,150 +59,13 @@ func build(m: Node) -> void:
 	_glyphs()
 	_bounds()
 	_batch(self, 40.0)
-
-
-# ------------------------------------------------------------------ helpers
-
-var _mat_cache := {}
-
-
-## Shared materials: the browser renderer falls over with hundreds of unique
-## materials, so identical ones are reused. Use newmat/newglow to mutate.
-func mat(c: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
-	var key := "m%s|%.2f|%.2f" % [c, rough, metal]
-	if not _mat_cache.has(key):
-		_mat_cache[key] = newmat(c, rough, metal)
-	return _mat_cache[key]
-
-
-func newmat(c: Color, rough := 0.85, metal := 0.0) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = c
-	m.roughness = rough
-	m.metallic = metal
-	return m
-
-
-func glow(c: Color, energy := 2.0, powered_by_grid := false) -> StandardMaterial3D:
-	var key := "g%s|%.2f|%s" % [c, energy, powered_by_grid]
-	if not _mat_cache.has(key):
-		_mat_cache[key] = newglow(c, energy, powered_by_grid)
-	return _mat_cache[key]
-
-
-func newglow(c: Color, energy := 2.0, powered_by_grid := false) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0, 0, 0)
-	m.emission_enabled = true
-	m.emission = c
-	m.emission_energy_multiplier = energy
-	if powered_by_grid:
-		power_mats.append([m, energy, "emission_energy_multiplier", 0.02])
-	return m
-
-
-func mesh(mesh_res: Mesh, pos: Vector3, material: Material, parent: Node = self) -> MeshInstance3D:
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh_res
-	mi.position = pos
-	mi.material_override = material
-	parent.add_child(mi)
-	return mi
-
-
-func box(size: Vector3, pos: Vector3, material: Material, solid := false, parent: Node = self) -> MeshInstance3D:
-	var bm := BoxMesh.new()
-	bm.size = size
-	var mi := mesh(bm, pos, material, parent)
-	if solid:
-		solid_box(size, pos, parent)
-	return mi
-
-
-func solid_box(size: Vector3, pos: Vector3, parent: Node = self) -> StaticBody3D:
-	var sb := StaticBody3D.new()
-	sb.collision_layer = 1
-	sb.position = pos
-	var cs := CollisionShape3D.new()
-	var sh := BoxShape3D.new()
-	sh.size = size
-	cs.shape = sh
-	sb.add_child(cs)
-	parent.add_child(sb)
-	return sb
-
-
-func cyl(r_top: float, r_bot: float, h: float, pos: Vector3, material: Material, segs := 16, parent: Node = self) -> MeshInstance3D:
-	var cm := CylinderMesh.new()
-	cm.top_radius = r_top
-	cm.bottom_radius = r_bot
-	cm.height = h
-	cm.radial_segments = segs
-	cm.rings = 1
-	return mesh(cm, pos, material, parent)
-
-
-func quad(size: Vector2, pos: Vector3, rot_y: float, material: Material, parent: Node = self) -> MeshInstance3D:
-	var qm := QuadMesh.new()
-	qm.size = size
-	var mi := mesh(qm, pos, material, parent)
-	mi.rotation.y = rot_y
-	return mi
-
-
-func label(text: String, pos: Vector3, rot_y: float, px: float, color: Color, parent: Node = self, neon := true) -> Label3D:
-	var l := Label3D.new()
-	l.text = text
-	l.position = pos
-	l.rotation.y = rot_y
-	l.pixel_size = px
-	l.font_size = 96
-	l.outline_size = 0
-	l.modulate = color
-	l.double_sided = false
-	parent.add_child(l)
-	if neon:
-		neon_labels.append([l, color])
-	return l
-
-
-func light(pos: Vector3, c: Color, energy: float, rng_m: float, on_grid := true) -> OmniLight3D:
-	var o := OmniLight3D.new()
-	o.position = pos
-	o.light_color = c
-	o.light_energy = energy
-	o.omni_range = rng_m
-	o.omni_attenuation = 1.4
-	o.shadow_enabled = false
-	add_child(o)
-	if on_grid:
-		lamps.append([o, energy])
-	return o
-
-
-## Something Carl can look at and examine with E. Solid ones block walking.
-func interactable(id: String, prompt: String, pos: Vector3, size: Vector3, scan := "", solid := true, parent: Node = self) -> CollisionObject3D:
-	var body: CollisionObject3D
-	if solid:
-		body = StaticBody3D.new()
-		body.collision_layer = 1 | 2
-	else:
-		body = Area3D.new()
-		body.collision_layer = 2
-		body.collision_mask = 0
-		(body as Area3D).monitoring = false
-	body.position = pos
-	var cs := CollisionShape3D.new()
-	var sh := BoxShape3D.new()
-	sh.size = size
-	cs.shape = sh
-	body.add_child(cs)
-	body.set_meta("id", id)
-	body.set_meta("prompt", prompt)
-	if scan != "":
-		body.set_meta("scan", scan)
-	parent.add_child(body)
-	return body
+	traffic = TrafficS.new()
+	add_child(traffic)
+	traffic.setup(m, self)
+	crowd = CrowdS.new()
+	add_child(crowd)
+	crowd.setup(m, self)
+	m.crowd = crowd
 
 
 # ------------------------------------------------------------------ ground and road
@@ -693,84 +552,11 @@ func _tower() -> void:
 	tower_eye.position = Vector3(0, 540.0, 28.0)
 	tower_eye.visible = false
 	root.add_child(tower_eye)
+	no_batch.append(tower_eye)
 	_batch(root, 10000.0)
 
 
-# ------------------------------------------------------------------ batching
-
-## Merge static meshes that share a material into one mesh per 40 m stretch.
-## Fewer draw calls keeps the browser build alive (it went blank past ~1000
-## objects), and the stretches stay small enough for the per-object light
-## limit, so streetlights still light the pieces near them.
-func _batch(parent: Node, chunk: float) -> void:
-	var skip := {}
-	for b in blinkers:
-		skip[b] = true
-	for sc in screens:
-		skip[sc[0]] = true
-	if tower_eye:
-		skip[tower_eye] = true
-	var groups := {}
-	for c in parent.get_children():
-		if not (c is MeshInstance3D) or skip.has(c) or c.material_override == null:
-			continue
-		var mi := c as MeshInstance3D
-		var key := "%d:%d" % [mi.material_override.get_instance_id(), int(floor(mi.position.z / chunk))]
-		if not groups.has(key):
-			groups[key] = []
-		groups[key].append(mi)
-	for key in groups:
-		var list: Array = groups[key]
-		if list.size() < 2:
-			continue
-		var st := SurfaceTool.new()
-		st.begin(Mesh.PRIMITIVE_TRIANGLES)
-		for mi in list:
-			st.append_from(mi.mesh, 0, mi.transform)
-		var merged := MeshInstance3D.new()
-		merged.mesh = st.commit()
-		merged.material_override = list[0].material_override
-		parent.add_child(merged)
-		for mi in list:
-			parent.remove_child(mi)
-			mi.free()
-
-
 # ------------------------------------------------------------------ glyphs
-
-func _glyph_on(pos: Vector3, rot_y: float, px: float, id: String, deep: bool, always: bool, desc: String, flat := false) -> void:
-	var a := Area3D.new()
-	a.collision_layer = 2
-	a.collision_mask = 0
-	a.monitoring = false
-	a.position = pos
-	var cs := CollisionShape3D.new()
-	var sh := BoxShape3D.new()
-	var w := 128.0 * px
-	sh.size = Vector3(w, 0.4, w) if flat else Vector3(w, w, 0.4)
-	cs.shape = sh
-	a.add_child(cs)
-	var s := Sprite3D.new()
-	s.texture = _glyph_tex
-	s.pixel_size = px
-	s.shaded = false
-	s.double_sided = false
-	s.modulate = Color(1.0, 0.12, 0.08) if deep else (Color(0.85, 0.85, 0.8) if always else Color(0.35, 1.0, 0.9))
-	if flat:
-		s.rotation.x = -PI / 2.0
-	a.add_child(s)
-	a.rotation.y = rot_y
-	a.set_meta("id", id)
-	a.set_meta("glyph", true)
-	a.set_meta("deep", deep)
-	a.set_meta("always", always)
-	a.set_meta("desc", desc)
-	a.set_meta("prompt", "Examine the rings")
-	a.set_meta("found", false)
-	a.set_meta("sprite", s)
-	add_child(a)
-	glyphs.append(a)
-
 
 func _glyphs() -> void:
 	_glyph_on(Vector3(-16.96, 2.6, 74.0), PI / 2.0, 0.014, "g_noodle", false, false,
@@ -794,13 +580,6 @@ func _glyphs() -> void:
 		"In the paving at the foot of the garden path, laid into the stone itself. Whoever built the plaza had put it there on purpose.", true)
 
 
-func set_glyph_visibility(frames_on: bool, connection: float) -> void:
-	for g in glyphs:
-		var vis: bool = g.get_meta("always") or (frames_on and (not g.get_meta("deep") or connection >= 25.0))
-		(g.get_meta("sprite") as Sprite3D).visible = vis
-		g.collision_layer = 2 if vis else 0
-
-
 # ------------------------------------------------------------------ bounds
 
 func _bounds() -> void:
@@ -810,20 +589,7 @@ func _bounds() -> void:
 	solid_box(Vector3(200, 40, 2), Vector3(0, 20, -300))
 
 
-# ------------------------------------------------------------------ power and the eye
-
-func set_power(on: bool, t := 1.5) -> void:
-	powered = on
-	var tw := create_tween().set_parallel(true)
-	for l in lamps:
-		tw.tween_property(l[0], "light_energy", l[1] if on else 0.0, t)
-	for m in power_mats:
-		tw.tween_property(m[0], m[2], m[1] if on else m[3], t)
-	for n in neon_labels:
-		tw.tween_property(n[0], "modulate", n[1] if on else Color(0.04, 0.04, 0.05), t)
-	for s in screens:
-		s[1].visible = not on
-
+# ------------------------------------------------------------------ the eye
 
 func open_eye() -> void:
 	tower_eye_open = true
@@ -833,17 +599,8 @@ func open_eye() -> void:
 	tw.tween_property(tower_eye, "scale", Vector3(1, 1, 1), 4.0).set_trans(Tween.TRANS_SINE)
 
 
-func _process(delta: float) -> void:
-	_t += delta
-	var blink := fmod(_t, 1.6) < 0.25
-	for b in blinkers:
-		b.visible = blink
-	if powered:
-		for f in flickers:
-			if randf() < 0.04:
-				f.visible = not f.visible
-			elif not f.visible and randf() < 0.2:
-				f.visible = true
+
+func tick(delta: float) -> void:
 	if fire_light:
 		fire_light.light_energy = 2.0 + sin(_t * 13.0) * 0.3 + randf() * 0.4
 	if sweeper:
@@ -861,6 +618,214 @@ func _process(delta: float) -> void:
 			if dir.length() < 60.0:
 				var want := atan2(-dir.x, -dir.z)
 				c.rotation.y = lerp_angle(c.rotation.y, want, delta * 2.0)
+		if main.flags.has("eye_open") and not _ended and main.started and main.player.global_position.z < -196.0:
+			_ended = true
+			_ending()
 	if tower_eye_open:
 		var breathe := 1.0 + sin(_t * 0.8) * 0.04
 		tower_eye.scale = Vector3(breathe, tower_eye.scale.y, 1)
+
+
+# ------------------------------------------------------------------ the slice's flow
+
+func ambience() -> void:
+	main.loop("rain", -9.0)
+	main.loop("hum", -13.0)
+	main.loop("chant", 0.0, Vector3(-13.4, 1.6, 14.0), 3.0, 30.0)
+	main.loop("fire", -2.0, Vector3(-30.0, 1.0, -30.0), 2.0, 20.0)
+
+
+func intro() -> void:
+	var ui = main.ui
+	await get_tree().create_timer(1.2).timeout
+	await ui.think("The Spine. One long boulevard between the places that mattered, and the tower in the middle of it like a pin through a map.")
+	await ui.think("The rot never reached the tower. Everything around it existed in anticipation of something, a silent, electric tension humming in the wet air.")
+	await ui.think("With the frames on, the walls had started to have opinions.")
+	ui.close()
+
+
+func objective() -> String:
+	if main.flags.has("eye_open"):
+		return "Walk to the tower."
+	elif main.flags.has("outage_done"):
+		return "Keep reading the rings. Some of them are red now."
+	elif main.frames_on or main.glyphs_found > 0:
+		return "Find the two-ring signs with the frames on. E to read them."
+	return "Walk the Spine toward the tower.   G puts the frames on."
+
+
+func on_connection(old: float, new: float) -> void:
+	if old < 25.0 and new >= 25.0:
+		_outage()
+	elif old < 50.0 and new >= 50.0:
+		_eye()
+
+
+func scan_people() -> Array:
+	var out := []
+	var me: Vector3 = main.player.global_position
+	var near: Array = crowd.peds.duplicate()
+	near.sort_custom(func(a, b): return a.node.global_position.distance_to(me) < b.node.global_position.distance_to(me))
+	for i in mini(5, near.size()):
+		var n: Node3D = near[i].node
+		var sync := "sync 100%  -  DREAMING" if main.connection >= 25.0 else "sync %d%%" % (90 + (i * 7) % 10)
+		out.append([n, "CITIZEN\nPsyon 4.1  -  " + sync + "\nsleep score: 100"])
+	return out
+
+
+func phone() -> String:
+	var c: float = main.connection
+	var t := "[color=#7fe6b0]Psyon:[/color] Good evening, Carl. You're walking. Your heart rate says you'd rather be driving.\n\n"
+	if main.glyphs_found > 0:
+		t += "[color=#7fe6b0]Psyon:[/color] You've been reading the walls. I can help with that. Reading is what I'm for.\n\n"
+	if c >= 25.0:
+		t += "[color=#e08080]Psyon:[/color] The outage was localised and brief. Nobody was looking at you. Everyone was looking at you.\n\n"
+	if c >= 50.0:
+		t += "[color=#e08080]Psyon:[/color] Gather, sleeper. The tower remembers you. Come closer.\n\n"
+	return t
+
+
+func interact(node: Object) -> bool:
+	var ui = main.ui
+	var frames_on: bool = main.frames_on
+	match str(node.get_meta("id")):
+		"preacher":
+			await _preacher()
+		"vending":
+			await ui.think("Psyonic-branded water. Three credits. The screen on the front looped the same ad: a family asleep, smiling, under a logo.")
+		"shuttle_stop":
+			if frames_on:
+				await ui.think("The SalTech shuttle stop. A timetable, and under it, two rings in marker. The shuttle hadn't run since the second incident.")
+			else:
+				await ui.think("The SalTech shuttle stop. SERVICE SUSPENDED. Something was scrawled under the timetable, too faint to make out in the rain.")
+		"tower_sign":
+			await ui.think("PSYONIC INTEGRATIONS. The lobby cameras tracked me as I walked by, the way they tracked everyone. The difference was that I used to find that comforting.")
+		"camp":
+			await ui.think("A camp on the vacant lot. Clean, like the one in the park. Rules. Whoever lived here had rules, and a fire, and nothing that blinked.")
+			if frames_on:
+				await ui.think("The frames found nothing here to label. No device, no sync score, no name. It was the only quiet place on the street.")
+		"charger":
+			await ui.think("A charge post for the company fleet. It logged every charge, every trip, every passenger. Free car rides, they'd called it in the offer letter.")
+		"my_car":
+			await ui.think("My company car, on the charge bay. The microphone in the dash had never once been off. Tonight I wanted to walk.")
+		"underpass":
+			if main.connection >= 50.0:
+				await ui.think("The dark at the bottom of the stairs had a rhythm now. Three even beats and a breath. Somebody down there was keeping time for the whole city.")
+			else:
+				await ui.think("The stairs down to the underpass and the chant wall. Water ran down them in a sheet, and from the bottom came the sound of something dripping in rhythm. Not tonight.")
+		"sweeper":
+			await ui.think("A Voltx cleaning bot, sweeping the same square metre of sidewalk. A perfect ring, over and over, and the sand came straight back.")
+		"press_1":
+			await ui.think("The media scrum, waiting under the tower for a statement.")
+			await ui.say("Reporter", "They said nine. It's eleven. They always say nine.")
+		"press_2":
+			await ui.say("Reporter", "Is it true he said it told him to? The eyeless guy? Off the record. Everything's off the record, nothing records any more.")
+		"cop":
+			await ui.say("Officer", "Psyonic. Course you are. Shame no surveillance is working on this whole block. Course it isn't.")
+		"kiosk":
+			await ui.think("A city terminal kiosk. Transit, bills, FreudBot bookings. Someone had scrawled the eye on the inside of the screen bezel. From the inside.")
+		"pylon":
+			await ui.think("A transit tube pylon. The elevated tubes all ran to the tower; from up there, Turan liked to say, the city looked like circuitry.")
+		_:
+			return false
+	ui.close()
+	return true
+
+
+func _preacher() -> void:
+	var ui = main.ui
+	if _listened:
+		await ui.say("Eyeless man", "Gather, sleeper. Gather.")
+		return
+	await ui.think("He stood in the middle of the sidewalk with his face turned up to the rain, and where his eyes should have been there was only clean, healed skin.")
+	await ui.say("Eyeless man", "Psyon is the pillow for those who dream. Psyon is the path for those who walk.")
+	var pick: int = await ui.choose(["Walk on.", "Listen."])
+	if pick == 1:
+		_listened = true
+		await ui.say("Eyeless man", "Close the eyes that lie, and see. The floor is a door. The door is a floor.")
+		await ui.think("He said it like a lullaby. I stood there longer than I meant to. The frames had started recording before I told them to.")
+		ui.close()
+		main.add_connection(4.0, "listened to the preacher")
+	else:
+		await ui.think("I walked on. Behind me the chant kept the same even pace, like it hadn't needed me at all.")
+
+
+func _outage() -> void:
+	var ui = main.ui
+	var player = main.player
+	main.flags["outage_seen"] = true
+	await get_tree().create_timer(1.0).timeout
+	main.outage = true
+	main.flags["cinematic"] = true
+	main.play("outage", 2.0)
+	player.shake(0.7)
+	set_power(false, 0.5)
+	crowd.everyone_faces(player.global_position)
+	create_tween().tween_property(main.amb["hum"], "volume_db", -40.0, 1.0)
+	create_tween().tween_property(main.amb["chant"], "volume_db", 6.0, 3.0)
+	await get_tree().create_timer(0.8).timeout
+	main.flags.erase("cinematic")
+	ui.show_toast("The power went. All of it. Every window on the Spine at once. Only the tower stayed lit.", 4.0)
+	await get_tree().create_timer(5.0).timeout
+	main.play("whisper", -2.0)
+	await get_tree().create_timer(4.0).timeout
+	for i in 3:
+		set_power(true, 0.04)
+		await get_tree().create_timer(0.1).timeout
+		set_power(false, 0.04)
+		await get_tree().create_timer(0.3).timeout
+	set_power(true, 0.2)
+	crowd.everyone_faces(player.global_position)
+	main.play("sting", -2.0)
+	ui.flash(0.6)
+	ui.glitch(0.6, 0.8)
+	create_tween().tween_property(main.amb["hum"], "volume_db", -13.0, 2.0)
+	create_tween().tween_property(main.amb["chant"], "volume_db", 0.0, 3.0)
+	main.outage = false
+	main.flags["outage_done"] = true
+	main.update_hud()
+	ui.show_toast("When the lights came back, every one of them was looking at me.", 5.0)
+
+
+func _eye() -> void:
+	var ui = main.ui
+	main.flags["eye_open"] = true
+	await get_tree().create_timer(1.0).timeout
+	main.flags["cinematic"] = true
+	main.play("sting", 0.0, 0.8)
+	ui.glitch(1.0, 1.6)
+	main.player.shake(0.5)
+	open_eye()
+	await main.player.face(Vector3(0, 540.0, TOWER_Z), 2.2)
+	main.play("whisper", 0.0, 0.9)
+	ui.show_toast("The tower was looking back.", 5.0)
+	await get_tree().create_timer(2.0).timeout
+	main.flags.erase("cinematic")
+	main.update_hud()
+
+
+func _ending() -> void:
+	var ui = main.ui
+	main.flags["cinematic"] = true
+	await ui.think("The garden path. Cacti and palms, a sterile nod to the desert outside. The cameras on their poles turned to watch me come.")
+	await ui.think("Up there, in the middle of the donut on its stick, the eye didn't blink. It didn't need to. It had been watching me since I was a kid craning my neck at it.")
+	ui.close()
+	main.flags.erase("cinematic")
+	ui.show_end("[center]\n\n\n[b]END OF THE TEST SLICE[/b]\n\n"
+		+ "Rings read: %d of %d        Connection: %d\n\n" % [main.glyphs_found, glyphs.size(), int(main.connection)]
+		+ "[color=#aaaaaa]A first-person test of Silico, built from the book.\nThe tower lobby, the flats and the lab under them would come next.[/color]\n\n"
+		+ "[color=#777777]E to keep walking    M for the menu[/color][/center]")
+
+
+## Dev args for shots: the outage frozen, the eye open.
+func apply_args(a: Dictionary) -> void:
+	if main.connection >= 25.0:
+		main.flags["outage_seen"] = true
+		main.flags["outage_done"] = true
+	if main.connection >= 50.0 or a.has("eye"):
+		main.flags["eye_open"] = true
+		open_eye()
+	if a.has("outage"):
+		main.outage = true
+		set_power(false, 0.01)
+		crowd.everyone_faces(main.player.global_position)

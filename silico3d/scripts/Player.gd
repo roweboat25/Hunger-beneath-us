@@ -14,6 +14,10 @@ var ray: RayCast3D
 var yaw := 0.0
 var pitch := 0.0
 var locked := false
+## In the car: he can look around but not walk.
+var seated := false
+## Lowers the eyes: kneeling by something on the floor, or sitting.
+var crouch := 0.0
 var _bob := 0.0
 var _step_acc := 0.0
 var _shake := 0.0
@@ -34,6 +38,7 @@ func _ready() -> void:
 	cam.fov = 72.0
 	cam.near = 0.05
 	cam.far = 1600.0
+	cam.cull_mask &= ~(1 << 19)  # layer 20: only Psyon's pictures see it
 	add_child(cam)
 	ray = RayCast3D.new()
 	ray.target_position = Vector3(0, 0, -3.6)
@@ -76,6 +81,17 @@ func face(point: Vector3, t := 1.2) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if seated:
+		rotation.y = yaw
+		if not locked:
+			var tn := Input.get_axis("turn_right", "turn_left")
+			yaw += tn * 2.2 * delta
+		cam.position = Vector3(0, EYE - crouch, 0)
+		cam.rotation = Vector3(pitch, 0, 0)
+		if _shake > 0.0:
+			cam.position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * _shake * 0.05
+			_shake = maxf(0.0, _shake - delta * 1.5)
+		return
 	if not is_on_floor():
 		velocity.y -= 18.0 * delta
 	var input := Vector2.ZERO
@@ -102,5 +118,5 @@ func _physics_process(delta: float) -> void:
 	if _shake > 0.0:
 		shake_v = Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * _shake * 0.05
 		_shake = maxf(0.0, _shake - delta * 1.5)
-	cam.position = Vector3(cos(_bob * 0.5) * 0.025, EYE + absf(sin(_bob)) * 0.045, 0) + shake_v
+	cam.position = Vector3(cos(_bob * 0.5) * 0.025, EYE - crouch + absf(sin(_bob)) * 0.045, 0) + shake_v
 	cam.rotation = Vector3(pitch, 0, sin(_bob * 0.5) * 0.004)
