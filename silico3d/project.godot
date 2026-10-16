@@ -1,0 +1,31 @@
+; Engine configuration file.
+; The 3D first-person test slice of Silico. A separate Godot project: open
+; this folder's project.godot on its own. The .gdignore here keeps the 2D game
+; from importing it.
+
+config_version=5
+
+[application]
+
+config/name="The Hunger Beneath Us - Silico 3D"
+config/description="First-person test slice: the Spine at night."
+run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_3d=1
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
