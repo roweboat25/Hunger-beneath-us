@@ -232,7 +232,7 @@ func _benches() -> void:
 	var wood := tex_mat(Tex.wood(), Vector3(3, 1, 1), 0.8)
 	var steel := mat(Color(0.32, 0.22, 0.16), 0.7, 0.5)
 	var wire := mat(Color(0.08, 0.08, 0.08), 0.6)
-	var spots := [[Vector3(-7.0, 0, -1.0), PI / 2.0], [Vector3(6.6, 0, 28.0), PI / 2.0], [Vector3(-6.6, 0, 22.0), -PI / 2.0],
+	var spots := [[Vector3(-7.0, 0, -1.0), -PI / 2.0], [Vector3(6.6, 0, 28.0), PI / 2.0], [Vector3(-6.6, 0, 22.0), -PI / 2.0],
 		[Vector3(12.5, 0, -9.0), -2.4], [Vector3(-3.5, 0, 9.5), PI], [Vector3(11.0, 0, 2.0), -PI / 2.0], [Vector3(-12.0, 0, -6.0), PI / 2.4]]
 	for i in spots.size():
 		var p: Vector3 = spots[i][0]
@@ -427,7 +427,7 @@ func _people() -> void:
 	turn_to(cop, Vector3(0, 0, 30))
 	person("cop", "Talk to the officer in charge", cop, "SILICO PD - SGT. (NAME WITHHELD)\nPsyon: none (opted out)\nscene: CONTAINED")
 	# Agata Greenwood on the bench, arms crossed
-	agata = _seated(Color(0.35, 0.4, 0.45), Color(0.9, 0.76, 0.64), Vector3(-7.0, 0, -1.0), PI / 2.0,
+	agata = _seated(Color(0.35, 0.4, 0.45), Color(0.9, 0.76, 0.64), Vector3(-7.0, 0, -1.0), -PI / 2.0,
 		{"hair": Color(0.78, 0.74, 0.62), "long_hair": true, "legs": Color(0.2, 0.22, 0.3)})
 	person("agata", "Talk to the woman on the bench", agata, "GREENWOOD, AGATA (37)\nVIRTEC - 3D PRINT TECHNICIAN\nchildren: ADDISON, NICOLE")
 	# Seth McCarren, crouched at the bench by the entrance with a dustbuster
