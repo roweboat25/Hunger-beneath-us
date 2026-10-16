@@ -42,6 +42,7 @@ var level: Node3D
 var level_name := ""
 var player: CharacterBody3D
 var ui: CanvasLayer
+var retro: CanvasLayer
 var crowd: Node3D
 var env: Environment
 var sun: DirectionalLight3D
@@ -81,6 +82,9 @@ func _ready() -> void:
 	ui = UIS.new()
 	add_child(ui)
 	ui.setup(self)
+	retro = preload("res://scripts/Retro.gd").new()
+	add_child(retro)
+	retro.apply(_args)
 	if _args.has("shot") or _args.has("selftest") or _args.has("level"):
 		_dev_start.call_deferred()
 
@@ -336,6 +340,7 @@ func load_level(lname: String) -> void:
 	add_child(level)
 	level.build(self)
 	level.setup_env(env, sun)
+	retro.tune(level.kit_day)
 	if hifi:
 		_apply_hifi()
 	_rain.visible = level.rain
