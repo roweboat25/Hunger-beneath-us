@@ -1425,9 +1425,10 @@ func _set_mira_morning() -> void:
 	_batch(doorway, 20.0)
 	_set_layer(doorway, 1 << 19)
 	# a black room to stand in while a cutscene plays: the UI draws its
-	# pictures and text under the fade, so the fade can't be up
+	# pictures and text under the fade, so the fade can't be up. It sits at
+	# ground level because Main puts anyone below y -4 back on the floor.
 	blackroom = Node3D.new()
-	blackroom.position = Vector3(0, -60, 540)
+	blackroom.position = Vector3(0, 0, 540)
 	add_child(blackroom)
 	var ink := StandardMaterial3D.new()
 	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -2421,8 +2422,6 @@ func _show_panel(name: String) -> void:
 	}
 	if not shots.has(name):
 		return
-	await get_tree().create_timer(0.5).timeout
-	print("DBG black ", blackroom.global_position, " kids ", blackroom.get_child_count(), " player ", main.player.global_position, " cam ", main.player.cam.global_position)
 	var sh: Array = shots[name]
 	var at: Node3D = sh[0]
 	var img: Texture2D = await _picture(at.global_position + sh[1], at.global_position + sh[2], sh[3])

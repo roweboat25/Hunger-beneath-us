@@ -1265,7 +1265,9 @@ func _ward() -> void:
 func _service() -> void:
 	# a narrow corridor behind the east rooms, STAFF ONLY, pipes along the
 	# ceiling, light that has gone yellow. It runs round the back to 108.
-	_wall(Vector3(0.2, HC, 8.0), Vector3(6.8, HC / 2.0, -42.0))
+	_wall(Vector3(0.2, HC, 3.0), Vector3(6.8, HC / 2.0, -39.5))
+	_wall(Vector3(0.2, HC, 3.0), Vector3(6.8, HC / 2.0, -44.5))
+	_wall(Vector3(0.2, HC - 2.1, 2.0), Vector3(6.8, 2.1 + (HC - 2.1) / 2.0, -42.0))
 	_wall(Vector3(0.2, HC, 6.5), Vector3(9.0, HC / 2.0, -15.25))
 	_wall(Vector3(0.2, HC, 12.5), Vector3(9.0, HC / 2.0, -30.25))
 	_wall(Vector3(0.2, HC, 8.5), Vector3(9.0, HC / 2.0, -41.75))
@@ -1277,8 +1279,10 @@ func _service() -> void:
 	_door("stairs", Vector3(9.0, 0, -18.5), PI / 2.0, 1.0, -1.5, true)
 	neon_text(LINES["signs"]["stairs"], Vector3(8.9, 2.4, -19.0), -PI / 2.0, 0.1, Color(0.9, 0.9, 0.9), 1.4, self)
 	# the link behind 108
-	_wall(Vector3(3.2, HC, 0.2), Vector3(5.2, HC / 2.0, -41.0))
-	_wall(Vector3(3.2, HC, 0.2), Vector3(5.2, HC / 2.0, -43.0))
+	_wall(Vector3(4.9, HC, 0.2), Vector3(4.35, HC / 2.0, -41.0))
+	_wall(Vector3(4.9, HC, 0.2), Vector3(4.35, HC / 2.0, -43.0))
+	box(Vector3(0.5, 0.04, 0.12), Vector3(4.0, HC - 0.03, -42.0), glow(Color(1.0, 0.85, 0.55), 1.4, true))
+	light(Vector3(4.0, HC - 0.4, -42.0), Color(1.0, 0.8, 0.5), 0.6, 4.0)
 	var pipe := mat(Color(0.5, 0.48, 0.44), 0.7, 0.4)
 	var lag := mat(Color(0.72, 0.7, 0.62), 0.95)
 	stick(Vector3(7.3, HC - 0.2, -12.2), Vector3(7.3, HC - 0.2, -45.8), 0.06, pipe)
@@ -1324,9 +1328,9 @@ func _service() -> void:
 	dead.rotation.z = 1.2
 	# the side door into 108, from the link: a push bar on this side, the
 	# lock on the other. The Sneak route ends here.
-	_door("108b", Vector3(3.6, 0, -41.5), PI / 2.0, 1.0, 1.6, false, false)
-	_reader(Vector3(3.72, 1.2, -40.6), PI / 2.0)
-	_hack("108b_reader", Vector3(3.7, 1.2, -40.6), Vector3(0.2, 0.3, 0.2), "BADGE READER - 108 SERVICE\nlock: ENGAGED\nlast badge: NURSE (WK 3)")
+	_door("108b", Vector3(1.9, 0, -41.5), PI / 2.0, 1.0, 1.6, false, false)
+	_reader(Vector3(2.02, 1.2, -40.6), PI / 2.0)
+	_hack("108b_reader", Vector3(2.0, 1.2, -40.6), Vector3(0.2, 0.3, 0.2), "BADGE READER - 108 SERVICE\nlock: ENGAGED\nlast badge: NURSE (WK 3)")
 
 
 # ------------------------------------------------------------------ the stairwell
@@ -1376,16 +1380,24 @@ func _stairwell() -> void:
 # ------------------------------------------------------------------ Room 108
 
 func _room108() -> void:
-	# the room: narrow, the bed along the west wall, the window behind blinds
-	_wall(Vector3(7.2, HC, 0.2), Vector3(0, HC / 2.0, -45.4))
-	_wall(Vector3(0.2, HC, 7.3), Vector3(-3.6, HC / 2.0, -41.8))
-	_wall(Vector3(0.2, HC, 3.4), Vector3(3.6, HC / 2.0, -39.9))
-	_wall(Vector3(0.2, HC, 2.8), Vector3(3.6, HC / 2.0, -44.0))
-	_wall(Vector3(0.2, HC - 2.1, 1.1), Vector3(3.6, 2.1 + (HC - 2.1) / 2.0, -42.05))
+	# the room: small enough that the bed is most of it, the walls a shade
+	# the lobby's plaster never was, the bed along the west wall, the
+	# window behind blinds. East wall at x 1.9; the service door in it.
+	var dim := pbr("plaster", Vector3(1, 1, 1) / 2.2, true, Color(0.52, 0.52, 0.49))
+	_wall(Vector3(5.7, HC, 0.2), Vector3(-0.85, HC / 2.0, -45.4), dim)
+	_wall(Vector3(0.2, HC, 7.3), Vector3(-3.6, HC / 2.0, -41.8), dim)
+	_wall(Vector3(0.2, HC, 3.4), Vector3(1.9, HC / 2.0, -39.9), dim)
+	_wall(Vector3(0.2, HC, 2.8), Vector3(1.9, HC / 2.0, -44.0), dim)
+	_wall(Vector3(0.2, HC - 2.1, 1.1), Vector3(1.9, 2.1 + (HC - 2.1) / 2.0, -42.05), dim)
 	_wall(Vector3(2.5, HC, 0.2), Vector3(-2.35, HC / 2.0, DOOR_Z - 0.05))
 	_wall(Vector3(2.5, HC, 0.2), Vector3(2.35, HC / 2.0, DOOR_Z - 0.05))
-	# the floor in here is vinyl, pale, a dried trail to the bed
-	floor_quad(Vector2(7.0, 7.0), Vector3(0, 0.005, -41.8), 0.0, mat(Color(0.72, 0.74, 0.72), 0.4))
+	# its own ceiling, lower and darker than the ward's; a vent in it
+	box(Vector3(5.3, 0.02, 6.9), Vector3(-0.85, HC - 0.05, -41.85), mat(Color(0.3, 0.31, 0.3), 0.95))
+	box(Vector3(0.5, 0.02, 0.3), Vector3(0.6, HC - 0.07, -40.0), mat(Color(0.12, 0.12, 0.13), 0.6))
+	for i in 5:
+		box(Vector3(0.44, 0.005, 0.02), Vector3(0.6, HC - 0.08, -40.1 + i * 0.05), _steel)
+	# the floor in here is vinyl, grey, a dried trail to the bed
+	floor_quad(Vector2(5.5, 7.1), Vector3(-0.85, 0.005, -41.85), 0.0, mat(Color(0.42, 0.44, 0.43), 0.45))
 	var drop := decal_mat(Tex.blood(77), Color(0.8, 0.75, 0.7), 0.5)
 	for i in 7:
 		var p := Vector3(0, 0.0, DOOR_Z - 0.6).lerp(BED + Vector3(0.7, 0, 0.3), i / 6.0) + Vector3(rng.randf_range(-0.15, 0.15), 0.012 + i * 0.0003, 0)
@@ -1404,7 +1416,7 @@ func _room108() -> void:
 	light(Vector3(-3.0, 1.7, -43.0), Color(1.0, 0.95, 0.85), 0.55, 3.0, false)
 	_it("blinds", Vector3(-3.4, 1.7, -43.0), Vector3(0.2, 1.7, 1.7))
 	# one ceiling panel, turned down low; a wedge of corridor light at the door
-	box(Vector3(1.2, 0.04, 0.6), Vector3(0, HC - 0.02, -42.0), glow(Color(0.7, 0.85, 0.78), 0.5, true))
+	box(Vector3(1.2, 0.04, 0.6), Vector3(-0.6, HC - 0.08, -42.0), glow(Color(0.7, 0.85, 0.78), 0.5, true))
 	room_light = light(Vector3(0, HC - 0.5, -42.0), Color(0.82, 0.86, 0.84), 0.45, 5.5)
 	# a reading light over the head of the bed, warm, the only kind thing in here
 	box(Vector3(0.3, 0.08, 0.12), BED + Vector3(0, 1.9, -1.85), _trim_m)
@@ -1446,6 +1458,36 @@ func _room108() -> void:
 	_hack("freud108", fb + Vector3(-0.35, 1.5, -0.35), Vector3(0.6, 0.4, 0.6), "FREUDBOT ARM 108\nsession 0\nresponse: NONE (41h)")
 	# a chair for a visitor nobody has been
 	_chair(BED + Vector3(1.6, 0, 0.6), PI / 2.0, Color(0.6, 0.62, 0.66))
+	# the bedside cabinet: a jug nobody has filled, a tray, his chart
+	var cab := mat(Color(0.78, 0.78, 0.75), 0.5)
+	box(Vector3(0.45, 0.7, 0.45), BED + Vector3(-1.05, 0.35, 0.15), cab, true)
+	box(Vector3(0.4, 0.02, 0.4), BED + Vector3(-1.05, 0.71, 0.15), _steel)
+	cyl(0.06, 0.05, 0.18, BED + Vector3(-1.12, 0.81, 0.08), newmat(Color(0.8, 0.9, 1.0, 0.5), 0.1), 8)
+	box(Vector3(0.2, 0.01, 0.28), BED + Vector3(-0.95, 0.725, 0.22), _white).rotation.y = 0.2
+	# a curtain rail round the bed, the curtain bunched at the head end
+	var rail := BED + Vector3(0, 2.3, -0.1)
+	stick(rail + Vector3(-0.9, 0, -1.3), rail + Vector3(0.9, 0, -1.3), 0.015, _steel)
+	stick(rail + Vector3(0.9, 0, -1.3), rail + Vector3(0.9, 0, 1.3), 0.015, _steel)
+	stick(rail + Vector3(0.9, 0, 1.3), rail + Vector3(-0.9, 0, 1.3), 0.015, _steel)
+	var cur := pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.62, 0.78, 0.74))
+	box(Vector3(0.5, 2.2, 0.12), BED + Vector3(0.6, 1.2, -1.4), cur)
+	box(Vector3(0.12, 2.2, 0.4), BED + Vector3(0.9, 1.2, -1.1), cur)
+	# a locker in the corner, a sink by the door, a sharps bin, a clock
+	# that stopped when the power did
+	box(Vector3(0.5, 1.8, 0.5), Vector3(1.55, 0.9, -45.05), mat(Color(0.55, 0.57, 0.6), 0.4, 0.5), true)
+	box(Vector3(0.04, 0.02, 0.1), Vector3(1.29, 1.0, -45.05), _steel)
+	cyl(0.1, 0.12, 0.7, Vector3(1.5, 0.35, -39.0), _white, 10)
+	box(Vector3(0.5, 0.14, 0.42), Vector3(1.5, 0.8, -39.0), _white, true)
+	box(Vector3(0.3, 0.02, 0.24), Vector3(1.5, 0.88, -39.0), mat(Color(0.3, 0.32, 0.34), 0.3, 0.5))
+	stick(Vector3(1.75, 0.87, -39.0), Vector3(1.6, 1.05, -39.0), 0.012, _steel)
+	quad(Vector2(0.4, 0.5), Vector3(1.84, 1.5, -39.0), -PI / 2.0, mat(Color(0.08, 0.09, 0.1), 0.1, 0.6))
+	box(Vector3(0.1, 0.25, 0.2), Vector3(1.8, 1.1, -39.6), mat(Color(0.9, 0.75, 0.1), 0.5))
+	var clk := cyl(0.14, 0.14, 0.03, Vector3(1.84, 2.1, -40.6), _white, 16)
+	clk.rotation.z = PI / 2.0
+	box(Vector3(0.01, 0.1, 0.01), Vector3(1.82, 2.14, -40.6), mat(Color(0.05, 0.05, 0.05), 0.5))
+	box(Vector3(0.01, 0.01, 0.07), Vector3(1.82, 2.1, -40.57), mat(Color(0.05, 0.05, 0.05), 0.5))
+	# a handrail along the west wall under the window
+	box(Vector3(0.04, 0.05, 6.0), Vector3(-3.5, 0.9, -41.8), _steel)
 	# the smell is in the bin: gauze, brown and stiff
 	cyl(0.14, 0.12, 0.4, BED + Vector3(1.5, 0.2, -1.5), mat(Color(0.75, 0.76, 0.74), 0.5), 10)
 	var gm := mat(Color(0.5, 0.3, 0.22), 0.9)
