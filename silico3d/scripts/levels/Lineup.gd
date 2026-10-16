@@ -35,6 +35,10 @@ func build(m: Node) -> void:
 	c3.position = Vector3(0, 0, 9.0)
 	c3.rotation.y = 2.2
 	add_child(c3)
+	var c4 := Car.build(self, Color(0.92, 0.92, 0.94), {"police": true})
+	c4.position = Vector3(-2.5, 0, 6.0)
+	c4.rotation.y = 2.6
+	add_child(c4)
 	_dump()
 
 

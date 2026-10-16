@@ -123,7 +123,7 @@ func _ground() -> void:
 		box(Vector3(0.12, 0.01, 5.0), Vector3(-10.0 + k * 4.0, 0.01, 41.5), line)
 	_car(Vector3(6.0, 0, 46.0), 0.0, Color(0.75, 0.78, 0.8), true)
 	_car(Vector3(-6.0, 0, 46.5), 0.05, Color(0.3, 0.06, 0.08), false)
-	_car(Vector3(14.0, 0, 46.0), -0.04, Color(0.1, 0.12, 0.15), false)
+	_car(Vector3(14.0, 0, 46.0), -0.04, Color(0.92, 0.92, 0.94), false, {"police": true})
 	# a hedge with the entrance gap, and the sign
 	var hedge := mat(Color(0.24, 0.35, 0.17), 0.9)
 	box(Vector3(30, 1.2, 1.0), Vector3(-18.0, 0.6, 34.5), hedge, true)
@@ -142,12 +142,13 @@ func _ground() -> void:
 		"CLIMATE CONTROL MAST 2\noutput: 72F\nload: 140%\nsand intake: CLOGGED")
 
 
-func _car(pos: Vector3, rot: float, c: Color, mine: bool) -> void:
+func _car(pos: Vector3, rot: float, c: Color, mine: bool, opts := {}) -> void:
 	var car := Node3D.new()
 	car.position = pos
 	car.rotation.y = rot
 	add_child(car)
-	car.add_child(Car.build(self, c, {"plate": "PSF 0086" if mine else ""}))
+	opts["plate"] = "PSF 0086" if mine else ""
+	car.add_child(Car.build(self, c, opts))
 	solid_box(Vector3(1.9, 1.5, 4.5), Vector3(0, 0.75, 0), car)
 	if mine:
 		var it := interactable("my_car", "Your company car", Vector3(0, 1.0, 0), Vector3(2.0, 1.8, 4.6),

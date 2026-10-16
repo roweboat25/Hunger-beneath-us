@@ -6,7 +6,8 @@ class_name Car
 ## glass, lamps), so a street of them stays cheap.
 ##
 ## opts: "head"/"tail" (lamp materials; default dim glows), "hover" (pods, no
-## wheels), "plate" (text on the rear plate, ground cars only).
+## wheels), "plate" (text on the rear plate, ground cars only), "police"
+## (SILICO PD livery: door band, push bar, red and blue lightbar).
 
 static var _mats := {}
 
@@ -94,7 +95,7 @@ static func build(lvl: Node, paint_c: Color, opts := {}) -> Node3D:
 	var hover: bool = opts.get("hover", false)
 	var lift := 0.0 if not hover else -0.15
 	var sts := {}
-	for k in ["paint", "trim", "chrome", "glass", "head", "tail", "plate", "tyre"]:
+	for k in ["paint", "trim", "chrome", "glass", "head", "tail", "plate", "tyre", "livery", "red", "blue"]:
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		sts[k] = st
@@ -149,6 +150,27 @@ static func build(lvl: Node, paint_c: Color, opts := {}) -> Node3D:
 	box(sts.tail, Vector3(0.8, 0.03, 0.04), Vector3(0, 0.76, 2.26 + rz), up)
 	box(sts.plate, Vector3(0.48, 0.13, 0.02), Vector3(0, 0.42, -2.31 + fz), up)
 	box(sts.plate, Vector3(0.48, 0.13, 0.02), Vector3(0, 0.55, 2.29 + rz), up)
+	if opts.get("police", false):
+		# SILICO PD: a dark band along the doors with the name on it, a push
+		# bar on the nose, a lightbar across the roof
+		for s: float in [-1.0, 1.0]:
+			box(sts.livery, Vector3(0.015, 0.3, 2.7), Vector3(s * 0.962, 0.64, 0.25), up)
+			var l := Label3D.new()
+			l.text = "SILICO PD"
+			l.font_size = 48
+			l.pixel_size = 0.0036
+			l.modulate = Color(0.92, 0.92, 0.95)
+			l.outline_size = 0
+			l.position = Vector3(s * 0.972, 0.64, 0.25)
+			l.rotation.y = s * PI / 2.0
+			car.add_child(l)
+		box(sts.trim, Vector3(1.3, 0.34, 0.06), Vector3(0, 0.5, -2.38 + fz), up)
+		for x: float in [-0.5, 0.5]:
+			box(sts.trim, Vector3(0.05, 0.34, 0.14), Vector3(x, 0.5, -2.3 + fz), up)
+		box(sts.trim, Vector3(1.24, 0.07, 0.3), Vector3(0, 1.43, 0.3), up)
+		box(sts.red, Vector3(0.5, 0.12, 0.26), Vector3(-0.33, 1.52, 0.3), up)
+		box(sts.blue, Vector3(0.5, 0.12, 0.26), Vector3(0.33, 1.52, 0.3), up)
+		box(sts.trim, Vector3(0.1, 0.12, 0.26), Vector3(0, 1.52, 0.3), up)
 	if hover:
 		# four thruster pods, glowing at the throat
 		for x: float in [-0.92, 0.92]:
@@ -189,6 +211,9 @@ static func build(lvl: Node, paint_c: Color, opts := {}) -> Node3D:
 		"tail": opts.get("tail", lvl.glow(Color(0.9, 0.05, 0.05), 1.0)),
 		"plate": _mat("plate", Color(0.85, 0.85, 0.8), 0.6, 0.0),
 		"tyre": _mat("tyre", Color(0.03, 0.03, 0.03), 0.9, 0.0),
+		"livery": _mat("livery", Color(0.05, 0.08, 0.2), 0.35, 0.3),
+		"red": lvl.glow(Color(1, 0.1, 0.1), 5.0),
+		"blue": lvl.glow(Color(0.1, 0.3, 1.0), 5.0),
 	}
 	for k: String in sts:
 		var st: SurfaceTool = sts[k]

@@ -975,13 +975,7 @@ func _police_scene() -> void:
 	add_child(police)
 	police.position = Vector3(-46, 0, 7.0)
 	police.rotation.y = -PI / 2.0
-	var body := mat(Color(0.92, 0.92, 0.94), 0.3, 0.4)
-	box(Vector3(1.9, 0.75, 4.6), Vector3(0, 0.55, 0), body, false, police)
-	box(Vector3(1.92, 0.3, 2.0), Vector3(0, 0.6, 0.1), mat(Color(0.05, 0.08, 0.18), 0.4), false, police)
-	box(Vector3(1.7, 0.6, 2.4), Vector3(0, 1.2, 0.2), mat(Color(0.05, 0.07, 0.09), 0.1, 0.5), false, police)
-	label("SILICO PD", Vector3(0.97, 0.62, 0.1), PI / 2.0, 0.006, Color(0.9, 0.9, 0.95), police, false)
-	box(Vector3(0.5, 0.12, 0.25), Vector3(-0.3, 1.56, 0.2), glow(Color(1, 0.1, 0.1), 5.0), false, police)
-	box(Vector3(0.5, 0.12, 0.25), Vector3(0.3, 1.56, 0.2), glow(Color(0.1, 0.3, 1), 5.0), false, police)
+	police.add_child(Car.build(self, Color(0.92, 0.92, 0.94), {"police": true}))
 	for k in 2:
 		var o := OmniLight3D.new()
 		o.light_color = Color(1, 0.1, 0.1) if k == 0 else Color(0.15, 0.35, 1.0)
@@ -989,10 +983,6 @@ func _police_scene() -> void:
 		o.position = Vector3(-0.3 if k == 0 else 0.3, 1.9, 0.2)
 		police.add_child(o)
 		police_lights.append(o)
-	for x: float in [-0.85, 0.85]:
-		for z: float in [-1.45, 1.45]:
-			var w := cyl(0.34, 0.34, 0.24, Vector3(x, 0.34, z), mat(Color(0.05, 0.05, 0.05), 0.8), 14, police)
-			w.rotation.z = PI / 2.0
 	solid_box(Vector3(1.9, 1.5, 4.6), Vector3(0, 0.75, 0), police)
 	var tw := create_tween()
 	tw.tween_property(police, "position", Vector3(-5.0, 0, 7.0), 3.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)

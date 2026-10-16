@@ -20,7 +20,6 @@ uniform float fx_pix = 1.0;
 uniform float fx_dither = 1.0;
 uniform float fx_fringe = 1.0;
 uniform float lift = 0.35;
-uniform float pixmode = 0.0;
 
 float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 
@@ -37,29 +36,22 @@ void fragment() {
 	vec2 uv = SCREEN_UV;
 	// the low-res frame
 	vec2 px = floor(uv * res) + 0.5;
-	vec2 luv;
-	if (pixmode < 0.5) {
-		luv = mix(uv, px / res, fx_pix);
-	} else if (pixmode < 1.5) {
-		luv = uv - (fract(uv * res) - 0.5) / res * fx_pix;
-	} else {
-		vec2 scale = 1.0 / (SCREEN_PIXEL_SIZE * res);
-		vec2 c2 = (floor(FRAGCOORD.xy / scale) + 0.5) * scale * SCREEN_PIXEL_SIZE;
-		luv = mix(uv, c2, fx_pix);
-	}
+	vec2 luv = mix(uv, px / res, fx_pix);
+	// textureLod everywhere: with luv constant across a cell, texture() picks
+	// a mip level from the derivatives and WebGL draws a grid of dark seams
 	vec2 cc = luv - 0.5;
 	float fr = dot(cc, cc) * 0.004 * fx_fringe;
 	vec3 col;
-	col.r = texture(screen_tex, luv + cc * fr).r;
-	col.g = texture(screen_tex, luv).g;
-	col.b = texture(screen_tex, luv - cc * fr).b;
-	vec3 sharp = texture(screen_tex, uv).rgb;
+	col.r = textureLod(screen_tex, luv + cc * fr, 0.0).r;
+	col.g = textureLod(screen_tex, luv, 0.0).g;
+	col.b = textureLod(screen_tex, luv - cc * fr, 0.0).b;
+	vec3 sharp = textureLod(screen_tex, uv, 0.0).rgb;
 	// neon haze: a cheap blur of the low-res frame, added back where it is
 	// bright and saturated, so every sign and window bleeds into the wet air
 	vec3 glow = vec3(0.0);
 	for (int i = -2; i <= 2; i++)
 		for (int j = -2; j <= 2; j++)
-			glow += texture(screen_tex, luv + vec2(float(i), float(j)) * 2.5 / res).rgb;
+			glow += textureLod(screen_tex, luv + vec2(float(i), float(j)) * 2.5 / res, 0.0).rgb;
 	glow /= 25.0;
 	float gl = dot(glow, vec3(0.299, 0.587, 0.114));
 	float gsat = length(glow - vec3(gl));
