@@ -78,12 +78,8 @@ func _ground() -> void:
 
 
 func _road() -> void:
-	var asphalt := newmat(Color(1, 1, 1), 0.22)
-	asphalt.albedo_texture = Tex.asphalt()
-	asphalt.uv1_scale = Vector3(2.5, 2.5, 1)
-	var paving := newmat(Color(1, 1, 1), 0.5)
-	paving.albedo_texture = Tex.paving()
-	paving.uv1_scale = Vector3(1.75, 5.0, 1)
+	var asphalt := pbr("asphalt", Vector3(1, 1, 1) / 4.0, true, Color(0.7, 0.7, 0.72), 0.35)
+	var paving := pbr("paving", Vector3(1, 1, 1) / 2.5, true, Color(0.75, 0.75, 0.75), 0.6)
 	var curb := mat(Color(0.22, 0.21, 0.2), 0.8)
 	var line := mat(Color(0.55, 0.52, 0.42), 0.6)
 	var z := STREET_S
@@ -627,6 +623,11 @@ func tick(delta: float) -> void:
 
 
 # ------------------------------------------------------------------ the slice's flow
+
+func hifi(env: Environment, _sun: DirectionalLight3D) -> void:
+	env.tonemap_exposure *= 1.5
+	env.ssr_max_steps = 64  # the wet street carries the neon
+
 
 func ambience() -> void:
 	main.loop("rain", -9.0)

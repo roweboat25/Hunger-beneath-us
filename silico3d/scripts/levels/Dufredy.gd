@@ -88,6 +88,22 @@ func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	sun.directional_shadow_max_distance = 60.0
 
 
+func hifi(env: Environment, _sun: DirectionalLight3D) -> void:
+	# the fallen lamp throws the stick nest's shadows up the walls
+	lamp_light.shadow_enabled = true
+	lamp_light.shadow_blur = 1.5
+	lamp_light.light_energy = 3.6
+	lamp_light.omni_range = 9.0
+	# the nest blocks most of the lamp once shadows are on: a faint bounce
+	# so the eye on the ceiling still reads
+	light(EYE_C - Vector3(0, 1.6, 0), Color(1.0, 0.7, 0.45), 0.3, 3.5, false)
+	lamp_light.light_volumetric_fog_energy = 2.0
+	env.volumetric_fog_density = 0.02
+	env.volumetric_fog_albedo = Color(0.75, 0.68, 0.58)
+	for l in lamps:
+		(l[0] as OmniLight3D).shadow_enabled = true
+
+
 func ambience() -> void:
 	main.loop("room", -10.0)
 	main.loop("flies", -4.0, BLOOD_C + Vector3(0, 0.3, 0), 1.2, 9.0)
@@ -117,9 +133,9 @@ func _shell() -> void:
 	_wall_box(Vector3(t, H, 5.5), Vector3(1.5, H / 2, -9.75))
 	_wall_box(Vector3(6.0, H, t), Vector3(-1.5, H / 2, -12.5))
 	# floors and ceiling
-	var boards := tex_mat(Tex.boards(), Vector3(4.5, 3.5, 1), 0.7)
+	var boards := pbr("woodfloor", Vector3(1, 1, 1) / 2.0, true, Color(0.8, 0.72, 0.65))
 	floor_quad(Vector2(9, 7), Vector3(0, 0.0, -3.5), 0.0, boards)
-	var carpet := tex_mat(Tex.carpet(), Vector3(6, 5.5, 1), 1.0)
+	var carpet := pbr("carpet", Vector3(1, 1, 1) / 1.5, true, Color(0.75, 0.65, 0.55))
 	floor_quad(Vector2(6, 5.5), Vector3(-1.5, 0.0, -9.75), 0.0, carpet)
 	solid_box(Vector3(14, 1, 16), Vector3(-1, -0.5, -6))
 	var ceil_m := mat(Color(0.58, 0.57, 0.53), 0.95)
@@ -165,7 +181,7 @@ func _living_room() -> void:
 	# light from outside, bounced off the balcony
 	light(Vector3(3.6, 1.8, -3.5), Color(1.0, 0.88, 0.7), 1.1, 7.5)
 	# couch, table, a dead screen on the wall
-	var couch := mat(Color(0.32, 0.3, 0.33), 0.95)
+	var couch := pbr("fabric", Vector3(1, 1, 1) / 1.0, true, Color(0.55, 0.5, 0.55))
 	box(Vector3(2.4, 0.45, 0.9), Vector3(2.0, 0.22, -2.0), couch, true)
 	box(Vector3(2.4, 0.5, 0.2), Vector3(2.0, 0.65, -1.6), couch)
 	box(Vector3(1.2, 0.04, 0.6), Vector3(2.0, 0.42, -3.6), mat(Color(0.2, 0.18, 0.16), 0.5), true)
@@ -506,11 +522,9 @@ func _set_layer(n: Node, layer: int) -> void:
 
 func _outside() -> void:
 	# the street in front: sidewalk, road, the far kerb
-	var asphalt := tex_mat(Tex.asphalt(), Vector3(10, 2, 1), 0.6)
-	asphalt.albedo_color = Color(1.4, 1.35, 1.3)
+	var asphalt := pbr("asphalt", Vector3(1, 1, 1) / 4.0, true)
 	floor_quad(Vector2(52, 12), Vector3(-19, 0.0, 9.0), 0.0, asphalt)
-	var pave := tex_mat(Tex.paving(), Vector3(12, 1, 1), 0.8)
-	pave.albedo_color = Color(2.2, 2.1, 1.9)
+	var pave := pbr("paving", Vector3(1, 1, 1) / 2.5, true)
 	floor_quad(Vector2(52, 3.0), Vector3(-19, 0.01, 1.5), 0.0, pave)
 	floor_quad(Vector2(52, 2.0), Vector3(-19, 0.01, 16.0), 0.0, pave)
 	solid_box(Vector3(60, 1, 24), Vector3(-19, -0.5, 8))

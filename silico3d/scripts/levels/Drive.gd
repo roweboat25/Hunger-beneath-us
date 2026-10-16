@@ -88,11 +88,9 @@ func ambience() -> void:
 # ------------------------------------------------------------------ the city by day
 
 func _road() -> void:
-	var asphalt := tex_mat(Tex.asphalt(), Vector3(4, 200, 1), 0.6)
-	asphalt.albedo_color = Color(1.5, 1.45, 1.4)
+	var asphalt := pbr("asphalt", Vector3(1, 1, 1) / 4.0, true)
 	floor_quad(Vector2(16, 1100), Vector3(0, 0, -450), 0.0, asphalt)
-	var pave := tex_mat(Tex.paving(), Vector3(2, 160, 1), 0.8)
-	pave.albedo_color = Color(2.1, 2.0, 1.85)
+	var pave := pbr("paving", Vector3(1, 1, 1) / 2.5, true)
 	for side: float in [-1.0, 1.0]:
 		floor_quad(Vector2(6, 1100), Vector3(side * 11.0, 0.08, -450), 0.0, pave)
 	var line := mat(Color(0.85, 0.8, 0.6), 0.6)
@@ -271,7 +269,7 @@ func _outage_block() -> void:
 func _park_edge() -> void:
 	var hedge := mat(Color(0.22, 0.34, 0.16), 0.9)
 	box(Vector3(1.2, 1.4, 90), Vector3(14.5, 0.7, -935.0), hedge)
-	var bark := tex_mat(Tex.bark(), Vector3(1, 2, 1), 0.9)
+	var bark := pbr("bark", Vector3(1, 1, 1) / 1.5, true)
 	var leaf := mat(Color(0.25, 0.38, 0.17), 0.9)
 	for i in 7:
 		var p := Vector3(rng.randf_range(18, 40), 0, -895.0 - i * 13.0)

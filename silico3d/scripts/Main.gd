@@ -62,6 +62,9 @@ var _phone_on := false
 var _rain: CPUParticles3D
 var _args := {}
 var _selftest := false
+## The desktop build runs Forward+ (bounced light, volumetric fog, SSR,
+## SSAO); the browser falls back to Compatibility and skips all of it.
+var hifi := false
 
 
 func _ready() -> void:
@@ -111,6 +114,11 @@ func _setup_input() -> void:
 
 
 func _setup_env() -> void:
+	hifi = RenderingServer.get_rendering_device() != null
+	if hifi:
+		get_viewport().msaa_3d = Viewport.MSAA_4X
+		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+		get_viewport().use_debanding = true
 	env = Environment.new()
 	var we := WorldEnvironment.new()
 	we.environment = env
@@ -271,6 +279,35 @@ func _reset_story() -> void:
 	ui.set_frames(0.0, 0.0)
 
 
+func _apply_hifi() -> void:
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	env.tonemap_exposure *= 1.25
+	env.sdfgi_energy = 1.3
+	env.ssao_enabled = true
+	env.ssao_radius = 1.4
+	env.ssao_intensity = 2.2
+	env.ssil_enabled = true
+	env.ssil_intensity = 0.8
+	env.ssr_enabled = true
+	env.ssr_max_steps = 48
+	env.sdfgi_enabled = true
+	env.sdfgi_use_occlusion = true
+	env.sdfgi_cascades = 4
+	env.sdfgi_min_cell_size = 0.15
+	env.volumetric_fog_enabled = true
+	env.volumetric_fog_density = env.fog_density * 2.2
+	env.volumetric_fog_albedo = env.fog_light_color
+	env.volumetric_fog_length = 140.0
+	env.volumetric_fog_anisotropy = 0.55
+	env.volumetric_fog_ambient_inject = 0.35
+	env.volumetric_fog_sky_affect = 0.4
+	env.fog_density *= 0.45
+	sun.shadow_blur = 1.4
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	sun.light_volumetric_fog_energy = 1.4
+	level.hifi(env, sun)
+
+
 func load_level(lname: String) -> void:
 	if loading:
 		return
@@ -298,6 +335,8 @@ func load_level(lname: String) -> void:
 	add_child(level)
 	level.build(self)
 	level.setup_env(env, sun)
+	if hifi:
+		_apply_hifi()
 	_rain.visible = level.rain
 	_rain.emitting = level.rain
 	player.seated = false

@@ -78,7 +78,7 @@ func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	sun.light_color = Color(1.0, 0.86, 0.66)
 	sun.light_energy = 1.2
 	sun.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_AND_SKY
-	sun.rotation = Vector3(deg_to_rad(-42), deg_to_rad(205), 0)
+	sun.rotation = Vector3(deg_to_rad(-62), deg_to_rad(205), 0)
 	sun.directional_shadow_max_distance = 70.0
 
 
@@ -99,16 +99,16 @@ func ambience() -> void:
 # ------------------------------------------------------------------ the park
 
 func _ground() -> void:
-	var grass := tex_mat(Tex.grass(), Vector3(9, 9, 1), 1.0)
+	var grass := pbr("grass", Vector3(1, 1, 1) / 2.5, true, Color(0.95, 0.9, 0.7))
 	floor_quad(Vector2(80, 70), Vector3(0, 0, 0), 0.0, grass)
 	solid_box(Vector3(200, 2, 200), Vector3(0, -1, 0))
-	var path := tex_mat(Tex.cracked(), Vector3(2, 16, 1), 0.85)
+	var path := pbr("concrete", Vector3(1, 1, 1) / 3.0, true)
 	floor_quad(Vector2(3.2, 34), Vector3(0, 0.01, 17.0), 0.0, path)
-	var path2 := tex_mat(Tex.cracked(), Vector3(16, 2, 1), 0.85)
+	var path2 := path
 	floor_quad(Vector2(60, 3.0), Vector3(0, 0.01, -2.0), 0.0, path2)
-	var path3 := tex_mat(Tex.cracked(), Vector3(2, 14, 1), 0.85)
+	var path3 := path
 	floor_quad(Vector2(3.0, 28), Vector3(10.0, 0.011, -17.0), -0.35, path3)
-	var plaza := tex_mat(Tex.cracked(), Vector3(10, 10, 1), 0.8)
+	var plaza := pbr("paving", Vector3(1, 1, 1) / 2.5, true)
 	var pm := CylinderMesh.new()
 	pm.top_radius = 10.0
 	pm.bottom_radius = 10.0
@@ -116,8 +116,7 @@ func _ground() -> void:
 	pm.radial_segments = 32
 	mesh(pm, Vector3(0, 0.02, 0), plaza)
 	# the car park
-	var asphalt := tex_mat(Tex.asphalt(), Vector3(6, 4, 1), 0.6)
-	asphalt.albedo_color = Color(1.5, 1.45, 1.4)
+	var asphalt := pbr("asphalt", Vector3(1, 1, 1) / 4.0, true)
 	floor_quad(Vector2(40, 22), Vector3(4, 0.0, 47.0), 0.0, asphalt)
 	var line := mat(Color(0.85, 0.82, 0.7), 0.7)
 	for k in 8:
@@ -283,7 +282,7 @@ func _benches() -> void:
 
 
 func _trees() -> void:
-	var bark := tex_mat(Tex.bark(), Vector3(1, 2, 1), 0.9)
+	var bark := pbr("bark", Vector3(1, 1, 1) / 1.5, true)
 	var leaves := [mat(Color(0.28, 0.4, 0.17), 0.9), mat(Color(0.36, 0.42, 0.18), 0.9), mat(Color(0.25, 0.33, 0.15), 0.9)]
 	var spots := [Vector3(-13, 0, -14), Vector3(-22, 0, -20), Vector3(20, 0, 12), Vector3(24, 0, -4),
 		Vector3(-26, 0, 0), Vector3(16, 0, 24), Vector3(-18, 0, 26), Vector3(26, 0, -20), Vector3(-6, 0, -22)]

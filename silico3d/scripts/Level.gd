@@ -98,6 +98,11 @@ func on_glyph(_g: Object) -> void:
 
 
 ## Dev args (see Main.gd) after the level has loaded.
+## Extra tuning for the desktop renderer (shadowed lamps and the like).
+func hifi(_env: Environment, _sun: DirectionalLight3D) -> void:
+	pass
+
+
 func apply_args(_a: Dictionary) -> void:
 	pass
 
@@ -415,6 +420,34 @@ func turn_to(fig: Node3D, point: Vector3, t := 0.0) -> void:
 		fig.rotation.y = want
 	else:
 		create_tween().tween_property(fig, "rotation:y", fig.rotation.y + wrapf(want - fig.rotation.y, -PI, PI), t)
+
+
+## A photographed PBR material from assets/pbr/<name> (ambientCG, CC0):
+## colour, normal and roughness maps. `scale` repeats it per metre when
+## triplanar, or per quad otherwise.
+func pbr(name: String, scale := Vector3.ONE, triplanar := false, tint := Color(1, 1, 1), rough_mul := 1.0) -> StandardMaterial3D:
+	var key := "pbr%s|%s|%s|%s|%.2f" % [name, scale, triplanar, tint, rough_mul]
+	if _mat_cache.has(key):
+		return _mat_cache[key]
+	var base := "res://assets/pbr/%s/" % name
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load(base + "albedo.jpg")
+	m.albedo_color = tint
+	m.normal_enabled = true
+	m.normal_texture = load(base + "normal.jpg")
+	m.normal_scale = 1.0
+	m.roughness_texture = load(base + "rough.jpg")
+	m.roughness = rough_mul
+	if ResourceLoader.exists(base + "metal.jpg"):
+		m.metallic_texture = load(base + "metal.jpg")
+		m.metallic = 1.0
+	m.uv1_scale = scale
+	if triplanar:
+		m.uv1_triplanar = true
+		m.uv1_world_triplanar = true
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_mat_cache[key] = m
+	return m
 
 
 # ------------------------------------------------------------------ batching

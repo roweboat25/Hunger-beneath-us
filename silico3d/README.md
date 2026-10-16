@@ -35,6 +35,20 @@ Browser note: the web renderer went blank past roughly a thousand separate
 objects, so `Level._batch` merges static scenery per material and per chunk.
 Emission textures also don't render there, so lit windows are an additive layer.
 
+Renderers: the browser build uses Compatibility (WebGL 2); the desktop/Windows
+build uses Forward+ (`rendering_method` in `project.godot`). When a
+RenderingDevice exists, `Main._apply_hifi()` turns on SSAO, SSIL, SSR, SDFGI,
+volumetric fog, ACES tonemapping and softer 4-split sun shadows, then calls each
+level's `hifi(env, sun)` hook for scene tweaks (lamp shadows in Dufredy's flat,
+wetter streets on the Spine). Headless Forward+ shots work through lavapipe:
+`--rendering-driver vulkan` with mesa-vulkan-drivers installed.
+
+Materials: `assets/pbr/` holds photographed CC0 PBR sets from ambientCG
+(asphalt, paving, concrete, grass, bark, wood floor, carpet, plaster, fabric,
+rust; ids in `LICENSE.txt`), loaded with `Level.pbr(name, scale, triplanar,
+tint, rough_mul)`. Their `.import` files are committed on purpose: normal maps
+need `compress/normal_map=1` and everything needs mipmaps.
+
 Scripts: `Main.gd` (level loading, input, interactions, self-test),
 `Level.gd` (base class: build helpers, figures, glyphs, power), `levels/`
 (`Dufredy.gd`, `Drive.gd`, `Park.gd`, `Spine.gd`), `Crowd.gd`, `Traffic.gd`,
