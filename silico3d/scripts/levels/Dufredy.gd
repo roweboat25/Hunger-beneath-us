@@ -70,6 +70,8 @@ func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	psm.ground_bottom_color = Color(0.3, 0.24, 0.18)
 	psm.sun_angle_max = 20.0
 	env.sky.sky_material = psm
+	env.glow_bloom = 0.0  # bloom on a sunlit frame greys out every shadow
+	env.glow_intensity = 0.7
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.62, 0.58, 0.52)
 	env.ambient_light_energy = 0.2
@@ -170,6 +172,37 @@ func _living_room() -> void:
 	box(Vector3(1.6, 0.9, 0.05), Vector3(2.0, 1.5, -6.92), mat(Color(0.02, 0.02, 0.02), 0.2, 0.3))
 	interactable("tv", "Look at the wall screen", Vector3(2.0, 1.5, -6.85), Vector3(1.6, 0.9, 0.12),
 		"WALL SCREEN\nPsyon ambient mode: DISABLED BY USER\nlast channel: NONE")
+	# the smart home, mostly dead: an ORA hub by the door, a cove strip
+	# dying along the ceiling, the Psyon pillow on the couch, cables
+	var hub := Vector3(-0.95, 1.45, -0.14)
+	box(Vector3(0.34, 0.34, 0.03), hub, mat(Color(0.08, 0.08, 0.09), 0.3, 0.4))
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.09
+	ring.outer_radius = 0.11
+	ring.rings = 24
+	ring.ring_segments = 6
+	var rm := mesh(ring, hub + Vector3(0, 0, -0.02), glow(Color(0.2, 0.8, 1.0), 1.4))
+	rm.rotation.x = PI / 2.0
+	neon_text("ORA HOME\nOFFLINE", hub + Vector3(0, -0.24, -0.02), PI, 0.035, Color(0.9, 0.3, 0.2), 1.6)
+	interactable("hub", "Look at the home hub", hub, Vector3(0.4, 0.4, 0.1),
+		"ORA HOME HUB\nstatus: SEVERED BY RESIDENT\nlast words logged: \"can you hear them too\"", false)
+	var cove := glow(Color(1.0, 0.15, 0.6), 1.1)
+	for seg in [[Vector3(4.42, H - 0.06, -3.5), Vector3(0.04, 0.04, 6.8)], [Vector3(-4.42, H - 0.06, -3.5), Vector3(0.04, 0.04, 6.8)],
+			[Vector3(0, H - 0.06, -6.9), Vector3(8.8, 0.04, 0.04)]]:
+		var c := box(seg[1], seg[0], cove)
+		if seg[0].x > 4.0:
+			flickers.append(c)
+			no_batch.append(c)
+	box(Vector3(0.7, 0.18, 0.45), Vector3(1.5, 0.55, -2.0), mat(Color(0.88, 0.88, 0.9), 0.9))
+	box(Vector3(0.72, 0.02, 0.03), Vector3(1.5, 0.6, -1.77), glow(Color(0.3, 0.9, 1.0), 1.5))
+	neon_text("PSYON", Vector3(1.5, 0.645, -2.0), 0.0, 0.06, Color(0.3, 0.9, 1.0), 1.4).rotation.x = -PI / 2.0
+	interactable("pillow", "Look at the pillow", Vector3(1.5, 0.55, -2.0), Vector3(0.8, 0.3, 0.5),
+		"PSYON SLEEP PILLOW\nneural contact: 14 POINTS\nnights logged: 0 (LAST 3 WEEKS)", false)
+	box(Vector3(0.01, 0.06, 0.03), Vector3(2.0, 1.02, -6.88), glow(Color(1, 0.05, 0.05), 3.0))
+	var cab := mat(Color(0.03, 0.03, 0.03), 0.7)
+	for i in 6:
+		var a0 := Vector3(rng.randf_range(-3.0, 3.5), 0.012, rng.randf_range(-6.5, -1.0))
+		stick(a0, a0 + Vector3(rng.randf_range(-1.5, 1.5), 0, rng.randf_range(-1.5, 1.5)), 0.012, cab)
 	# kitchen run along the west wall
 	var unit := mat(Color(0.75, 0.74, 0.7), 0.5)
 	box(Vector3(0.65, 0.9, 3.6), Vector3(-4.1, 0.45, -3.6), unit, true)
@@ -497,8 +530,10 @@ func _outside() -> void:
 	box(Vector3(40.0, 14.0, 0.2), Vector3(-20.5, 7.0, 0.1), face, true)
 	box(Vector3(4.1, 14.0, 0.2), Vector3(2.55, 7.0, 0.1), face, true)
 	box(Vector3(1.0, 11.8, 0.2), Vector3(0.0, 8.1, 0.1), face)
-	box(Vector3(0.2, 14.0, 14.0), Vector3(4.66, 7.0, -7.0), face)
-	box(Vector3(0.2, 11.2, 2.0), Vector3(4.66, 8.4, -3.5), face)
+	# the east face, open where the balcony is
+	box(Vector3(0.2, 14.0, 8.3), Vector3(4.66, 7.0, -9.85), face)
+	box(Vector3(0.2, 14.0, 1.3), Vector3(4.66, 7.0, -0.65), face)
+	box(Vector3(0.2, 11.2, 4.4), Vector3(4.66, 8.4, -3.5), face)
 	var stone := mat(Color(0.7, 0.68, 0.62), 0.6)
 	box(Vector3(1.6, 0.12, 0.25), Vector3(0, 2.3, 0.3), stone)
 	box(Vector3(1.6, 0.1, 1.2), Vector3(0, 0.05, 0.7), stone)
@@ -509,8 +544,23 @@ func _outside() -> void:
 	face2.uv1_triplanar = true
 	face2.uv1_world_triplanar = true
 	face2.uv1_scale = Vector3(1, 1, 1) / 6.0
-	box(Vector3(48, 9, 0.4), Vector3(-17, 4.5, 17.2), face2, true)
-	box(Vector3(0.4, 14, 20), Vector3(-41, 7, 8), face2, true)
+	# the block is a canyon of signs like everywhere else in Silico
+	var street := Node3D.new()
+	add_child(street)
+	kit_parent = street
+	cyber_dress(Vector3(-20.5, 0, 0.21), 0.0, 40.0, 14.0, 0, false)
+	var x := 6.0
+	while x > -41.0:
+		var w := rng.randf_range(9.0, 16.0)
+		cyber_block(Vector3(x - w / 2.0, 0, 17.4), PI, w, rng.randf_range(14.0, 55.0), 14.0, true)
+		x -= w
+	cyber_block(Vector3(-41.2, 0, 8.0), PI / 2.0, 20.0, 40.0, 14.0, true)
+	for i in 5:
+		var cx := rng.randf_range(-38.0, 2.0)
+		cable(Vector3(cx, rng.randf_range(9.0, 13.0), 0.3), Vector3(cx + rng.randf_range(-4, 4), rng.randf_range(8.0, 12.0), 17.2), 1.0)
+	kit_holo(Vector3(-16.0, 18.0, 9.0), PI / 2.0, "ORA", "always watching over you", Color(1.0, 0.3, 0.7), 12.0)
+	kit_parent = self
+	_batch(street, 20.0, true)
 	# the edge of the rise: a rail, and the city below
 	var rail := mat(Color(0.4, 0.4, 0.42), 0.4, 0.7)
 	box(Vector3(0.06, 1.0, 17.4), Vector3(7.0, 0.5, 8.5), rail, true)
@@ -552,24 +602,32 @@ func _car(pos: Vector3, rot: float, paint_c: Color, id: String, mine: bool) -> N
 
 
 func _city_below() -> void:
-	# The rest of Silico, below the rise: blocks to the horizon, and the tower.
-	var walls := []
-	for i in 3:
-		var t: Array = Tex.facade(310 + i, 0.0)
-		var w := newmat(Color(1.3, 1.25, 1.2), 0.8)
-		w.albedo_texture = t[0]
-		w.uv1_triplanar = true
-		w.uv1_world_triplanar = true
-		w.uv1_scale = Vector3(1, 1, 1) / 10.0
-		walls.append(w)
-	var ground := mat(Color(0.62, 0.52, 0.38), 1.0)
-	floor_quad(Vector2(900, 900), Vector3(400, -22.0, -50), 0.0, ground)
-	for i in 120:
-		var x := rng.randf_range(30, 420)
-		var z := rng.randf_range(-320, 220)
-		var h := rng.randf_range(10, 45) * (1.6 if rng.randf() < 0.15 else 1.0)
+	# The rest of Silico, below the rise: a sea of signs to the horizon, the
+	# drones streaming to the tower.
+	var below := Node3D.new()
+	add_child(below)
+	kit_parent = below
+	floor_quad(Vector2(900, 900), Vector3(400, -22.0, -50), 0.0, mat(Color(0.42, 0.34, 0.26), 1.0), below)
+	for i in 80:
+		var px := rng.randf_range(34, 420)
+		var pz := rng.randf_range(-320, 220)
+		var h := rng.randf_range(16, 60) * (1.8 if rng.randf() < 0.18 else 1.0)
 		var w := rng.randf_range(14, 30)
-		box(Vector3(w, h, rng.randf_range(14, 30)), Vector3(x, -22.0 + h / 2.0, z), walls[i % 3])
+		cyber_block(Vector3(px, -22.0, pz), -PI / 2.0, w, h, rng.randf_range(14, 30), false, 1)
+	kit_holo(Vector3(120, 30, -40), -PI / 2.0 + 0.3, "PSYON", "the pillow for those who dream", Color(0.4, 1.0, 0.6), 30.0)
+	kit_holo(Vector3(200, 45, 90), -PI / 2.0 - 0.2, "NIXTRA", "a new flavour: CALM", Color(0.2, 0.9, 1.0), 36.0)
+	kit_parent = self
+	_batch(below, 90.0, true)
+	var traffic = preload("res://scripts/Traffic.gd").new()
+	traffic.lanes = [[60.0, 8.0, 1.0], [75.0, 14.0, -1.0], [110.0, 4.0, 1.0], [150.0, 18.0, -1.0], [30.0, 22.0, 1.0]]
+	traffic.s_min = -250.0
+	traffic.s_max = 200.0
+	traffic.count = 14
+	traffic.tower_top = Vector3(330, 318, -170)
+	traffic.drone_box = AABB(Vector3(20, 0, -250), Vector3(400, 80, 450))
+	traffic.drone_count = 180
+	add_child(traffic)
+	traffic.setup(main, self)
 	# the tower: jade and silver, the donut on its stick
 	var jade := mat(Color(0.2, 0.45, 0.38), 0.3, 0.7)
 	var silver := mat(Color(0.7, 0.72, 0.75), 0.25, 0.8)

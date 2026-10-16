@@ -30,10 +30,19 @@ var powered := true
 var _t := 0.0
 var _glyph_tex: Texture2D
 var _mat_cache := {}
+## The city kit (cyber_block and friends) builds into this node; set it to a
+## child node to batch a district separately, and kit_day for daylight.
+var kit_parent: Node
+var kit_day := true
+var kit_dead := false
+var _kit := {}
+var _fo := Vector3.ZERO
+var _fr := 0.0
 
 
 func _init() -> void:
 	_glyph_tex = Tex.glyph()
+	kit_parent = self
 
 
 # ------------------------------------------------------------------ level hooks (override)
@@ -522,3 +531,250 @@ func _process(delta: float) -> void:
 			elif not f.visible and randf() < 0.2:
 				f.visible = true
 	tick(delta)
+
+
+# ------------------------------------------------------------------ city kit
+
+## Every block in Silico sells something. Brands from the book (Psyonic,
+## Voltx, Nixtra, Tokz, Freudbot, Psymatchbot, SalTech, Ionware, Virtec,
+## Alto Energy, Lushon) and the street trades AI left people with.
+const KIT_SHOPS := ["NOODLES", "24H", "REPAIR", "SLEEP PODS", "PHARMA", "KARAOKE", "PAWN", "DUMPLINGS",
+	"CHARGE", "CLINIC", "LUSHON", "VOLTX", "NIXTRA", "TOKZ", "FREUDBOT", "SALTECH", "IONWARE", "VIRTEC",
+	"PSYON STORE", "PARTS", "RAMEN", "LIQUOR"]
+const KIT_BLADES := ["PSYON", "TOKZ", "HOTEL", "NIXTRA", "24H", "SALTECH", "BAR", "VOLTX", "PODS",
+	"ORA", "IONWARE", "LUSHON", "CLINIC", "VIRTEC"]
+const KIT_ADS := [["PSYON", "the pillow for those who dream"], ["SILICO", "where AI solves every problem"],
+	["ORA", "always watching over you"], ["NIXTRA", "a new flavour: CALM"],
+	["TOKZ", "sleep better. sleep together."], ["FREUDBOT", "talk to someone who listens"],
+	["VOLTX", "the grid that never sleeps"], ["PSYMATCHBOT", "she already knows you"],
+	["SALTECH", "your body, optimized"], ["ALTO ENERGY", "clean power, clean conscience"],
+	["PSYONIC", "customer satisfaction is our greatest priority"], ["IONWARE", "think faster"]]
+const KIT_NEON := [Color(1.0, 0.18, 0.62), Color(0.1, 0.92, 1.0), Color(1.0, 0.5, 0.12),
+	Color(0.62, 0.28, 1.0), Color(0.3, 1.0, 0.5), Color(1.0, 0.85, 0.25), Color(1.0, 0.12, 0.15)]
+
+
+func _kit_mats() -> Dictionary:
+	var key := "day" if kit_day else "night"
+	if _kit.has(key):
+		return _kit[key]
+	var d := {}
+	var walls := []
+	var lits := []
+	var tints := [Color(1.05, 1.0, 0.95), Color(0.95, 1.0, 1.05), Color(1.0, 1.0, 1.0),
+		Color(1.12, 1.02, 0.9), Color(0.9, 0.95, 1.0), Color(1.0, 0.92, 0.9)]
+	for i in 6:
+		var style := i % 3
+		var t: Array = Tex.cyber_facade(700 + i, style)
+		var w := newmat(tints[i] * (0.85 if kit_day else 0.55), 0.3 if style == 1 else 0.85, 0.55 if style == 1 else 0.0)
+		w.albedo_texture = t[0]
+		w.uv1_triplanar = true
+		w.uv1_world_triplanar = true
+		w.uv1_scale = Vector3(1, 1, 1) / 8.0
+		var lit := StandardMaterial3D.new()
+		lit.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		lit.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		lit.albedo_texture = t[1]
+		lit.uv1_triplanar = true
+		lit.uv1_world_triplanar = true
+		lit.uv1_scale = Vector3(1, 1, 1) / 8.0
+		lit.albedo_color = Color(0.5, 0.5, 0.5) if kit_day else Color(1, 1, 1)
+		lit.disable_fog = true  # fog on an additive layer adds the fog colour to the whole face
+		power_mats.append([lit, lit.albedo_color, "albedo_color", Color(0, 0, 0)])
+		walls.append(w)
+		lits.append(lit)
+	d["walls"] = walls
+	d["lits"] = lits
+	d["metal"] = mat(Color(0.32, 0.33, 0.35), 0.5, 0.6)
+	d["dark"] = mat(Color(0.06, 0.06, 0.07), 0.6, 0.3)
+	d["rust"] = mat(Color(0.36, 0.24, 0.17), 0.8, 0.3)
+	d["cable"] = mat(Color(0.04, 0.04, 0.04), 0.7)
+	_kit[key] = d
+	return d
+
+
+func _neon(c: Color) -> StandardMaterial3D:
+	return _kglow(c, 3.2 if kit_day else 2.6)
+
+
+## Glow, unless kit_dead is set (a block with its power cut).
+func _kglow(c: Color, e: float) -> StandardMaterial3D:
+	if kit_dead:
+		return mat(Color(c.r, c.g, c.b) * 0.12 + Color(0.05, 0.05, 0.05), 0.6)
+	return glow(c, e, true)
+
+
+func _kc() -> Color:
+	return KIT_NEON[rng.randi() % KIT_NEON.size()]
+
+
+func _fp(x: float, y: float, z: float) -> Vector3:
+	return _fo + Basis(Vector3.UP, _fr) * Vector3(x, y, z)
+
+
+func _fbox(size: Vector3, x: float, y: float, z: float, m: Material, solid := false, extra_rot := 0.0) -> MeshInstance3D:
+	var p := _fp(x, y, z)
+	var mi := box(size, p, m, false, kit_parent)
+	mi.rotation.y = _fr + extra_rot
+	if solid:
+		solid_box(size, p, kit_parent).rotation.y = _fr + extra_rot
+	return mi
+
+
+func _fquad(size: Vector2, x: float, y: float, z: float, m: Material, extra_rot := 0.0) -> MeshInstance3D:
+	return quad(size, _fp(x, y, z), _fr + extra_rot, m, kit_parent)
+
+
+## Glowing sign lettering as a real mesh (TextMesh), so it batches with the
+## rest of the street instead of costing a draw each like a Label3D.
+func neon_text(text: String, pos: Vector3, rot_y: float, height: float, c: Color, energy := -1.0, parent: Node = null) -> MeshInstance3D:
+	var tm := TextMesh.new()
+	tm.text = text
+	tm.font_size = 32
+	tm.pixel_size = height / 32.0
+	tm.depth = 0.0
+	tm.curve_step = 2.5
+	var mi := MeshInstance3D.new()
+	mi.mesh = tm
+	mi.material_override = _kglow(c, energy if energy > 0.0 else (3.2 if kit_day else 2.6))
+	mi.position = pos
+	mi.rotation.y = rot_y
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	(parent if parent else kit_parent).add_child(mi)
+	return mi
+
+
+func _fit(text: String, width: float, height: float) -> float:
+	return minf(height, width / maxf(1.0, text.length() * 0.62))
+
+
+## A block whose street face is centred at `o` (ground level), facing rot_y
+## (0 faces +Z): w wide, h tall, d deep, dressed for the street.
+func cyber_block(o: Vector3, rot_y: float, w: float, h: float, d: float, solid := true, lod := 0) -> void:
+	_fo = o
+	_fr = rot_y
+	var k := _kit_mats()
+	var wi := rng.randi() % (k["walls"] as Array).size()
+	_fbox(Vector3(w, h, d), 0, h / 2.0, -d / 2.0, k["walls"][wi], solid)
+	if h > 6.0 and not kit_dead:
+		_fquad(Vector2(w - 0.1, h - 4.4), 0, 4.4 + (h - 4.4) / 2.0, 0.015, k["lits"][wi])
+	if h > 32.0 and rng.randf() < 0.4:
+		var h2 := rng.randf_range(12.0, 45.0)
+		var w2 := w * rng.randf_range(0.45, 0.7)
+		var d2 := d * 0.6
+		var wj := rng.randi() % (k["walls"] as Array).size()
+		var zf := -d / 2.0 + d2 / 2.0
+		_fbox(Vector3(w2, h2, d2), 0, h + h2 / 2.0, -d / 2.0, k["walls"][wj])
+		if not kit_dead:
+			_fquad(Vector2(w2, h2), 0, h + h2 / 2.0, zf + 0.015, k["lits"][wj])
+		if rng.randf() < 0.6:
+			_fbox(Vector3(w2, 0.35, 0.12), 0, h + h2 - 0.5, zf + 0.07, _neon(_kc()))
+	cyber_dress(o, rot_y, w, h, lod)
+
+
+## Signs, screens and clutter on a face (also for faces built by hand).
+func cyber_dress(o: Vector3, rot_y: float, w: float, h: float, lod := 0, shop := true) -> void:
+	_fo = o
+	_fr = rot_y
+	var k := _kit_mats()
+	var c := _kc()
+	if shop and lod == 0:
+		if rng.randf() < 0.75:
+			_fquad(Vector2(w - 1.2, 2.8), 0, 1.6, 0.03, _kglow(c * 0.3, 1.5))
+			_fbox(Vector3(w - 0.8, 0.12, 1.4), 0, 3.25, 0.7, k["dark"])
+			_fbox(Vector3(w - 0.8, 0.06, 0.06), 0, 3.2, 1.4, _neon(c))
+			var txt: String = KIT_SHOPS[rng.randi() % KIT_SHOPS.size()]
+			neon_text(txt, _fp(0, 3.95, 0.1), _fr, _fit(txt, w - 2.0, 0.9), c)
+		else:
+			_fquad(Vector2(w - 1.2, 2.8), 0, 1.6, 0.03, k["metal"])
+	if rng.randf() < 0.5:
+		var sc := _kc()
+		for i in rng.randi_range(1, 3):
+			_fbox(Vector3(w, 0.14, 0.1), 0, rng.randf_range(6.0, maxf(6.5, h - 2.0)), 0.06, _neon(sc))
+	if rng.randf() < 0.3:
+		var vc := _kc()
+		for sd: float in [-1.0, 1.0]:
+			_fbox(Vector3(0.16, h - 4.0, 0.16), sd * (w / 2.0 - 0.1), 4.0 + (h - 4.0) / 2.0, 0.08, _neon(vc))
+	if lod == 0:
+		for i in clampi(int(w * h / 70.0), 2, 12):
+			_fbox(Vector3(0.9, 0.6, 0.5), rng.randf_range(-w / 2.0 + 1.0, w / 2.0 - 1.0), rng.randf_range(5.0, maxf(5.5, h - 1.0)), 0.25, k["metal"])
+		if rng.randf() < 0.6:
+			_fbox(Vector3(0.18, h, 0.18), rng.randf_range(-w / 2.0 + 0.5, w / 2.0 - 0.5), h / 2.0, 0.12, k["rust"])
+		if rng.randf() < 0.65 and h > 11.0:
+			var bt: String = KIT_BLADES[rng.randi() % KIT_BLADES.size()]
+			var ln := minf(h - 6.0, bt.length() * 1.25 + 0.8)
+			var bx := (w / 2.0 - 1.2) * (1.0 if rng.randf() < 0.5 else -1.0)
+			var bc := _kc()
+			var by := 5.0 + ln / 2.0
+			_fbox(Vector3(0.25, ln, 1.5), bx, by, 0.85, k["dark"])
+			_fbox(Vector3(0.32, ln + 0.1, 0.07), bx, by, 1.62, _neon(bc))
+			var vt := ""
+			for i in bt.length():
+				vt += bt[i] + ("\n" if i < bt.length() - 1 else "")
+			for sd: float in [-1.0, 1.0]:
+				neon_text(vt, _fp(bx + sd * 0.14, by, 0.85), _fr + sd * PI / 2.0, minf(1.0, ln / bt.length() * 0.7), bc)
+	if h > 22.0 and w > 9.0 and rng.randf() < (0.45 if lod == 0 else 0.3):
+		var ad: Array = KIT_ADS[rng.randi() % KIT_ADS.size()]
+		var sw := minf(w - 3.0, 18.0)
+		var sh := sw * 0.56
+		var sy := rng.randf_range(9.0 + sh / 2.0, maxf(9.5 + sh / 2.0, h - sh / 2.0 - 1.0))
+		var ac := _kc()
+		_fbox(Vector3(sw + 0.6, sh + 0.6, 0.3), 0, sy, 0.15, k["dark"])
+		_fquad(Vector2(sw, sh), 0, sy, 0.31, _kglow(ac * 0.4, 1.4))
+		neon_text(ad[0], _fp(0, sy + sh * 0.12, 0.34), _fr, _fit(ad[0], sw * 0.9, sh * 0.3), Color(1, 1, 1).lerp(ac, 0.25), 2.6)
+		neon_text(ad[1], _fp(0, sy - sh * 0.24, 0.34), _fr, _fit(ad[1], sw * 0.9, sh * 0.1), Color(1, 0.97, 0.92), 2.2)
+	# the roof: plant, a mast with its light on the tall ones, sometimes a sign
+	_fbox(Vector3(3, 2, 3), rng.randf_range(-w / 2.0 + 2.0, w / 2.0 - 2.0), h + 1.0, -3.0, k["metal"])
+	if h > 45.0 and lod == 0:
+		_fbox(Vector3(0.15, 8.0, 0.15), w * 0.25, h + 4.0, -2.0, k["metal"])
+		if not kit_dead:
+			var bl := _fbox(Vector3(0.5, 0.5, 0.5), w * 0.25, h + 8.2, -2.0, glow(Color(1, 0.05, 0.05), 4.0))
+			blinkers.append(bl)
+	elif h < 40.0 and rng.randf() < 0.22:
+		var rt: String = KIT_ADS[rng.randi() % KIT_ADS.size()][0]
+		var rc := _kc()
+		var th := _fit(rt, w - 1.0, 3.0)
+		_fbox(Vector3(w * 0.8, 0.15, 0.15), 0, h + 0.4, -0.6, k["metal"])
+		neon_text(rt, _fp(0, h + 0.6 + th * 0.6, -0.6), _fr, th, rc)
+
+
+## A sagging cable between two points.
+func cable(a: Vector3, b: Vector3, sag: float) -> void:
+	var k := _kit_mats()
+	var prev := a
+	for i in range(1, 7):
+		var t := i / 6.0
+		var p := a.lerp(b, t) - Vector3(0, sag * 4.0 * t * (1.0 - t), 0)
+		stick(prev, p, 0.03, k["cable"], kit_parent)
+		prev = p
+
+
+## A walkway between two blocks at height y, with a lit underside.
+func skybridge(a: Vector3, b: Vector3, width: float) -> void:
+	var k := _kit_mats()
+	var mid := (a + b) / 2.0
+	var ln := a.distance_to(b)
+	var ry := atan2(b.x - a.x, b.z - a.z)
+	var c := _kc()
+	var bx := box(Vector3(width, 3.0, ln), mid, k["walls"][2], false, kit_parent)
+	bx.rotation.y = ry
+	var st := box(Vector3(width * 0.8, 0.1, ln), mid - Vector3(0, 1.55, 0), _neon(c), false, kit_parent)
+	st.rotation.y = ry
+	var gl := box(Vector3(width + 0.05, 1.0, ln), mid + Vector3(0, 0.3, 0), _kglow(c * 0.25, 1.2), false, kit_parent)
+	gl.rotation.y = ry
+
+
+## A see-through hologram ad hanging in the air.
+func kit_holo(pos: Vector3, rot_y: float, title: String, tag: String, c: Color, w := 12.0) -> void:
+	var key := "holo%s" % c
+	if not _mat_cache.has(key):
+		var m := newmat(Color(c.r, c.g, c.b, 0.14), 1.0)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_mat_cache[key] = m
+	var h := w * 0.55
+	quad(Vector2(w, h), pos, rot_y, _mat_cache[key], kit_parent).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var fwd := Basis(Vector3.UP, rot_y) * Vector3(0, 0, 0.05)
+	neon_text(title, pos + fwd + Vector3(0, h * 0.12, 0), rot_y, _fit(title, w * 0.9, h * 0.32), c, 3.0)
+	neon_text(tag, pos + fwd - Vector3(0, h * 0.24, 0), rot_y, _fit(tag, w * 0.9, h * 0.1), c.lightened(0.4), 2.5)
+	neon_text(title, pos - fwd + Vector3(0, h * 0.12, 0), rot_y + PI, _fit(title, w * 0.9, h * 0.32), c, 3.0)

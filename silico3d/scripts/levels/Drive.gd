@@ -37,31 +37,46 @@ func build(m: Node) -> void:
 	_outage_block()
 	_park_edge()
 	_tower()
-	_batch(self, 40.0)
+	_batch(self, 60.0)
 	_car()
+	var traffic = preload("res://scripts/Traffic.gd").new()
+	traffic.lanes = [[-6.5, 10.0, -1.0], [-3.0, 14.0, -1.0], [3.0, 14.0, 1.0], [6.5, 10.0, 1.0], [-5.0, 20.0, -1.0], [5.0, 20.0, 1.0]]
+	traffic.follow = true
+	traffic.s_min = -260.0
+	traffic.s_max = 120.0
+	traffic.count = 16
+	traffic.tower_top = Vector3(240, 540, -1500)
+	traffic.drone_box = AABB(Vector3(-300, 30, -900), Vector3(600, 100, 900))
+	traffic.drone_count = 220
+	add_child(traffic)
+	traffic.setup(m, self)
 	spawn = car.position + SEAT
 	spawn_yaw = 0.0
 
 
 func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
+	# Desert smog in the afternoon: an amber haze the signs burn through.
 	var psm := ProceduralSkyMaterial.new()
-	psm.sky_top_color = Color(0.3, 0.47, 0.72)
-	psm.sky_horizon_color = Color(0.86, 0.74, 0.58)
-	psm.ground_horizon_color = Color(0.76, 0.64, 0.48)
-	psm.ground_bottom_color = Color(0.3, 0.24, 0.18)
+	psm.sky_top_color = Color(0.36, 0.42, 0.5)
+	psm.sky_horizon_color = Color(0.95, 0.6, 0.34)
+	psm.ground_horizon_color = Color(0.85, 0.55, 0.32)
+	psm.ground_bottom_color = Color(0.3, 0.2, 0.14)
+	psm.sun_angle_max = 18.0
 	env.sky.sky_material = psm
-	env.ambient_light_color = Color(0.68, 0.62, 0.55)
-	env.ambient_light_energy = 0.45
+	env.glow_bloom = 0.0  # bloom on a sunlit frame greys out every shadow
+	env.glow_intensity = 0.7
+	env.ambient_light_color = Color(0.7, 0.58, 0.48)
+	env.ambient_light_energy = 0.42
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
-	env.fog_light_color = Color(0.82, 0.7, 0.54)
-	env.fog_density = 0.0016
-	env.fog_sky_affect = 0.15
+	env.fog_light_color = Color(0.9, 0.58, 0.34)
+	env.fog_density = 0.0042
+	env.fog_sky_affect = 0.35
 	env.tonemap_exposure = 1.0
-	env.glow_hdr_threshold = 1.2
-	sun.light_color = Color(1.0, 0.9, 0.76)
-	sun.light_energy = 1.3
+	env.glow_hdr_threshold = 1.0
+	sun.light_color = Color(1.0, 0.78, 0.55)
+	sun.light_energy = 1.25
 	sun.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_AND_SKY
-	sun.rotation = Vector3(deg_to_rad(-38), deg_to_rad(130), 0)
+	sun.rotation = Vector3(deg_to_rad(-26), deg_to_rad(130), 0)
 	sun.directional_shadow_max_distance = 80.0
 
 
@@ -93,34 +108,46 @@ func _road() -> void:
 
 
 func _blocks() -> void:
-	var walls := []
-	for i in 5:
-		var t: Array = Tex.facade(400 + i, 0.0)
-		var w := newmat(Color(1.5, 1.45, 1.4).lerp(Color(1.7, 1.5, 1.3), i / 4.0), 0.8)
-		w.albedo_texture = t[0]
-		w.uv1_triplanar = true
-		w.uv1_world_triplanar = true
-		w.uv1_scale = Vector3(1, 1, 1) / 7.0
-		walls.append(w)
-	var shops := [mat(Color(0.6, 0.65, 0.7), 0.1, 0.5), mat(Color(0.25, 0.3, 0.32), 0.1, 0.5)]
-	var roof := mat(Color(0.35, 0.33, 0.3), 0.8)
+	# The canyon: megablocks either side, dressed in the brands that run the
+	# city. The outage block (z -600..-710) is built dead.
 	for side: float in [-1.0, 1.0]:
 		var z := 30.0
 		while z > -960.0:
 			var depth := rng.randf_range(14.0, 26.0)
 			if side > 0.0 and z < -880.0:
 				break  # the park on the right
-			var h := rng.randf_range(10.0, 40.0)
-			if rng.randf() < 0.15:
-				h = rng.randf_range(50.0, 85.0)
+			var h := rng.randf_range(16.0, 60.0)
+			if rng.randf() < 0.22:
+				h = rng.randf_range(75.0, 140.0)
 			var cz := z - depth / 2.0
-			var x := side * (14.0 + 11.0)
-			box(Vector3(22, h, depth), Vector3(x, h / 2.0, cz), walls[rng.randi() % walls.size()])
-			box(Vector3(0.1, 2.8, depth - 1.5), Vector3(side * 13.98, 1.6, cz), shops[rng.randi() % 2])
-			box(Vector3(4, 2, 4), Vector3(side * 22.0, h + 1.0, cz), roof)
+			kit_dead = cz < -595.0 and cz > -715.0
+			cyber_block(Vector3(side * 14.0, 0, cz), -side * PI / 2.0, depth, h, 22.0, false)
 			z -= depth
 			if rng.randf() < 0.25:
 				z -= 4.0
+	kit_dead = false
+	# cables strung across the street, sky bridges, holograms over the lanes
+	var cz2 := 0.0
+	while cz2 > -900.0:
+		if cz2 < -590.0 and cz2 > -720.0:
+			cz2 -= 20.0
+			continue
+		for i in rng.randi_range(1, 3):
+			var y := rng.randf_range(8.0, 15.0)
+			cable(Vector3(-13.9, y, cz2 + rng.randf_range(-3, 3)), Vector3(13.9, y + rng.randf_range(-1.5, 1.5), cz2 + rng.randf_range(-3, 3)), rng.randf_range(0.6, 1.6))
+		if rng.randf() < 0.35:
+			var hz := cz2 + rng.randf_range(-4, 4)
+			var hy := rng.randf_range(9.0, 13.0)
+			var c := _kc()
+			stick(Vector3(rng.randf_range(-3, 3), hy + 2.0, hz), Vector3(0, hy, hz), 0.02, _kit_mats()["cable"])
+			box(Vector3(1.6, 0.6, 0.08), Vector3(0, hy - 0.3, hz), _kglow(c * 0.5, 2.0))
+		cz2 -= rng.randf_range(16.0, 30.0)
+	for bz: float in [-120.0, -390.0, -540.0, -790.0]:
+		skybridge(Vector3(-14.0, rng.randf_range(24.0, 40.0), bz), Vector3(14.0, rng.randf_range(24.0, 40.0), bz), 4.0)
+	var holos := [[-70.0, 0], [-260.0, 1], [-420.0, 10], [-760.0, 3], [-850.0, 6]]
+	for hh in holos:
+		var ad: Array = KIT_ADS[hh[1]]
+		kit_holo(Vector3(rng.randf_range(-4.0, 4.0), rng.randf_range(16.0, 24.0), hh[0]), 0.0, ad[0], ad[1], _kc(), 14.0)
 	# streetlights, off in the day, and a few planters choked with sand
 	var pole := mat(Color(0.25, 0.25, 0.27), 0.5, 0.6)
 	var z2 := 10.0
@@ -130,7 +157,7 @@ func _blocks() -> void:
 			box(Vector3(1.6, 0.1, 0.12), Vector3(side * 7.9, 6.4, z2), pole)
 		z2 -= 30.0
 	# people on the sidewalks, going about it
-	for i in 26:
+	for i in 34:
 		var side := -1.0 if i % 2 == 0 else 1.0
 		var fz := rng.randf_range(-900, 0)
 		if fz < -590.0 and fz > -710.0:

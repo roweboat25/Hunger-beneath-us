@@ -60,20 +60,22 @@ func build(m: Node) -> void:
 
 func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	var psm := ProceduralSkyMaterial.new()
-	psm.sky_top_color = Color(0.34, 0.5, 0.74)
-	psm.sky_horizon_color = Color(0.82, 0.76, 0.66)
-	psm.ground_horizon_color = Color(0.72, 0.64, 0.5)
+	psm.sky_top_color = Color(0.38, 0.47, 0.6)
+	psm.sky_horizon_color = Color(0.92, 0.66, 0.42)
+	psm.ground_horizon_color = Color(0.8, 0.58, 0.38)
 	psm.ground_bottom_color = Color(0.3, 0.26, 0.2)
 	psm.sun_angle_max = 25.0
 	env.sky.sky_material = psm
+	env.glow_bloom = 0.0  # bloom on a sunlit frame greys out every shadow
+	env.glow_intensity = 0.7
 	env.ambient_light_color = Color(0.66, 0.66, 0.6)
 	env.ambient_light_energy = 0.48
-	env.fog_light_color = Color(0.8, 0.72, 0.58)
-	env.fog_density = 0.0022
+	env.fog_light_color = Color(0.88, 0.64, 0.42)
+	env.fog_density = 0.0034
 	env.fog_sky_affect = 0.15
 	env.tonemap_exposure = 1.0
 	env.glow_hdr_threshold = 1.2
-	sun.light_color = Color(1.0, 0.93, 0.8)
+	sun.light_color = Color(1.0, 0.86, 0.66)
 	sun.light_energy = 1.2
 	sun.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_AND_SKY
 	sun.rotation = Vector3(deg_to_rad(-42), deg_to_rad(205), 0)
@@ -160,31 +162,49 @@ func _car(pos: Vector3, rot: float, c: Color, mine: bool) -> void:
 
 
 func _surrounds() -> void:
-	# the city around the park, and the tower over it
-	var walls := []
-	for i in 3:
-		var t: Array = Tex.facade(500 + i, 0.0)
-		var w := newmat(Color(1.5, 1.45, 1.4), 0.8)
-		w.albedo_texture = t[0]
-		w.uv1_triplanar = true
-		w.uv1_world_triplanar = true
-		w.uv1_scale = Vector3(1, 1, 1) / 7.0
-		walls.append(w)
+	# The city crowding the park on three sides: the tranquility zone is a
+	# courtyard at the bottom of a canyon of ads. Built into its own node so
+	# it batches in big pieces.
+	var city := Node3D.new()
+	add_child(city)
+	kit_parent = city
 	for side: float in [-1.0, 1.0]:
-		var z := 60.0
-		while z > -60.0:
+		var z := 66.0
+		while z > -62.0:
 			var d := rng.randf_range(14, 24)
-			var h := rng.randf_range(14, 45)
-			box(Vector3(18, h, d), Vector3(side * 50.0, h / 2.0, z - d / 2.0), walls[rng.randi() % 3])
+			var h := rng.randf_range(22, 60) if rng.randf() > 0.25 else rng.randf_range(70, 120)
+			cyber_block(Vector3(side * 41.0, 0, z - d / 2.0), -side * PI / 2.0, d, h, 18.0, true)
 			z -= d
-	var z2 := -40.0
-	var x2 := -40.0
-	while x2 < 40.0:
+	var x2 := -41.0
+	while x2 < 41.0:
 		var w := rng.randf_range(12, 20)
-		var h := rng.randf_range(16, 50)
-		box(Vector3(w, h, 16), Vector3(x2 + w / 2.0, h / 2.0, -54.0), walls[rng.randi() % 3])
+		var h := rng.randf_range(24, 64) if rng.randf() > 0.3 else rng.randf_range(70, 110)
+		cyber_block(Vector3(x2 + w / 2.0, 0, -46.0), 0.0, w, h, 16.0, true)
 		x2 += w
-	z2 = 0.0
+	x2 = -41.0
+	while x2 < 41.0:
+		var w := rng.randf_range(12, 20)
+		cyber_block(Vector3(x2 + w / 2.0, 0, 64.0), PI, w, rng.randf_range(20, 70), 16.0, true)
+		x2 += w
+	skybridge(Vector3(-41.0, 34.0, -20.0), Vector3(-41.0, 30.0, 20.0), 3.5)
+	kit_holo(Vector3(-14.0, 12.5, -36.0), 0.0, "HARMONY GREEN", "breathe easy, live smart", Color(0.3, 1.0, 0.6), 20.0)
+	kit_holo(Vector3(36.0, 26.0, 10.0), -PI / 2.0, "PSYON", "the pillow for those who dream", Color(0.4, 0.9, 1.0), 16.0)
+	kit_holo(Vector3(-36.0, 24.0, -12.0), PI / 2.0, "ORA", "always watching over you", Color(1.0, 0.3, 0.7), 14.0)
+	for i in 10:
+		var z := rng.randf_range(-40, 60)
+		cable(Vector3(-40.9, rng.randf_range(14, 24), z), Vector3(-40.9 + rng.randf_range(2, 6), rng.randf_range(10, 16), z + rng.randf_range(-6, 6)), 0.4)
+	kit_parent = self
+	_batch(city, 40.0, true)
+	var traffic = preload("res://scripts/Traffic.gd").new()
+	traffic.lanes = [[-34.0, 24.0, 1.0], [-30.0, 30.0, -1.0], [34.0, 24.0, -1.0], [30.0, 30.0, 1.0]]
+	traffic.s_min = -90.0
+	traffic.s_max = 90.0
+	traffic.count = 12
+	traffic.tower_top = Vector3(230, 540, -520)
+	traffic.drone_box = AABB(Vector3(-200, 30, -150), Vector3(400, 90, 300))
+	traffic.drone_count = 160
+	add_child(traffic)
+	traffic.setup(main, self)
 	var jade := mat(Color(0.2, 0.45, 0.38), 0.3, 0.7)
 	var silver := mat(Color(0.7, 0.72, 0.75), 0.25, 0.8)
 	var tp := Vector3(230, 0, -520)

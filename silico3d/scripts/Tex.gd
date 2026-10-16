@@ -374,3 +374,79 @@ static func bench_photo() -> ImageTexture:
 				if r.randf() < 0.85:
 					img.set_pixel(x, y, Color(0.03, 0.03, 0.03))
 	return _tex(img)
+
+
+## A cyberpunk facade tile (8 m square in world space). Style 0: concrete
+## flats with small windows and dark balconies; 1: a glass office skin with
+## mullions; 2: grey panel megablock with lit slots. Returns [albedo, emission].
+static func cyber_facade(s: int, style: int) -> Array:
+	var r := _rng(s)
+	var n := 128
+	var alb := Image.create(n, n, false, Image.FORMAT_RGB8)
+	var emi := Image.create(n, n, false, Image.FORMAT_RGB8)
+	emi.fill(Color.BLACK)
+	var warm := [Color(1.0, 0.7, 0.4), Color(1.0, 0.85, 0.6), Color(0.5, 0.85, 1.0), Color(1.0, 0.3, 0.7), Color(0.4, 1.0, 0.7)]
+	if style == 1:
+		var g := Color(0.1, 0.13, 0.16).lerp(Color(0.16, 0.2, 0.22), r.randf())
+		for y in n:
+			for x in n:
+				var v := g * (0.85 + 0.3 * float(y) / n) + Color(1, 1, 1) * r.randf() * 0.015
+				alb.set_pixel(x, y, v)
+		for k in 8:
+			for y in n:
+				alb.set_pixel(k * 16, y, Color(0.5, 0.52, 0.55))
+		for k in 4:
+			for x in n:
+				alb.set_pixel(x, k * 32, Color(0.45, 0.47, 0.5))
+				alb.set_pixel(x, k * 32 + 1, Color(0.3, 0.32, 0.34))
+		for cy in 4:
+			for cx in 8:
+				if r.randf() < 0.3:
+					var col: Color = warm[r.randi() % 2] * r.randf_range(0.25, 0.55)
+					for y in range(cy * 32 + 3, cy * 32 + 30):
+						for x in range(cx * 16 + 2, cx * 16 + 15):
+							emi.set_pixel(x, y, col)
+	else:
+		var base := Color(0.32, 0.3, 0.28).lerp(Color(0.42, 0.4, 0.37), r.randf()) if style == 0 \
+			else Color(0.36, 0.37, 0.38).lerp(Color(0.46, 0.46, 0.45), r.randf())
+		for y in n:
+			for x in n:
+				alb.set_pixel(x, y, base * (0.9 + r.randf() * 0.12))
+		for i in 30:
+			var x := r.randi_range(0, n - 1)
+			var y0 := r.randi_range(0, n - 1)
+			for y in range(y0, mini(n, y0 + r.randi_range(8, 50))):
+				alb.set_pixel(x, y, base.darkened(0.3))
+		if style == 2:
+			for k in 4:
+				for x in n:
+					alb.set_pixel(x, k * 32, base.darkened(0.45))
+			for k in 4:
+				for y in n:
+					alb.set_pixel(k * 32, y, base.darkened(0.4))
+		var cols := 4 if style == 0 else 8
+		var cw := n / cols
+		for cy in 4:
+			for cx in cols:
+				var x0 := cx * cw + (6 if style == 0 else 4)
+				var y0 := cy * 32 + (8 if style == 0 else 12)
+				var ww := 20 if style == 0 else 8
+				var hh := 18 if style == 0 else 10
+				var lit := r.randf() < 0.32
+				var col: Color = warm[r.randi() % warm.size() if r.randf() < 0.3 else r.randi() % 2] * r.randf_range(0.35, 0.8)
+				for y in range(y0, y0 + hh):
+					for x in range(x0, x0 + ww):
+						alb.set_pixel(x, y, Color(0.05, 0.06, 0.07))
+						if lit:
+							emi.set_pixel(x, y, col)
+				if style == 0:
+					# balcony slab and rail under each window
+					for x in range(x0 - 3, x0 + ww + 3):
+						alb.set_pixel(x, y0 + hh + 1, base.lightened(0.25))
+						alb.set_pixel(x, y0 + hh + 2, base.darkened(0.5))
+						if x % 3 == 0:
+							for y in range(y0 + hh - 4, y0 + hh + 1):
+								alb.set_pixel(x, y, Color(0.15, 0.15, 0.16))
+	alb.generate_mipmaps()
+	emi.generate_mipmaps()
+	return [ImageTexture.create_from_image(alb), ImageTexture.create_from_image(emi)]
