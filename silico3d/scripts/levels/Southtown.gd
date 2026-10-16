@@ -848,7 +848,7 @@ func _locked_floor() -> void:
 			var s0 := p + b * Vector3(side * 0.06, 0.006, 0.0)
 			box(Vector3(0.006, 0.006, 0.07), s0 + b * Vector3(0, 0, 0.035), rim).rotation.y = ry
 	interactable("floor_eye", "Look at the floor", FLOOR_EYE + Vector3(0, 0.3, 0), Vector3(3.4, 0.6, 2.4), "", false)
-	light(Vector3(22.0, 6.8, -28.0), Color(0.75, 0.8, 0.9), 2.6, 20.0)
+	light(Vector3(22.0, 6.8, -28.0), Color(0.75, 0.8, 0.9), 4.0, 22.0)
 	var o := light(Vector3(16.0, 6.5, -38.0), Color(0.75, 0.8, 0.9), 1.4, 12.0)
 	flickers.append(o)
 	# the Book of Boundary, verse one, on the west wall in the same black as the eye
@@ -1075,8 +1075,17 @@ func _plant() -> void:
 	carl_face = Body.face_mat(Color(0.84, 0.66, 0.54), Color(0.12, 0.09, 0.07), false, 1)
 	person("priest", "Look at the man at the podium", priest, "UNKNOWN\nface: (CHANGING)\ndevices: NONE\nsync: ???")
 	# the wire eye on the concrete above: ten feet of it, bent by hand
-	var wire := mat(Color(0.55, 0.55, 0.58), 0.35, 0.85)
-	var ey := H - 0.08
+	var wire := mat(Color(0.62, 0.62, 0.66), 0.3, 0.85)
+	var ey := H - 0.12
+	floor_quad(Vector2(4.6, 3.0), cc + Vector3(0, H - 0.02, 0), 0.0, decal_mat(_eye_paint(), Color(0.05, 0.05, 0.06), 0.8), self, false)
+	var shadow := Sprite3D.new()
+	shadow.texture = _glyph_tex
+	shadow.pixel_size = 0.012
+	shadow.modulate = Color(0.04, 0.04, 0.05, 0.9)
+	shadow.position = cc + Vector3(0, H - 0.03, 0)
+	shadow.rotation.x = PI / 2.0
+	shadow.shaded = true
+	add_child(shadow)
 	var prev_u := Vector3.ZERO
 	var prev_l := Vector3.ZERO
 	for i in 17:
@@ -1086,8 +1095,8 @@ func _plant() -> void:
 		var pu := Vector3(px, ey, cc.z - dz)
 		var pl := Vector3(px, ey, cc.z + dz)
 		if i > 0:
-			stick(prev_u, pu, 0.03, wire)
-			stick(prev_l, pl, 0.03, wire)
+			stick(prev_u, pu, 0.05, wire)
+			stick(prev_l, pl, 0.05, wire)
 		prev_u = pu
 		prev_l = pl
 	for r: float in [0.58, 0.32]:
@@ -1096,7 +1105,7 @@ func _plant() -> void:
 			var a := i * TAU / 12.0
 			var p := Vector3(cc.x + cos(a) * r, ey, cc.z + sin(a) * r)
 			if i > 0:
-				stick(prev, p, 0.03, wire)
+				stick(prev, p, 0.05, wire)
 			prev = p
 	sphere(0.12, Vector3(cc.x, ey, cc.z), mat(Color(0.05, 0.05, 0.06), 0.4), 8)
 	for k in 6:
@@ -1181,9 +1190,9 @@ func _tunnel_mouth() -> void:
 			q += Vector3(-dir.z, 0, dir.x) * side
 			var s := Sprite3D.new()
 			s.texture = _glyph_tex
-			s.pixel_size = 0.0022
+			s.pixel_size = 0.0036
 			s.modulate = Color(0.35, 1.0, 0.9, 0.85)
-			s.position = q + Vector3(0, 0.03 + i * 0.001, 0)
+			s.position = q + Vector3(0, 0.07 + i * 0.001, 0)
 			s.rotation.x = -PI / 2.0
 			s.shaded = false
 			s.visible = false

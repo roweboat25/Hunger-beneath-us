@@ -185,6 +185,42 @@ func box(size: Vector3, pos: Vector3, material: Material, solid := false, parent
 	return mi
 
 
+## A prop from the free kit in assets/kit/ (CC0 Poly Haven scans, photo-box
+## machines, TripoSR drones; names in levels/PropKit.gd, `level=PropKit` to
+## review). Scale 1 is real size. `solid` adds a box collider from the mesh
+## bounds so the player cannot walk through it. Returns null if missing.
+func prop(name: String, pos: Vector3, rot_y := 0.0, scale := 1.0, solid := true, parent: Node = self) -> Node3D:
+	var scene: PackedScene = load("res://assets/kit/%s.glb" % name)
+	if scene == null:
+		push_warning("kit prop missing: " + name)
+		return null
+	var n: Node3D = scene.instantiate()
+	n.position = pos
+	n.rotation.y = rot_y
+	n.scale = Vector3.ONE * scale
+	parent.add_child(n)
+	if solid:
+		var bb := AABB()
+		for mi in n.find_children("*", "MeshInstance3D", true, false):
+			var m := mi as MeshInstance3D
+			var a := m.get_aabb()
+			a.position = m.position + a.position * m.scale
+			a.size *= m.scale
+			bb = a if bb.size == Vector3.ZERO else bb.merge(a)
+		if bb.size != Vector3.ZERO:
+			var body := StaticBody3D.new()
+			var cs := CollisionShape3D.new()
+			var sh := BoxShape3D.new()
+			sh.size = bb.size * scale
+			cs.shape = sh
+			cs.position = (bb.position + bb.size * 0.5) * scale
+			body.add_child(cs)
+			body.position = pos
+			body.rotation.y = rot_y
+			parent.add_child(body)
+	return n
+
+
 func solid_box(size: Vector3, pos: Vector3, parent: Node = self) -> StaticBody3D:
 	var sb := StaticBody3D.new()
 	sb.collision_layer = 1
