@@ -575,7 +575,7 @@ func _bed(p: Vector3, ry: float, mattress := true) -> Node3D:
 	root.rotation.y = ry
 	add_child(root)
 	var frame := mat(Color(0.5, 0.52, 0.55), 0.4, 0.7)
-	var matt := pbr("fabric", Vector3(1, 1, 1) / 1.2, true, Color(0.85, 0.86, 0.84))
+	var matt := pbr("plaster", Vector3(1, 1, 1) / 1.2, true, Color(0.9, 0.9, 0.88))
 	box(Vector3(1.0, 0.1, 2.1), Vector3(0, 0.5, 0), frame, false, root)
 	if mattress:
 		box(Vector3(0.96, 0.16, 2.0), Vector3(0, 0.63, 0), matt, false, root)
@@ -970,7 +970,7 @@ func _booths() -> void:
 	# three booths along the east wall: a chair, a screen, a curtain that
 	# doesn't close. FreudBot is programmed for therapeutic dialogue.
 	var booth_m := mat(Color(0.5, 0.56, 0.66), 0.6)
-	var cur := pbr("fabric", Vector3(1, 1, 1) / 1.0, true, Color(0.45, 0.5, 0.62))
+	var cur := pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.45, 0.52, 0.66))
 	for i in 3:
 		var z := -4.0 - i * 2.6
 		var o := Vector3(BOOTHS_X + 0.8, 0, z)
@@ -1183,7 +1183,7 @@ func _ward() -> void:
 	# station, blinds half down on the west wall. Everyone in here hums.
 	_wall(Vector3(5.5, HC, 0.2), Vector3(-13.75, HC / 2.0, -12.0))
 	_wall(Vector3(14.8, HC, 0.2), Vector3(-9.1, HC / 2.0, -34.0))
-	var cur := pbr("fabric", Vector3(1, 1, 1) / 1.0, true, Color(0.6, 0.72, 0.7))
+	var cur := pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.62, 0.78, 0.74))
 	for side: float in [-1.0, 1.0]:
 		for i in 6:
 			var z := -15.5 - i * 3.3
@@ -1202,7 +1202,7 @@ func _ward() -> void:
 			box(Vector3(0.25, 0.32, 0.02), bp + Vector3(0, 0.75, 1.1), _white)
 			box(Vector3(0.45, 0.8, 0.45), bp + Vector3(0.9 * side, 0.4, -0.8), mat(Color(0.8, 0.8, 0.78), 0.5), true)
 	# the people in the beds: three under sheets, two sitting up
-	var sheet := pbr("fabric", Vector3(1, 1, 1) / 1.0, true, Color(0.8, 0.82, 0.8))
+	var sheet := pbr("plaster", Vector3(1, 1, 1) / 1.0, true, Color(0.86, 0.88, 0.86))
 	var skins := [Color(0.85, 0.66, 0.52), Color(0.6, 0.42, 0.3), Color(0.92, 0.78, 0.66), Color(0.45, 0.3, 0.22)]
 	var lying := [[-14.4, -15.5], [-14.4, -22.1], [-3.8, -28.7]]
 	for i in lying.size():
@@ -1405,11 +1405,15 @@ func _room108() -> void:
 	_it("blinds", Vector3(-3.4, 1.7, -43.0), Vector3(0.2, 1.7, 1.7))
 	# one ceiling panel, turned down low; a wedge of corridor light at the door
 	box(Vector3(1.2, 0.04, 0.6), Vector3(0, HC - 0.02, -42.0), glow(Color(0.7, 0.85, 0.78), 0.5, true))
-	room_light = light(Vector3(0, HC - 0.5, -42.0), Color(0.7, 0.85, 0.78), 0.35, 5.0)
+	room_light = light(Vector3(0, HC - 0.5, -42.0), Color(0.82, 0.86, 0.84), 0.45, 5.5)
+	# a reading light over the head of the bed, warm, the only kind thing in here
+	box(Vector3(0.3, 0.08, 0.12), BED + Vector3(0, 1.9, -1.85), _trim_m)
+	box(Vector3(0.26, 0.02, 0.1), BED + Vector3(0, 1.85, -1.84), glow(Color(1.0, 0.9, 0.75), 1.6, true))
+	light(BED + Vector3(0, 1.75, -1.5), Color(1.0, 0.88, 0.72), 0.7, 3.2)
 	# the bed, feet to the door
 	_bed(BED, 0.0)
 	# the vitals monitor on a stand, east of the head: a green trace
-	var mp := BED + Vector3(0.95, 0, -0.9)
+	var mp := BED + Vector3(0.95, 0, -1.4)
 	cyl(0.3, 0.3, 0.04, mp + Vector3(0, 0.02, 0), _trim_m, 12)
 	cyl(0.03, 0.03, 1.3, mp + Vector3(0, 0.67, 0), _steel, 6)
 	box(Vector3(0.5, 0.4, 0.1), mp + Vector3(0, 1.45, 0), mat(Color(0.08, 0.08, 0.09), 0.3, 0.4))
@@ -1420,7 +1424,7 @@ func _room108() -> void:
 		monitor_trace.append(b)
 		no_batch.append(b)
 	neon_text(LINES["signs"]["vitals"], mp + Vector3(-0.06, 1.58, 0), -PI / 2.0, 0.025, Color(0.5, 1.0, 0.7), 1.6, self)
-	light(mp + Vector3(-0.3, 1.4, 0), Color(0.3, 1.0, 0.5), 0.45, 2.6)
+	light(mp + Vector3(-0.3, 1.4, 0), Color(0.3, 1.0, 0.5), 0.22, 2.0)
 	_hack("monitor", mp + Vector3(0, 1.45, 0), Vector3(0.6, 0.5, 0.3), "SALTECH VITALS\nHR 41  SpO2 97  SEDATION 4.0 -> 1.2\nnote: patient smiling (41h)")
 	# the IV and the sedation pump, west of the head
 	var ip := BED + Vector3(-0.75, 0, -0.7)
@@ -1485,7 +1489,7 @@ func _dufredy() -> void:
 		run.rotation.z = sd * 0.15
 	gauze_band = Node3D.new()
 	duf_head.add_child(gauze_band)
-	var gz := pbr("fabric", Vector3(1, 1, 1) / 0.3, true, Color(0.95, 0.94, 0.9))
+	var gz := pbr("plaster", Vector3(1, 1, 1) / 0.3, true, Color(0.97, 0.96, 0.92))
 	var g := box(Vector3(0.21, 0.075, 0.05), Vector3(0, 0.02, -0.1), gz, false, gauze_band)
 	g.rotation.x = 0.1
 	for sd: float in [-1.0, 1.0]:
@@ -1519,7 +1523,7 @@ func _dufredy() -> void:
 	for sx: float in [-0.1, 0.1]:  # ankle cuffs
 		box(Vector3(0.1, 0.09, 0.1), BED + Vector3(sx, 0.84, 0.88), lea)
 	# a sheet over the shins, thrown back by whoever checked the cuffs
-	var sheet := pbr("fabric", Vector3(1, 1, 1) / 1.0, true, Color(0.8, 0.82, 0.8))
+	var sheet := pbr("plaster", Vector3(1, 1, 1) / 1.0, true, Color(0.86, 0.88, 0.86))
 	var sh := box(Vector3(0.9, 0.03, 0.8), BED + Vector3(0.05, 0.96, 0.7), sheet)
 	sh.rotation.y = 0.05
 	_it("dufredy", BED + Vector3(0, 0.95, -0.2), Vector3(1.1, 0.7, 2.0),

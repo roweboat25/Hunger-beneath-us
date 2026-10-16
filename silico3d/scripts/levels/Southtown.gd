@@ -1572,7 +1572,7 @@ func _people() -> void:
 	Anim.sit(vag_convert, 0.2)
 	box(Vector3(0.5, 0.42, 0.5), Vector3(38.5, 0.2, 21.6), mat(Color(0.5, 0.4, 0.28), 0.9), false)
 	vag_convert.set_meta("vagrant", true)
-	person("vag_convert", "Look at the man with the frames", vag_convert, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  sync 100%  -  DREAMING\nsaying: '%s'" % main.CHANT[0]).set_meta("vagrant", true)
+	person("vag_convert", "Look at the man with the frames", vag_convert, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  sync 100%%  -  DREAMING\nsaying: '%s'" % main.CHANT[0]).set_meta("vagrant", true)
 	# the worker on the shift, head down over the second press
 	worker = figure(Color(0.8, 0.95, 0.2), Color(0.7, 0.52, 0.38), {"arms": true, "knees": true, "hair": Color(0.15, 0.12, 0.1)})
 	worker.position = Vector3(53.0, 0.02, -27.4)
@@ -3155,7 +3155,7 @@ func scan_people() -> Array:
 	if vag_attacker:
 		out.append([vag_attacker, "UNREGISTERED\ndevices: NONE\nstate: " + ("DOWN" if main.flags.has("attacker_down") else "AGITATED")])
 	if vag_convert:
-		out.append([vag_convert, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  sync 100%  -  DREAMING\nsaying: '%s'" % main.CHANT[0]])
+		out.append([vag_convert, "UNREGISTERED\nORA GEN 2 (UNISSUED)  -  sync 100%%  -  DREAMING\nsaying: '%s'" % main.CHANT[0]])
 	for c in congregation:
 		out.append([c, "CONGREGATION\nORA GEN 2 (UNISSUED)  -  sync 100%  -  DREAMING"])
 	if priest:

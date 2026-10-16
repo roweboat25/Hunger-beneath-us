@@ -1251,7 +1251,7 @@ func _set_light(parent: Node, pos: Vector3, c: Color, e: float, r: float) -> Omn
 ## surrounded by black leather chairs. The far wall, a massive screen".
 func _set_350() -> void:
 	var red := pbr("woodfloor", Vector3(1, 1, 1) / 1.0, true, Color(0.6, 0.3, 0.18))
-	var gold := mat(Color(0.5, 0.4, 0.2), 0.55, 0.6)
+	var gold := mat(Color(0.36, 0.28, 0.14), 0.5, 0.7)
 	var black := mat(Color(0.05, 0.05, 0.06), 0.5)
 	var leather := mat(Color(0.04, 0.04, 0.045), 0.45, 0.1)
 	# the lift car
@@ -1262,8 +1262,9 @@ func _set_350() -> void:
 	box(Vector3(2.4, 0.1, 2.4), Vector3(0, 2.65, 0), black, false, lift350)
 	for s: Array in [[Vector3(0.06, 2.6, 2.4), Vector3(-1.2, 1.3, 0)], [Vector3(0.06, 2.6, 2.4), Vector3(1.2, 1.3, 0)], [Vector3(2.4, 2.6, 0.06), Vector3(0, 1.3, 1.2)]]:
 		box(s[0], s[1], red, false, lift350)
-	for x: float in [-0.5, 0.5]:
-		box(Vector3(0.98, 2.2, 0.06), Vector3(x, 1.1, -1.2), gold, false, lift350)
+	for x: float in [-0.6, 0.6]:
+		box(Vector3(1.18, 2.2, 0.06), Vector3(x, 1.1, -1.2), gold, false, lift350)
+		box(Vector3(0.02, 2.2, 0.07), Vector3(x * 1.6, 1.1, -1.2), black, false, lift350)
 	box(Vector3(2.4, 0.4, 0.06), Vector3(0, 2.4, -1.2), red, false, lift350)
 	for x: float in [-1.2, 0.0, 1.2]:
 		box(Vector3(0.05, 2.6, 0.05), Vector3(x, 1.3, -1.17), gold, false, lift350)
@@ -1414,12 +1415,12 @@ func _set_mira_morning() -> void:
 	for a in mum.get_meta("arms"):
 		(a as Node3D).rotation.x = 1.2
 	(mum.get_meta("head") as Node3D).rotation.x = -0.2
-	var tab := box(Vector3(0.24, 0.17, 0.012), Vector3(0.02, 1.02, -1.72), mat(Color(0.1, 0.1, 0.12), 0.4), false, doorway)
-	tab.rotation.x = 0.5
-	var scr := box(Vector3(0.2, 0.13, 0.006), Vector3(0.02, 1.025, -1.715), glow(Color(0.35, 0.8, 0.7), 1.8), false, doorway)
-	scr.rotation.x = 0.5
+	var tab := box(Vector3(0.3, 0.22, 0.012), Vector3(0.02, 1.1, -1.66), mat(Color(0.1, 0.1, 0.12), 0.4), false, doorway)
+	tab.rotation.x = 0.35
+	var scr := box(Vector3(0.27, 0.19, 0.008), Vector3(0.02, 1.105, -1.652), glow(Color(0.35, 0.8, 0.7), 3.0), false, doorway)
+	scr.rotation.x = 0.35
 	_set_light(doorway, Vector3(0, 2.2, -3.2), Color(1.0, 0.9, 0.75), 2.2, 6.0)
-	_set_light(doorway, Vector3(0.02, 1.1, -1.5), Color(0.35, 0.8, 0.7), 0.5, 1.5)
+	_set_light(doorway, Vector3(0.02, 1.2, -1.45), Color(0.35, 0.8, 0.7), 1.1, 1.8)
 	_set_light(doorway, Vector3(1.0, 0.6, 0.6), Color(1.0, 0.7, 0.45), 0.7, 4.0)
 	_batch(doorway, 20.0)
 	_set_layer(doorway, 1 << 19)
@@ -1508,7 +1509,7 @@ func _mira_morning() -> void:
 	var ui = main.ui
 	var f: Dictionary = main.flags
 	await ui.show_card(L("mira_morning", "card"), 2.4)
-	var img1: Texture2D = await _picture(pillow.global_position + Vector3(-0.1, 0.42, 0.85), pillow.global_position + Vector3(0.15, 0.2, -0.05), 48.0)
+	var img1: Texture2D = await _picture(pillow.global_position + Vector3(0.0, 0.42, 0.6), pillow.global_position + Vector3(0.2, 0.26, -0.05), 46.0)
 	ui.show_picture(img1, L("mira_morning", "cap1"))
 	await ui.say("", L("mira_morning", "lion"))
 	var img2: Texture2D = await _picture(council.global_position + Vector3(2.2, 2.6, 2.8), council.global_position + Vector3(0, 1.0, -0.5), 70.0)
@@ -2414,12 +2415,14 @@ func _show_panel(name: String) -> void:
 		"lift": [lift350, Vector3(0, 1.5, 0.9), Vector3(0, 2.1, -1.2), 56.0],
 		"board": [boardroom, Vector3(0.25, 1.4, -1.6), Vector3(0, 1.45, -7.2), 54.0],
 		"alley": [alley, Vector3(0, 1.6, 1.6), Vector3(-0.2, 1.1, -4.8), 62.0],
-		"pillow": [pillow, Vector3(-0.1, 0.42, 0.85), Vector3(0.15, 0.2, -0.05), 48.0],
+		"pillow": [pillow, Vector3(0.0, 0.42, 0.6), Vector3(0.2, 0.26, -0.05), 46.0],
 		"door": [doorway, Vector3(0.35, 0.55, 0.7), Vector3(0, 1.25, -2.1), 68.0],
 		"council": [council, Vector3(2.2, 2.6, 2.8), Vector3(0, 1.0, -0.5), 70.0],
 	}
 	if not shots.has(name):
 		return
+	await get_tree().create_timer(0.5).timeout
+	print("DBG black ", blackroom.global_position, " kids ", blackroom.get_child_count(), " player ", main.player.global_position, " cam ", main.player.cam.global_position)
 	var sh: Array = shots[name]
 	var at: Node3D = sh[0]
 	var img: Texture2D = await _picture(at.global_position + sh[1], at.global_position + sh[2], sh[3])
