@@ -9,6 +9,11 @@
   "solid": 0,
   "w": 64
  },
+ "altar_recliner": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
  "armchair_grey": {
   "h": 48,
   "solid": 1,
@@ -109,6 +114,11 @@
   "solid": 0,
   "w": 32
  },
+ "blood_pool": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
  "bookcase": {
   "h": 59,
   "solid": 1,
@@ -124,6 +134,11 @@
   "solid": 0,
   "w": 32
  },
+ "bowl_stand": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
  "box": {
   "h": 14,
   "solid": 1,
@@ -131,6 +146,11 @@
  },
  "box_open": {
   "h": 22,
+  "solid": 1,
+  "w": 32
+ },
+ "bunk": {
+  "h": 64,
   "solid": 1,
   "w": 32
  },
@@ -187,6 +207,11 @@
  "cactus": {
   "h": 64,
   "solid": 1,
+  "w": 32
+ },
+ "candle_ring": {
+  "h": 32,
+  "solid": 0,
   "w": 32
  },
  "car_blue": {
@@ -274,6 +299,11 @@
   "solid": 1,
   "w": 64
  },
+ "cot": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
  "counter": {
   "h": 52,
   "solid": 1,
@@ -296,6 +326,11 @@
  },
  "crate_small": {
   "h": 24,
+  "solid": 1,
+  "w": 32
+ },
+ "cube_stand": {
+  "h": 48,
   "solid": 1,
   "w": 32
  },
@@ -419,6 +454,11 @@
   "solid": 0,
   "w": 32
  },
+ "flag_us": {
+  "h": 64,
+  "solid": 1,
+  "w": 32
+ },
  "frames_broken": {
   "h": 32,
   "solid": 0,
@@ -491,6 +531,16 @@
  },
  "grass_tuft": {
   "h": 9,
+  "solid": 0,
+  "w": 32
+ },
+ "hangar_door": {
+  "h": 64,
+  "solid": 1,
+  "w": 96
+ },
+ "hangar_lamp": {
+  "h": 96,
   "solid": 0,
   "w": 32
  },
@@ -589,6 +639,11 @@
   "solid": 0,
   "w": 32
  },
+ "lift_door": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
  "mailboxes": {
   "h": 32,
   "solid": 1,
@@ -604,10 +659,20 @@
   "solid": 1,
   "w": 64
  },
+ "monitor_bank": {
+  "h": 48,
+  "solid": 1,
+  "w": 96
+ },
  "moss": {
   "h": 53,
   "solid": 0,
   "w": 32
+ },
+ "mural_eye": {
+  "h": 96,
+  "solid": 0,
+  "w": 192
  },
  "neon_alto": {
   "h": 32,
@@ -689,6 +754,26 @@
   "solid": 0,
   "w": 32
  },
+ "observation_console": {
+  "h": 64,
+  "solid": 1,
+  "w": 96
+ },
+ "obsidian_eye": {
+  "h": 64,
+  "solid": 0,
+  "w": 128
+ },
+ "office_chair_old": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "office_window": {
+  "h": 48,
+  "solid": 1,
+  "w": 96
+ },
  "oven": {
   "h": 41,
   "solid": 1,
@@ -716,6 +801,66 @@
  },
  "paper3": {
   "h": 8,
+  "solid": 0,
+  "w": 32
+ },
+ "pc_desk": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
+ },
+ "pc_desk2": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
+ },
+ "pc_desk_off": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
+ },
+ "pen_1": {
+  "h": 16,
+  "solid": 0,
+  "w": 96
+ },
+ "pen_2": {
+  "h": 16,
+  "solid": 0,
+  "w": 96
+ },
+ "pen_3": {
+  "h": 16,
+  "solid": 0,
+  "w": 96
+ },
+ "pen_4": {
+  "h": 16,
+  "solid": 0,
+  "w": 96
+ },
+ "pen_5": {
+  "h": 16,
+  "solid": 0,
+  "w": 96
+ },
+ "pen_6": {
+  "h": 16,
+  "solid": 0,
+  "w": 96
+ },
+ "pen_bars": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "pen_door": {
+  "h": 48,
+  "solid": 1,
+  "w": 32
+ },
+ "pen_door_open": {
+  "h": 48,
   "solid": 0,
   "w": 32
  },
@@ -804,6 +949,11 @@
   "solid": 1,
   "w": 32
  },
+ "reception_desk": {
+  "h": 48,
+  "solid": 1,
+  "w": 96
+ },
  "red_pillar": {
   "h": 192,
   "solid": 1,
@@ -811,6 +961,11 @@
  },
  "reeds": {
   "h": 53,
+  "solid": 0,
+  "w": 32
+ },
+ "report_folder": {
+  "h": 32,
   "solid": 0,
   "w": 32
  },
@@ -859,10 +1014,20 @@
   "solid": 0,
   "w": 96
  },
+ "scratches": {
+  "h": 32,
+  "solid": 0,
+  "w": 64
+ },
  "sedan": {
   "h": 40,
   "solid": 1,
   "w": 64
+ },
+ "server_rack": {
+  "h": 64,
+  "solid": 1,
+  "w": 32
  },
  "sewer_lid": {
   "h": 32,
@@ -929,6 +1094,21 @@
   "solid": 1,
   "w": 32
  },
+ "stairs_down": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
+ "stairs_hangar": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
+ "stairs_up": {
+  "h": 64,
+  "solid": 1,
+  "w": 64
+ },
  "steam_puff": {
   "h": 48,
   "solid": 0,
@@ -942,6 +1122,21 @@
  "steam_vent": {
   "h": 32,
   "solid": 0,
+  "w": 32
+ },
+ "steel_door": {
+  "h": 64,
+  "solid": 1,
+  "w": 32
+ },
+ "steel_door_lab": {
+  "h": 64,
+  "solid": 1,
+  "w": 32
+ },
+ "steel_door_locked": {
+  "h": 64,
+  "solid": 1,
   "w": 32
  },
  "stick": {
@@ -1004,6 +1199,11 @@
   "solid": 0,
   "w": 128
  },
+ "treadmill": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
+ },
  "tree": {
   "h": 93,
   "solid": 1,
@@ -1049,9 +1249,19 @@
   "solid": 1,
   "w": 32
  },
+ "weights_rack": {
+  "h": 48,
+  "solid": 1,
+  "w": 64
+ },
  "wheelchair": {
   "h": 64,
   "solid": 1,
   "w": 64
+ },
+ "whiteboard": {
+  "h": 48,
+  "solid": 1,
+  "w": 96
  }
 }

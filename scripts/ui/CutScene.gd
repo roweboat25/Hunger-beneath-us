@@ -68,6 +68,47 @@ const PANELS := {
 			"The mirror cleared and I was in it, alone. Behind me, where nobody stood, nobody stood.",
 			"The frames wrote nothing across the glass. The file had not decided what I was yet. Neither had I. It could wait. It was patient."]},
 	],
+	"altar": [
+		{"image": "cs_altar", "move": "zoom", "lines": [
+			"Directly under the light, in the exact centre of the hangar: a plush, black leather recliner. It sat there like a throne awaiting its king.",
+			"Two thick cables came down out of the dark and ended in two rust-red probes, one on each arm, at the height of a man's temples."]},
+	],
+	"ritual_1": [
+		{"image": "cs_ritual_1", "move": "pan", "lines": [
+			"A hundred of them, in robes, in a circle around the throne, a living amphitheatre, with one open path down the middle.",
+			"Three in white came down the stairwell. The one in the centre wore a blank ceremonial mask. I knew the way he held his head. Subject 41."]},
+	],
+	"ritual_2": [
+		{"image": "cs_ritual_2", "move": "zoom", "lines": [
+			"Above the congregation a sea of tiny white lights formed, one for each of them, moving like a sea, bobbing as if on a wave. The lights flaked off the crest and rose.",
+			"For a moment it looked like a full moon on the ocean. Then the lights joined, and it was the eye. It rotated over the crowd. Then it turned and stared directly at me."]},
+	],
+	"ritual_3": [
+		{"image": "cs_ritual_3", "move": "zoom", "lines": [
+			"The cube opened on a hinge nobody could see. The Prophet's hands went into the dark inside it and came out holding a black blade, and after it something that looked like an electrical outlet on a black stick.",
+			"Beside him, the bowl. Eren Elontiel held it the way you hold a thing you have held many times."]},
+	],
+	"ritual_4": [
+		{"image": "cs_ritual_4", "move": "flicker", "lines": [
+			"Subject 1395 raised their head.",
+			"And the face was mine."]},
+	],
+	"ritual_all": [
+		{"image": "cs_ritual_1", "move": "pan", "lines": ["A hundred of them, in robes, in a circle around the throne. Three in white came down the stairwell."]},
+		{"image": "cs_ritual_2", "move": "zoom", "lines": ["The lights joined, and it was the eye. It turned and stared directly at me."]},
+		{"image": "cs_ritual_3", "move": "zoom", "lines": ["The removal of the first filter. Our holiest rite."]},
+		{"image": "cs_ritual_4", "move": "flicker", "lines": ["Subject 1395 raised their head. And the face was mine."]},
+	],
+	"s41": [
+		{"image": "cs_s41", "move": "flicker", "lines": [
+			"Observation_Log_S41_09-03-19. The camera high in a corner of the room we had just left, looking down on a single chair. A man in it, electrodes taped to his temples. He looked bored.",
+			"The fluorescent lights in the video began to flicker. Erratically at first. Then in a steady, pulsing rhythm."]},
+	],
+	"escape": [
+		{"image": "cs_escape", "move": "pan", "lines": [
+			"We emerged from the facility at dusk. A full moon was rising on the horizon. My blood was cold, and the laughter in my glasses subsided as my muscles were pushed to their limit.",
+			"We got to my corporate car in what seemed like seconds. I got in the driver's seat and headed toward the city."]},
+	],
 }
 
 signal finished

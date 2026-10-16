@@ -9,7 +9,8 @@ const COLUMNS := [
 	["PLOT BEATS", [
 		["Apartment", "map", "Apartment"], ["Harmony Green (park)", "map", "Park"], ["War room", "map", "WarRoom"],
 		["Home", "map", "Home"], ["SalTech ward", "map", "Hospital"], ["Southtown", "map", "Southtown"],
-		["Lynx's flat", "map", "LynxApartment"], ["The sand flats", "map", "Desert"], ["The mirror", "map", "Mirror"]]],
+		["Lynx's flat", "map", "LynxApartment"], ["The sand flats", "map", "Desert"], ["The mirror", "map", "Mirror"],
+		["Act 2: the facility", "map", "LabHall"], ["Sublevel 1", "map", "LabOffice"], ["Sublevel Two", "map", "LabPens"], ["The hangar", "map", "Hangar"]]],
 	["DISTRICTS", [
 		["Lamplight", "map", "Lamplight"], ["The Spine", "map", "Spine"], ["Zeta & Park", "map", "ZetaPark"],
 		["The Heights", "map", "Heights"], ["Cognizo Quarter", "map", "Cognizo"], ["Cognizo station", "map", "CognizoStation"],
@@ -26,7 +27,8 @@ const COLUMNS := [
 		["The door", "closeup", "desert_door"], ["The mirror", "closeup", "mirror"],
 		["Cut scene: the opening", "cutscene", "opening"], ["Cut scene: the outage", "cutscene", "outage"], ["Cut scene: a dream", "cutscene", "dream"],
 		["Cut scene: the tower", "cutscene", "tower"], ["Cut scene: the drive", "cutscene", "drive"], ["Cut scene: leaving the vigil", "cutscene", "vigil"],
-		["Ending: company man", "cutscene", "ending_company"], ["Ending: investigator", "cutscene", "ending_investigator"], ["Ending: sleeper", "cutscene", "ending_sleeper"]]],
+		["Ending: company man", "cutscene", "ending_company"], ["Ending: investigator", "cutscene", "ending_investigator"], ["Ending: sleeper", "cutscene", "ending_sleeper"],
+		["Cut scene: the altar", "cutscene", "altar"], ["Cut scene: the ritual", "cutscene", "ritual_all"], ["Cut scene: Subject 41", "cutscene", "s41"], ["Cut scene: the escape", "cutscene", "escape"]]],
 ]
 
 var _root: Control

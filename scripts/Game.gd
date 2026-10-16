@@ -571,6 +571,13 @@ func stance() -> String:
 	if has_flag("hesitated_at_door"): score["investigator"] += 1
 	if has_flag("lied_to_fork"): score["investigator"] += 1
 	if has_flag("password_game_won"): score["sleeper"] += 1
+	if has_flag("hid_breath"): score["company"] += 1
+	if has_flag("told_breath"): score["investigator"] += 1
+	if has_flag("lab_hameron_dismissed"): score["company"] += 1
+	if has_flag("s41_wanted_out"): score["company"] += 1
+	if has_flag("ritual_frames_back"): score["sleeper"] += 1
+	if has_flag("ritual_admitted"): score["investigator"] += 1
+	if has_flag("ritual_frames_refused"): score["investigator"] += 1
 	score["sleeper"] += interfaces.size() + bowed
 	match theory:
 		"drugs": score["company"] += 1

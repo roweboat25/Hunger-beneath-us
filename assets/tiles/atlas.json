@@ -19,6 +19,18 @@
   10,
   6
  ],
+ "brick_black_bot": [
+  7,
+  7
+ ],
+ "brick_black_mid": [
+  6,
+  7
+ ],
+ "brick_black_top": [
+  5,
+  7
+ ],
  "brick_dark_bot": [
   2,
   3
@@ -30,6 +42,18 @@
  "brick_dark_top": [
   0,
   3
+ ],
+ "brick_green_bot": [
+  4,
+  7
+ ],
+ "brick_green_mid": [
+  3,
+  7
+ ],
+ "brick_green_top": [
+  2,
+  7
  ],
  "brick_grey_bot": [
   15,
@@ -215,9 +239,37 @@
   13,
   1
  ],
+ "hangar_floor": [
+  13,
+  7
+ ],
+ "hangar_floor2": [
+  14,
+  7
+ ],
  "herringbone": [
   1,
   1
+ ],
+ "lab_floor": [
+  8,
+  7
+ ],
+ "lab_floor2": [
+  9,
+  7
+ ],
+ "lab_floor3": [
+  10,
+  7
+ ],
+ "lab_floor_green": [
+  11,
+  7
+ ],
+ "lab_floor_green2": [
+  12,
+  7
  ],
  "sand": [
   0,

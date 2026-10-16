@@ -675,6 +675,258 @@ def ending(kind):
     finish(im, "ending_" + kind, 14)
 
 
+
+# ------------------------------------------------------------ the facility
+def robe(d, x, ybase, scale=1.0, col=(26, 22, 32), hood=(34, 30, 42), face=None):
+    """A hooded figure from behind, or facing us if `face` is given."""
+    hw, hh = int(9 * scale), int(30 * scale)
+    d.polygon([(x - hw, ybase), (x + hw, ybase), (x + hw - 2, ybase - hh), (x - hw + 2, ybase - hh)], fill=col)
+    hr = int(6 * scale)
+    hy = ybase - hh - hr + 2
+    d.ellipse([x - hr - 1, hy - hr - 1, x + hr + 1, hy + hr + 1], fill=hood)
+    if face:
+        d.ellipse([x - hr + 2, hy - hr + 2, x + hr - 2, hy + hr - 2], fill=face)
+
+
+def altar_panel():
+    """The chair under the single light."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (8, 8, 12), (22, 20, 24))
+    # black brick, barely there
+    r = random.Random(13)
+    for y in range(0, 110, 6):
+        off = 0 if (y // 6) % 2 == 0 else 6
+        for x in range(-6 + off, W, 12):
+            d.rectangle([x, y, x + 11, y + 5], outline=(16, 15, 19))
+    # the mural, faint on the far wall
+    d.ellipse([110, 10, 210, 70], outline=(70, 64, 56), width=2)
+    d.ellipse([140, 26, 180, 54], outline=(70, 64, 56), width=2)
+    for i in range(12):
+        import math
+        a = i / 12 * 6.2832
+        d.line([(160, 40), (160 + math.cos(a) * 16, 40 + math.sin(a) * 10)], fill=(80, 72, 60))
+    # the lamp and its cone
+    d.line([(160, 0), (160, 52)], fill=(50, 50, 56))
+    d.polygon([(150, 56), (170, 56), (164, 48), (156, 48)], fill=(40, 40, 46))
+    d.polygon([(150, 58), (170, 58), (230, 176), (90, 176)], fill=(44, 40, 38))
+    d.polygon([(154, 58), (166, 58), (208, 176), (112, 176)], fill=(58, 52, 46))
+    # the recliner and the two cables
+    d.line([(150, 0), (146, 96)], fill=(70, 66, 72), width=2); d.line([(170, 0), (174, 96)], fill=(70, 66, 72), width=2)
+    d.rectangle([136, 96, 184, 150], fill=(18, 16, 20), outline=(60, 56, 64))
+    d.rectangle([140, 86, 180, 104], fill=(14, 12, 16), outline=(60, 56, 64))
+    d.rectangle([128, 118, 140, 148], fill=(22, 20, 26), outline=(60, 56, 64)); d.rectangle([180, 118, 192, 148], fill=(22, 20, 26), outline=(60, 56, 64))
+    d.rectangle([136, 148, 184, 162], fill=(16, 14, 18), outline=(60, 56, 64))
+    for x in (146, 174):
+        d.polygon([(x - 3, 98), (x + 3, 98), (x, 90)], fill=RED)
+    im = glow(im, [(160, 56, 8), (146, 92, 3), (174, 92, 3)], (245, 214, 160), radius=14, alpha=0.3)
+    im = glow(im, [(146, 92, 2), (174, 92, 2)], RED, radius=5, alpha=0.5)
+    vignette(im, 0.6)
+    noise(im, 5, 21)
+    finish(im, "cs_altar", 18)
+
+
+def ritual_1():
+    """The circle: a hundred robes around the throne, three in white coming down."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (6, 6, 10), (20, 18, 22))
+    d.polygon([(150, 0), (170, 0), (240, 180), (80, 180)], fill=(34, 30, 30))
+    r = random.Random(31)
+    # the congregation, back rows first
+    for row, (ybase, n, sc) in enumerate(((100, 26, 0.55), (118, 22, 0.7), (140, 16, 0.85))):
+        for i in range(n):
+            x = 10 + i * (300 // n) + r.randint(-3, 3)
+            if 120 < x < 200 and row == 2:
+                continue
+            robe(d, x, ybase, sc)
+    # candles
+    for i in range(18):
+        x = 30 + i * 15
+        d.rectangle([x, 150, x + 1, 155], fill=(220, 210, 180))
+    im = glow(im, [(30 + i * 15, 149, 1) for i in range(18)], AMBER, radius=4, alpha=0.6)
+    d = ImageDraw.Draw(im)
+    # the throne, and the three in white
+    d.rectangle([150, 92, 170, 118], fill=(14, 12, 16), outline=(60, 56, 64))
+    robe(d, 160, 90, 0.8, (210, 204, 196), (226, 220, 210), face=(236, 230, 220))
+    robe(d, 142, 96, 0.75, (200, 194, 186), (214, 208, 200), face=(190, 160, 140))
+    robe(d, 178, 96, 0.75, (200, 194, 186), (214, 208, 200), face=(200, 190, 190))
+    d.rectangle([136, 86, 142, 92], fill=(4, 4, 6), outline=(80, 80, 90))   # the cube
+    d.ellipse([178, 86, 186, 92], fill=(30, 26, 40), outline=(90, 90, 100))  # the bowl
+    im = glow(im, [(160, 40, 10)], (245, 214, 160), radius=20, alpha=0.25)
+    vignette(im, 0.5)
+    noise(im, 6, 32)
+    finish(im, "cs_ritual_1", 18)
+
+
+def ritual_2():
+    """The sea of lights above the congregation gathering into the Eye."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (4, 4, 8), (18, 16, 24))
+    r = random.Random(41)
+    for i in range(30):
+        robe(d, 6 + i * 10 + r.randint(-2, 2), 176 + r.randint(0, 6), 0.5 + r.random() * 0.2, (18, 16, 24), (26, 24, 34))
+    pts = []
+    for _ in range(140):   # the sea
+        x, y = r.randint(10, 310), 120 + int(abs(r.gauss(0, 10)))
+        d.point((x, y), fill=(230, 230, 240)); pts.append((x, y, 1))
+    import math
+    for i in range(70):    # the eye
+        a = i / 70 * 6.2832
+        for rad, ry in ((60, 30), (34, 17)):
+            x, y = 160 + math.cos(a) * rad, 70 + math.sin(a) * ry
+            d.point((int(x), int(y)), fill=(240, 240, 250)); pts.append((x, y, 1))
+    for i in range(24):
+        a = i / 24 * 6.2832
+        x, y = 160 + math.cos(a) * 9, 70 + math.sin(a) * 6
+        d.point((int(x), int(y)), fill=(255, 255, 255)); pts.append((x, y, 1))
+    im = glow(im, pts, (200, 210, 240), radius=3, alpha=0.9)
+    im = glow(im, [(160, 70, 40)], (120, 140, 200), radius=24, alpha=0.3)
+    vignette(im, 0.35)
+    noise(im, 5, 42)
+    finish(im, "cs_ritual_2", 12)
+
+
+def ritual_3():
+    """The cube open on its hinge: the black blade, the black stick with an
+    outlet, the bowl of dark liquid, the hands."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (10, 8, 10), (30, 20, 22))
+    d.polygon([(150, 0), (170, 0), (250, 180), (70, 180)], fill=(48, 36, 34))
+    # the hands and the cube
+    d.polygon([(90, 120), (130, 90), (150, 96), (120, 140)], fill=(150, 120, 100))   # a gloved hand
+    d.polygon([(110, 80), (150, 68), (190, 80), (150, 96)], fill=(10, 10, 12), outline=(80, 76, 90))
+    d.polygon([(110, 80), (150, 96), (150, 126), (110, 110)], fill=(4, 4, 6), outline=(80, 76, 90))
+    d.polygon([(150, 96), (190, 80), (190, 110), (150, 126)], fill=(8, 8, 10), outline=(80, 76, 90))
+    d.polygon([(118, 76), (150, 44), (184, 76), (150, 68)], fill=(14, 12, 16), outline=(80, 76, 90))  # the lid, open
+    d.line([(152, 92), (196, 40)], fill=(4, 4, 6), width=4); d.line([(152, 92), (196, 40)], fill=(70, 70, 80), width=1)   # the blade
+    d.line([(148, 100), (104, 50)], fill=(4, 4, 6), width=4); d.rectangle([98, 44, 108, 54], fill=(4, 4, 6), outline=(70, 70, 80))  # the stick, the outlet
+    d.point((102, 48), fill=(90, 90, 100)); d.point((105, 48), fill=(90, 90, 100))
+    # the bowl
+    d.ellipse([200, 120, 270, 150], fill=(60, 56, 66), outline=(90, 86, 96))
+    d.ellipse([206, 124, 264, 142], fill=(6, 4, 8))
+    d.ellipse([228, 130, 236, 134], fill=(120, 20, 24))
+    d.ellipse([222, 128, 242, 136], outline=(60, 10, 14))
+    d.polygon([(230, 150), (250, 150), (262, 180), (218, 180)], fill=(50, 46, 56))
+    for i in range(6):
+        d.line([(236 + i * 2, 136), (236 + i * 2 + 1, 142)], fill=(140, 20, 24))
+    im = glow(im, [(160, 30, 6)], (245, 214, 160), radius=18, alpha=0.3)
+    im = glow(im, [(232, 132, 6)], (160, 20, 30), radius=8, alpha=0.5)
+    vignette(im, 0.55)
+    noise(im, 6, 51)
+    finish(im, "cs_ritual_3", 18)
+
+
+def ritual_4():
+    """Subject 1395 raises their head. The face is Carl's."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (6, 6, 10), (24, 20, 26))
+    r = random.Random(61)
+    for i in range(20):
+        robe(d, 10 + i * 16 + r.randint(-2, 2), 180, 0.9, (16, 14, 20), (22, 20, 28))
+    # the hooded figure, facing us, lit from below by the candles
+    d.polygon([(110, 180), (210, 180), (196, 70), (124, 70)], fill=(40, 36, 48))
+    d.ellipse([124, 30, 196, 92], fill=(30, 28, 40))
+    # the face: Carl's, a little wrong
+    d.ellipse([138, 40, 182, 90], fill=(150, 112, 90))
+    d.polygon([(138, 40), (182, 40), (182, 52), (160, 56), (138, 52)], fill=(70, 56, 52))   # the hood's shadow over the brow
+    d.ellipse([146, 58, 157, 65], fill=(36, 30, 34)); d.ellipse([163, 58, 174, 65], fill=(36, 30, 34))   # sockets
+    d.ellipse([150, 60, 154, 63], fill=(220, 220, 226)); d.ellipse([167, 60, 171, 63], fill=(220, 220, 226))
+    d.line([(144, 56), (158, 55)], fill=(40, 30, 28), width=2); d.line([(162, 57), (176, 54)], fill=(40, 30, 28), width=2)   # the uneven brow
+    d.line([(174, 70), (180, 82)], fill=(110, 60, 54), width=1)   # the scar
+    d.line([(151, 80), (169, 80)], fill=(70, 40, 40), width=2)   # the mouth, a line
+    d.polygon([(138, 66), (143, 90), (138, 90)], fill=(50, 40, 40)); d.polygon([(182, 66), (177, 90), (182, 90)], fill=(50, 40, 40))
+    # glitch bands
+    for y in (50, 68, 84):
+        band = im.crop((120, y, 200, y + 2))
+        im.paste(band, (120 + r.randint(-5, 5), y))
+    d = ImageDraw.Draw(im)
+    d.rectangle([126, 62, 194, 63], fill=(200, 60, 60))   # a scanline of red through the eyes
+    d = ImageDraw.Draw(im)
+    for i in range(10):
+        x = 20 + i * 30
+        d.rectangle([x, 168, x + 1, 174], fill=(220, 210, 180))
+    im = glow(im, [(20 + i * 30, 167, 1) for i in range(10)], AMBER, radius=5, alpha=0.7)
+    im = glow(im, [(160, 120, 30)], (245, 190, 120), radius=18, alpha=0.3)
+    vignette(im, 0.5)
+    noise(im, 7, 62)
+    finish(im, "cs_ritual_4", 16)
+
+
+def s41_panel():
+    """Observation_Log_S41_09-03-19: the lab from the corner camera, the chair,
+    the monitor typing to him."""
+    im = Image.new("RGB", (W, H), (190, 196, 200))
+    d = ImageDraw.Draw(im)
+    sky(d, (200, 206, 210), (150, 156, 160))
+    d.rectangle([0, 120, W, H], fill=(120, 126, 130))
+    d.rectangle([0, 118, W, 121], fill=(90, 94, 98))
+    # the chair and the man in it
+    d.rectangle([140, 90, 180, 140], fill=(60, 60, 66), outline=(30, 30, 34))
+    d.rectangle([136, 84, 184, 94], fill=(50, 50, 56), outline=(30, 30, 34))
+    figure(d, 160, 134, 1.1, (200, 190, 60), (180, 140, 110))
+    d.line([(152, 96), (134, 60)], fill=(60, 60, 66)); d.line([(168, 96), (186, 60)], fill=(60, 60, 66))   # electrodes
+    # the monitor that typed to him
+    d.rectangle([220, 70, 290, 116], fill=(40, 42, 50), outline=(20, 20, 24))
+    d.rectangle([224, 74, 286, 108], fill=(6, 6, 8))
+    d.text((227, 76), "WWWWH$ERE", fill=(230, 230, 240)); d.text((227, 86), "AM2 *&I?", fill=(230, 230, 240))
+    d.text((227, 96), "THiS Iss a", fill=(230, 230, 240))
+    # timecode, REC
+    d.text((6, 4), "OBS_LOG_S41  09-03-19", fill=(20, 20, 24))
+    d.ellipse([292, 6, 300, 14], fill=RED); d.text((304, 4), "REC", fill=RED)
+    # the fluorescent flicker: bands of dark
+    r = random.Random(71)
+    for _ in range(6):
+        y = r.randint(0, 170)
+        d.rectangle([0, y, W, y + r.randint(1, 3)], fill=(90, 94, 100))
+    noise(im, 12, 72)
+    im = im.convert("L").convert("RGB")
+    vignette(im, 0.4)
+    finish(im, "cs_s41", 6)
+
+
+def escape_panel():
+    """Dusk on the flats, the full moon rising, the hangar doors behind, the
+    company car ahead."""
+    im = Image.new("RGB", (W, H), BLACK)
+    d = ImageDraw.Draw(im)
+    sky(d, (30, 24, 50), (120, 70, 60))
+    d.ellipse([230, 30, 282, 82], fill=(236, 232, 220))
+    d.rectangle([0, 110, W, H], fill=(70, 50, 40))
+    d.polygon([(0, 110), (120, 96), (320, 104), (320, 112), (0, 112)], fill=(54, 38, 32))   # the bluff
+    # the hangar doors in the cliff, behind
+    d.rectangle([20, 60, 80, 110], fill=(40, 30, 30), outline=(20, 14, 14))
+    d.rectangle([44, 70, 56, 110], fill=(8, 6, 8))
+    d.ellipse([34, 74, 66, 98], outline=(110, 30, 30), width=1)
+    # sand, drifting
+    r = random.Random(81)
+    for _ in range(400):
+        x, y = r.randint(0, 319), r.randint(112, 179)
+        d.point((x, y), fill=lerp((70, 50, 40), (120, 90, 60), r.random()))
+    # the car, ahead and right
+    d.rectangle([200, 128, 290, 158], fill=(20, 22, 30), outline=(8, 8, 12))
+    d.polygon([(215, 128), (235, 112), (270, 112), (284, 128)], fill=(16, 18, 26), outline=(8, 8, 12))
+    d.rectangle([238, 114, 266, 126], fill=(40, 60, 70))
+    d.ellipse([208, 150, 226, 166], fill=(10, 10, 12)); d.ellipse([266, 150, 284, 166], fill=(10, 10, 12))
+    d.rectangle([200, 140, 206, 146], fill=AMBER); d.rectangle([286, 140, 290, 146], fill=RED)
+    # two figures running, from behind
+    figure(d, 150, 160, 0.9, (40, 36, 44), (84, 66, 60))
+    figure(d, 170, 164, 0.85, (50, 44, 56), (60, 48, 50))
+    im = glow(im, [(256, 56, 26)], (236, 232, 220), radius=20, alpha=0.35)
+    im = glow(im, [(203, 143, 4)], AMBER, radius=10, alpha=0.6)
+    vignette(im, 0.35)
+    noise(im, 5, 82)
+    finish(im, "cs_escape", 16)
+
+
+if __name__ == "__main__" and "--lab" in __import__("sys").argv:
+    os.makedirs(OUT, exist_ok=True)
+    altar_panel(); ritual_1(); ritual_2(); ritual_3(); ritual_4(); s41_panel(); escape_panel()
+    raise SystemExit
+
 if __name__ == "__main__" and "--drop3" in __import__("sys").argv:
     os.makedirs(OUT, exist_ok=True)
     tower_1(); tower_2(); drive_1(); drive_2(); vigil_1()

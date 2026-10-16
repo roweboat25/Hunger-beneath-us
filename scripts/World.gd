@@ -41,6 +41,11 @@ const EXITS := {
 	"Desert": {"exit:west": ["RestrictedRoad", Vector2i(37, 8)]},
 	"Factory": {"exit": ["Southtown", Vector2i(21, 16)]},
 	"LynxApartment": {"exit": ["ZetaPark", Vector2i(11, 10)], "drive": ["RestrictedRoad", Vector2i(2, 8)]},
+	"Mirror": {"beyond": ["LabHall", Vector2i(12, 10)]},
+	"LabHall": {"lift": ["LabOffice", Vector2i(9, 3)]},
+	"LabOffice": {"stairs": ["LabPens", Vector2i(3, 3)]},
+	"LabPens": {"stairs_down": ["Hangar", Vector2i(3, 4)]},
+	"Hangar": {"exit:east": ["Spine", Vector2i(35, 10)]},
 }
 
 ## Where the company car parks in each district, for fast travel.
@@ -73,6 +78,7 @@ const PLACE_NAMES := {
 	"RestrictedRoad": "the Restricted Road", "Desert": "the sand flats", "Factory": "the factory",
 	"Fargona": "Fargona Avenue", "DornerFlat": "Dorner's flat",
 	"RedRock": "Red Rock Plaza", "Casino": "the casino on Red Rock Plaza", "Lushon": "Lushon Tavern", "Arcade": "the arcade under Red Rock Plaza",
+	"Mirror": "the mirror chamber", "LabHall": "the facility, entrance hall", "LabOffice": "the facility, Sublevel 1", "LabPens": "the facility, Sublevel Two", "Hangar": "the hangar under the facility",
 }
 
 ## What the objective line says to take, per map and exit.

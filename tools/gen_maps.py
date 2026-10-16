@@ -1625,8 +1625,190 @@ def arcade():
     return m
 
 
+# ----------------------------------------------------------- the facility
+LAB_FLOOR = ["lab_floor"] * 6 + ["lab_floor2"] * 2 + ["lab_floor3"]
+GREEN_FLOOR = ["lab_floor_green"] * 5 + ["lab_floor_green2"] * 2
+HANGAR_FLOOR = ["hangar_floor"] * 7 + ["hangar_floor2"]
+
+
+def brick_top(m, kind, x0, x1, y=0):
+    m.wall(x0, y, x1, y, f"brick_{kind}_top"); m.wall(x0, y + 1, x1, y + 1, f"brick_{kind}_bot")
+
+
+def brick_v(m, kind, x, y0, y1, gaps=()):
+    for y in range(y0, y1 + 1):
+        if y in gaps:
+            continue
+        end = y == y1 or (y + 1) in gaps
+        m.walls[y][x] = f"brick_{kind}_bot" if end else f"brick_{kind}_mid"
+
+
+def brick_h(m, kind, x0, x1, y, gaps=()):
+    for x in range(x0, x1 + 1):
+        if x not in gaps:
+            m.walls[y][x] = f"brick_{kind}_bot"
+
+
+def lab_hall():
+    """Behind the mirror: the entrance hall of the facility. The obsidian eye
+    in the floor, twenty-five-year-old Ionware monitors, an American flag, and
+    Lynx in an old office chair, back from a ritual she doesn't mention."""
+    m = Map("LabHall", "LabHallScene.gd", 24, 14, LAB_FLOOR, seed=131)
+    m.void_border()
+    m.top_wall("navy", 1, 22)
+    m.prop("monitor_bank", 2, 2, id="monitors", meta={"neon": "5ac8ff"})
+    m.prop("monitor_bank", 6, 2, id="monitors2", meta={"neon": "5ac8ff"})
+    m.prop("flag_us", 10, 2, id="flag")
+    m.prop("reception_desk", 13, 3, id="desk")
+    m.prop("lift_door", 20, 1, id="lift", meta={"neon": "963a22"})
+    m.prop("server_rack", 1, 6); m.prop("server_rack", 1, 8, id="racks")
+    m.decal("obsidian_eye", 8, 8); m.decal("cables", 2, 10); m.decal("cables", 18, 5)
+    m.prop("office_chair_old", 17, 8, id="chair")
+    m.decal("paper", 15, 10); m.decal("paper2", 5, 11); m.decal("drain", 20, 11)
+    m.npc("lynx", 18, 9, "left")
+    m.glyph("lab_hall", 16, 1); m.glyph("lab_hall2", 22, 1, deep=True)
+    m.trigger("monitors", 2, 2, 3, 2); m.trigger("monitors2", 6, 2, 3, 2)
+    m.trigger("flag", 10, 2, 1, 2); m.trigger("desk", 13, 3, 3, 2)
+    m.trigger("racks", 1, 8, 1, 1)
+    m.trigger("chair", 17, 8, 1, 2)
+    m.trigger("eye_floor", 8, 7, 4, 2, on_enter=True)
+    m.trigger("lift", 20, 1, 2, 2)
+    m.trigger("sealed", 11, 13, 2, 1)
+    m.player = (12, 10)
+    return m
+
+
+def lab_office():
+    """Sublevel 1. A small office with a whiteboard still smudged from decades
+    ago and five ancient Ionware desktops; a sleeping quarter; a gym; doors
+    that don't open; and the breath against Carl's left ear."""
+    m = Map("LabOffice", "LabOfficeScene.gd", 30, 16, LAB_FLOOR, seed=137)
+    m.void_border()
+    m.top_wall("navy", 1, 28, windows=[(23, "dark")])
+    m.partition("navy", 18, 0, 14, gaps=(8, 9))
+    m.hwall("navy", 19, 28, 9, gaps=(23,))
+    m.prop("lift_door", 9, 1, id="lift", meta={"neon": "963a22"})
+    m.prop("whiteboard", 2, 1, lift=-4, id="whiteboard", solid=0)
+    m.prop("steel_door_locked", 16, 1, id="door_a", solid=0, meta={"neon": "c81e28"})
+    m.prop("steel_door_lab", 27, 1, id="door_b", solid=0, meta={"neon": "c81e28"})
+    # the five desktops along the far wall
+    m.prop("pc_desk", 2, 5, id="pc1"); m.prop("pc_desk2", 5, 5, id="pc2"); m.prop("pc_desk", 11, 5, id="hameron")
+    m.prop("pc_desk_off", 14, 5, id="pc4"); m.prop("pc_desk2", 2, 10, id="pc5")
+    m.prop("desk_grey", 13, 10); m.prop("report_folder", 13, 10, lift=14, id="report", solid=0)
+    m.prop("chair_office", 12, 6); m.prop("chair_office", 14, 11)
+    m.prop("server_rack", 1, 12); m.prop("cabinet", 16, 11)
+    m.prop("stairs_down", 5, 13, id="stairs")
+    m.decal("paper", 8, 8); m.decal("paper3", 4, 13); m.decal("cables", 9, 12); m.decal("poster_blank", 12, 0)
+    # the sleeping quarter
+    m.prop("bunk", 20, 4, id="bunk1"); m.prop("bunk", 22, 4, id="bunk2"); m.prop("bunk", 24, 4, id="bunk3"); m.prop("bunk", 26, 4, id="bunk4")
+    m.decal("frames_broken", 23, 6); m.decal("paper2", 21, 7); m.decal("nightlight", 28, 2)
+    # the gym
+    m.prop("weights_rack", 20, 12, id="gym"); m.prop("treadmill", 25, 12, id="treadmill"); m.decal("drain", 23, 14)
+    m.npc("lynx", 10, 6, "right")
+    m.glyph("lab_office", 7, 1, deep=True); m.glyph("lab_office2", 20, 10)
+    m.trigger("whiteboard", 2, 1, 3, 2); m.trigger("door_a", 16, 1, 1, 2); m.trigger("door_b", 27, 1, 1, 2)
+    m.trigger("pc1", 2, 5, 2, 2); m.trigger("pc2", 5, 5, 2, 2); m.trigger("hameron", 11, 5, 2, 2); m.trigger("pc4", 14, 5, 2, 2); m.trigger("pc5", 2, 10, 2, 2)
+    m.trigger("report", 13, 10, 1, 2)
+    m.trigger("bunk1", 20, 4, 1, 2); m.trigger("bunk2", 22, 4, 1, 2); m.trigger("bunk3", 24, 4, 1, 2); m.trigger("bunk4", 26, 4, 1, 2)
+    m.trigger("gym", 20, 12, 2, 2); m.trigger("treadmill", 25, 12, 2, 2)
+    m.trigger("breath", 18, 8, 1, 2, on_enter=True)
+    m.trigger("stairs", 5, 12, 2, 2)
+    m.trigger("lift", 9, 1, 2, 2)
+    m.player = (9, 3)
+    return m
+
+
+def lab_pens():
+    """Sublevel Two, the experimental floor: army-green brick, a forked
+    hallway, six housing pens (a bed, a sink, a toilet), and the observation
+    room with the perturbation session recordings."""
+    m = Map("LabPens", "LabPensScene.gd", 32, 18, GREEN_FLOOR, seed=139)
+    m.void_border()
+    brick_top(m, "green", 1, 30)
+    m.prop("stairs_up", 2, 1, id="stairs_up")
+    # six pens along the top, each three tiles wide and three deep
+    for k in range(6):
+        x = 6 + k * 4
+        brick_v(m, "green", x + 3, 2, 5)
+        m.decal("pen_%d" % (k + 1), x, 1, lift=10)
+        m.prop("pen_bars", x, 5, id="bars%d" % k); m.prop("pen_bars", x + 2, 5, id="bars%d_b" % k)
+        m.prop("pen_door_open" if k == 4 else "pen_door", x + 1, 5, id="pen_door%d" % k, solid=0 if k == 4 else 1)
+        m.prop("cot", x, 4, id="cot%d" % k)
+        m.prop("sink", x + 2, 3)
+        if k in (1, 3):
+            m.decal("scratches", x, 1, lift=-12)
+        if k == 2:
+            m.decal("blood", x + 1, 4)
+        if k == 5:
+            m.decal("frames_broken", x + 1, 4); m.decal("stick", x + 2, 4)
+        m.trigger("pen%d" % (k + 1), x, 5, 3, 2)
+    brick_v(m, "green", 5, 2, 5)
+    # the fork: the observation room, west; the way down, east
+    brick_h(m, "green", 1, 15, 9, gaps=(4,))
+    brick_v(m, "green", 16, 9, 16)
+    m.prop("observation_console", 6, 11, id="console", meta={"neon": "c81e28"})
+    m.prop("chair_office_back", 7, 13); m.prop("server_rack", 12, 11); m.prop("server_rack", 13, 11)
+    m.decal("paper2", 3, 13); m.decal("paper", 10, 14); m.decal("cables", 9, 15); m.decal("drain", 2, 15)
+    m.prop("stairs_hangar", 28, 15, id="stairs_down")
+    m.decal("glyph_red", 22, 15); m.decal("cables", 19, 11); m.decal("blood", 24, 12); m.decal("drain", 20, 15)
+    m.prop("crate", 30, 11); m.prop("barrel", 18, 15)
+    m.npc("lynx", 9, 12, "left")
+    m.glyph("lab_pens", 3, 1, deep=True); m.glyph("lab_pens2", 26, 11)
+    m.trigger("stairs_up", 2, 1, 2, 2)
+    m.trigger("console", 6, 11, 3, 2)
+    m.trigger("stairs_down", 28, 15, 2, 1)
+    m.trigger("fork", 16, 7, 1, 2, on_enter=True)
+    m.player = (3, 3)
+    return m
+
+
+def hangar():
+    """The hangar carved from the bedrock: black brick that drinks the light,
+    one industrial fixture over a black leather recliner, the stick-eye mural
+    ten feet across, and a pre-war factory office with a window onto the
+    floor. The congregation arrives when Carl touches the chair."""
+    m = Map("Hangar", "HangarScene.gd", 36, 20, HANGAR_FLOOR, seed=149)
+    m.void_border()
+    brick_top(m, "black", 1, 34)
+    m.wall(1, 2, 34, 2, "brick_black_bot")
+    m.decal("mural_eye", 14, 2, lift=4)
+    m.prop("stairs_up", 2, 2, id="stairs_up")
+    m.prop("hangar_lamp", 17, 7, lift=36, solid=0, meta={"neon": "f5d6a0"})
+    m.prop("altar_recliner", 17, 9, id="altar", meta={"neon": "963a22"})
+    m.prop("cube_stand", 15, 10, id="cube"); m.prop("bowl_stand", 20, 10, id="bowl")
+    for a in range(16):
+        import math
+        cx = 18 + math.cos(a / 16 * 6.2832) * 6.0
+        cy = 9.5 + math.sin(a / 16 * 6.2832) * 3.6
+        m.decal("candle_ring", int(round(cx)), int(round(cy)))
+    m.decal("cables", 18, 11); m.decal("cables", 16, 12); m.decal("blood_pool", 18, 12)
+    m.decal("stick", 10, 15); m.decal("stick_circle", 8, 6); m.decal("stick", 26, 5); m.decal("stick_circle", 27, 15)
+    m.prop("crate", 4, 16); m.prop("barrel", 5, 17); m.prop("barrel", 31, 4)
+    # the factory office, bottom right, with its window onto the floor
+    brick_h(m, "black", 26, 34, 12, gaps=(29,))
+    brick_v(m, "black", 26, 13, 18)
+    m.prop("office_window", 31, 12, id="window", solid=0)
+    m.prop("desk_wood", 29, 15, id="oak_desk"); m.prop("chair_office_back", 30, 16)
+    m.prop("cabinet", 33, 14); m.decal("paper", 28, 17); m.decal("paper3", 32, 17); m.decal("cobweb", 27, 13)
+    # the hangar doors, east, the way out
+    m.ground[9][35] = "shadow_floor"; m.clear_wall(35, 9)
+    m.ground[10][35] = "shadow_floor"; m.clear_wall(35, 10)
+    m.npc("lynx", 4, 6, "down")
+    m.glyph("hangar", 6, 2, deep=True); m.glyph("hangar2", 30, 2)
+    m.trigger("stairs_up", 2, 2, 2, 2)
+    m.trigger("altar", 17, 9, 2, 2)
+    m.trigger("cube", 15, 10, 1, 2); m.trigger("bowl", 20, 10, 1, 2)
+    m.trigger("mural", 14, 3, 6, 1)
+    m.trigger("window", 31, 12, 3, 2)
+    m.trigger("oak_desk", 29, 15, 2, 2)
+    m.trigger("exit:east", 35, 9, 1, 2, on_enter=True, once=False)
+    m.player = (3, 5)
+    return m
+
+
 MAPS = [apartment, park, home, warroom, hospital, southtown, lynx_apartment, desert, mirror,
-        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona, redrock, casino, lushon, arcade]
+        lamplight, spine, zetapark, canalwalk, underpass, heights, flyover, hillroad, cognizo, cognizo_station, railcut, parkave, restricted_road, factory, dorner_flat, fargona, redrock, casino, lushon, arcade,
+        lab_hall, lab_office, lab_pens, hangar]
 
 
 def main():

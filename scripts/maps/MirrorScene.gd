@@ -136,7 +136,8 @@ func _mirror() -> void:
 	if not remembered.is_empty():
 		sub += "   ·   it remembers you typed: \"" + remembered + "\""
 	await main.show_title("End of Act 1", sub, 5.0)
-	await main.show_title("The Hunger Beneath Us", "Act 2 is not built yet.", 3.0)
 	await main.ending.show_file()
-	main.filter.set_hud_text("End of Act 1  ·  L case log")
-	Game.input_locked = false
+	await main.show_title("Act 2", "The Hunger Beneath", 3.0)
+	await ui.say("", "The scream had been mine. When it stopped, the mirror was a doorway, and the doorway had a cold metal floor on the other side.")
+	ui.close()
+	await travel("beyond")

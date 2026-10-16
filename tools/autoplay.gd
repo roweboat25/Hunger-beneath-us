@@ -4,7 +4,10 @@ extends Node
 ## Walks every map in order: calls every interactable in the current map
 ## (twice, so gated ones fire once their prerequisite has run), drives all
 ## dialogue, choices and the Psyon window, and expects each map to hand
-## off to the next one. Stops when the act1_done flag is set.
+## off to the next one. Stops when the END flag is set (the end of the
+## facility, after the ritual).
+
+const END := "act2_lab_done"
 
 var main: Node
 var _choice := 0
@@ -23,16 +26,16 @@ func run() -> void:
 			await _tour(arg.trim_prefix("--tour=").split(","))
 			return
 	var maps_seen := 0
-	while not Game.has_flag("act1_done") and maps_seen < 80:
+	while not Game.has_flag(END) and maps_seen < 90:
 		var map: Node = main.map
 		var map_name := String(map.name)
 		maps_seen += 1
 		print("autoplay: map ", map_name)
 		for pass_i in 3:
-			if main.map != map or Game.has_flag("act1_done"):
+			if main.map != map or Game.has_flag(END):
 				break
 			for node in _live_interactables(map):
-				if main.map != map or Game.has_flag("act1_done"):
+				if main.map != map or Game.has_flag(END):
 					break
 				if not is_instance_valid(node):
 					continue
@@ -46,11 +49,11 @@ func run() -> void:
 					Game.glasses_on = true
 					map.scan(node)
 					await _drive(map_name + "/scan " + id)
-		if main.map == map and not Game.has_flag("act1_done"):
+		if main.map == map and not Game.has_flag(END):
 			push_error("autoplay: stuck in map " + map_name)
 			get_tree().quit(1)
 			return
-	assert(Game.has_flag("act1_done"), "act 1 should finish")
+	assert(Game.has_flag(END), "the descent should finish")
 	print("AUTOPLAY DONE  connection=", Game.connection, "  log entries=", Game.case_log.size(),
 		"  evidence=", Game.evidence, "  trust=", Game.trust, "  flags=", Game.flags.keys())
 	get_tree().quit()
