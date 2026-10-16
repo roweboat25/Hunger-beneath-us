@@ -1,0 +1,465 @@
+[gd_scene load_steps=31 format=3]
+
+[ext_resource type="TileSet" path="res://assets/tiles/tileset.tres" id="1_tileset"]
+[ext_resource type="Script" path="res://scripts/maps/LushonScene.gd" id="2_script"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://scripts/Interactable.gd" id="4_interact"]
+[ext_resource type="Script" path="res://scripts/NPC.gd" id="5_npc"]
+[ext_resource type="Texture2D" path="res://assets/props/bar_counter.png" id="tex_bar_counter"]
+[ext_resource type="Texture2D" path="res://assets/props/bin.png" id="tex_bin"]
+[ext_resource type="Texture2D" path="res://assets/props/chair_back.png" id="tex_chair_back"]
+[ext_resource type="Texture2D" path="res://assets/props/chair_front.png" id="tex_chair_front"]
+[ext_resource type="Texture2D" path="res://assets/props/dispenser.png" id="tex_dispenser"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph.png" id="tex_glyph"]
+[ext_resource type="Texture2D" path="res://assets/props/glyph_red.png" id="tex_glyph_red"]
+[ext_resource type="Texture2D" path="res://assets/props/lamp_floor.png" id="tex_lamp_floor"]
+[ext_resource type="Texture2D" path="res://assets/props/lantern_red.png" id="tex_lantern_red"]
+[ext_resource type="Texture2D" path="res://assets/props/painting2.png" id="tex_painting2"]
+[ext_resource type="Texture2D" path="res://assets/props/planter_small.png" id="tex_planter_small"]
+[ext_resource type="Texture2D" path="res://assets/props/poster_blank.png" id="tex_poster_blank"]
+[ext_resource type="Texture2D" path="res://assets/props/round_table.png" id="tex_round_table"]
+[ext_resource type="Texture2D" path="res://assets/props/rug_red.png" id="tex_rug_red"]
+[ext_resource type="Texture2D" path="res://assets/props/shelf.png" id="tex_shelf"]
+[ext_resource type="Texture2D" path="res://assets/props/table_wood.png" id="tex_table_wood"]
+
+[sub_resource type="RectangleShape2D" id="Rect_32x32"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="Rect_96x32"]
+size = Vector2(96, 32)
+
+[sub_resource type="RectangleShape2D" id="Rect_64x32"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="Rect_768x32"]
+size = Vector2(768, 32)
+
+[sub_resource type="RectangleShape2D" id="Rect_32x416"]
+size = Vector2(32, 416)
+
+[sub_resource type="RectangleShape2D" id="Rect_92x28"]
+size = Vector2(92, 28)
+
+[sub_resource type="RectangleShape2D" id="Rect_28x28"]
+size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="Rect_60x28"]
+size = Vector2(60, 28)
+
+[sub_resource type="RectangleShape2D" id="Rect_92x32"]
+size = Vector2(92, 32)
+
+[node name="Lushon" type="Node2D"]
+script = ExtResource("2_script")
+map_size = Vector2i(768, 416)
+
+[node name="Ground" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 11, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 12, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 14, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 22, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 12, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 13, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 17, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 22, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 14, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 12, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 17, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 20, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 22, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 8, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 11, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 16, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 6, 0, 0, 0, 1, 0, 0, 0, 0, 0, 10, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 6, 0, 0, 0, 1, 0, 0, 0, 0, 0, 12, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 6, 0, 0, 0, 1, 0, 0, 0, 0, 0, 19, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 6, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 6, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 19, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 21, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 23, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 9, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 15, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 9, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 9, 0, 0, 0, 1, 0, 0, 0, 0, 0, 11, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 9, 0, 0, 0, 1, 0, 0, 0, 0, 0, 15, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 9, 0, 0, 0, 1, 0, 0, 0, 0, 0, 17, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 9, 0, 0, 0, 1, 0, 0, 0, 0, 0, 21, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 10, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 10, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 10, 0, 0, 0, 1, 0, 0, 0, 0, 0, 15, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 10, 0, 0, 0, 1, 0, 0, 0, 0, 0, 23, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 11, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 11, 0, 0, 0, 1, 0, 0, 0, 0, 0, 8, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 11, 0, 0, 0, 1, 0, 0, 0, 0, 0, 10, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 11, 0, 0, 0, 1, 0, 0, 0, 0, 0, 17, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 11, 0, 0, 0, 1, 0, 0, 0, 0, 0, 20, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 11, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 12, 0, 0, 0, 14, 0, 4, 0, 0, 0, 12, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 18, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 12, 0, 0, 0, 1, 0, 0, 0, 0, 0, 20, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+tile_set = ExtResource("1_tileset")
+
+[node name="Walls" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 2, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 3, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 4, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 5, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 6, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 7, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 8, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 9, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 10, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 11, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 12, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 13, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 14, 0, 0, 0, 0, 0, 15, 0, 3, 0, 0, 0, 15, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 16, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 17, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 18, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 19, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 20, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 21, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 22, 0, 0, 0, 0, 0, 15, 0, 5, 0, 0, 0, 23, 0, 0, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 13, 0, 4, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 3, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 4, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 5, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 6, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 7, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 8, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 9, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 10, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 11, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 12, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 13, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 14, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 15, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 16, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 17, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 18, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 19, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 20, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 21, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 22, 0, 1, 0, 0, 0, 1, 0, 6, 0, 0, 0, 23, 0, 1, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 2, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 2, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 3, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 3, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 4, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 5, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 6, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 6, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 7, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 8, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 8, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 9, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 9, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 10, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 10, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 11, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 11, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 1, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 2, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 3, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 4, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 5, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 6, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 7, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 8, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 9, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 10, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 12, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 13, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 14, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 15, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 16, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 17, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 18, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 19, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 20, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 21, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 22, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0, 23, 0, 12, 0, 0, 0, 13, 0, 4, 0, 0, 0)
+tile_set = ExtResource("1_tileset")
+
+[node name="Bounds" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Edge0" type="CollisionShape2D" parent="Bounds"]
+position = Vector2(384, -16)
+shape = SubResource("Rect_768x32")
+
+[node name="Edge1" type="CollisionShape2D" parent="Bounds"]
+position = Vector2(384, 432)
+shape = SubResource("Rect_768x32")
+
+[node name="Edge2" type="CollisionShape2D" parent="Bounds"]
+position = Vector2(-16, 208)
+shape = SubResource("Rect_32x416")
+
+[node name="Edge3" type="CollisionShape2D" parent="Bounds"]
+position = Vector2(784, 208)
+shape = SubResource("Rect_32x416")
+
+[node name="Decals" type="Node2D" parent="."]
+
+[node name="D0_rug_red" type="Sprite2D" parent="Decals"]
+position = Vector2(400, 160)
+offset = Vector2(0, -32)
+texture = ExtResource("tex_rug_red")
+
+[node name="D1_rug_red" type="Sprite2D" parent="Decals"]
+position = Vector2(560, 320)
+offset = Vector2(0, -32)
+texture = ExtResource("tex_rug_red")
+
+[node name="D2_painting2" type="Sprite2D" parent="Decals"]
+position = Vector2(160, 32)
+offset = Vector2(0, -16)
+texture = ExtResource("tex_painting2")
+
+[node name="D3_poster_blank" type="Sprite2D" parent="Decals"]
+position = Vector2(624, 32)
+offset = Vector2(0, -8.5)
+texture = ExtResource("tex_poster_blank")
+
+[node name="Actors" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="P0_lantern_red" type="Sprite2D" parent="Actors"]
+position = Vector2(80, 65)
+offset = Vector2(0, -27)
+texture = ExtResource("tex_lantern_red")
+metadata/neon = "ff5a3c"
+
+[node name="P1_lantern_red" type="Sprite2D" parent="Actors"]
+position = Vector2(208, 65)
+offset = Vector2(0, -27)
+texture = ExtResource("tex_lantern_red")
+metadata/neon = "ff5a3c"
+
+[node name="P2_lantern_red" type="Sprite2D" parent="Actors"]
+position = Vector2(336, 65)
+offset = Vector2(0, -27)
+texture = ExtResource("tex_lantern_red")
+metadata/neon = "ff5a3c"
+
+[node name="P3_lantern_red" type="Sprite2D" parent="Actors"]
+position = Vector2(560, 65)
+offset = Vector2(0, -27)
+texture = ExtResource("tex_lantern_red")
+metadata/neon = "ff5a3c"
+
+[node name="P4_lantern_red" type="Sprite2D" parent="Actors"]
+position = Vector2(688, 65)
+offset = Vector2(0, -27)
+texture = ExtResource("tex_lantern_red")
+metadata/neon = "ff5a3c"
+
+[node name="P5_bar_counter" type="Sprite2D" parent="Actors"]
+position = Vector2(112, 129)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_bar_counter")
+metadata/prop_id = "counter"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P5_bar_counter"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P5_bar_counter/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_92x28")
+
+[node name="P6_dispenser" type="Sprite2D" parent="Actors"]
+position = Vector2(208, 129)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_dispenser")
+metadata/prop_id = "dispenser"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P6_dispenser"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P6_dispenser/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P7_shelf" type="Sprite2D" parent="Actors"]
+position = Vector2(272, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_shelf")
+
+[node name="P8_round_table" type="Sprite2D" parent="Actors"]
+position = Vector2(608, 193)
+offset = Vector2(0, -25)
+texture = ExtResource("tex_round_table")
+metadata/prop_id = "table"
+
+[node name="Body" type="StaticBody2D" parent="Actors/P8_round_table"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P8_round_table/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_60x28")
+
+[node name="P9_chair_front" type="Sprite2D" parent="Actors"]
+position = Vector2(560, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_front")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P9_chair_front"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P9_chair_front/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P10_chair_front" type="Sprite2D" parent="Actors"]
+position = Vector2(656, 161)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_front")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P10_chair_front"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P10_chair_front/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P11_chair_back" type="Sprite2D" parent="Actors"]
+position = Vector2(592, 257)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_back")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P11_chair_back"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P11_chair_back/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P12_chair_back" type="Sprite2D" parent="Actors"]
+position = Vector2(624, 257)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_back")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P12_chair_back"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P12_chair_back/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P13_table_wood" type="Sprite2D" parent="Actors"]
+position = Vector2(336, 257)
+offset = Vector2(0, -19)
+texture = ExtResource("tex_table_wood")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P13_table_wood"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P13_table_wood/Body"]
+position = Vector2(0, -19)
+shape = SubResource("Rect_92x32")
+
+[node name="P14_chair_back" type="Sprite2D" parent="Actors"]
+position = Vector2(304, 289)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_back")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P14_chair_back"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P14_chair_back/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P15_chair_front" type="Sprite2D" parent="Actors"]
+position = Vector2(304, 225)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_front")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P15_chair_front"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P15_chair_front/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P16_table_wood" type="Sprite2D" parent="Actors"]
+position = Vector2(464, 289)
+offset = Vector2(0, -19)
+texture = ExtResource("tex_table_wood")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P16_table_wood"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P16_table_wood/Body"]
+position = Vector2(0, -19)
+shape = SubResource("Rect_92x32")
+
+[node name="P17_chair_back" type="Sprite2D" parent="Actors"]
+position = Vector2(432, 321)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_back")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P17_chair_back"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P17_chair_back/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P18_chair_front" type="Sprite2D" parent="Actors"]
+position = Vector2(432, 257)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_chair_front")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P18_chair_front"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P18_chair_front/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P19_lamp_floor" type="Sprite2D" parent="Actors"]
+position = Vector2(720, 353)
+offset = Vector2(0, -25.5)
+texture = ExtResource("tex_lamp_floor")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P19_lamp_floor"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P19_lamp_floor/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P20_planter_small" type="Sprite2D" parent="Actors"]
+position = Vector2(48, 353)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_planter_small")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P20_planter_small"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P20_planter_small/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P21_bin" type="Sprite2D" parent="Actors"]
+position = Vector2(48, 225)
+offset = Vector2(0, -32.5)
+texture = ExtResource("tex_bin")
+
+[node name="Body" type="StaticBody2D" parent="Actors/P21_bin"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/P21_bin/Body"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_28x28")
+
+[node name="P22_glyph_red" type="Sprite2D" parent="Actors"]
+position = Vector2(720, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph_red")
+metadata/prop_id = "glyph:lu_back"
+metadata/glyph_deep = true
+visible = false
+
+[node name="P23_glyph" type="Sprite2D" parent="Actors"]
+position = Vector2(144, 65)
+offset = Vector2(0, -17)
+texture = ExtResource("tex_glyph")
+metadata/prop_id = "glyph:lu_bar"
+metadata/glyph_deep = false
+visible = false
+
+[node name="NpcBarkeep" type="Area2D" parent="Actors"]
+position = Vector2(112, 92)
+script = ExtResource("5_npc")
+id = "barkeep"
+sprite_sheet = "res://assets/sprites/ezra.png"
+facing = "down"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcBarkeep"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="NpcPatron" type="Area2D" parent="Actors"]
+position = Vector2(528, 284)
+script = ExtResource("5_npc")
+id = "patron"
+sprite_sheet = "res://assets/sprites/nurse.png"
+facing = "left"
+metadata/say = "'You're with the tower? Then you've got a car outside and you can leave whenever you want.' She turned her glass. 'The rest of us wait for the lanterns to tell us when.'"
+metadata/scan = "NIXTRA - LOGISTICS\nPsyon 4.1 - sync 88%\nmood: ELEVATED"
+metadata/scan_name = "A patron"
+
+[node name="Shape" type="CollisionShape2D" parent="Actors/NpcPatron"]
+position = Vector2(0, -16)
+shape = SubResource("Rect_32x32")
+
+[node name="Player" parent="Actors" instance=ExtResource("3_player")]
+position = Vector2(368, 348)
+
+[node name="Interactables" type="Node2D" parent="."]
+
+[node name="GlyphLuBack" type="Area2D" parent="Interactables"]
+position = Vector2(720, 48)
+script = ExtResource("4_interact")
+id = "glyph:lu_back"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphLuBack"]
+shape = SubResource("Rect_32x32")
+
+[node name="GlyphLuBar" type="Area2D" parent="Interactables"]
+position = Vector2(144, 48)
+script = ExtResource("4_interact")
+id = "glyph:lu_bar"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/GlyphLuBar"]
+shape = SubResource("Rect_32x32")
+
+[node name="Counter" type="Area2D" parent="Interactables"]
+position = Vector2(112, 112)
+script = ExtResource("4_interact")
+id = "counter"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Counter"]
+shape = SubResource("Rect_96x32")
+
+[node name="Dispenser" type="Area2D" parent="Interactables"]
+position = Vector2(208, 112)
+script = ExtResource("4_interact")
+id = "dispenser"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Dispenser"]
+shape = SubResource("Rect_32x32")
+
+[node name="Table" type="Area2D" parent="Interactables"]
+position = Vector2(608, 176)
+script = ExtResource("4_interact")
+id = "table"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Table"]
+shape = SubResource("Rect_64x32")
+
+[node name="Lanterns" type="Area2D" parent="Interactables"]
+position = Vector2(336, 48)
+script = ExtResource("4_interact")
+id = "lanterns"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Lanterns"]
+shape = SubResource("Rect_32x32")
+
+[node name="Window" type="Area2D" parent="Interactables"]
+position = Vector2(464, 48)
+script = ExtResource("4_interact")
+id = "window"
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Window"]
+shape = SubResource("Rect_32x32")
+
+[node name="Exit" type="Area2D" parent="Interactables"]
+position = Vector2(368, 400)
+script = ExtResource("4_interact")
+id = "exit"
+on_enter = true
+once = false
+
+[node name="Shape" type="CollisionShape2D" parent="Interactables/Exit"]
+shape = SubResource("Rect_32x32")

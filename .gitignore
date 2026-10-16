@@ -1,0 +1,9 @@
+# Godot
+.godot/
+*.import
+build/
+export_presets.cfg.bak
+
+# OS / editors
+.DS_Store
+*.swp
