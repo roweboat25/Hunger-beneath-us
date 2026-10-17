@@ -707,9 +707,14 @@ func _selftest_all() -> void:
 			ui.picked.emit(1)
 	pump.call()
 	var only := str(_args.get("level", ""))
+	var from := str(_args.get("from", ""))
 	for lname in STORY:
 		if only != "" and only != lname:
 			continue
+		if from != "":
+			if from != lname:
+				continue
+			from = ""
 		if lname == "Home" and flags.has("home1_done"):
 			flags["southtown_done"] = true
 		if lname == "WarRoom" and flags.has("warroom1_done"):
