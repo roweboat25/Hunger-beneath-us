@@ -38,12 +38,20 @@ const LEVELS := {
 	"RedRock": preload("res://scripts/levels/RedRock.gd"),
 	"Spa": preload("res://scripts/levels/Spa.gd"),
 	"Cognizo": preload("res://scripts/levels/Cognizo.gd"),
+	"Tunnels": preload("res://scripts/levels/Tunnels.gd"),
+	"BronzeHands": preload("res://scripts/levels/BronzeHands.gd"),
+	"Interlude": preload("res://scripts/levels/Interlude.gd"),
+	"River": preload("res://scripts/levels/River.gd"),
+	"Core": preload("res://scripts/levels/Core.gd"),
+	"Chair": preload("res://scripts/levels/Chair.gd"),
+	"Epilogue": preload("res://scripts/levels/Epilogue.gd"),
 }
 
 ## Story order of the levels (the title menu and the self-test walk it).
 const STORY := ["Dufredy", "Drive", "Park", "Spine", "Home", "WarRoom", "Hospital", "Southtown",
 	"Home", "WarRoom", "LynxFlat", "Flats", "Mirror",
-	"Facility", "Hangar", "Home", "Blackout", "Observatory", "HoldingCell", "RedRock", "Spa", "Cognizo", "Home"]
+	"Facility", "Hangar", "Home", "Blackout", "Observatory", "HoldingCell", "RedRock", "Spa", "Cognizo", "Home",
+	"Tunnels", "BronzeHands", "Interlude", "River", "Core", "Chair", "Epilogue"]
 
 ## Same chant as the 2D game (scripts/Game.gd), in the same order.
 const CHANT := [

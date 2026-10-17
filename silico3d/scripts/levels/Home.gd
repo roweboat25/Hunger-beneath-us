@@ -3566,7 +3566,7 @@ func _leaves_dream() -> void:
 	await ui.fade_to(1.0, 0.5)
 	_blackout(false)
 	if not main._selftest:
-		ui.show_title(true)
+		main.load_level("Tunnels")
 	else:
 		await ui.fade_to(0.0, 0.3)
 
