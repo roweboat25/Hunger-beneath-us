@@ -1,0 +1,11 @@
+PBR materials from ambientCG (https://ambientcg.com), CC0 1.0 Universal.
+asphalt: Asphalt031
+paving: PavingStones138
+concrete: Concrete034
+grass: Grass004
+bark: Bark014
+woodfloor: WoodFloor051
+carpet: Carpet016
+plaster: PaintedPlaster017
+fabric: Fabric085
+rust: Metal063
