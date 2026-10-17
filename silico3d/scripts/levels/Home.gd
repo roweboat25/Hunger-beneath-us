@@ -2155,7 +2155,10 @@ func _enter() -> void:
 	var tw := create_tween()
 	tw.tween_property(p, "position", Vector3(1.0, 0.05, -1.5), 2.0).set_trans(Tween.TRANS_SINE)
 	await p.face(Vector3(-2.0, 1.5, -7.5), 1.6)
-	await tw.finished
+	# on a slow frame both tweens can end in the same step; finished has then
+	# already fired and awaiting it would hang the evening
+	if tw.is_running():
+		await tw.finished
 	p.seated = false
 	_slide_door(false)
 	f.erase("cinematic")
