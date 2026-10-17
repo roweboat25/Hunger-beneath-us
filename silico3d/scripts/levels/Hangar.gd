@@ -395,7 +395,7 @@ const LINES := {
 		"acolyte": "UNKNOWN\ncarrying: (NO SIGNAL)\nsync: 100%  -  DREAMING",
 		"subject": "SUBJECT %d\nORA (UNISSUED)\nstate: PREPARED",
 		"congregation": "CONGREGATION: ~100\ndevices: ORA (UNISSUED)\nsync: 100%  -  DREAMING",
-		"eyeless": "SUBJECT %d\neyes: NONE\nsync: 100%  -  TRANSCRIBED",
+		"eyeless": "SUBJECT %d\neyes: NONE\nsync: 100%%  -  TRANSCRIBED",
 		"recliner": "ALTAR\nprobes: 2 (BCI, UNLICENSED)\nresidue: BLOOD (MULTIPLE DONORS)",
 		"mural": "UNIDENTIFIED STRUCTURE\nmaterial: WOOD, WIRE\npieces: 1,140",
 		"fixture": "FIXTURE 1 OF 1\nVOLTX industrial\nhours: 171,000",
@@ -481,11 +481,11 @@ void fragment() {
 	float sm = it - log2(max(log2(max(dot(z, z), 1.0001)), 0.0001));
 	float inside = step(63.5, it);
 	vec3 pal = 0.5 + 0.5 * cos(6.2831 * (sm * 0.03 + tm * 0.04 + vec3(0.0, 0.33, 0.67)));
-	pal = mix(pal, vec3(0.6, 0.3, 1.0) * pal.b + vec3(1.0, 0.6, 0.25) * pal.r * 0.6, 0.45);
+	pal = mix(pal, vec3(0.6, 0.3, 1.0) * pal.b + vec3(1.0, 0.6, 0.25) * pal.r * 0.6, 0.7);
 	pal *= (1.0 - inside);
 	float rad = amount * 1.35;
 	float mask = smoothstep(rad, rad - 0.3, r) * step(0.001, amount);
-	col = mix(col, col * 0.35 + pal * 0.85, mask * 0.8);
+	col = mix(col, col * 0.45 + pal * 0.7, mask * 0.62);
 	col += (h(uv * 913.0 + vec2(tm * 17.0, tm * 11.0)) - 0.5) * grain;
 	COLOR = vec4(col, 1.0);
 }
@@ -554,6 +554,7 @@ var _hid := ""                      # office | drill
 var _cong_live := false
 var _cong_speed := 0.45
 var _cong_track := false
+var _shot := false                    # screenshot mode: no beat triggers
 var _cong_lift := 0.0               # heads raised
 var _steps_on := false
 var _steps_db := -30.0
@@ -684,8 +685,10 @@ func _cavern() -> void:
 	box(Vector3(4.6, CAV_H - 13.0, 1.0), Vector3(0, 13.0 + (CAV_H - 13.0) * 0.5, Z1 + 0.5), _brick, true)
 	box(Vector3(4.6, LAND_Y, 1.0), Vector3(0, LAND_Y * 0.5, Z1 + 0.5), _brick, true)
 	# a skin of black brick on the north wall either side of the stair
-	box(Vector3(24.0, 12.0, 0.1), Vector3(-10.0, 6.0, Z1 - 0.05), _brick)
-	box(Vector3(24.0, 12.0, 0.1), Vector3(10.0, 6.0, Z1 - 0.05), _brick)
+	box(Vector3(3.5, 12.0, 0.1), Vector3(-20.25, 6.0, Z1 - 0.05), _brick)
+	box(Vector3(3.0, 8.8, 0.1), Vector3(-17.0, 7.6, Z1 - 0.05), _brick)
+	box(Vector3(13.2, 12.0, 0.1), Vector3(-8.9, 6.0, Z1 - 0.05), _brick)
+	box(Vector3(19.7, 12.0, 0.1), Vector3(12.15, 6.0, Z1 - 0.05), _brick)
 	box(Vector3(w + 2, 1.0, d + 2), Vector3(cx, CAV_H + 0.5, cz), mat(Color(0.05, 0.05, 0.05)), true)
 	# rock pillars at the edges of the light: scale, and somewhere to stand behind
 	for pp: Vector3 in [Vector3(-36, 0, -14), Vector3(-36, 0, 22), Vector3(-50, 0, 4), Vector3(-14, 0, -21), Vector3(10, 0, 36)]:
@@ -794,15 +797,18 @@ func _fixture() -> void:
 	spot.spot_attenuation = 0.7
 	spot.shadow_enabled = false
 	add_child(spot)
-	light(Vector3(0, 12.6, 0), Color(1.0, 0.88, 0.7), 0.5, 22.0)
+	light(Vector3(0, 12.6, 0), Color(1.0, 0.88, 0.7), 0.8, 24.0)
 	# the dust in the beam
 	var cone := StandardMaterial3D.new()
 	cone.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	cone.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	cone.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	cone.cull_mode = BaseMaterial3D.CULL_DISABLED
+	cone.cull_mode = BaseMaterial3D.CULL_BACK
 	cone.no_depth_test = false
-	cone.albedo_color = Color(0.16, 0.14, 0.1, 0.25)
+	cone.albedo_color = Color(0.07, 0.06, 0.045, 0.5)
+	cone.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
+	cone.distance_fade_min_distance = 3.0
+	cone.distance_fade_max_distance = 14.0
 	var cm := cyl(0.6, 7.4, 13.3, Vector3(0, 6.75, 0), cone, 18, dyn)
 	cm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# its box on the wall by the stair, Voltx plate
@@ -829,7 +835,7 @@ func _mural() -> void:
 			var p := c + Vector3(cos(s) * hw, sin(s) * hh * (1.0 if sin(s) > 0.0 else 0.85), 0.05 + layer * 0.06)
 			p += Vector3(rng.randf_range(-0.05, 0.05), rng.randf_range(-0.05, 0.05), 0)
 			if k > 0:
-				stick(prev, p + (p - prev) * 0.25, 0.022, _stick_m)
+				stick(prev, p + (p - prev) * 0.25, 0.05, _stick_m)
 			prev = p
 	# the iris, rings of bent twig, and the pupil packed with dark sticks
 	for ring in 3:
@@ -839,26 +845,26 @@ func _mural() -> void:
 			var s2 := TAU * k / 14.0
 			var p2 := c + Vector3(cos(s2) * rr, sin(s2) * rr, 0.12 + ring * 0.03)
 			if k > 0:
-				stick(prev2, p2, 0.018, _stick_m)
+				stick(prev2, p2, 0.035, _stick_m)
 			prev2 = p2
 	var dark := mat(Color(0.05, 0.04, 0.03), 0.95)
 	for k in 26:
 		var a := rng.randf() * TAU
 		var a2 := a + PI + rng.randf_range(-0.6, 0.6)
-		stick(c + Vector3(cos(a) * 0.22, sin(a) * 0.22, 0.2), c + Vector3(cos(a2) * 0.22, sin(a2) * 0.22, 0.2), 0.015, dark)
+		stick(c + Vector3(cos(a) * 0.22, sin(a) * 0.22, 0.2), c + Vector3(cos(a2) * 0.22, sin(a2) * 0.22, 0.2), 0.03, dark)
 	# the chaotic lattice inside the white of the eye
 	for k in 44:
 		var a3 := rng.randf() * TAU
 		var b3 := rng.randf() * TAU
 		var p3 := c + Vector3(cos(a3) * hw * 0.92, sin(a3) * hh * 0.85, 0.08)
 		var q3 := c + Vector3(cos(b3) * hw * 0.92, sin(b3) * hh * 0.85, 0.1)
-		stick(p3, q3, 0.012, _stick_m)
+		stick(p3, q3, 0.016, _stick_m)
 	# branches radiating onto the brick, the eye's rays, five metres of them
 	for k in 34:
 		var a4 := TAU * k / 34.0 + rng.randf_range(-0.05, 0.05)
 		var r0 := Vector3(cos(a4) * hw * 1.05, sin(a4) * hh * 1.2, 0.04)
-		var r1 := Vector3(cos(a4) * rng.randf_range(3.0, 4.6), sin(a4) * rng.randf_range(2.2, 3.4), 0.02)
-		stick(c + r0, c + r1, 0.025, _stick_m)
+		var r1 := Vector3(cos(a4) * rng.randf_range(2.4, 3.4), sin(a4) * rng.randf_range(1.5, 2.3), 0.02)
+		stick(c + r0, c + r1, 0.022, _stick_m)
 		var mid := c + r0.lerp(r1, 0.6)
 		stick(mid, mid + Vector3(rng.randf_range(-0.6, 0.6), rng.randf_range(-0.6, 0.6), 0.03), 0.014, _stick_m)
 	# wire binding, glinting
@@ -870,9 +876,9 @@ func _mural() -> void:
 	var lamp := SpotLight3D.new()
 	lamp.position = Vector3(0, 0.7, -23.5)
 	lamp.light_color = AMBER
-	lamp.light_energy = 3.0
-	lamp.spot_range = 12.0
-	lamp.spot_angle = 32.0
+	lamp.light_energy = 1.8
+	lamp.spot_range = 14.0
+	lamp.spot_angle = 42.0
 	lamp.shadow_enabled = false
 	add_child(lamp)
 	lamp.look_at(c, Vector3.UP)
@@ -1106,7 +1112,7 @@ func _outside_lot() -> void:
 	box(Vector3(14, 5.0, 10), OUT + Vector3(0, 2.5, 6.5), green, true)
 	box(Vector3(2.0, 2.6, 0.2), OUT + Vector3(0, 1.3, 1.45), mat(Color(0.02, 0.02, 0.02)))
 	box(Vector3(2.4, 0.2, 0.3), OUT + Vector3(0, 2.7, 1.4), _steel)
-	label("TUNELET  SITE 3", OUT + Vector3(0, 3.6, 1.38), PI, 0.01, Color(0.75, 0.72, 0.6), self, false).rotation.y = 0.0
+	label("TUNELET  SITE 3", OUT + Vector3(0, 3.4, 1.38), PI, 0.007, Color(0.6, 0.58, 0.5), self, false)
 	interactable("bunker", LINES["prompts"]["bunker"], OUT + Vector3(0, 1.3, 1.6), Vector3(2.0, 2.4, 0.3), "", false)
 	# barriers, a dead lamp, a box, the fence
 	for k in 4:
@@ -2839,6 +2845,14 @@ func tick(delta: float) -> void:
 	if _eye_vis != main.frames_on:
 		_eye_vis = main.frames_on
 		_eye_layer()
+	if _shot:
+		_tick_lynx(delta, pp)
+		_tick_cong(delta, pp)
+		_tick_lights(delta)
+		if _vision_on:
+			_vision_t += delta
+			vision_mat.set_shader_parameter("tm", _vision_t)
+		return
 	if not f.has("hangar_vast") and not _busy and not f.has("cinematic") and pp.z < Z1 - 0.6 and pp.y < LAND_Y + 1.5 and pp.y > -1.0 and not _outside:
 		_vast()
 	_tick_lynx(delta, pp)
@@ -3386,7 +3400,7 @@ func _panel_city() -> ImageTexture:
 		var bh := int((10 + r.randi() % 34) * (1.0 - absf(x - w * 0.5) / (w * 0.75)))
 		img.fill_rect(Rect2i(x, hz - bh, bw, bh), Color(0.02, 0.02, 0.03))
 		for k in bw * bh / 30:
-			img.set_pixel(x + r.randi() % bw, hz - 1 - r.randi() % maxi(1, bh), Color(0.9, 0.75, 0.4) if r.randf() < 0.7 else Color(0.3, 1.0, 0.6))
+			img.set_pixel(mini(w - 1, x + r.randi() % bw), hz - 1 - r.randi() % maxi(1, bh), Color(0.9, 0.75, 0.4) if r.randf() < 0.7 else Color(0.3, 1.0, 0.6))
 		x += bw
 	# the tower: a shaft through the middle, the sphere and its ring, the red light
 	img.fill_rect(Rect2i(157, 8, 6, hz - 8), Color(0.05, 0.07, 0.07))
@@ -3406,6 +3420,7 @@ func _panel_city() -> ImageTexture:
 
 ## Shots: scene=seated | white | vision | mimic | escape | outside; view=pull.
 func apply_args(a: Dictionary) -> void:
+	_shot = a.has("shot")
 	var sc := str(a.get("scene", ""))
 	if sc != "":
 		main.flags["hangar_vast"] = true
@@ -3534,4 +3549,5 @@ func selftest() -> void:
 	await _vision_rounds()
 	await _argument()
 	print("ok early slap saw_eye=", _saw_eye)
+	_frames(true)
 	await main.selftest_all_interactables()

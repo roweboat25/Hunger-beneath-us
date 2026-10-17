@@ -15,14 +15,14 @@ extends "res://scripts/Level.gd"
 ## parking apron and the dead observatory dome, the camp of tents round the
 ## fire pit (x 0..26, z -18..-34). North of the camp the brush thickens; the
 ## song's trail cuts straight to the cliff gap at (42, 0, -100), the candle
-## path goes the long way round by the west. Below the cliff (y -5) is the
+## path goes the long way round by the west. Below the cliff (y -3.5) is the
 ## flat where the children sit in their circle at CIRCLE; Eren's vans and the
 ## goat path are to the east. The blackout city is far below to the south,
 ## candle vigils the only lights in it.
 ## Sets: obs_parked, obs_camp_seen, ev_mira_tent, obs_song, obs_cliff,
 ## one of charged_observatory / watched_observatory / sang_observatory,
 ## ezra_home (Lynx), observatory_done. Learns "tower". Lynx is with Carl if
-## main.trust["lynx"] >= 2 or the flag lynx_present is set.
+## main.trust["lynx"] >= 2 or the flag lynx_with_carl (Blackout) or lynx_present is set.
 ## Figures and devices carry metas for the systems that come later:
 ## "guard" (Eren's three), "drone" (the police drone at the gate), "dog"
 ## (the riot dogs by the vans), "hackable" (anything with a Psyonic login).
@@ -117,7 +117,6 @@ const LINES := {
 		"tent_mira2": "Under it, a drawing. Crayon. A circle of small figures, a snake over them full of plates and ridges, a tower, and above all of it, the eye. She had drawn what she was going to see before she saw it.",
 		"tent_mira_cap": "Mira's drawing  -  tonight, in advance",
 		"tent_mira_log": "Mira's tent at Mount Silico: a second toy lion, tag still on, and a crayon drawing of the ceremony drawn before it happened. The fork spreads by ritual; the children are the vector.",
-		"tent_mira_why": "her drawing",
 		"tent_again": "Empty. I'd looked. There was nothing in there that would tell me where they'd gone.",
 		"say_where": ["Carl", "Shit, where are they? They can't be too far if all of their things are still here."],
 		"think3": "My glasses buzzed in my pocket as if to call my name, as if they were a student dying to give an answer to a question asked.",
@@ -261,8 +260,10 @@ const DOME := Vector3(-34.0, 0.0, -30.0)
 const CAMP := Vector3(12.0, 0.0, -26.0)
 const GAP := Vector3(42.0, 0.0, -100.0)        # the break in the brush at the cliff
 const EDGE := Vector3(42.0, 0.0, -104.0)       # where Carl stands to look down
-const CIRCLE := Vector3(40.0, -5.0, -142.0)    # the children's circle, on the flat below
-const LOWER_Y := -5.0
+const CIRCLE := Vector3(40.0, -3.5, -126.0)    # the children's circle, on the flat below
+# A small cliff, three and a half metres: Main lifts anything below y -4
+# back onto the map, so the flat has to sit above that.
+const LOWER_Y := -3.5
 const SONG_TRAIL := [Vector3(26.0, 0, -42.0), Vector3(36.0, 0, -62.0), Vector3(46.0, 0, -80.0), Vector3(42.0, 0, -96.0)]
 const CANDLE_TRAIL := [Vector3(-4.0, 0, -44.0), Vector3(-18.0, 0, -58.0), Vector3(-26.0, 0, -76.0), Vector3(-14.0, 0, -92.0),
 	Vector3(4.0, 0, -94.0), Vector3(22.0, 0, -95.0), Vector3(36.0, 0, -97.0)]
@@ -306,6 +307,7 @@ var _song: AudioStreamPlayer3D
 var _song_lead: AudioStreamPlayer3D
 var _rasp: AudioStreamPlayer3D
 var _driving := false
+var _drive_started := false
 var _arrived := false
 var _serpent_on := false
 var _serpent_ring := 0.0       # 0 dancing, 1 eating its tail
@@ -332,12 +334,12 @@ func build(m: Node) -> void:
 	kit_day = false
 	step_db = -20.0
 	card = LINES["build"]["card"]
-	_sand = pbr("plaster", Vector3(1, 1, 1) / 3.0, true, Color(0.5, 0.42, 0.33), 1.0)
+	_sand = pbr("plaster", Vector3(1, 1, 1) / 3.0, true, Color(0.36, 0.3, 0.24), 1.0)
 	_rock = pbr("concrete", Vector3(1, 1, 1) / 2.5, true, Color(0.36, 0.32, 0.28), 1.0)
 	_dark_rock = pbr("concrete", Vector3(1, 1, 1) / 3.0, true, Color(0.22, 0.2, 0.19), 1.0)
 	_stick_m = mat(Color(0.4, 0.31, 0.2), 0.9)
 	_candle_m = glow(Color(1.0, 0.7, 0.35), 2.2)
-	_plate_m = mat(Color(0.2, 0.2, 0.22), 0.35, 0.85)
+	_plate_m = mat(Color(0.42, 0.42, 0.46), 0.3, 0.85)
 	_core_m = glow(PSYON_GREEN, 2.6)
 	_ground()
 	_climb_road()
@@ -408,7 +410,8 @@ func ambience() -> void:
 
 
 func _lynx_here() -> bool:
-	return int(main.trust.get("lynx", 0)) >= 2 or main.flags.has("lynx_present")
+	# the same test Blackout.gd uses for her being in the car tonight
+	return int(main.trust.get("lynx", 0)) >= 2 or main.flags.has("lynx_with_carl") or main.flags.has("lynx_present")
 
 
 # ------------------------------------------------------------------ the mount
@@ -416,15 +419,18 @@ func _lynx_here() -> bool:
 ## The plateau top, the slope the road climbs, and the summit rock to the
 ## west that eats the stars on that side.
 func _ground() -> void:
-	solid_box(Vector3(400, 2, 260), Vector3(0, -1.0, -20))
+	# the top ends at the cliff lip (z -104); the flat below has its own floor
+	solid_box(Vector3(400, 2, 214), Vector3(0, -1.0, 3.0))
 	for cx in range(-3, 3):
-		for cz in range(-3, 2):
+		for cz in range(-1, 2):
 			floor_quad(Vector2(60, 60), Vector3(cx * 60.0 + 30.0, 0.0, cz * 60.0 + 30.0), 0.0, _sand)
-	# the slope south, down to the city: a tilted slab under the road
-	var slope := box(Vector3(260, 2, 250), Vector3(0, -24.0, 205.0), _rock)
-	slope.rotation.x = -atan(0.2)
-	var sb := solid_box(Vector3(260, 2, 250), Vector3(0, -24.0, 205.0))
-	sb.rotation.x = -atan(0.2)
+		floor_quad(Vector2(60, 44), Vector3(cx * 60.0 + 30.0, 0.0, -82.0), 0.0, _sand)
+	# the slope south, down to the city: a tilted slab just under the road
+	# (positive x rotation drops the +Z end, the way the road falls)
+	var slope := box(Vector3(260, 2, 250), Vector3(0, _road_y(205.0) - 1.15, 205.0), _rock)
+	slope.rotation.x = atan(0.2)
+	var sb := solid_box(Vector3(260, 2, 250), Vector3(0, _road_y(205.0) - 1.15, 205.0))
+	sb.rotation.x = atan(0.2)
 	# the summit knob west, and lesser humps round the rim
 	sphere(70.0, Vector3(-120.0, -34.0, -40.0), _dark_rock, 14)
 	sphere(40.0, Vector3(90.0, -28.0, 30.0), _dark_rock, 12)
@@ -457,17 +463,17 @@ func _climb_road() -> void:
 	while z > 80.0:
 		var cz := z - 10.0
 		var q := floor_quad(Vector2(10, 20.4), Vector3(0, _road_y(cz) + 0.03, cz), 0.0, asphalt)
-		q.rotation.x = -atan(0.2)
+		q.rotation.x = atan(0.2)
 		var l := box(Vector3(0.14, 0.01, 3.0), Vector3(0, _road_y(cz) + 0.05, cz), line)
-		l.rotation.x = -atan(0.2)
+		l.rotation.x = atan(0.2)
 		# the drop side: a guard rail on posts; the hill side: cut rock
 		for k in 2:
 			var pz := cz - 5.0 + k * 10.0
 			box(Vector3(0.12, 0.9, 0.12), Vector3(-6.2, _road_y(pz) + 0.45, pz), post)
 		var rb := box(Vector3(0.08, 0.3, 20.4), Vector3(-6.2, _road_y(cz) + 0.8, cz), rail)
-		rb.rotation.x = -atan(0.2)
+		rb.rotation.x = atan(0.2)
 		var cut := box(Vector3(rng.randf_range(3.0, 6.0), rng.randf_range(2.5, 5.0), 20.5), Vector3(8.5, _road_y(cz) + 1.2, cz), _dark_rock)
-		cut.rotation.x = -atan(0.2)
+		cut.rotation.x = atan(0.2)
 		z -= 20.0
 	# the top: the road runs level onto the plateau to the gate
 	for cz: float in [70.0, 50.0, 30.0]:
@@ -589,14 +595,15 @@ func _sky() -> void:
 func _gate() -> void:
 	var k := _kit_mats()
 	for sd: float in [-1.0, 1.0]:
-		box(Vector3(0.5, 4.2, 0.5), GATE + Vector3(sd * 6.0, 2.1, 0), k["plinth"], true)
-	box(Vector3(12.6, 0.6, 0.6), GATE + Vector3(0, 4.4, 0), k["dark"])
+		box(Vector3(0.5, 5.6, 0.5), GATE + Vector3(sd * 6.0, 2.8, 0), k["plinth"], true)
+	# the sign board, dead: the lettering only reads by the car's lights
+	box(Vector3(12.6, 2.0, 0.4), GATE + Vector3(0, 4.5, 0), mat(Color(0.16, 0.17, 0.2), 0.7, 0.4))
 	var sr := Node3D.new()
-	sr.position = GATE + Vector3(0, 4.4, 0.32)
+	sr.position = GATE + Vector3(0, 4.5, 0.22)
 	add_child(sr)
-	label(LINES["signs"]["gate1"], Vector3(0, 0.1, 0), 0.0, 0.008, Color(0.75, 0.72, 0.65), sr, false)
-	label(LINES["signs"]["gate2"], Vector3(0, -0.2, 0), 0.0, 0.004, Color(0.6, 0.58, 0.52), sr, false)
-	label(LINES["signs"]["gate3"], Vector3(0, -0.45, 0), 0.0, 0.003, Color(0.5, 0.2, 0.18), sr, false)
+	label(LINES["signs"]["gate1"], Vector3(0, 0.42, 0), 0.0, 0.008, Color(0.75, 0.72, 0.65), sr, false)
+	label(LINES["signs"]["gate2"], Vector3(0, -0.24, 0), 0.0, 0.004, Color(0.6, 0.58, 0.52), sr, false)
+	label(LINES["signs"]["gate3"], Vector3(0, -0.66, 0), 0.0, 0.003, Color(0.6, 0.22, 0.2), sr, false)
 	# the reader on a post, dead; the camera over it, dead
 	box(Vector3(0.16, 1.2, 0.16), GATE + Vector3(-5.2, 0.6, 1.2), k["metal"], true)
 	box(Vector3(0.12, 0.3, 0.2), GATE + Vector3(-5.2, 1.3, 1.2), k["dark"])
@@ -916,23 +923,28 @@ func _seg_dist(p: Vector3, a: Vector3, b: Vector3) -> float:
 
 ## The cliff: the plateau's northern lip, and the slope down through the gap.
 func _cliff() -> void:
-	# the lip, broken, from x -80 to 100 at z -104 .. -108, five metres down
+	# the lip, broken, from x -80 to 100 at z -104 .. -108, down to the flat
 	for x in range(-80, 100, 6):
 		if absf(x - GAP.x) < 5.0:
 			continue
-		var r := box(Vector3(rng.randf_range(5.0, 7.5), rng.randf_range(4.5, 6.5), rng.randf_range(3.0, 5.0)), Vector3(x, -2.6, -106.0 + rng.randf_range(-1, 1)), _dark_rock, true)
+		var lh := rng.randf_range(3.7, 4.3)
+		var r := box(Vector3(rng.randf_range(5.0, 7.5), lh, rng.randf_range(3.0, 5.0)), Vector3(x, LOWER_Y + lh / 2.0 - 0.15, -106.0 + rng.randf_range(-1, 1)), _dark_rock, true)
 		r.rotation = Vector3(rng.randf_range(-0.1, 0.1), rng.randf_range(-0.15, 0.15), rng.randf_range(-0.1, 0.1))
 	edge_it = interactable("edge", LINES["signs"]["edge_prompt"], EDGE + Vector3(0, 0.8, 0), Vector3(5.0, 1.6, 3.0), "", false)
-	# the way down: a ramp of rock through the gap, 23 degrees
-	var ramp := box(Vector3(5.0, 1.0, 13.5), Vector3(GAP.x, -2.9, -108.5), _rock, true)
-	ramp.rotation.x = atan(5.0 / 12.5)
+	# the way down: a ramp of rock through the gap, from the lip (z -102,
+	# y 0) to the flat (z -114); negative x rotation lifts the +Z end
+	var ra := atan(-LOWER_Y / 12.0)
+	var ramp := box(Vector3(5.0, 1.0, 12.0 / cos(ra) + 0.6), Vector3(GAP.x, LOWER_Y / 2.0 - 0.5 / cos(ra), -108.0), _rock, true)
+	ramp.rotation.x = -ra
 	# the lower flat under the plateau
 	solid_box(Vector3(220, 2, 90), Vector3(40, LOWER_Y - 1.0, -150))
 	for cx in 4:
 		for cz in 2:
 			floor_quad(Vector2(60, 50), Vector3(-50.0 + cx * 60.0, LOWER_Y, -130.0 - cz * 50.0), 0.0, _sand)
 	# the plateau's face above the flat, and the rock walls north and west
-	box(Vector3(260, 6.0, 4.0), Vector3(20, -3.0, -108.0), _dark_rock)
+	# (in two pieces, so the ramp's gap stays open)
+	box(Vector3(147, -LOWER_Y, 4.0), Vector3(-36.5, LOWER_Y / 2.0, -108.5), _dark_rock)
+	box(Vector3(103, -LOWER_Y, 4.0), Vector3(98.5, LOWER_Y / 2.0, -108.5), _dark_rock)
 	for x in range(-60, 150, 8):
 		var h := rng.randf_range(8.0, 16.0)
 		var nb := box(Vector3(9.0, h, rng.randf_range(5.0, 9.0)), Vector3(x, LOWER_Y + h / 2.0 - 1.0, -184.0), _dark_rock, true)
@@ -1016,8 +1028,8 @@ func _circle() -> void:
 		var p := CIRCLE + Vector3(cos(a) * 6.8, 0, sin(a) * 6.8)
 		cyl(0.03, 0.035, 0.14, p + Vector3(0, 0.07, 0), mat(Color(0.9, 0.85, 0.7), 0.9), 6)
 		box(Vector3(0.04, 0.06, 0.04), p + Vector3(0, 0.17, 0), _candle_m)
-		if i % 2 == 0:
-			var cl := light(p + Vector3(0, 0.6, 0), Color(1.0, 0.65, 0.3), 1.1, 7.0, false)
+		if i % 4 == 0:
+			var cl := light(p + Vector3(0, 0.6, 0), Color(1.0, 0.65, 0.3), 1.3, 9.0, false)
 			flickers.append(cl)
 	var skins := [Color(0.85, 0.66, 0.52), Color(0.6, 0.42, 0.3), Color(0.4, 0.28, 0.2), Color(0.92, 0.78, 0.66), Color(0.72, 0.56, 0.44)]
 	var coats := [Color(0.5, 0.2, 0.2), Color(0.2, 0.3, 0.55), Color(0.55, 0.5, 0.2), Color(0.25, 0.45, 0.3), Color(0.5, 0.3, 0.5), Color(0.3, 0.3, 0.32)]
@@ -1078,9 +1090,9 @@ func _erens_people() -> void:
 			cyl(0.085, 0.085, 0.06, Vector3(0, 1.27, -0.5), glow(Color(0.8, 0.1, 0.08), 1.0), 10, mn)
 		men.append(mn)
 	# the three guards, on the dark edge of the flat
-	for gp: Vector3 in [Vector3(28.0, 0, -128.0), Vector3(54.0, 0, -126.0), Vector3(42.0, 0, -160.0)]:
+	for gp: Vector3 in [CIRCLE + Vector3(-13.0, 0, 1.0), CIRCLE + Vector3(13.0, 0, 3.0), CIRCLE + Vector3(2.0, 0, -17.0)]:
 		var g := figure(Color(0.05, 0.06, 0.14), Color(0.78, 0.62, 0.5), {"arms": true, "knees": true, "visor": true, "hair": Color(0.08, 0.06, 0.05)})
-		g.position = gp + Vector3(0, LOWER_Y, 0)
+		g.position = Vector3(gp.x, LOWER_Y, gp.z)
 		add_child(g)
 		turn_to(g, CIRCLE)
 		g.set_meta("guard", true)
@@ -1089,7 +1101,9 @@ func _erens_people() -> void:
 		gi.set_meta("guard", true)
 		guards.append(g)
 	# a green that is not a candle, under where the eye will hang
-	light(CIRCLE + Vector3(0, 3.0, 0), PSYON_GREEN, 0.0, 14.0, false).set_meta("eye_light", true)
+	var gl := light(CIRCLE + Vector3(0, 3.0, 0), PSYON_GREEN, 0.0, 14.0, false)
+	gl.set_meta("eye_light", true)
+	gl.visible = false
 
 
 ## The serpent: a chain of plates with a Psyonic-green core, drawn on the
@@ -1104,7 +1118,7 @@ func _serpent() -> void:
 	for i in 28:
 		var pl := Node3D.new()
 		serpent.add_child(pl)
-		var s := 1.0 - i * 0.02
+		var s := 1.0 - i * 0.02  # drawn at 1.8x by _tick_serpent
 		if i == 0:
 			# the head: a wedge, a jaw, two red eyes, ridges
 			box(Vector3(0.5, 0.34, 0.72), Vector3(0, 0, 0), _plate_m, false, pl)
@@ -1112,11 +1126,12 @@ func _serpent() -> void:
 			for sd: float in [-1.0, 1.0]:
 				box(Vector3(0.07, 0.07, 0.07), Vector3(sd * 0.17, 0.08, -0.3), red, false, pl)
 				box(Vector3(0.06, 0.2, 0.22), Vector3(sd * 0.22, 0.2, 0.1), _plate_m, false, pl)
-			box(Vector3(0.22, 0.14, 0.4), Vector3(0, 0, 0.1), _core_m, false, pl)
+			box(Vector3(0.56, 0.08, 0.3), Vector3(0, -0.04, 0.2), _core_m, false, pl)
 		else:
 			box(Vector3(0.44 * s, 0.3 * s, 0.5), Vector3(0, 0, 0), _plate_m, false, pl)
 			box(Vector3(0.06, 0.18 * s, 0.3), Vector3(0, 0.2 * s, 0), _plate_m, false, pl)
-			box(Vector3(0.2 * s, 0.12 * s, 0.34), Vector3(0, 0, 0), _core_m, false, pl)
+			# the core shows between the plates and down both flanks
+			box(Vector3(0.52 * s, 0.1 * s, 0.24), Vector3(0, -0.02, 0.2), _core_m, false, pl)
 		plates.append(pl)
 	smoke = Node3D.new()
 	smoke.position = CIRCLE
@@ -1124,7 +1139,7 @@ func _serpent() -> void:
 	add_child(smoke)
 	var sm := newmat(Color(0.05, 0.05, 0.06, 0.55), 1.0)
 	sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	for i in 7:
+	for i in 10:
 		var pf := sphere(0.9, Vector3.ZERO, sm, 8, smoke)
 		puffs.append(pf)
 
@@ -1160,6 +1175,8 @@ func _bounds() -> void:
 	solid_box(Vector3(500, 60, 2), Vector3(0, 0, 320))
 	solid_box(Vector3(500, 60, 2), Vector3(0, 0, -200))
 	solid_box(Vector3(2, 40, 100), Vector3(140, LOWER_Y, -150))
+	# the goat path drops below the map; it is a hook, not a way out tonight
+	solid_box(Vector3(2, 12, 100), Vector3(100.5, LOWER_Y, -150))
 	# the plateau's edges, where it falls away: low walls of rock you can't step off
 	for x in range(-120, 130, 10):
 		if absf(x) < 8.0:
@@ -1252,16 +1269,26 @@ func intro() -> void:
 	_drive()
 
 
-func _until(z: float) -> void:
-	while car.position.z > z:
+## Every wait in this level has a way out: a deadline in game seconds. If
+## the car or a figure has not got there by then, it is put there.
+func _until(z: float, secs := 60.0) -> void:
+	var t := 0.0
+	while car.position.z > z and _driving and t < secs:
 		await get_tree().process_frame
+		t += get_process_delta_time()
+	if _driving and car.position.z > z:
+		car.position.z = z
+		car.position.y = _road_y(z)
 
 
 func _stop_at(z: float) -> void:
 	stop_z = z
 	await _until(z + 0.5)
-	while speed > 0.05:
+	var t := 0.0
+	while speed > 0.05 and _driving and t < 8.0:
 		await get_tree().process_frame
+		t += get_process_delta_time()
+	speed = 0.0
 
 
 func _go(v: float) -> void:
@@ -1275,6 +1302,9 @@ func _drive() -> void:
 	var ui = main.ui
 	var p = main.player
 	var f: Dictionary = main.flags
+	if _drive_started:
+		return
+	_drive_started = true
 	p.seated = true
 	p.crouch = 0.5
 	_driving = true
@@ -1438,8 +1468,7 @@ func _tent_look(id: String) -> void:
 		await ui.think(LINES["camp"]["tent_mira_cap"])
 		ui.hide_picture()
 		f["ev_mira_tent"] = true
-		main.log_line("evidence", LINES["camp"]["tent_mira_log"])
-		main.add_connection(1.0, LINES["camp"]["tent_mira_why"])
+		main.log_line("clue", LINES["camp"]["tent_mira_log"])  # bible: +1 clue
 	ui.close()
 	if tents_seen.size() >= 3 and not f.has("obs_song"):
 		await _song_starts()
@@ -1571,6 +1600,7 @@ func _cliff_scene() -> void:
 	et.tween_property(eye, "scale", Vector3(1, 1, 1), 5.0).set_trans(Tween.TRANS_SINE)
 	for c in get_children():
 		if c is OmniLight3D and c.has_meta("eye_light"):
+			c.visible = true
 			et.tween_property(c, "light_energy", 2.4, 5.0)
 	p.face(CIRCLE + Vector3(0, 24.0, 0), 4.0)
 	await et.finished
@@ -1673,7 +1703,8 @@ func _charge() -> void:
 	ui.caption(c["cap1"], 3.5)
 	main.play("sting", -8.0, 0.8)
 	if main._selftest:
-		p.position = CIRCLE + Vector3(0, 0.1, 4.0)
+		# headless: no legs to sprint with; put him at the edge of the circle
+		p.position = mira.global_position + Vector3(0.4, 0.1, 2.6)
 	var t := 0.0
 	var shouted := false
 	while not _caught and p.global_position.distance_to(mira.global_position) > 3.2 and t < 45.0:
@@ -1812,17 +1843,19 @@ func _sing() -> void:
 		main.play("tap", -14.0, 0.9)
 		var hit := false
 		var t := 0.0
-		while t < 1.7:
+		# a beat is 1.7 s; headless, one frame (nobody is there to press E)
+		while t < 1.7 and not main._selftest:
 			await get_tree().process_frame
 			t += get_process_delta_time()
 			if Input.is_action_just_pressed("interact"):
 				hit = true
-		if hit:
+		if hit or main._selftest:
 			hits += 1
-	if main._selftest:
-		hits = 8
 	ui.show_toast(s["held"] % hits, 3.0)
-	if walk.is_running():
+	if main._selftest:
+		walk.kill()
+		p.position = path[path.size() - 1]
+	elif walk.is_running():
 		await walk.finished
 	await p.face(mira.global_position + Vector3(0, 1.1, 0), 0.8)
 	main.add_connection(8.0, s["why"])
@@ -1952,11 +1985,30 @@ func _boots_panel() -> ImageTexture:
 # ------------------------------------------------------------------ movers
 
 ## Walk a figure through points at a speed, with the walk cycle, and wait.
+## The deadline is twice the walk plus three seconds; past it the figure
+## is put at the end of the path, so no scene waits on a stuck walker.
 func _move(fig: Node3D, path: Array, speed: float) -> void:
+	if path.is_empty() or not is_instance_valid(fig):
+		return
+	for mv0 in movers:
+		if mv0["fig"] == fig:
+			mv0["done"] = true  # a new walk replaces the old one
 	var mv := {"fig": fig, "path": path, "i": 0, "speed": speed, "done": false}
 	movers.append(mv)
-	while not mv["done"]:
+	var length := 0.0
+	var prev: Vector3 = fig.position
+	for pt: Vector3 in path:
+		length += Vector2(pt.x - prev.x, pt.z - prev.z).length()
+		prev = pt
+	var limit := length / maxf(0.1, speed * 2.2) * 2.0 + 3.0
+	var t := 0.0
+	while not mv["done"] and t < limit:
 		await get_tree().process_frame
+		t += get_process_delta_time()
+	if not mv["done"]:
+		mv["done"] = true
+		if is_instance_valid(fig):
+			fig.position = path[path.size() - 1]
 
 
 func _tick_movers(delta: float) -> void:
@@ -2078,8 +2130,8 @@ func _tick_serpent(delta: float) -> void:
 	for i in n:
 		var s := float(i) / float(n)
 		var a := lerpf(head_a - s * 2.6, -s * TAU, ring)
-		var r := lerpf(2.4 + sin(_t * 0.7 + s * 4.0) * 0.9, 2.0, ring)
-		var y := lerpf(3.4 + sin(_t * 2.2 + s * 7.0) * 1.3 + s * 0.6, 3.5, ring)
+		var r := lerpf(4.2 + sin(_t * 0.7 + s * 4.0) * 1.5, 3.4, ring)
+		var y := lerpf(6.8 + sin(_t * 2.2 + s * 7.0) * 2.0 + s * 1.0, 7.0, ring)
 		pts.append(Vector3(cos(a) * r, y, sin(a) * r) * _serpent_scale)
 	for i in n:
 		var pl: Node3D = plates[i]
@@ -2087,13 +2139,13 @@ func _tick_serpent(delta: float) -> void:
 		var nxt: Vector3 = pts[i + 1] if i + 1 < n else pts[i] + (pts[i] - pts[i - 1])
 		if pl.position.distance_to(nxt) > 0.001:
 			pl.look_at(serpent.global_position + nxt, Vector3.UP)
-		pl.scale = Vector3.ONE * maxf(0.01, _serpent_scale)
+		pl.scale = Vector3.ONE * 1.8 * maxf(0.01, _serpent_scale)
 		pl.rotation.z = sin(_t * 3.0 + i * 0.4) * 0.6
 	for i in puffs.size():
 		var pf: MeshInstance3D = puffs[i]
 		var j := int(float(i) / float(puffs.size()) * n)
 		pf.position = pts[j] + Vector3(sin(_t + i) * 0.3, 0.3, cos(_t * 0.8 + i) * 0.3)
-		pf.scale = Vector3.ONE * (1.0 + sin(_t * 1.5 + i) * 0.3) * maxf(0.01, _serpent_scale)
+		pf.scale = Vector3.ONE * (1.8 + sin(_t * 1.5 + i) * 0.5) * maxf(0.01, _serpent_scale)
 
 
 ## The children sway at what is over them and look up at it (or at the
@@ -2265,6 +2317,7 @@ func apply_args(a: Dictionary) -> void:
 			men[1].position = CIRCLE + Vector3(1.4, 0, -1.8)
 			for c in get_children():
 				if c is OmniLight3D and c.has_meta("eye_light"):
+					c.visible = true
 					c.light_energy = 2.4
 		if not a.has("at"):
 			main.player.position = car.position + Vector3(-1.9, 0.1, 0.5)
@@ -2280,29 +2333,66 @@ func _node_by_id(id: String) -> Node:
 	return null
 
 
-## Headless: the drive, the camp, the three tents, the song, the cliff (the
-## pump picks Watch), then the other two ways and Lynx's for coverage.
+## Headless: the drive, the camp, the three tents, the
+## song, the cliff (the pump picks 1: the candles, frames kept off, Watch),
+## then Charge, Walk down singing and Lynx's "Let me" for coverage, then
+## every interactable twice. Every wait in here has a deadline.
 func selftest() -> void:
-	await _drive()
+	# Headless on llvmpipe this hill renders at well under 1 fps, and every
+	# line of dialogue costs a frame: the run looked hung at the edge. The
+	# test is of the script, so the level is hidden while it runs (it still
+	# ticks, collides and plays); it is shown again at the end.
+	visible = false
+	# Main does not call intro() in a headless run, so the drive runs here
+	if not _drive_started:
+		await _drive()
+	var t := 0.0
+	while not main.flags.has("obs_parked") and t < 240.0:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	if not main.flags.has("obs_parked"):
+		print("WARN drive timed out at z=", car.position.z)
+		_driving = false
+		await _get_out()
+		main.flags["obs_parked"] = true
 	print("ok drive")
-	await _camp_seen()
-	for id in ["gate_reader", "drone", "dome", "shuttle", "tent_other", "tent_ezra", "tent_mira", "brush", "edge"]:
+	if not main.flags.has("obs_camp_seen"):
+		await _camp_seen()
+	for id in ["gate_reader", "drone", "dome", "kiosk", "shuttle", "firepit", "telescope", "tent_other", "tent_ezra", "tent_mira", "brush", "candle", "edge"]:
 		var n := _node_by_id(id)
 		if n:
 			await main.interact(n)
 			print("ok ", id)
 		else:
 			print("MISSING ", id)
-	print("cliff=", _cliff_done, " chosen=", _chosen, " flags=", main.flags.keys())
-	# the other ways, for the script's sake
+	print("cliff=", _cliff_done, " chosen=", _chosen, " watched=", main.flags.has("watched_observatory"), " done=", main.flags.has("observatory_done"))
+	# the other two ways, for the script's sake
 	_ended = false
 	await _charge()
-	print("ok charge")
+	print("ok charge pressure=", main.pressure, " charged=", main.flags.has("charged_observatory"))
 	_ended = false
+	_reset_ridge()
 	await _sing()
-	print("ok sing")
-	if lynx:
-		main.flags.erase("ezra_home")
-		await _lynx_takes_ezra()
-		print("ok lynx")
+	print("ok sing sang=", main.flags.has("sang_observatory"))
+	# Lynx's way: she is built here if the run did not bring her
+	if not lynx:
+		main.trust["lynx"] = 2
+		_lynx()
+		_stand_up(lynx)
+		lynx.position = EDGE + Vector3(-1.6, 0, 0.8)
+	main.flags.erase("ezra_home")
+	_reset_ridge()
+	await _lynx_takes_ezra()
+	print("ok lynx ezra_home=", main.flags.has("ezra_home"))
+	main.flags.erase("cinematic")
 	await main.selftest_all_interactables()
+	visible = true
+
+
+## Back to the ridge between the selftest's runs of the choice.
+func _reset_ridge() -> void:
+	var p = main.player
+	p.position = EDGE + Vector3(0, 0.1, 0)
+	p.velocity = Vector3.ZERO
+	p.crouch = 0.0
+	main.ui.fade_to(0.0, 0.1)

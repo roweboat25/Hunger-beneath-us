@@ -512,7 +512,79 @@ func build(m: Node) -> void:
 	_stairwell_b()
 	_sublevel_2()
 	_people()
-	_batch(self, 10.0, true)
+	_batch_floors(6.0)
+	_collect_lights()
+
+
+## The web build's renderer shades at most 32 omni lights a frame, taken
+## in build order before any sorting, so with three floors stacked the
+## upper floors' lamps used every slot and sublevel 2 went black. Lamps
+## are shown only on the floor Carl is on (both, on a stair), and fade
+## out past 22 m.
+var _lights: Array = []   # [OmniLight3D, floor y]
+var _light_t := 0.0
+
+
+func _collect_lights() -> void:
+	var skip := {}
+	for l in lab_lights:
+		skip[l[0]] = true
+	for c in get_children():
+		if c is OmniLight3D and not skip.has(c):
+			var o := c as OmniLight3D
+			o.distance_fade_enabled = true
+			o.distance_fade_begin = 22.0
+			o.distance_fade_length = 6.0
+			var fy := Y2 if o.position.y < Y1 - 0.5 else (Y1 if o.position.y < Y0 - 0.5 else Y0)
+			_lights.append([o, fy])
+
+
+func _cull_lights(delta: float, py: float) -> void:
+	_light_t -= delta
+	if _light_t > 0.0:
+		return
+	_light_t = 0.2
+	for l in _lights:
+		(l[0] as OmniLight3D).visible = absf(float(l[1]) - py) < 3.2
+
+
+## Level.gd's _batch merges by x and z only, which here would weld the
+## three stacked floors into one mesh per cell and blow the renderer's
+## lights-per-object budget (the corridors went black). The same merge,
+## keyed by floor as well.
+func _batch_floors(chunk: float) -> void:
+	var skip := {}
+	for b in blinkers:
+		skip[b] = true
+	for sc in screens:
+		skip[sc[0]] = true
+	for n in no_batch:
+		skip[n] = true
+	var groups := {}
+	for c in get_children():
+		if not (c is MeshInstance3D) or skip.has(c) or c.material_override == null:
+			continue
+		var mi := c as MeshInstance3D
+		var fl := 0 if mi.position.y < 3.8 else (1 if mi.position.y < 8.3 else 2)
+		var key := "%d:%d:%d:%d" % [mi.material_override.get_instance_id(), int(floor(mi.position.z / chunk)), int(floor(mi.position.x / chunk)), fl]
+		if not groups.has(key):
+			groups[key] = []
+		groups[key].append(mi)
+	for key in groups:
+		var list: Array = groups[key]
+		if list.size() < 2:
+			continue
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for mi in list:
+			st.append_from(mi.mesh, 0, mi.transform)
+		var merged := MeshInstance3D.new()
+		merged.mesh = st.commit()
+		merged.material_override = list[0].material_override
+		add_child(merged)
+		for mi in list:
+			remove_child(mi)
+			mi.free()
 
 
 func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
@@ -558,10 +630,15 @@ func _wall(size: Vector3, pos: Vector3, m: Material) -> MeshInstance3D:
 ## with a lintel; floor and ceiling too. `skip` leaves out walls another
 ## room already built (shared walls would z-fight).
 func _room(x0: float, x1: float, z0: float, z1: float, y: float, h: float, wm: Material, fm: Material, cm: Material, doors: Array = [], skip: Array = [], t := 0.3) -> void:
-	floor_quad(Vector2(x1 - x0, z1 - z0), Vector3((x0 + x1) / 2.0, y + 0.002, (z0 + z1) / 2.0), 0.0, fm)
+	# floor and ceiling in tiles of at most 6 m, so no one mesh spans more
+	# lights than the renderer will shade it with
+	for sx: Vector2 in _spans(x0, x1):
+		for sz: Vector2 in _spans(z0, z1):
+			var c := Vector3((sx.x + sx.y) / 2.0, 0.0, (sz.x + sz.y) / 2.0)
+			floor_quad(Vector2(sx.y - sx.x, sz.y - sz.x), c + Vector3(0, y + 0.002, 0), 0.0, fm)
+			if cm:
+				floor_quad(Vector2(sx.y - sx.x, sz.y - sz.x), c + Vector3(0, y + h, 0), 0.0, cm, self, false)
 	solid_box(Vector3(x1 - x0 + 1.0, 0.4, z1 - z0 + 1.0), Vector3((x0 + x1) / 2.0, y - 0.2, (z0 + z1) / 2.0))
-	if cm:
-		floor_quad(Vector2(x1 - x0, z1 - z0), Vector3((x0 + x1) / 2.0, y + h, (z0 + z1) / 2.0), 0.0, cm, self, false)
 	for side: String in ["n", "s", "e", "w"]:
 		if side in skip:
 			continue
@@ -580,8 +657,21 @@ func _room(x0: float, x1: float, z0: float, z1: float, y: float, h: float, wm: M
 		_wall_seg(side, cur, b, y, h, x0, x1, z0, z1, wm, t)
 
 
+
+## [a, b] cut into equal spans of at most `most` metres.
+func _spans(a: float, b: float, most := 6.0) -> Array:
+	var n := maxi(1, int(ceil((b - a) / most)))
+	var out := []
+	for k in n:
+		out.append(Vector2(lerpf(a, b, float(k) / n), lerpf(a, b, float(k + 1) / n)))
+	return out
+
 func _wall_seg(side: String, a: float, b: float, y: float, h: float, x0: float, x1: float, z0: float, z1: float, wm: Material, t: float) -> void:
 	if b - a < 0.02 or h < 0.02:
+		return
+	if b - a > 6.5:
+		for sp: Vector2 in _spans(a, b):
+			_wall_seg(side, sp.x, sp.y, y, h, x0, x1, z0, z1, wm, t)
 		return
 	var mid := (a + b) / 2.0
 	var ln := b - a
@@ -631,8 +721,9 @@ func _fluor(p: Vector3, rot_y := 0.0, energy := 1.0, stutter := false, c := Colo
 	prop("mounted_fluorescent_lights", p - Vector3(0, 0.06, 0), rot_y, 1.0, false)
 	var g := box(Vector3(0.9, 0.025, 0.05), p - Vector3(0, 0.05, 0), glow(Color(0.85, 1.0, 0.8), 1.6, true))
 	g.rotation.y = rot_y
-	var l := light(p - Vector3(0, 0.35, 0), c, energy, 7.5)
-	l.omni_attenuation = 1.1
+	energy *= 0.7
+	var l := light(p - Vector3(0, 0.35, 0), c, energy, 6.0)
+	l.omni_attenuation = 1.0
 	if stutter:
 		no_batch.append(g)
 		fluor_lights.append([l, energy, rng.randf() * 10.0, g])
@@ -889,7 +980,7 @@ func _chamber() -> void:
 	for i in 4:
 		box(Vector3(0.1, 0.6, 0.1), Vector3(-6.6, Y0 + 0.3, -4.6 + i * 1.6), _metal)
 	_cables(Vector3(-6.75, Y0 + 2.4, -5.0), Vector3(-6.75, Y0 + 2.4, 1.0), 4)
-	light(Vector3(-5.4, Y0 + 1.4, -2.0), Color(0.3, 0.8, 0.6), 0.9, 5.0)
+	light(Vector3(-5.4, Y0 + 1.4, -2.0), Color(0.3, 0.8, 0.6), 0.9, 2.8)
 	interactable("crt", L("build", "crt_prompt"), Vector3(-6.3, Y0 + 1.2, -2.0), Vector3(0.8, 1.6, 5.4), L("build", "crt_scan"), true)
 	# the rusted console against the south wall, the one Lynx kneels by,
 	# terminal lights blinking in patterns
@@ -913,7 +1004,7 @@ func _chamber() -> void:
 	# the doorway: a steel frame, a sign over it, the green light beyond
 	box(Vector3(2.6, 0.15, 0.4), Vector3(5.6, Y0 + 2.2, -6.0), _metal)
 	_sign("SUBLEVEL 1  ->", Vector3(5.6, Y0 + 2.5, -5.83), 0.0, 0.003)
-	light(Vector3(5.6, Y0 + 1.8, -8.0), PSYON_GREEN, 0.7, 6.0)
+	light(Vector3(5.6, Y0 + 1.8, -8.0), PSYON_GREEN, 0.7, 3.2)
 	interactable("doorway", L("build", "doorway_prompt"), DOORWAY + Vector3(0, 1.1, 0), Vector3(2.2, 2.1, 0.5), "", false)
 
 
@@ -1169,7 +1260,7 @@ func _utility_and_passage() -> void:
 	prop("modular_electric_cables", Vector3(2.75, Y1 + 0.4, -19.2), -PI / 2.0, 1.0, false)
 	prop("Barrel_01", Vector3(-0.4, Y1, -17.0), 0.0, 1.0, true)
 	_cables(Vector3(2.8, Y1 + 2.2, -16.6), Vector3(2.8, Y1 + 2.2, -19.4), 4)
-	light(Vector3(1.0, Y1 + 2.4, -18.0), Color(1.0, 0.6, 0.3), 0.6, 4.0)
+	light(Vector3(1.0, Y1 + 2.4, -18.0), Color(1.0, 0.6, 0.3), 0.6, 3.8)
 	# the passage: z -21.3..-19.7, x -33..3, concrete, ducts and pipes. The
 	# hatch is a grille bent back in its south wall at x 0.
 	_room(-33.0, 3.0, -21.3, -19.7, Y1, 2.4, _conc, _floor2, _ceil, [["s", 0.0, 1.0], ["s", -32.0, 1.0]])
@@ -1183,7 +1274,7 @@ func _utility_and_passage() -> void:
 	for i in 4:
 		prop("modular_airduct_circular_01", Vector3(-4.0 - i * 8.0, Y1 + 1.68, -20.7), PI / 2.0, 1.0, false)
 	for i in 5:
-		var l := light(Vector3(-2.0 - i * 7.0, Y1 + 2.2, -20.3), Color(1.0, 0.55, 0.25), 0.45, 5.0)
+		var l := light(Vector3(-2.0 - i * 7.0, Y1 + 2.2, -20.3), Color(1.0, 0.55, 0.25), 0.45, 3.6)
 		if i == 2:
 			fluor_lights.append([l, 0.45, 3.0, null])
 	_cables(Vector3(2.5, Y1 + 1.2, -21.13), Vector3(-32.5, Y1 + 1.2, -21.13), 3)
@@ -1314,7 +1405,7 @@ func _corridor_p() -> void:
 		box(Vector3(34.6, 0.12, 0.02), Vector3(-5.85, Y2 + 0.06, z), _metal)
 	_cables(Vector3(11.2, Y2 + 2.6, PZ + 1.1), Vector3(-23.0, Y2 + 2.6, PZ + 1.1), 2)
 	for i in 6:
-		_fluor(Vector3(-20.0 + i * 6.0, Y2 + H1, PZ), 0.0, 0.55, i % 2 == 0)
+		_fluor(Vector3(-20.0 + i * 6.0, Y2 + H1, PZ), 0.0, 0.85, i % 2 == 0)
 	prop("security_camera_01", Vector3(11.2, Y2 + 2.7, PZ - 1.0), PI / 2.0, 1.0, false)
 	prop("security_camera_01", Vector3(-22.9, Y2 + 2.7, PZ + 1.0), -PI / 2.0, 1.0, false)
 	_sign("OBSERVATION\nAUTHORISED STAFF ONLY", Vector3(1.5, Y2 + 2.45, PZ - 1.13), 0.0, 0.0022)
@@ -1473,7 +1564,7 @@ func _observation() -> void:
 	var scr := _ionware(OBS_DESK + Vector3(0.0, 0.67, 0.0), PI, obs_screen_m)
 	no_batch.append(scr)
 	_ionware(OBS_DESK + Vector3(-0.6, 0.67, -0.05), PI + 0.2, mat(Color(0.05, 0.06, 0.06), 0.2, 0.3))
-	obs_light = light(OBS_DESK + Vector3(0, 1.2, 0.5), Color(0.45, 0.6, 1.0), 1.1, 5.0)
+	obs_light = light(OBS_DESK + Vector3(0, 1.2, 0.5), Color(0.45, 0.6, 1.0), 1.1, 3.2)
 	interactable("monitor", L("build", "monitor_prompt"), OBS_DESK + Vector3(0, 1.1, 0.1), Vector3(0.8, 0.7, 0.6), L("build", "monitor_scan"), false)
 	var cm := mat(Color(0.12, 0.12, 0.13), 0.6, 0.3)
 	box(Vector3(0.46, 0.08, 0.46), OBS_CHAIR + Vector3(0, 0.5, 0), cm)
@@ -1580,7 +1671,8 @@ func _lab() -> void:
 	# "bathed in the sterile glare of bright, fluorescent white light"
 	_fluor(Vector3(8.0, Y2 + H1, -19.0), 0.0, 0.35, true, Color(0.7, 0.9, 0.75))
 	for p: Vector3 in [Vector3(7.0, Y2 + 2.6, -20.0), Vector3(10.0, Y2 + 2.6, -19.5)]:
-		var bl2 := light(p, Color(0.95, 0.97, 1.0), 0.0, 8.0, false)
+		var bl2 := light(p, Color(0.95, 0.97, 1.0), 0.0, 6.0, false)
+		bl2.visible = false
 		lab_lights.append([bl2, 2.6])
 	# dust and debris now
 	for k in 6:
@@ -2385,6 +2477,7 @@ func _lab_2019(on: bool) -> void:
 func _lab_light(k: float) -> void:
 	for l in lab_lights:
 		(l[0] as OmniLight3D).light_energy = float(l[1]) * k
+		(l[0] as OmniLight3D).visible = k > 0.0
 
 
 func _seat_subject(seated: bool) -> void:
@@ -2681,6 +2774,7 @@ func tick(delta: float) -> void:
 		return
 	var pp: Vector3 = main.player.global_position
 	var f: Dictionary = main.flags
+	_cull_lights(delta, pp.y)
 	_tick_lynx(delta, pp)
 	_tick_eyeless(delta, pp)
 	# the eye layer: the door in pen 4

@@ -217,9 +217,11 @@ const LINES := {
 		"denies": "There is no belief layer. There's a splinter group and a PR problem, and one of them is my job.",
 		"present_tablet": "Present the second tablet.",
 		"present_drawing": "Present Mira's drawing.",
+		"present_her_tablet": "Present Mira's tablet, the one from the circle.",
 		"let_go": "Let it go.",
 		"presented_tablet": "I put the second tablet on the table between us. The one she'd given Mira. The one with the Tower on it.",
 		"presented_drawing": "I put Mira's drawing on the table between us. The council round the table, ten pages on. The eye where our daughter had been.",
+		"presented_her_tablet": "I put Mira's tablet on the table between us. The one from the circle, the one I'd pocketed. It woke when it touched the wood and showed her the Tower.",
 		"broken": [["Monica", "Where did you get that."],
 			["", "It wasn't a question. She sat down."],
 			["Monica", "Fine. Marcus called it gamifying belief. Eren calls it the belief layer. I wrote the scripture, Carl. Some of it."]],
@@ -474,6 +476,10 @@ const LINES := {
 	"examine": {
 		"exit1": "It was late. The kids were at the table. I wasn't going anywhere tonight.",
 		"exit2": "Mira first.",
+		"mira_away": "Her chair at the table, pushed in. She was at the observation site tonight, under GalileoBot's stars, and the flat knew it.",
+		"mira_away4": "Her chair at the table, pushed in. The observation site had her. Monica was packing to go where she was.",
+		"exit4": "Not yet. Monica first. There was a bag on the table.",
+		"exit4b": "I had nowhere to be until morning, and nothing left in me to be there with.",
 		"window": "West-facing. We were lucky enough to get a unit that faced the west. The sunset made working in this tower, living in this cage, a little easier.",
 		"window2": "Somewhere down there, past the Spine, was the old Tunelet station. The map was still in my coat.",
 		"balcony1": "Child-safe lock, 86 floors up. The wind out there could take a plate off the table.",
@@ -560,6 +566,7 @@ var ezra_lights: Array = []
 var _blacked := false
 var _eye_cam := Vector3.ZERO
 var _hum_t := 0.0
+var _alone_t := 0.0        # visit 4: time in the flat after Monica has gone
 var _wall: StandardMaterial3D
 var _trim: StandardMaterial3D
 var _stick_m: StandardMaterial3D
@@ -2044,6 +2051,11 @@ func tick(delta: float) -> void:
 		if _hum_t <= 0.0:
 			_hum_t = rng.randf_range(4.0, 7.0)
 			main.play("hum", -20.0, rng.randf_range(1.6, 2.1))
+	# the leaves are forced tonight: a minute after she has gone, sleep takes him
+	if fourth and f.has("monica_choice_done") and not _ended and not f.has("cinematic"):
+		_alone_t += delta
+		if _alone_t > 60.0:
+			_leaves_dream()
 	# the lens: a red pinprick that is not always there
 	if lens_dot:
 		lens_dot.visible = fmod(_t, 7.0) < 0.12 or (second and fmod(_t, 2.3) < 0.08)
@@ -2120,6 +2132,14 @@ func _enter() -> void:
 	var f: Dictionary = main.flags
 	var p = main.player
 	if f.has("home_in"):
+		if fourth:
+			if f.has("monica_choice_done") and not _ended:
+				# the dream is forced tonight: there is nowhere to go but the couch
+				await ui.think(L("examine", "exit4b"))
+				await _leaves_dream()
+			else:
+				await ui.think(L("examine", "exit4"))
+			return
 		await ui.think(L("examine", "exit2" if (second or third) else "exit1"))
 		return
 	f["home_in"] = true
@@ -2200,7 +2220,10 @@ func interact(node: Object) -> bool:
 		"sketchbook":
 			await _sketchbook()
 		"mira":
-			if second:
+			if third or fourth:
+				# the kids are away from Day 3; her chair is all there is
+				await ui.think(ex["mira_away4" if fourth else "mira_away"])
+			elif second:
 				await ui.say("Mira", L("dinner2", "nothing"))
 			else:
 				await _mira_first()
@@ -2210,8 +2233,10 @@ func interact(node: Object) -> bool:
 			else:
 				await ui.think(ex["mira_back"])
 		"ezra":
-			if fourth:
+			if fourth and ezra.visible:
 				await _play("home4", "ezra")
+			elif third or fourth:
+				await ui.think(ex["ezra_dark"])
 			elif second:
 				await _ezra_second()
 			else:
@@ -3407,12 +3432,18 @@ func _monica_fourth() -> void:
 		if f.has("ev_second_tablet"):
 			opts.append(L("home4", "present_tablet"))
 			keys.append("tablet")
-		if f.has("ev_mira_drawing"):
+		elif f.has("ev_mira_tablet"):
+			opts.append(L("home4", "present_her_tablet"))
+			keys.append("her_tablet")
+		if f.has("ev_mira_drawing") or f.has("ev_mira_tent"):
 			opts.append(L("home4", "present_drawing"))
 			keys.append("drawing")
 		opts.append(L("home4", "let_go"))
 		keys.append("none")
-		var pick: int = await ui.choose(opts)
+		# nothing to present: there is only letting it go
+		var pick := 0
+		if opts.size() > 1:
+			pick = clampi(await ui.choose(opts), 0, opts.size() - 1)
 		if keys[pick] != "none":
 			await ui.think(L("home4", "presented_" + keys[pick]))
 			await _play("home4", "broken")
@@ -3550,6 +3581,9 @@ func apply_args(a: Dictionary) -> void:
 		_show_panel(str(a["panel"]))
 	if a.has("dark"):
 		_darken()
+	if a.has("monica"):
+		# dev: --monica=N sets T:monica to read her other branches (visits 3-4)
+		main.trust["monica"] = int(a["monica"])
 	if a.has("eye"):
 		eye_rig.visible = true
 		cage.visible = true
@@ -3591,17 +3625,46 @@ func _by_id(id: String) -> void:
 
 
 func selftest() -> void:
+	# Main._selftest_all runs Home at each of its four places in the story;
+	# run from a later point with --flags it comes back to a visit this run
+	# already finished (its done flag set before build). That is not a story
+	# state, so it is skipped rather than played again.
+	var vis_done := "home4_done" if fourth else ("home3_done" if third else ("home2_done" if second else "home1_done"))
+	if main.flags.has(vis_done):
+		print("ok visit already played (", vis_done, "), skipped")
+		return
+	# the scripted path is what is under test, not the main view's pixels: on
+	# a loaded llvmpipe box drawing the city every frame is most of the run.
+	# The cutscene pictures render through their own SubViewports regardless.
+	var vp := get_viewport()
+	var had_3d := vp.disable_3d
+	vp.disable_3d = true
+	await _selftest_path()
+	vp.disable_3d = had_3d
+
+
+func _selftest_path() -> void:
 	await intro()
 	await _enter()
 	print("ok enter")
 	if fourth:
-		for id in ["fridge_drawing", "photo", "trophy", "monica", "ezra", "couch"]:
+		# run alone with --flags the earlier evidence is missing; give him both
+		# so the headless pick (index 1) presents the drawing at trust <= 0
+		var f: Dictionary = main.flags
+		if not f.has("ev_mira_tablet") and not f.has("ev_second_tablet"):
+			f["ev_mira_tablet"] = true
+		f["ev_mira_drawing"] = true
+		for id in ["fridge_drawing", "photo", "trophy", "mira_bed", "ezra", "monica", "front_door"]:
 			await _by_id(id)
-		print("ok monica's choice")
+		print("ok monica's choice  trust=", main.trust.get("monica", 0), " stance=", main.stance_points)
+		for k in ["monica_choice_done", "home4_done"]:
+			print("ok flag ", k, " ", main.flags.has(k))
 	elif third:
-		for id in ["monica", "mira_door", "circle", "sketchbook"]:
+		for id in ["monica", "mira_door", "circle", "tablet", "couch", "sketchbook"]:
 			await _by_id(id)
-		print("ok blackout")
+		print("ok blackout  lynx=", main.trust.get("lynx", 0), " words=", main.lexicon)
+		for k in ["drive3_done", "home_monica3", "lullaby_monica", "ev_mira_drawing", "home3_done"]:
+			print("ok flag ", k, " ", main.flags.has(k))
 	elif second:
 		for id in ["monica", "ezra", "mira_door"]:
 			await _by_id(id)
