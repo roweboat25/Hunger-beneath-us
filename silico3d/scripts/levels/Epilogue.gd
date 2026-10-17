@@ -427,7 +427,7 @@ func _sky(a: String) -> void:
 		env.ambient_light_color = Color(0.55, 0.45, 0.4)
 		env.ambient_light_energy = 0.6
 		env.fog_light_color = Color(0.5, 0.36, 0.28)
-		env.fog_density = 0.004
+		env.fog_density = 0.0012
 		env.glow_bloom = 0.0
 		sun.light_color = Color(1.0, 0.7, 0.48)
 		sun.light_energy = 1.1
@@ -577,8 +577,8 @@ func _make_ezra() -> void:
 	var head: Node3D = ezra.get_meta("head")
 	var curl := mat(Color(0.12, 0.08, 0.05), 0.95)
 	for i in 9:
-		var a := i * TAU / 9.0
-		sphere(0.035, Vector3(sin(a) * 0.075, 0.1 + (i % 2) * 0.015, cos(a) * 0.07 + 0.01), curl, 6, head)
+		var a := -2.0 + i * 0.5  # round the back and sides, clear of the face
+		sphere(0.034, Vector3(sin(a) * 0.08, 0.1 + (i % 2) * 0.018, cos(a) * 0.075 + 0.02), curl, 6, head)
 	if variant == "refuse":
 		box(Vector3(0.36, 0.04, 0.01), Vector3(0, 1.38, -0.15), glow(Color(0.3, 1.0, 0.7), 2.0), false, ezra)
 
@@ -1351,23 +1351,23 @@ func _nonum() -> void:
 	# the wall of light
 	var wl := newmat(Color(1, 1, 1), 1.0)
 	wl.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	wl.albedo_color = Color(1.0, 0.96, 0.88)
+	wl.albedo_color = Color(0.3, 0.28, 0.26)
 	box(Vector3(9.0, 4.0, 0.2), o + Vector3(0, 2.0, -26.1), wl, true, c)
 	var names := ["SPINE", "HARMONY GREEN", "SOUTHTOWN", "RED ROCK", "COGNIZO", "SALTECH"]
 	for i in names.size():
 		var x := -3.4 + i * 1.36
 		var lit: bool = names[i] != "RED ROCK" or red_lit
 		var bh := 3.2 if names[i] == "SALTECH" else 2.2 + fmod(i * 0.37, 0.8)
-		var bm := glow(Color(1.0, 0.9, 0.7), 4.0) if lit else mat(Color(0.12, 0.1, 0.1), 0.9)
+		var bm := glow(Color(1.0, 0.8, 0.5), 3.0) if lit else mat(Color(0.03, 0.02, 0.02), 0.9)
 		if names[i] == "RED ROCK" and red_lit:
 			bm = glow(Color(1.0, 0.75, 0.5), 7.0)
 		box(Vector3(0.7, bh, 0.06), o + Vector3(x, 0.5 + bh / 2.0, -25.96), bm, false, c)
-		label(names[i], o + Vector3(x, 0.3, -25.9), 0.0, 0.0016, Color(0.35, 0.3, 0.25), c, false)
-	label("LIFE SUPPORT  2,300", o + Vector3(3.4, 3.85, -25.9), 0.0, 0.0016, Color(0.4, 0.32, 0.2), c, false)
+		label(names[i], o + Vector3(x, 0.3, -25.9), 0.0, 0.0016, Color(0.95, 0.88, 0.75), c, false)
+	label("LIFE SUPPORT  2,300", o + Vector3(3.4, 3.85, -25.9), 0.0, 0.0016, Color(0.95, 0.88, 0.75), c, false)
 	var wall := interactable("wall", "Look at the light", o + Vector3(0, 2.0, -25.6), Vector3(8.6, 3.8, 0.6), "", false, c)
 	wall.set_meta("hackable", true)
-	_lamp(c, o + Vector3(-2.5, 2.2, -24.5), Color(1.0, 0.95, 0.85), 2.4, 12.0)
-	_lamp(c, o + Vector3(2.5, 2.2, -24.5), Color(1.0, 0.95, 0.85), 2.4, 12.0)
+	_lamp(c, o + Vector3(-2.5, 2.2, -24.8), Color(1.0, 0.92, 0.8), 1.3, 10.0)
+	_lamp(c, o + Vector3(2.5, 2.2, -24.8), Color(1.0, 0.92, 0.8), 1.3, 10.0)
 	# the chair, worn where he sits
 	var wood := pbr("woodfloor", Vector3(1, 1, 1), false, Color(0.62, 0.48, 0.36))
 	_chair(c, o + Vector3(0, 0, -21.5), 0.0, wood, wood)
@@ -1656,7 +1656,7 @@ func _town() -> void:
 	var road := pbr("concrete", Vector3(4, 30, 1), false, Color(0.62, 0.46, 0.32))
 	floor_quad(Vector2(6, 70), o + Vector3(0, 0.01, -20), 0.0, road, c)
 	# the red hills (canon in every wide shot)
-	var hill := mat(Color(0.55, 0.25, 0.16), 1.0)
+	var hill := mat(Color(0.5, 0.2, 0.12), 1.0)
 	for i in 9:
 		var a := -1.2 + i * 0.3
 		var hp := o + Vector3(sin(a) * 160.0, 0, -20.0 - cos(a) * 160.0)
