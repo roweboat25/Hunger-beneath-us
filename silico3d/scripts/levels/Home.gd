@@ -611,6 +611,9 @@ func build(m: Node) -> void:
 	main = m
 	rng.seed = 86
 	var f: Dictionary = main.flags
+	# every visit starts outside the door: "home_in" belongs to one visit only
+	# (left over from the last one, it kept the door from opening)
+	f.erase("home_in")
 	fourth = f.has("broadcast_seen") and not f.has("home4_done")
 	third = not fourth and f.has("hangar_done") and not f.has("home3_done")
 	second = not fourth and not third and f.has("southtown_done")

@@ -480,8 +480,9 @@ void fragment() {
 	}
 	float sm = it - log2(max(log2(max(dot(z, z), 1.0001)), 0.0001));
 	float inside = step(63.5, it);
-	vec3 pal = 0.5 + 0.5 * cos(6.2831 * (sm * 0.03 + tm * 0.04 + vec3(0.0, 0.33, 0.67)));
-	pal = mix(pal, vec3(0.6, 0.3, 1.0) * pal.b + vec3(1.0, 0.6, 0.25) * pal.r * 0.6, 0.7);
+	float k = 0.5 + 0.5 * cos(6.2831 * (sm * 0.03 + tm * 0.04));
+	vec3 pal = mix(vec3(0.22, 0.07, 0.42), vec3(1.0, 0.64, 0.32), k * k);
+	pal += vec3(0.5, 0.45, 0.6) * pow(0.5 + 0.5 * cos(sm * 0.5 - tm), 8.0);
 	pal *= (1.0 - inside);
 	float rad = amount * 1.35;
 	float mask = smoothstep(rad, rad - 0.3, r) * step(0.001, amount);
@@ -3470,9 +3471,14 @@ func apply_args(a: Dictionary) -> void:
 		_cong_track = true
 		for e: Dictionary in eyeless:
 			_show(e["fig"], e["it"], true)
+			if main.frames_on:
+				turn_to(e["fig"], main.player.position)
+				Anim.look(e["fig"], main.player.position + Vector3(0, 1.6, 0), 1.0, 1.0)
 		stair_lamp.light_energy = 0.25
 		land_lamp.light_energy = 0.3
 		spot.light_energy = 3.0
+		hud_light.position = main.player.position + Vector3(0, 1.8, 0)
+		hud_light.light_energy = 0.7 if main.frames_on else 0.0
 		_eye_layer()
 	if sc == "outside":
 		_outside = true
