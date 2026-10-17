@@ -409,7 +409,7 @@ const DESK := Vector3(0.0, 0.0, 4.5)
 const ROOM_DOOR := Vector3(55.5, 0.0, 6.0)
 const HOLE := Vector3(-60.0, 0.0, -0.5)
 const TV := Vector3(53.08, 1.55, 3.8)
-const TABLET := Vector3(56.6, 0.95, -0.72)
+const TABLET := Vector3(56.6, 1.1, -0.74)
 const MAT := Vector3(56.6, 0.0, 0.45)
 const LAUNDRY_START := Vector3(-50.5, 0.0, -40.0)
 const BACK_DOOR := Vector3(-18.6, 0.0, -40.0)
@@ -484,7 +484,7 @@ void fragment() {
 	float n = sin(p.x * 9.0 + TIME * 2.3 + sin(p.y * 4.0 + TIME)) * sin(p.y * 8.0 - TIME * 1.9) * 0.5 + 0.5;
 	float bub = smoothstep(0.82, 0.98, sin(p.x * 23.0 + TIME * 4.0) * sin(p.y * 21.0 - TIME * 3.3));
 	vec3 c = mix(vec3(0.1, 0.32, 1.0), vec3(0.78, 0.18, 1.0), sw * n);
-	c = c * (1.2 + 1.8 * n) + vec3(0.8, 0.9, 1.0) * bub;
+	c = c * (0.55 + 0.85 * n) + vec3(0.6, 0.7, 0.9) * bub * 0.6;
 	ALBEDO = c * boil;
 	ALPHA = smoothstep(1.0, 0.9, r) * boil;
 }
@@ -564,6 +564,7 @@ var _seen_busy := false
 var _ended := false
 var _sim_hold := false
 var _st_shot := ""
+var _env: Environment
 
 
 func L(beat: String, key: String) -> String:
@@ -615,6 +616,9 @@ func _show(names: Array) -> void:
 	for n in areas:
 		(areas[n] as Node3D).visible = n in names
 	area = str(names[0])
+	if _env:
+		# the tiled room after the attendant leaves: near black, the orange glow
+		_env.ambient_light_energy = 0.12 if area == "base" and main.flags.has("spa_morning") else 0.5
 	if is_instance_valid(lynx) and lynx_state != "hidden":
 		lynx.visible = true
 
@@ -650,7 +654,7 @@ func _unshaded(c: Color) -> StandardMaterial3D:
 
 ## The spa's fake timber: printed oak grain on every wall, darker for beams.
 func _wood() -> StandardMaterial3D:
-	return pbr("woodfloor", Vector3(1, 1, 1) / 1.6, true, Color(1.0, 0.82, 0.64))
+	return pbr("woodfloor", Vector3(1, 1, 1) / 1.6, true, Color(0.82, 0.64, 0.5))
 
 
 func _beam_m() -> StandardMaterial3D:
@@ -677,9 +681,9 @@ func _street() -> void:
 	# lane paint and puddles that hold the neon
 	for i in 14:
 		box(Vector3(2.6, 0.01, 0.14), Vector3(-48.0 + i * 7.4, 0.005, 22.0), mat(Color(0.8, 0.78, 0.7), 0.5), false, s)
-	var wet := newmat(Color(0.03, 0.03, 0.05), 0.04, 0.6)
+	var wet := newmat(Color(0.16, 0.15, 0.2), 0.08, 0.3)
 	for i in 9:
-		floor_quad(Vector2(rng.randf_range(1.5, 4.0), rng.randf_range(0.8, 2.0)), Vector3(rng.randf_range(-40, 40), 0.012, rng.randf_range(17, 27)), rng.randf() * PI, wet, s)
+		floor_quad(Vector2(rng.randf_range(1.0, 2.4), rng.randf_range(0.6, 1.2)), Vector3(rng.randf_range(-40, 40), 0.012, rng.randf_range(17, 27)), rng.randf() * PI, wet, s)
 	# north side: the spa (built in _facade) between two blocks; the alley east of it
 	cyber_block(Vector3(-21.0, 0, 12.0), 0.0, 21.0, 34.0, 24.0, true)
 	cyber_block(Vector3(23.5, 0, 12.0), 0.0, 21.0, 46.0, 24.0, true)
@@ -816,15 +820,14 @@ func _facade() -> void:
 	rd.set_meta("hackable", true)
 	# lanterns either side, the only warm light on the street
 	for sd: float in [-1.0, 1.0]:
-		box(Vector3(0.3, 0.45, 0.3), Vector3(sd * 2.1, 2.8, 12.65), glow(Color(1.0, 0.7, 0.4), 2.4), false, s)
+		box(Vector3(0.3, 0.45, 0.3), Vector3(sd * 2.1, 2.8, 12.65), glow(Color(1.0, 0.7, 0.4), 1.5), false, s)
 		box(Vector3(0.38, 0.06, 0.38), Vector3(sd * 2.1, 3.05, 12.65), beam, false, s)
-		_lamp(s, Vector3(sd * 2.1, 2.6, 13.4), WARM, 2.2, 8.0)
+		_lamp(s, Vector3(sd * 2.1, 2.6, 13.4), WARM, 1.5, 7.0)
 	# synthetic trees and shrubbery in planters; the plastic too green
 	var leaves := [mat(Color(0.12, 0.62, 0.22), 0.4), mat(Color(0.1, 0.5, 0.2), 0.4)]
-	var bark := pbr("bark", Vector3(1, 1, 1), true, Color(0.7, 0.6, 0.5))
 	for x: float in [-7.5, -3.6, 3.6, 7.5]:
-		box(Vector3(1.6, 0.7, 1.6), Vector3(x, 0.35, 13.4), beam, true, s)
-		tree(Vector3(x, 0.7, 13.4), 3.2, bark, leaves, s)
+		box(Vector3(1.2, 0.7, 1.2), Vector3(x, 0.35, 13.4), beam, true, s)
+		_fake_tree(s, Vector3(x, 0.7, 13.4), 2.6, leaves)
 	for x: float in [-5.6, 5.6]:
 		box(Vector3(2.0, 0.5, 0.8), Vector3(x, 0.25, 12.9), beam, true, s)
 		for k in 4:
@@ -834,6 +837,15 @@ func _facade() -> void:
 	box(Vector3(0.2, 0.2, 0.3), Vector3(0, 5.4, 12.6), mat(Color(0.7, 0.55, 0.3), 0.3, 0.8), false, s)
 	_it(s, "mist", Vector3(0, 5.0, 12.8), Vector3(1.0, 1.0, 1.0), L("scans", "diffuser"))
 	mist.append(_mist(s, Vector3(0, 4.6, 13.4), Vector3(9.0, 1.5, 1.4), 70, 0.22))
+
+
+## A synthetic tree: a straight trunk and clipped plastic balls of leaf,
+## too green and too still.
+func _fake_tree(parent: Node, p: Vector3, h: float, leaves: Array) -> void:
+	cyl(0.06, 0.09, h, p + Vector3(0, h / 2.0, 0), mat(Color(0.3, 0.2, 0.12), 0.5), 6, parent)
+	for k in 3:
+		var y := h * (0.55 + k * 0.2)
+		sphere(0.55 - k * 0.12, p + Vector3(rng.randf_range(-0.08, 0.08), y, rng.randf_range(-0.08, 0.08)), leaves[k % 2], 9, parent)
 
 
 ## A lavender haze: soft billboards drifting and fading.
@@ -954,7 +966,7 @@ func _lobby() -> void:
 	var leaves := [mat(Color(0.12, 0.62, 0.22), 0.4), mat(Color(0.1, 0.5, 0.2), 0.4)]
 	for p: Vector3 in [Vector3(-8.0, 0, 11.2), Vector3(8.0, 0, 11.2), Vector3(-8.0, 0, 1.0)]:
 		cyl(0.4, 0.32, 0.7, p + Vector3(0, 0.35, 0), beam, 10, a)
-		tree(p + Vector3(0, 0.7, 0), 1.2, pbr("bark", Vector3.ONE, true, Color(0.7, 0.6, 0.5)), leaves, a)
+		_fake_tree(a, p + Vector3(0, 0.7, 0), 1.9, leaves)
 	_it(a, "plants", Vector3(8.0, 1.0, 11.2), Vector3(1.0, 2.0, 1.0))
 	# the violin, a speaker hidden in a beam
 	box(Vector3(0.5, 0.18, 0.05), Vector3(4.0, 4.6, 5.1 - 0.17), mat(Color(0.12, 0.09, 0.07)), false, a)
@@ -980,13 +992,14 @@ func _lobby() -> void:
 		stick(Vector3(x, 5.0, 4.5), Vector3(x, 3.4, 4.5), 0.01, mat(Color(0.1, 0.1, 0.1)), a)
 		cyl(0.1, 0.28, 0.3, Vector3(x, 3.3, 4.5), mat(Color(0.6, 0.4, 0.25), 0.6), 10, a)
 		sphere(0.09, Vector3(x, 3.17, 4.5), glow(Color(1.0, 0.75, 0.45), 4.0), 8, a)
-	_lamp(a, Vector3(0, 3.0, 4.6), WARM, 2.6, 7.5)
+	_lamp(a, Vector3(0, 2.6, 6.2), WARM, 1.3, 7.0)
 	for p: Vector3 in [Vector3(-8.8, 2.8, 2.5), Vector3(8.8, 2.8, 2.5), Vector3(-8.8, 2.8, 9.0), Vector3(8.8, 2.8, 9.0)]:
 		box(Vector3(0.12, 0.3, 0.2), p, glow(Color(1.0, 0.7, 0.42), 2.6), false, a)
-	_lamp(a, Vector3(-7.5, 2.6, 2.5), WARM, 1.4, 6.0)
-	_lamp(a, Vector3(7.5, 2.6, 9.0), WARM, 1.4, 6.0)
-	_lamp(a, Vector3(-5.5, 1.8, 9.2), LAV, 1.6, 6.0)
-	_lamp(a, Vector3(0, 3.5, 9.5), Color(0.95, 0.8, 0.7), 0.9, 9.0)
+	_lamp(a, Vector3(-7.5, 2.6, 2.5), WARM, 0.9, 6.0)
+	_lamp(a, Vector3(7.5, 2.6, 9.0), WARM, 0.9, 6.0)
+	_lamp(a, Vector3(-5.5, 1.8, 9.2), LAV, 2.4, 8.0)
+	_lamp(a, Vector3(3.0, 3.5, 3.0), LAV, 1.2, 8.0)
+	_lamp(a, Vector3(0, 3.5, 9.5), Color(0.85, 0.75, 0.9), 0.7, 9.0)
 
 
 ## A painted portrait: the sunglasses, the smile.
@@ -1129,8 +1142,8 @@ func _room() -> void:
 	box(Vector3(0.5, 0.55, 0.45), Vector3(58.7, 0.28, 2.55), beam, true, a)
 	cyl(0.05, 0.08, 0.3, Vector3(58.7, 0.7, 2.55), mat(Color(0.7, 0.55, 0.3), 0.3, 0.8), 8, a)
 	cyl(0.12, 0.17, 0.2, Vector3(58.7, 0.95, 2.55), glow(Color(1.0, 0.75, 0.48), 1.8), 10, a)
-	room_lights.append(_lamp(a, Vector3(58.4, 1.1, 2.6), WARM, 1.5, 5.0))
-	room_lights.append(_lamp(a, Vector3(56.0, 2.6, 3.0), Color(1.0, 0.82, 0.62), 0.8, 6.0))
+	room_lights.append(_lamp(a, Vector3(58.4, 1.1, 2.6), WARM, 0.8, 4.5))
+	room_lights.append(_lamp(a, Vector3(56.0, 2.6, 3.0), Color(0.95, 0.8, 0.75), 0.35, 6.0))
 	# the TV on the west wall, off
 	box(Vector3(0.08, 0.74, 1.24), TV, mat(Color(0.04, 0.04, 0.045), 0.3), false, a)
 	box(Vector3(0.02, 0.66, 1.14), TV + Vector3(0.05, 0, 0), mat(Color(0.02, 0.025, 0.03), 0.08, 0.3), false, a)
@@ -1154,14 +1167,15 @@ func _room() -> void:
 	_it(a, "mat", MAT + Vector3(0, 0.1, 0), Vector3(0.9, 0.2, 1.4))
 	_glyph_on(MAT + Vector3(0, 0.05, 0.25), 0.0, 0.0032, "g_mat", false, false,
 		"Woven into the mat, where a forehead would go, the rings. Somebody had knelt on them so often the threads had worn smooth.", true)
-	box(Vector3(0.7, 0.88, 0.32), Vector3(56.6, 0.44, -0.78), beam, true, a)
-	var stand := box(Vector3(0.36, 0.26, 0.03), TABLET, mat(Color(0.05, 0.05, 0.05), 0.3), false, a)
+	box(Vector3(0.7, 0.88, 0.32), Vector3(56.6, 0.44, -0.84), beam, true, a)
+	box(Vector3(0.06, 0.2, 0.06), Vector3(56.6, 0.95, -0.82), mat(Color(0.7, 0.55, 0.3), 0.3, 0.8), false, a)
+	var stand := box(Vector3(0.5, 0.36, 0.03), TABLET, mat(Color(0.05, 0.05, 0.05), 0.3), false, a)
 	stand.rotation.x = -0.25
 	tablet_m = StandardMaterial3D.new()
 	tablet_m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	tablet_m.albedo_texture = _eye_symbol()
 	tablet_m.albedo_color = Color(0.7, 0.7, 0.7)
-	var scr := quad(Vector2(0.32, 0.22), TABLET + Vector3(0, 0.004, 0.018), 0.0, tablet_m, a)
+	var scr := quad(Vector2(0.46, 0.32), TABLET + Vector3(0, 0.004, 0.018), 0.0, tablet_m, a)
 	scr.rotation.x = -0.25
 	no_batch.append(scr)
 	tablet_light = _lamp(a, TABLET + Vector3(0, 0.1, 0.4), Color(1.0, 0.1, 0.08), 0.5, 2.5)
@@ -1172,8 +1186,9 @@ func _room() -> void:
 	for k in 4:
 		box(Vector3(0.55, 0.02, 0.05), Vector3(55.5, 2.64 + k * 0.05, 5.86), mat(Color(0.1, 0.07, 0.05)), false, a)
 	_it(a, "vent", Vector3(55.5, 2.72, 5.75), Vector3(0.7, 0.4, 0.3), L("scans", "vent"))
-	gas_particles = _mist(a, Vector3(55.5, 2.5, 5.2), Vector3(2.4, 0.3, 0.6), 60, 0.28)
+	gas_particles = _mist(a, Vector3(55.5, 2.5, 5.2), Vector3(2.4, 0.3, 0.6), 40, 0.12)
 	gas_particles.direction = Vector3(0, -0.4, -1)
+	gas_particles.preprocess = 0.0
 	gas_particles.emitting = false
 	# the door: a timber leaf on a pivot, barred; a silver handle
 	var piv := Node3D.new()
@@ -1304,8 +1319,8 @@ func _tile_tex() -> ImageTexture:
 ## attendants on a slow loop, the back door at the east end.
 func _laundry() -> void:
 	var a: Node3D = areas["laundry"]
-	var conc := pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.72, 0.7, 0.68))
-	var plas := pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.85, 0.83, 0.8))
+	var conc := pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.42, 0.41, 0.4))
+	var plas := pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.55, 0.56, 0.58))
 	box(Vector3(36.0, 0.2, 5.0), Vector3(-35.0, -0.1, -39.0), conc, true, a)
 	box(Vector3(36.0, 0.2, 5.0), Vector3(-35.0, 3.1, -39.0), plas, false, a)
 	_wall(a, Vector3(36.0, 3.0, 0.2), Vector3(-35.0, 1.5, -41.6), plas)
@@ -1336,8 +1351,10 @@ func _laundry() -> void:
 		cyl(0.3, 0.3, 0.04, Vector3(x, 0.7, -40.69), drum, 14, a).rotation.x = PI / 2.0
 		box(Vector3(1.0, 0.1, 0.1), Vector3(x, 1.15, -40.68), mat(Color(0.2, 0.2, 0.22), 0.5), false, a)
 	_it(a, "washers", Vector3(-37.0, 0.8, -40.6), Vector3(1.2, 1.2, 0.3))
+	var steam := _mist(a, Vector3(-35.0, 2.2, -40.8), Vector3(14.0, 0.4, 0.4), 30, 0.07)
+	(steam.mesh.material as StandardMaterial3D).albedo_color = Color(0.9, 0.9, 0.95, 0.07)
 	# laundry carts for cover
-	var canvas := pbr("fabric", Vector3(1, 1, 1) / 0.6, true, Color(0.62, 0.58, 0.5))
+	var canvas := pbr("fabric", Vector3(1, 1, 1) / 0.6, true, Color(0.35, 0.4, 0.5))
 	for cx: float in [-44.0, -35.5, -27.5]:
 		box(Vector3(1.2, 0.9, 0.7), Vector3(cx, 0.55, -38.9), canvas, true, a)
 		box(Vector3(1.1, 0.25, 0.6), Vector3(cx, 1.08, -38.9), mat(Color(0.95, 0.94, 0.92), 0.9), false, a)
@@ -1346,7 +1363,7 @@ func _laundry() -> void:
 	prop("modular_airduct_circular_01", Vector3(-35.0, 2.7, -41.0), PI / 2.0, 1.0, false, a)
 	for x: float in [-46.0, -35.0, -24.0]:
 		prop("mounted_fluorescent_lights", Vector3(x, 3.0, -39.5), PI / 2.0, 1.0, false, a)
-		_lamp(a, Vector3(x, 2.6, -39.5), Color(0.85, 0.92, 1.0), 1.8, 9.0)
+		_lamp(a, Vector3(x, 2.6, -39.5), Color(0.8, 0.9, 1.0), 0.8, 7.0)
 	prop("fuse_panel", Vector3(-51.9, 1.4, -40.6), PI / 2.0, 1.0, false, a)
 	# the stair door at the west end, the back door at the east
 	box(Vector3(0.06, 2.2, 1.1), Vector3(-51.95, 1.1, -39.4), mat(Color(0.5, 0.52, 0.55), 0.4, 0.6), false, a)
@@ -1365,7 +1382,7 @@ func _laundry() -> void:
 ## double that only the frames can see.
 func _people() -> void:
 	var o := {"arms": true, "knees": true}
-	attendant = figure(Color(0.82, 0.78, 0.68), Color(0.9, 0.8, 0.72), {"arms": true, "knees": true, "hair": Color(0.32, 0.26, 0.2), "legs": Color(0.3, 0.26, 0.22), "long_coat": false})
+	attendant = figure(Color(0.46, 0.38, 0.3), Color(0.9, 0.8, 0.72), {"arms": true, "knees": true, "hair": Color(0.32, 0.26, 0.2), "legs": Color(0.3, 0.26, 0.22), "long_coat": false})
 	attendant.position = DESK + Vector3(0, 0, -1.0)
 	attendant.rotation.y = PI
 	dyn.add_child(attendant)
@@ -1419,7 +1436,7 @@ func _people() -> void:
 	var hd: Node3D = double.get_meta("head")
 	var hollow := _unshaded(Color(0, 0, 0))
 	for sd: float in [-1.0, 1.0]:
-		box(Vector3(0.06, 0.042, 0.03), Vector3(sd * 0.045, 0.02, -0.112), hollow, false, hd)
+		box(Vector3(0.07, 0.05, 0.04), Vector3(sd * 0.044, 0.018, -0.108), hollow, false, hd)
 		box(Vector3(0.014, 0.09, 0.01), Vector3(sd * 0.05, -0.04, -0.117), hollow, false, hd)
 		box(Vector3(0.01, 0.05, 0.01), Vector3(sd * 0.032, -0.06, -0.115), hollow, false, hd)
 	double.position = HOLE + Vector3(0, -2.0, 0)
@@ -1500,10 +1517,10 @@ func _layers() -> void:
 	var title := _dlabel(18, Color(0.85, 0.7, 0.75), 0.04, 0.1)
 	title.text = L("breaths", "title")
 	dive_count = _dlabel(30, Color(1.0, 0.9, 0.9), 0.1, 0.17)
-	dive_cue = _dlabel(40, Color(0.8, 0.95, 0.85), 0.42, 0.5)
-	dive_voice = _dlabel(20, Color(1.0, 0.55, 0.5), 0.74, 0.84)
-	dive_carl = _dlabel(18, Color(0.85, 0.82, 0.9), 0.84, 0.92)
-	dive_howto = _dlabel(16, Color(0.7, 0.7, 0.72), 0.92, 0.99)
+	dive_cue = _dlabel(30, Color(0.8, 0.95, 0.85), 0.71, 0.76)
+	dive_voice = _dlabel(19, Color(1.0, 0.55, 0.5), 0.76, 0.84)
+	dive_carl = _dlabel(17, Color(0.85, 0.82, 0.9), 0.84, 0.9)
+	dive_howto = _dlabel(14, Color(0.7, 0.7, 0.72), 0.9, 1.0)
 	dive_howto.text = L("breaths", "howto")
 	dream_rect = ColorRect.new()
 	dream_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1607,6 +1624,7 @@ func _tick_violin(delta: float) -> void:
 # ------------------------------------------------------------------ environment
 
 func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
+	_env = env
 	# midnight downtown; inside, warm lamps on fake oak and a lavender haze
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.34, 0.28, 0.32)
@@ -1635,15 +1653,15 @@ func apply_args(a: Dictionary) -> void:
 			if not keep:
 				_tele(Vector3(57.6, 0.1, 5.0), 30.0)
 			if _st_shot == "gas":
-				_gas = 0.9
-				_gas_v = 0.9
+				_gas = 0.6
+				_gas_v = 0.6
 				gas_particles.emitting = true
 				tablet_m.albedo_color = Color(1.4, 1.2, 1.2)
 		"hole", "hole_off":
 			f["spa_morning"] = true
 			_show(["base"])
 			base_white.light_energy = 0.0
-			base_orange.light_energy = 1.4
+			base_orange.light_energy = 0.8
 			for fl: Node3D in base_fluor:
 				fl.visible = false
 			if not keep:
@@ -2163,7 +2181,7 @@ func _morning() -> void:
 	blue.visible = false
 	var tw := create_tween().set_parallel(true)
 	tw.tween_property(base_white, "light_energy", 0.0, 2.0)
-	tw.tween_property(base_orange, "light_energy", 1.4, 2.5)
+	tw.tween_property(base_orange, "light_energy", 0.8, 2.5)
 	for fl: Node3D in base_fluor:
 		fl.visible = false
 	await ui.think(L("hole", "gone"))
@@ -2491,6 +2509,7 @@ func _caught(g: Dictionary) -> void:
 	var f: Dictionary = main.flags
 	_seen_busy = true
 	f["spa_seen"] = int(f.get("spa_seen", 0)) + 1
+	main.add_pressure(5.0, "seen by spa security")
 	f["cinematic"] = true
 	g["wait"] = 99.0
 	var fig: Node3D = g["fig"]
@@ -2693,10 +2712,10 @@ func _tick_gas(delta: float) -> void:
 		if _gas_t >= 60.0 and not _praying and not main.ui.busy and not f.has("cinematic"):
 			_prayer(true)
 	_gas_v = move_toward(_gas_v, _gas, delta * 0.12)
-	gas_rect.color.a = _gas_v * 0.55
+	gas_rect.color.a = _gas_v * 0.4
 	_whine.volume_db = -80.0 if _gas_v < 0.02 else lerpf(-44.0, -14.0, _gas_v)
-	if _gas_v > 0.4:
-		main.player.cam.fov = lerpf(main.player.cam.fov, 72.0 + sin(_t * 0.7) * 3.0 * _gas_v, 0.05)
+	# the gas breathes the room in and out a little
+	main.player.cam.fov = lerpf(main.player.cam.fov, 72.0 + (sin(_t * 0.7) * 3.0 * _gas_v if _gas_v > 0.4 else 0.0), 0.05)
 
 
 func _tick_street(delta: float) -> void:
@@ -2790,7 +2809,7 @@ func _tick_hole(delta: float, pp: Vector3) -> void:
 			main.play("tap", -8.0, 0.6)
 	var on: bool = main.frames_on
 	boil_disc.visible = on
-	boil_light.light_energy = 2.6 + sin(_t * 3.0) * 0.6 if on else 0.0
+	boil_light.light_energy = 0.7 + sin(_t * 3.0) * 0.25 if on else 0.0
 	if on:
 		if not _double_seen and not main.ui.busy and not f.has("cinematic"):
 			_double_seen = true
@@ -2859,6 +2878,9 @@ func selftest() -> void:
 	var f: Dictionary = main.flags
 	var p = main.player
 	f["pip_active"] = true
+	# the car with Turan and Emmet first (Lushon's happened), Lynx alone later
+	var had: bool = f.has("lushons_done")
+	f["lushons_done"] = true
 	# the shared machine renders this at a few frames a second; the test is of
 	# the script, so the level is hidden while it runs (as Observatory does)
 	visible = false
@@ -2931,7 +2953,6 @@ func selftest() -> void:
 	await _by_id("front_door")
 	print("ok front out=", f.has("spa_out"), " conn=", main.connection)
 	# and the car without Lushon's: Lynx alone
-	var had: bool = f.has("lushons_done")
 	f.erase("lushons_done")
 	_car_crew()
 	_ended = false
