@@ -12,6 +12,7 @@ extends "res://scripts/Level.gd"
 ## building fronts at x = +-13; the landmark closes the north end.
 
 const TrafficS := preload("res://scripts/Traffic.gd")
+const EncountersS := preload("res://scripts/Encounters.gd")
 
 const N := -110.0
 const S := 70.0
@@ -141,6 +142,8 @@ func build(m: Node) -> void:
 	_incident()
 	_beat_door()
 	_people()
+	# the hack and stealth layer: devices, the scene hold at tier 2, addicts (Encounters.gd)
+	EncountersS.street(self)
 	_batch(self, 30.0)
 	var traffic: Node = TrafficS.new()
 	traffic.lanes = [[-4.0, 6.0, 1.0], [-1.5, 9.5, 1.0], [1.5, 9.5, -1.0], [4.0, 6.0, -1.0], [0.0, 15.0, 1.0]]

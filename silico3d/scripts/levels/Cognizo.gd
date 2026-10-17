@@ -186,6 +186,8 @@ const LINES := {
 		"speaker": "(game) The speaker grille said good afternoon. I hadn't said anything.",
 		"dock_guard": "(game) He nodded at me the way men on break nod at men in suits: not my problem.",
 		"guard2": "(game) The night guard was early. He had the look of a man who'd never once been told anything.",
+		"hack_seen": "(game) The reader let go. Over the door the camera's red eye was still on me, and somewhere a screen showed my face going in.",
+		"hack_seen_why": "the staff camera saw the door",
 	},
 	"desk": {
 		"think": "The sliding doors opened, and we were greeted by a modest display of modern corporate art that featured shapeless blobs spinning on an axis.",
@@ -1100,6 +1102,9 @@ func _side_street() -> void:
 	var ci := interactable("dock_camera", L("signs", "lobby_cam_prompt"), Vector3(18.6, 4.8, -26.5), Vector3(0.6, 0.5, 0.6), L("signs", "lobby_cam_scan") % 3, false, zs)
 	ci.set_meta("camera", true)
 	ci.set_meta("hackable", true)
+	# the Sneak route's camera: it sweeps the side street (Stealth.gd) until a way in is taken
+	ci.set_meta("stealth", {"kind": "camera", "managed": true, "pivot": c, "pivot_offset": PI, "yaw": PI / 2.0 + 0.6 - PI, "pitch": 0.45,
+		"sweep": 0.55, "range": 13.0, "ground": 0.0, "zone": AABB(Vector3(17.6, -1.0, -36.0), Vector3(10.0, 6.0, 28.0)), "unless": "cz_route", "safe": Vector3(6.0, 0.1, 8.0)})
 	_cam_tally(Vector3(18.6, 4.6, -26.5), c)
 	var van := Node3D.new()
 	van.position = Vector3(23.6, 0, -24.0)
@@ -2154,6 +2159,22 @@ func _route_dock() -> void:
 		await _take_route("sneak")
 	else:
 		await ui.think(L("routes", "not_now"))
+
+
+## The staff door by quick-hack (Hack.gd): look away on its camera (the
+## generic blind), then we on the door is the Hack route. With the camera
+## still looking, the door opens anyway and the company sees it.
+func on_hack(node: Object, word: String) -> bool:
+	var f: Dictionary = main.flags
+	if str(node.get_meta("id", "")) != "staff_door" or word != "we" or f.has("cz_route") or _zone != "street":
+		return false
+	var cam := _node_by_id("staff_camera")
+	if cam and not main.hack.has_state(cam, "blind"):
+		await main.ui.think(L("routes", "hack_seen"))
+		main.ui.close()
+		main.add_pressure(3.0, L("routes", "hack_seen_why"))
+	await _take_route("hack")
+	return true
 
 
 ## A way in other than the cover: its effects, then the freight lift to

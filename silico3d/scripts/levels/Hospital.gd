@@ -1615,6 +1615,10 @@ func _people() -> void:
 		o.position = Vector3(float(r[0]), 0.02, (float(r[1]) + float(r[2])) / 2.0)
 		o.set_meta("guard", true)
 		o.set_meta("walk", true)
+		if i > 0:
+			# the Sneak route: Stealth.gd looks through their eyes in the service corridor
+			o.set_meta("stealth", {"when": "hospital_sneaking", "unless": "hospital_wing", "role": "orderly", "range": 9.0, "fov": 70.0,
+				"zone": AABB(Vector3(6.5, -1.0, -46.5), Vector3(5.0, 5.0, 34.5)), "safe": Vector3(8.0, 0.05, -10.4)})
 		add_child(o)
 		person("orderly", LINES["prompts"]["orderly"], o, LINES["scan"][str(r[3])])
 		orderlies.append({"fig": o, "dir": float(r[4]), "zmin": float(r[1]), "zmax": float(r[2])})
@@ -2152,6 +2156,20 @@ func _wing_gate() -> void:
 			pass
 	ui.close()
 	main.update_hud()
+
+
+## The quick-hack at the wing (Hack.gd): look away on its camera is the
+## Hack route, the same as choosing it at the doors. Other words: generic.
+func on_hack(node: Object, word: String) -> bool:
+	if main.flags.has("hospital_wing") or str(node.get_meta("id", "")) != "camera" or word != "look away":
+		return false
+	main.ui.glitch(0.3, 0.5)
+	cam_ring.material_override = mat(Color(0.05, 0.05, 0.06), 0.3)
+	await _play(LINES["wing"]["hack"])
+	main.add_connection(2.0, LINES["wing"]["hack_log"])
+	await _open_wing("hack")
+	main.ui.close()
+	return true
 
 
 ## The wing opens, by whichever route; the ward's doors onto it unlock.

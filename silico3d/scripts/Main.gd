@@ -16,6 +16,10 @@ const PlayerS := preload("res://scripts/Player.gd")
 const UIS := preload("res://scripts/UI.gd")
 const Synth := preload("res://scripts/Synth.gd")
 const CityS := preload("res://scripts/City.gd")
+const HackS := preload("res://scripts/Hack.gd")
+const StealthS := preload("res://scripts/Stealth.gd")
+const MeleeS := preload("res://scripts/Melee.gd")
+const EncountersS := preload("res://scripts/Encounters.gd")
 
 const LEVELS := {
 	"Dufredy": preload("res://scripts/levels/Dufredy.gd"),
@@ -48,6 +52,8 @@ const LEVELS := {
 	"Epilogue": preload("res://scripts/levels/Epilogue.gd"),
 	# the open city: a district street (City.district picks which)
 	"Street": preload("res://scripts/levels/Street.gd"),
+	# the hack / stealth / melee test room (--hacks=1); not in the story
+	"HackTest": preload("res://scripts/levels/HackTest.gd"),
 }
 
 ## Story order of the levels (the title menu and the self-test walk it).
@@ -103,6 +109,12 @@ var devotion := 0            # spent at Carl's Tower
 var hacks: Array = []        # quick-hack words held: hush, look away, then the traded ones
 var incidents := {}          # id -> {state, district, title, opened, ...}
 var city: Node
+# the hacking, stealth and melee systems (Hack.gd, Stealth.gd, Melee.gd)
+var hack: Node
+var stealth: Node
+var melee: Node
+## The recorder (R): hacking company property while it runs costs Standing.
+var recording := true
 var glyphs_found := 0
 var outage := false
 var started := false
@@ -141,7 +153,16 @@ func _ready() -> void:
 	city = CityS.new()
 	add_child(city)
 	city.setup(self)
-	if _args.has("shot") or _args.has("selftest") or _args.has("level") or _args.has("systems"):
+	stealth = StealthS.new()
+	add_child(stealth)
+	stealth.setup(self)
+	melee = MeleeS.new()
+	add_child(melee)
+	melee.setup(self)
+	hack = HackS.new()
+	add_child(hack)
+	hack.setup(self)
+	if _args.has("shot") or _args.has("selftest") or _args.has("level") or _args.has("systems") or _args.has("hacks"):
 		_dev_start.call_deferred()
 
 
@@ -173,6 +194,10 @@ func _setup_input() -> void:
 	_key("menu", [KEY_M])
 	_key("map", [KEY_TAB])
 	_key("release", [KEY_ESCAPE])
+	_key("hack", [KEY_Q])
+	_key("crouch", [KEY_C, KEY_CTRL])
+	_key("attack", [KEY_V])
+	_key("recorder", [KEY_R])
 
 
 func _setup_env() -> void:
@@ -348,6 +373,10 @@ func pick(i: int) -> void:
 		for w in ["hush", "look away", "sleeper", "we", "mimic", "bow"]:
 			if not lexicon.has(w):
 				lexicon.append(w)
+		# the quick-hack words that middle path bought (hush and look away free)
+		for w in ["hush", "look away", "sleeper", "we"]:
+			if not hacks.has(w):
+				hacks.append(w)
 	load_level(["Dufredy", "Facility", "Tunnels", "Spine"][i])
 
 
@@ -422,6 +451,7 @@ func load_level(lname: String) -> void:
 	_scan_labels.clear()
 	amb.clear()
 	crowd = null
+	stealth.clear()
 	if level:
 		remove_child(level)
 		level.queue_free()
@@ -433,6 +463,10 @@ func load_level(lname: String) -> void:
 	var merged: int = level.late_batch()
 	if merged > 0:
 		print("late_batch ", lname, ": ", merged, " meshes merged")
+	stealth.on_level(level)
+	melee.on_level(level)
+	hack.on_level(level)
+	player.sneak = false
 	level.setup_env(env, sun)
 	retro.tune(level.kit_day)
 	if hifi:
@@ -489,6 +523,12 @@ func _unhandled_input(e: InputEvent) -> void:
 		scan()
 	elif e.is_action_pressed("psyon"):
 		toggle_phone()
+	elif e.is_action_pressed("crouch"):
+		player.sneak = not player.sneak
+	elif e.is_action_pressed("recorder"):
+		hack.toggle_recorder()
+	elif e.is_action_pressed("attack") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT):
+		melee.strike()
 
 
 func _process(_d: float) -> void:
@@ -593,7 +633,7 @@ func update_hud() -> void:
 
 
 func _on_step() -> void:
-	play("step", level.step_db if level else -16.0, randf_range(0.85, 1.15))
+	play("step", (level.step_db if level else -16.0) - (8.0 if player.sneak else 0.0), randf_range(0.85, 1.15))
 
 
 # ------------------------------------------------------------------ interactions
@@ -601,6 +641,11 @@ func _on_step() -> void:
 func interact(node: Object) -> void:
 	if node.has_meta("glyph"):
 		await _glyph(node)
+		return
+	if node.has_meta("encounter"):
+		await EncountersS.interact(self, node)
+		ui.close()
+		update_hud()
 		return
 	var handled: bool = await level.interact(node)
 	if not handled:
@@ -726,6 +771,15 @@ func _dev_start() -> void:
 		frames_on = true
 		ui.set_frames(1.0, connection)
 	city.apply_args(_args)
+	if _args.has("hackwords"):
+		for w in HackS.ORDER:
+			if not hacks.has(w):
+				hacks.append(w)
+	if _args.has("nocatch"):
+		stealth.no_catch = true
+	if _args.has("hacks"):
+		await _hacks_test()
+		return
 	if _args.has("systems"):
 		_selftest = true
 		await city.selftest_systems()
@@ -751,6 +805,8 @@ func _dev_start() -> void:
 	level.apply_args(_args)
 	if _args.has("crouch"):
 		player.crouch = float(_args["crouch"])
+	if _args.has("sneak"):
+		player.sneak = true
 	level.set_glyph_visibility(frames_on, connection)
 	update_hud()
 	if shot_mode:
@@ -795,6 +851,13 @@ func _run_test() -> void:
 			for k in ks.slice(0, 25):
 				print("  ", by[k], "  ", k)
 	city.shot_args(_args)
+	if _args.has("wheel"):
+		hack._find_target()
+		hack.try_open()
+		if _args.has("wheelsel"):
+			hack.sel = int(_args["wheelsel"])
+		for i in 4:
+			await get_tree().process_frame
 	if _args.has("map") or _args.has("daycard") or _args.has("terminal"):
 		for i in 20:
 			await get_tree().process_frame
@@ -856,6 +919,29 @@ func _selftest_all() -> void:
 			player.position = Vector3(0, 0.2, -200)
 			await get_tree().create_timer(2.0).timeout
 	print("SELFTEST DONE glyphs=", glyphs_found, " conn=", connection, " pressure=", pressure, " trust=", trust, " stance=", stance_points, " words=", lexicon, " flags=", flags.keys())
+	_selftest = false
+	get_tree().quit()
+
+
+## The hack, stealth and melee test (--hacks=1): the test room exercises
+## every word on every kind of target, a guard spotting and resetting Carl,
+## crouching, walls, the eyeless refusing, the strike and the overwhelm; then
+## two district streets are checked for their encounters.
+func _hacks_test() -> void:
+	_selftest = true
+	shot_mode = true
+	stealth.test_mode = true
+	Engine.time_scale = 4.0
+	var pump := func():
+		while _selftest:
+			await get_tree().process_frame
+			ui.advanced.emit()
+			ui.picked.emit(1)
+	pump.call()
+	await load_level("HackTest")
+	var fails: int = await level.hack_test()
+	fails += await LEVELS["HackTest"].street_test(self)
+	print("HACKS DONE fails=", fails, " conn=", connection, " pressure=", pressure, " catches=", stealth.catches)
 	_selftest = false
 	get_tree().quit()
 

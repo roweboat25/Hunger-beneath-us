@@ -270,7 +270,7 @@ func _build_title() -> void:
 	t.add_theme_font_size_override("normal_font_size", 20)
 	t.add_theme_font_size_override("bold_font_size", 44)
 	t.text = ("[center]\n\n[b]THE HUNGER BENEATH US[/b]\n[color=#6fe8d0]SILICO  -  first person[/color]\n\n"
-		+ "Mouse or arrow keys look    WASD walk    Shift hurry\nE examine / talk    G frames    F scan (frames on)    P Psyon    M this menu\n\n"
+		+ "Mouse or arrow keys look    WASD walk    Shift hurry\nE examine / talk    G frames    F scan (frames on)    P Psyon    M this menu\nQ quick-hack (frames on)    C crouch    V strike    R recorder\n\n"
 		+ "[color=#888888]Headphones. Lights off.[/color][/center]")
 	title.add_child(t)
 	title.mouse_filter = Control.MOUSE_FILTER_STOP

@@ -19,7 +19,7 @@ The title menu offers two things:
 2. **The Spine at night**, the first slice: glyphs, outage at 25, the tower's
    eye at 50.
 
-Controls: mouse or arrow keys look, WASD walk, Shift hurry, E examine/talk,
+Controls: Q hold = quick-hack wheel (frames on, Connection 25), C/Ctrl crouch, V or left mouse strike, R recorder; mouse or arrow keys look, WASD walk, Shift hurry, E examine/talk,
 G frames, F scan (frames on), P Psyon, M menu, Esc frees the mouse.
 
 Dev arguments (after `--` on the command line, or `?key=value` in the URL):

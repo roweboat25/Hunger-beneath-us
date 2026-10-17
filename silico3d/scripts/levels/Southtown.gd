@@ -2743,6 +2743,16 @@ func _hatch() -> void:
 	await _entered()
 
 
+## The quick-hack at the gate (Hack.gd): look away on the gate camera is
+## the Hack route, the same as choosing it at the gate. Other words: generic.
+func on_hack(node: Object, word: String) -> bool:
+	if main.flags.has("plant_entered") or str(node.get_meta("id", "")) != "gate_cam" or word != "look away":
+		return false
+	await _route_hack()
+	await _entered()
+	return true
+
+
 ## Past the perimeter, by whichever route: the church is in front of him.
 func _entered() -> void:
 	var ui = main.ui

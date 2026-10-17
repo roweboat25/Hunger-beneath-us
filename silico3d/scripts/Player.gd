@@ -1,6 +1,6 @@
 extends CharacterBody3D
 ## Carl, in first person. Mouse or arrow keys to look, WASD to walk,
-## Shift to hurry. The camera ray finds whatever he is looking at.
+## Shift to hurry, C to crouch. The camera ray finds whatever he is looking at.
 
 signal stepped
 
@@ -18,6 +18,10 @@ var locked := false
 var seated := false
 ## Lowers the eyes: kneeling by something on the floor, or sitting.
 var crouch := 0.0
+## Crouched by the player (C): lower, slower, quieter, harder to see (Stealth.gd).
+var sneak := false
+const SNEAK := 1.3
+var _sneak_h := 0.0
 var _bob := 0.0
 var _step_acc := 0.0
 var _shake := 0.0
@@ -102,6 +106,9 @@ func _physics_process(delta: float) -> void:
 		var tilt := Input.get_axis("look_down", "look_up")
 		pitch = clampf(pitch + tilt * 1.6 * delta, -1.45, 1.45)
 	var speed := RUN if Input.is_action_pressed("run") else WALK
+	if sneak:
+		speed = SNEAK
+	_sneak_h = move_toward(_sneak_h, 0.62 if sneak else 0.0, delta * 3.0)
 	var dir := (Basis(Vector3.UP, yaw) * Vector3(input.x, 0, input.y))
 	velocity.x = lerpf(velocity.x, dir.x * speed, minf(1.0, delta * 10.0))
 	velocity.z = lerpf(velocity.z, dir.z * speed, minf(1.0, delta * 10.0))
@@ -118,5 +125,5 @@ func _physics_process(delta: float) -> void:
 	if _shake > 0.0:
 		shake_v = Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * _shake * 0.05
 		_shake = maxf(0.0, _shake - delta * 1.5)
-	cam.position = Vector3(cos(_bob * 0.5) * 0.025, EYE - crouch + absf(sin(_bob)) * 0.045, 0) + shake_v
+	cam.position = Vector3(cos(_bob * 0.5) * 0.025, EYE - maxf(crouch, _sneak_h) + absf(sin(_bob)) * 0.045, 0) + shake_v
 	cam.rotation = Vector3(pitch, 0, sin(_bob * 0.5) * 0.004)
