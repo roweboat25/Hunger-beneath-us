@@ -302,7 +302,15 @@ func pick(i: int) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	started = true
 	_reset_story()
-	load_level("Dufredy" if i == 0 else "Spine")
+	if i == 1:
+		# Act 2 on its own: what Act 1 leaves behind
+		for f in ["home1_done", "home2_done", "warroom1_done", "act1_done", "southtown_done", "ritual_seen", "mirror_done"]:
+			flags[f] = true
+		connection = 30.0
+		for w in ["dreamer", "convene"]:
+			if not lexicon.has(w):
+				lexicon.append(w)
+	load_level(["Dufredy", "Facility", "Spine"][i])
 
 
 func _reset_story() -> void:
@@ -311,6 +319,14 @@ func _reset_story() -> void:
 	flags = {}
 	glyphs_found = 0
 	outage = false
+	pressure = 20.0
+	for k in trust:
+		trust[k] = 0
+	for k in stance_points:
+		stance_points[k] = 0
+	lexicon = []
+	ledger = []
+	first_typed = ""
 	ui.set_frames(0.0, 0.0)
 
 

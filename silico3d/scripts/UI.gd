@@ -247,7 +247,8 @@ func _build_title() -> void:
 	vb.add_theme_constant_override("separation", 14)
 	title.add_child(vb)
 	var opts := [["1   Act 1:  The Dufredy case", "From the apartment and the eyes to the door in the cliff."],
-		["2   The Spine at night", "Chapter 3: the rings, the outage, the tower's eye."]]
+		["2   Act 2:  The Hunger Beneath", "From the facility behind the mirror to Monica's choice."],
+		["3   The Spine at night", "Chapter 3: the rings, the outage, the tower's eye."]]
 	for i in opts.size():
 		var bt := Button.new()
 		bt.text = opts[i][0] + "\n" + opts[i][1]
@@ -596,6 +597,8 @@ func _input(e: InputEvent) -> void:
 				main.pick(0)
 			elif e.keycode == KEY_2 or e.keycode == KEY_KP_2:
 				main.pick(1)
+			elif e.keycode == KEY_3 or e.keycode == KEY_KP_3:
+				main.pick(2)
 			elif (e.keycode == KEY_ESCAPE or e.keycode == KEY_M) and main.started:
 				show_title(false)
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

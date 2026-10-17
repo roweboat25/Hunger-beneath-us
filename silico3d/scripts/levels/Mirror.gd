@@ -1084,7 +1084,7 @@ func _ending() -> void:
 		ui.endcard.visible = false  # nothing presses E in the headless run
 		return
 	await ui.end_closed
-	ui.show_title(true)  # Act 2 (the facility) replaces this
+	main.load_level("Facility")
 
 
 # ------------------------------------------------------------------ each frame
