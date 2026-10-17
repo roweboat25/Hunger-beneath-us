@@ -1941,7 +1941,7 @@ func _end(seer: bool) -> void:
 	_ended = true
 	f["observatory_done"] = true
 	f.erase("cinematic")
-	await ui.show_card(LINES["build"]["day4_seer"] if seer else LINES["build"]["day4"], 3.2)
+	await main.city.day_card(4, LINES["build"]["day4_seer"] if seer else LINES["build"]["day4"])
 	if not main._selftest:
 		main.load_level("HoldingCell")
 

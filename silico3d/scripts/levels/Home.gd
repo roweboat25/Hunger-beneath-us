@@ -548,6 +548,7 @@ const LINES := {
 var second := false        # the second evening (ch. 6)
 var third := false         # Act 2: the drive back and the blackout (ch. 15)
 var fourth := false        # Act 2: Monica's choice and the leaves
+var free := false          # the open city's visit home: no scene, the terminal and the couch (City.gd)
 var _env: Environment
 var garage: Node3D
 var car3: Node3D
@@ -615,9 +616,10 @@ func build(m: Node) -> void:
 	# every visit starts outside the door: "home_in" belongs to one visit only
 	# (left over from the last one, it kept the door from opening)
 	f.erase("home_in")
-	fourth = f.has("broadcast_seen") and not f.has("home4_done")
-	third = not fourth and f.has("hangar_done") and not f.has("home3_done")
-	second = not fourth and not third and f.has("southtown_done")
+	free = main.city.free_home
+	fourth = not free and f.has("broadcast_seen") and not f.has("home4_done")
+	third = not free and not fourth and f.has("hangar_done") and not f.has("home3_done")
+	second = not free and not fourth and not third and f.has("southtown_done")
 	kit_day = false
 	spawn = Vector3(30.0, 0.05, 0.6)
 	spawn_yaw = 90.0
@@ -627,6 +629,10 @@ func build(m: Node) -> void:
 		spawn_yaw = 0.0
 	step_db = -21.0
 	card = LINES["card"]["fourth" if fourth else ("third" if third else ("second" if second else "first"))]
+	if free:
+		card = main.city.place_card()
+		spawn = Vector3(1.0, 0.05, -1.5)
+		spawn_yaw = 27.0
 	_wall = pbr("plaster", Vector3(1, 1, 1) / 2.2, true, Color(0.82, 0.8, 0.76))
 	_trim = mat(Color(0.32, 0.26, 0.2), 0.55)
 	_stick_m = mat(Color(0.42, 0.33, 0.22), 0.9)
@@ -647,6 +653,8 @@ func build(m: Node) -> void:
 	if third:
 		_garage()
 	_family()
+	if free:
+		main.city.dress_home(self)
 	# the eye off the sketchbook page, and its cage; the frames' flashlight
 	eye_rig = Node3D.new()
 	eye_rig.visible = false
@@ -2093,6 +2101,8 @@ func _play(beat: String, key: String) -> void:
 func objective() -> String:
 	var f: Dictionary = main.flags
 	var o: Dictionary = LINES["objective"]
+	if free:
+		return main.city.objective()
 	if third and not f.has("drive3_done"):
 		return o["drive"]
 	if not f.has("home_in"):
@@ -2126,6 +2136,8 @@ func objective() -> String:
 
 func intro() -> void:
 	var ui = main.ui
+	if free:
+		return
 	if third:
 		await _drive()
 		return
@@ -2212,6 +2224,8 @@ func interact(node: Object) -> bool:
 	var f: Dictionary = main.flags
 	var ex: Dictionary = LINES["examine"]
 	var id := str(node.get_meta("id"))
+	if free and await main.city.home_interact(id):
+		return true
 	match id:
 		"monica":
 			if fourth:
@@ -2541,7 +2555,7 @@ func _couch() -> void:
 	await get_tree().create_timer(0.4).timeout
 	await _play("sleep", "morning")
 	ui.close()
-	await ui.show_card(L("sleep", "day2"), 2.6)
+	await main.city.day_card(2, L("sleep", "day2"))
 	f.erase("cinematic")
 	f["home1_done"] = true
 	await ui.fade_to(1.0, 0.5)
@@ -2795,7 +2809,7 @@ func _take_tablet() -> void:
 	ui.close()
 	if f.has("tablet_smashed") or f.has("tablet_taken"):
 		await _mira_morning()
-	await ui.show_card(L("sleep", "day3"), 2.6)
+	await main.city.day_card(3, L("sleep", "day3"))
 	f.erase("cinematic")
 	f["ritual_seen"] = true
 	f["home2_done"] = true
@@ -3560,7 +3574,7 @@ func _leaves_dream() -> void:
 	ui.close()
 	main.log_line("dream", L("toast", "leaves"))
 	await get_tree().create_timer(0.4).timeout
-	await ui.show_card(L("leaves", "day7"), 3.0)
+	await main.city.day_card(7, L("leaves", "day7"), 0)
 	f.erase("cinematic")
 	f["home4_done"] = true
 	await ui.fade_to(1.0, 0.5)

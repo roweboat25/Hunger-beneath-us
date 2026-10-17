@@ -15,6 +15,7 @@ extends Node3D
 const PlayerS := preload("res://scripts/Player.gd")
 const UIS := preload("res://scripts/UI.gd")
 const Synth := preload("res://scripts/Synth.gd")
+const CityS := preload("res://scripts/City.gd")
 
 const LEVELS := {
 	"Dufredy": preload("res://scripts/levels/Dufredy.gd"),
@@ -45,6 +46,8 @@ const LEVELS := {
 	"Core": preload("res://scripts/levels/Core.gd"),
 	"Chair": preload("res://scripts/levels/Chair.gd"),
 	"Epilogue": preload("res://scripts/levels/Epilogue.gd"),
+	# the open city: a district street (City.district picks which)
+	"Street": preload("res://scripts/levels/Street.gd"),
 }
 
 ## Story order of the levels (the title menu and the self-test walk it).
@@ -91,6 +94,15 @@ var ledger: Array = []  # [{level, kind, text}], the log the fork reads
 var traded: Array = []       # memories paid for words: "drawing", "photo", "lion", "trophy"
 var given: Array = []        # people given to the god by sacrifice (names, e.g. "tyson")
 var tower_rooms: Array = []  # Carl's Tower rooms in build order: "focus", "calm", "memory", "courage"
+# The clock and the open city (City.gd runs them). Hours past 23 belong to the
+# same day until Carl sleeps; the Day card starts the next at 07:00.
+var day := 1
+var hour := 21
+var faith := {}              # district id -> 0..3
+var devotion := 0            # spent at Carl's Tower
+var hacks: Array = []        # quick-hack words held: hush, look away, then the traded ones
+var incidents := {}          # id -> {state, district, title, opened, ...}
+var city: Node
 var glyphs_found := 0
 var outage := false
 var started := false
@@ -126,7 +138,10 @@ func _ready() -> void:
 	retro = preload("res://scripts/Retro.gd").new()
 	add_child(retro)
 	retro.apply(_args)
-	if _args.has("shot") or _args.has("selftest") or _args.has("level"):
+	city = CityS.new()
+	add_child(city)
+	city.setup(self)
+	if _args.has("shot") or _args.has("selftest") or _args.has("level") or _args.has("systems"):
 		_dev_start.call_deferred()
 
 
@@ -156,6 +171,7 @@ func _setup_input() -> void:
 	_key("scan", [KEY_F])
 	_key("psyon", [KEY_P])
 	_key("menu", [KEY_M])
+	_key("map", [KEY_TAB])
 	_key("release", [KEY_ESCAPE])
 
 
@@ -352,6 +368,7 @@ func _reset_story() -> void:
 	traded = []
 	given = []
 	tower_rooms = []
+	city.reset()
 	ui.set_frames(0.0, 0.0)
 
 
@@ -387,6 +404,9 @@ func _apply_hifi() -> void:
 func load_level(lname: String) -> void:
 	if loading:
 		return
+	# the open city: a hand-off to a beat it opens goes to the city instead,
+	# and every story level sits at its day and hour (City.before_load)
+	lname = city.before_load(lname)
 	loading = true
 	player.locked = true
 	if level and not shot_mode:
@@ -450,6 +470,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("menu") and not ui.title.visible:
 		ui.show_title(true)
 		return
+	if e.is_action_pressed("map") and not ui.title.visible and not ui.busy and not loading and level:
+		city.open_map()
+		return
 	if e.is_action_pressed("release"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		return
@@ -511,6 +534,9 @@ func learn(word: String) -> void:
 	if word in lexicon:
 		return
 	lexicon.append(word)
+	# hush and look away come free (bible-3 "Trades"); the rest are bought at a terminal
+	if word in ["hush", "look away"] and not hacks.has(word):
+		hacks.append(word)
 	ui.show_toast("Word learned: %s" % word, 3.0)
 	log_line("word", word)
 
@@ -549,13 +575,15 @@ func stance() -> String:
 
 
 func log_line(kind: String, text: String) -> void:
-	ledger.append({"level": level_name, "kind": kind, "text": text})
+	ledger.append({"level": level_name, "kind": kind, "text": text, "day": day, "hour": hour % 24})
 
 
 func update_hud() -> void:
 	if not level:
 		return
 	ui.objective.text = level.objective()
+	ui.clock.text = city.clock_text()
+	ui.clock.visible = level_name != "Epilogue"
 	if frames_on:
 		ui.status.text = "FRAMES ON    CONNECTION %d" % int(connection)
 		ui.status.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3) if connection >= 25.0 else Color(0.5, 1.0, 0.9))
@@ -593,6 +621,7 @@ func _glyph(g: Object) -> void:
 		return
 	g.set_meta("found", true)
 	glyphs_found += 1
+	devotion += 1  # an examined glyph is an offering (bible-1 "Devotion")
 	play("glitch", -4.0)
 	ui.glitch(0.9, 0.7)
 	await ui.think(str(g.get_meta("desc")))
@@ -613,13 +642,15 @@ func scan() -> void:
 	_scan_labels.clear()
 	play("on", -10.0, 1.4)
 	var me := player.global_position
+	# Carl's Tower, Focus: the frames read further
+	var reach := 39.0 if tower_rooms.has("focus") else 26.0
 	for n in _all_with_meta(level, "scan"):
 		var p: Vector3 = (n as Node3D).global_position
-		if p.distance_to(me) < 26.0:
+		if p.distance_to(me) < reach:
 			_card(p + Vector3(0, 1.5, 0), str(n.get_meta("scan")))
 	for pair in level.scan_people():
 		var n: Node3D = pair[0]
-		if n.global_position.distance_to(me) < 26.0:
+		if n.global_position.distance_to(me) < reach:
 			_card(n.global_position + Vector3(0, 2.2, 0), str(pair[1]))
 	get_tree().create_timer(7.0).timeout.connect(func():
 		for l in _scan_labels:
@@ -694,10 +725,17 @@ func _dev_start() -> void:
 	if _args.has("frames"):
 		frames_on = true
 		ui.set_frames(1.0, connection)
+	city.apply_args(_args)
+	if _args.has("systems"):
+		_selftest = true
+		await city.selftest_systems()
+		return
 	if _args.has("selftest"):
 		_selftest_all()
 		return
+	city.apply_time_args(_args)
 	await load_level(str(_args.get("level", "Spine")))
+	city.apply_time_args(_args)
 	if not shot_mode:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if _args.has("noui"):
@@ -756,6 +794,10 @@ func _run_test() -> void:
 			ks.sort_custom(func(a, b): return by[a] > by[b])
 			for k in ks.slice(0, 25):
 				print("  ", by[k], "  ", k)
+	city.shot_args(_args)
+	if _args.has("map") or _args.has("daycard") or _args.has("terminal"):
+		for i in 20:
+			await get_tree().process_frame
 	if _args.has("shot"):
 		var img := get_viewport().get_texture().get_image()
 		img.save_png(str(_args["shot"]))

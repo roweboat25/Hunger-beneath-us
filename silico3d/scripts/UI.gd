@@ -100,6 +100,15 @@ var picture_img: TextureRect
 var picture_cap: Label
 var shutter_r: ColorRect
 var menu_buttons: Array = []
+# the open city (City.gd): the clock top left, the ORA feed along the bottom,
+# the Day card on black
+var clock: Label
+var feed_strip: Control
+var feed_l: Label
+var feed_lines: Array = []
+var day_text: RichTextLabel
+var _day_skip := false
+var _feed_x := 0.0
 var busy := false
 var _typing := false
 var _tw: Tween
@@ -132,6 +141,22 @@ func setup(m: Node) -> void:
 	objective = _label(18, Color(0.85, 0.85, 0.8, 0.9))
 	status = _label(18, Color(0.5, 1.0, 0.9))
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	clock = _label(18, Color(0.92, 0.92, 0.88, 0.95))
+	feed_strip = Control.new()
+	feed_strip.clip_contents = true
+	feed_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	feed_strip.visible = false
+	root.add_child(feed_strip)
+	var fbg := ColorRect.new()
+	fbg.color = Color(0.0, 0.0, 0.0, 0.45)
+	fbg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fbg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	feed_strip.add_child(fbg)
+	feed_l = Label.new()
+	feed_l.add_theme_font_size_override("font_size", 15)
+	feed_l.add_theme_color_override("font_color", Color(0.75, 0.95, 0.88, 0.9))
+	feed_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	feed_strip.add_child(feed_l)
 	toast = _label(22, Color(1, 1, 1))
 	toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -161,6 +186,13 @@ func setup(m: Node) -> void:
 	card_text.add_theme_font_size_override("bold_font_size", 40)
 	card_text.modulate.a = 0.0
 	fade.add_child(card_text)
+	day_text = RichTextLabel.new()
+	day_text.bbcode_enabled = true
+	day_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	day_text.add_theme_font_size_override("normal_font_size", 24)
+	day_text.add_theme_font_size_override("bold_font_size", 52)
+	day_text.modulate.a = 0.0
+	fade.add_child(day_text)
 	_build_title()
 	get_viewport().size_changed.connect(_fit)
 	_fit()
@@ -329,8 +361,15 @@ func _fit() -> void:
 	menu.size = Vector2(minf(1000.0, s.x - 40.0), 0)
 	prompt.size = Vector2(s.x, 30)
 	prompt.position = Vector2(0, s.y * 0.58)
-	objective.position = Vector2(24, 18)
+	clock.position = Vector2(24, 14)
+	clock.size = Vector2(300, 26)
+	objective.position = Vector2(24, 40)
 	objective.size = Vector2(s.x * 0.6, 30)
+	feed_strip.position = Vector2(0, s.y - 26)
+	feed_strip.size = Vector2(s.x, 26)
+	feed_l.position = Vector2(s.x, 3)
+	day_text.position = Vector2(s.x * 0.18, s.y * 0.3)
+	day_text.size = Vector2(s.x * 0.64, s.y * 0.6)
 	status.position = Vector2(s.x * 0.5 - 24, 18)
 	status.size = Vector2(s.x * 0.5, 30)
 	toast.position = Vector2(s.x * 0.15, s.y * 0.16)
@@ -613,6 +652,10 @@ func _input(e: InputEvent) -> void:
 				return
 			get_viewport().set_input_as_handled()
 		return
+	if day_text.modulate.a > 0.5 and e is InputEventKey and e.pressed:
+		_day_skip = true
+		get_viewport().set_input_as_handled()
+		return
 	if endcard.visible:
 		if e.is_action_pressed("interact"):
 			get_viewport().set_input_as_handled()
@@ -653,9 +696,63 @@ func _input(e: InputEvent) -> void:
 
 
 func _process(_d: float) -> void:
+	# the feed scrolls right to left, round and round
+	# the city map and terminals cover the whole screen: the HUD steps back
+	var on_map: bool = main != null and main.city != null and main.city.map != null and main.city.map.visible
+	var covered: bool = on_map or (main != null and main.city != null and main.city.terminal != null and main.city.terminal.visible)
+	status.modulate.a = 0.0 if on_map else 1.0
+	clock.modulate.a = 0.0 if covered else 1.0
+	objective.modulate.a = 0.0 if covered else 1.0
+	feed_strip.visible = main != null and main.started and main.frames_on and not title.visible and feed_lines.size() > 0 and overlay.visible and not covered
+	if feed_strip.visible:
+		_feed_x -= _d * 70.0 / maxf(0.25, Engine.time_scale)
+		if _feed_x < -feed_l.size.x:
+			_feed_x = feed_strip.size.x
+		feed_l.position.x = _feed_x
 	if main and main.started and not title.visible and not endcard.visible and not OS.has_feature("headless"):
 		var lost: bool = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not main.shot_mode
 		pause.visible = lost
+
+
+## The Day card (bible-1): black, the day and the days to Glitch Day, the
+## morning list under them. Three seconds, or any key.
+func show_day(text: String, secs := 3.0) -> void:
+	var was_busy := busy
+	busy = true
+	fade.color.a = 1.0
+	day_text.text = "[center]" + text + "[/center]"
+	var tw := create_tween()
+	tw.tween_property(day_text, "modulate:a", 1.0, 0.6)
+	await tw.finished
+	_day_skip = false
+	var t0 := Time.get_ticks_msec()
+	var on_adv := func(): _day_skip = true
+	advanced.connect(on_adv)
+	while not _day_skip and (Time.get_ticks_msec() - t0) < int(secs * 1000.0 / maxf(0.25, Engine.time_scale)):
+		await get_tree().process_frame
+	advanced.disconnect(on_adv)
+	var tw2 := create_tween()
+	tw2.tween_property(day_text, "modulate:a", 0.0, 0.6)
+	tw2.tween_property(fade, "color:a", 0.0, 1.0)
+	await tw2.finished
+	busy = was_busy
+
+
+## The Day card held on screen, for screenshots.
+func show_day_static(text: String) -> void:
+	fade.color.a = 1.0
+	day_text.text = "[center]" + text + "[/center]"
+	day_text.modulate.a = 1.0
+
+
+## A line on the ORA feed ticker (shown with the frames on).
+func feed_push(text: String) -> void:
+	feed_lines.append(text)
+	if feed_lines.size() > 12:
+		feed_lines.pop_front()
+	feed_l.text = "   ·   ".join(feed_lines.slice(maxi(0, feed_lines.size() - 4)))
+	feed_l.size = Vector2(feed_l.get_minimum_size().x, 20)
+	_feed_x = feed_strip.size.x
 
 
 func show_end(text: String) -> void:
