@@ -352,7 +352,7 @@ void fragment() {
 	uv.x *= 2.3;
 	uv.y = -uv.y;
 	float t = TIME;
-	float rh = 0.3 * (1.0 - collapse);
+	float rh = 0.38 * (1.0 - collapse);
 	float r = length(uv);
 	float a = atan(uv.y, uv.x);
 	vec2 dq = vec2(uv.x, (uv.y + 0.02) * 4.4);
@@ -363,9 +363,8 @@ void fragment() {
 	disk *= clamp(front, 0.0, 1.0);
 	float ring = exp(-pow((r - rh * 1.42) * 13.0, 2.0)) * (0.6 + 0.7 * noise(vec2(a * 4.0 + t, t * 0.7)));
 	float photon = exp(-pow((r - rh * 1.04) * 45.0, 2.0));
-	vec3 col = mix(vec3(0.42, 0.16, 0.85), vec3(0.85, 1.0, 0.92), sw) * disk * 1.25;
+	vec3 col = mix(vec3(0.42, 0.16, 0.85), vec3(0.85, 1.0, 0.92), sw) * disk * 0.85;
 	col += vec3(0.55, 0.85, 1.0) * ring * 0.85 + vec3(1.0) * photon * 1.4;
-	col *= 1.0 - smoothstep(rh, rh * 0.96, r);
 	float stars = step(0.996, hash(floor(UV * vec2(220.0, 90.0)))) * 0.6;
 	col += vec3(stars) * step(rh * 1.8, r);
 	float row = floor(UV.y * 70.0);
@@ -373,6 +372,8 @@ void fragment() {
 	float ch = step(0.45, hash(vec2(floor(UV.x * 160.0 - t * 30.0 * hash(vec2(row, 1.0))), row)));
 	float near = smoothstep(1.4, 0.3, abs(uv.y) * 3.0 + abs(uv.x) * 0.3);
 	col += vec3(0.25, 1.0, 0.6) * bleed * ch * near * 0.7;
+	col *= smoothstep(rh * 0.95, rh, r);
+	col += vec3(1.0) * photon * 1.2 * smoothstep(rh * 0.9, rh, r);
 	col *= 0.86 + 0.14 * sin(UV.y * 600.0);
 	ALBEDO = col * power;
 }
@@ -1494,6 +1495,8 @@ func _lights() -> void:
 		ch.append([light(Vector3(s * 5.6, 3.2, -38.5), Color(0.4, 1.0, 0.65), 1.6, 9.0, false), 1.6])
 	ch.append([light(ALTAR + Vector3(0, 4.0, 2.2), Color(0.85, 1.0, 0.92), 2.2, 8.0, false), 2.2])
 	ch.append([light(Vector3(0, 4.0, -31.0), Color(0.4, 0.95, 0.6), 1.0, 9.0, false), 1.0])
+	# the light that spills out of the far doors onto the cathedral floor
+	ch.append([light(Vector3(0, 2.2, NORTH_Z + 1.6), Color(0.55, 1.0, 0.75), 1.4, 10.0, false), 1.4])
 	for l: Array in ch:
 		(l[0] as OmniLight3D).light_energy = 0.0
 		(l[0] as OmniLight3D).visible = false
@@ -2717,6 +2720,7 @@ func apply_args(a: Dictionary) -> void:
 	f["river_done"] = true
 	f["core_doors"] = true
 	f["core_vast"] = true
+	_busy = true
 	door_leaf.rotation.y = -1.45
 	if beat == "air":
 		door_leaf.rotation.y = -0.5
