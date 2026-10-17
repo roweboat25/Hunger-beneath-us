@@ -242,19 +242,23 @@ func _build_title() -> void:
 		+ "[color=#888888]Headphones. Lights off.[/color][/center]")
 	title.add_child(t)
 	title.mouse_filter = Control.MOUSE_FILTER_STOP
-	var vb := VBoxContainer.new()
+	var vb := GridContainer.new()
 	vb.name = "menu"
-	vb.add_theme_constant_override("separation", 14)
+	vb.columns = 2
+	vb.add_theme_constant_override("h_separation", 14)
+	vb.add_theme_constant_override("v_separation", 12)
 	title.add_child(vb)
-	var opts := [["1   Act 1:  The Dufredy case", "From the apartment and the eyes to the door in the cliff."],
-		["2   Act 2:  The Hunger Beneath", "From the facility behind the mirror to Monica's choice."],
+	var opts := [["1   Act 1:  The Dufredy case", "From the apartment to the door in the cliff."],
+		["2   Act 2:  The Hunger Beneath", "From the facility to Monica's choice."],
 		["3   Act 3:  Beneath", "Glitch Day: the tunnels, the chair, and how it ends."],
 		["4   The Spine at night", "Chapter 3: the rings, the outage, the tower's eye."]]
 	for i in opts.size():
 		var bt := Button.new()
 		bt.text = opts[i][0] + "\n" + opts[i][1]
 		bt.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		bt.add_theme_font_size_override("font_size", 20)
+		bt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		bt.add_theme_font_size_override("font_size", 18)
 		var sb := _panel_style(0.6)
 		bt.add_theme_stylebox_override("normal", sb)
 		var sbh := _panel_style(0.9)
@@ -321,8 +325,8 @@ func _fit() -> void:
 	picture.custom_minimum_size = Vector2(pw, 0)
 	picture.size = Vector2(pw, 0)
 	var menu := title.get_node("menu") as Control
-	menu.position = Vector2((s.x - minf(640.0, s.x - 40.0)) / 2.0, s.y * 0.52)
-	menu.size = Vector2(minf(640.0, s.x - 40.0), 0)
+	menu.position = Vector2((s.x - minf(1000.0, s.x - 40.0)) / 2.0, s.y * 0.5)
+	menu.size = Vector2(minf(1000.0, s.x - 40.0), 0)
 	prompt.size = Vector2(s.x, 30)
 	prompt.position = Vector2(0, s.y * 0.58)
 	objective.position = Vector2(24, 18)
