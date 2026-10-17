@@ -564,8 +564,8 @@ func build(m: Node) -> void:
 	spawn = SPAWN
 	spawn_yaw = 0.0
 	_pave = pbr("paving", Vector3(1, 1, 1) / 2.4, true, Color(0.5, 0.46, 0.47), 0.32)
-	_stone = pbr("concrete", Vector3(1, 1, 1) / 3.5, true, Color(0.72, 0.3, 0.18), 1.0)
-	_stone2 = pbr("plaster", Vector3(1, 1, 1) / 4.0, true, Color(0.55, 0.22, 0.13), 1.0)
+	_stone = pbr("concrete", Vector3(1, 1, 1) / 3.5, true, Color(0.62, 0.34, 0.24), 1.0)
+	_stone2 = pbr("plaster", Vector3(1, 1, 1) / 4.0, true, Color(0.5, 0.26, 0.17), 1.0)
 	_wood = pbr("woodfloor", Vector3(1, 1, 1) / 1.6, true, Color(0.75, 0.5, 0.36), 0.7)
 	_wood_dark = pbr("woodfloor", Vector3(1, 1, 1) / 1.2, true, Color(0.42, 0.24, 0.16), 0.55)
 	_lacquer = pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.45, 0.07, 0.06), 0.45)
@@ -780,7 +780,7 @@ func _ground() -> void:
 		box(Vector3(3.0, 0.01, 0.14), Vector3(x, 0.012, 51.0), line)
 		x += 8.0
 	# the wet: puddles from the sweepers, black glass on the paving
-	var wet := mat(Color(0.015, 0.012, 0.02), 0.03, 0.7)
+	var wet := mat(Color(0.17, 0.11, 0.17), 0.08, 0.0)
 	for k in 34:
 		var p := Vector3(rng.randf_range(-38, 38), 0.014, rng.randf_range(-38, 43))
 		if SUB_HOLE.grow(1.0).has_point(Vector2(p.x, p.z)) or CLUB_HOLE.grow(1.0).has_point(Vector2(p.x, p.z)):
@@ -1591,7 +1591,7 @@ func _tex_ad() -> ImageTexture:
 	Body._ell(img, 236, 132, 22, 22, Color(0.95, 0.85, 0.7))
 	Body._line(img, 196, 176, 280, 150, Color(0.45, 0.2, 0.08), 6)
 	for k in 30:
-		Body._ell(img, randf_range(170, 315), randf_range(10, 100), 1.2, 1.2, Color(1, 1, 0.9))
+		Body._ell(img, randf_range(170, 305), randf_range(10, 100), 1.2, 1.2, Color(1, 1, 0.9))
 	return ImageTexture.create_from_image(img)
 
 
@@ -1677,8 +1677,8 @@ var _flick: Array = []
 
 
 func _lights() -> void:
-	_zl("plaza", P + Vector3(0, 1.2, 6.6), Color(1.0, 0.35, 0.2), 2.2, 13.0)
-	_zl("plaza", P + Vector3(-7.0, 1.0, 0), Color(1.0, 0.2, 0.6), 1.6, 10.0)
+	_zl("plaza", P + Vector3(0, 1.2, 7.4), Color(1.0, 0.55, 0.35), 1.1, 11.0)
+	_zl("plaza", P + Vector3(-7.4, 1.0, 0), Color(1.0, 0.25, 0.6), 1.0, 9.0)
 	scr_light = _zl("plaza", SCREEN_C + Vector3(0, -3.0, 7.0), Color(1.0, 0.55, 0.25), 1.7, 24.0)
 	_flick.append(_zl("plaza", Vector3(-46.0, 3.9, 10.0), Color(0.65, 0.78, 1.0), 1.3, 9.0))
 	_zl("plaza", Vector3(-50.6, 2.6, 9.0), Color(1.0, 0.18, 0.12), 1.3, 6.5)
@@ -2234,7 +2234,7 @@ func _tex_city() -> ImageTexture:
 		img.fill_rect(Rect2i(x, h - bh, bw, bh), Color(0.03, 0.03, 0.05))
 		for k in bw * bh / 30:
 			if r.randf() < 0.5:
-				img.set_pixel(x + r.randi() % bw, h - bh + r.randi() % bh, [Color(1.0, 0.8, 0.5), Color(0.4, 0.9, 1.0), Color(1.0, 0.3, 0.6)][r.randi() % 3])
+				img.set_pixel(mini(w - 1, x + r.randi() % bw), h - bh + r.randi() % bh, [Color(1.0, 0.8, 0.5), Color(0.4, 0.9, 1.0), Color(1.0, 0.3, 0.6)][r.randi() % 3])
 		x += bw + r.randi() % 4
 	img.fill_rect(Rect2i(212, 8, 16, h - 8), Color(0.02, 0.02, 0.03))
 	for k in 18:
@@ -2403,6 +2403,12 @@ func _overlay() -> void:
 		tr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		tr.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		panel_box.add_child(tr)
+
+
+## Selftest trace.
+func _st(s: String) -> void:
+	if main._selftest and main._args.has("trace"):
+		print("st ", s)
 
 
 # ------------------------------------------------------------------ arrival (ch.19)
@@ -2709,6 +2715,7 @@ func _meeting() -> void:
 	f["cinematic"] = true
 	if not f.has("lu_in"):
 		f["lu_in"] = true
+	_st("_meeting 306")
 	await main.ui.fade_to(1.0, 0.4)
 	var p = main.player
 	p.position = CARL_SEAT
@@ -2717,46 +2724,66 @@ func _meeting() -> void:
 	p.crouch = 0.42
 	p.yaw = 0.0
 	p.pitch = -0.08
+	_st("_meeting 315")
 	await main.ui.fade_to(0.0, 0.5)
 	var m: Dictionary = LINES["meet"]
+	_st("_meeting 318")
 	await _play(m["sit_1"])
+	_st("_meeting 320")
 	await _play(m["lynx_called"] if _entry == "lynx" else m["lynx_gone"])
+	_st("_meeting 322")
 	await _play(m["first"])
+	_st("_meeting 324")
 	await _play(m["confession"])
 	main.log_line("testimony", str(m["log_confession"]))
+	_st("_meeting 327")
 	await _play(m["forner"])
 	main.log_line("testimony", str(m["log_forner"]))
 	water.visible = true
+	_st("_meeting 331")
 	await _play(m["emmet"])
 	main.log_line("testimony", str(m["log_emmet"]))
+	_st("_meeting 334")
 	await _play(m["kids"])
+	_st("_meeting 336")
 	await _kidtok()
 	f["claim_the_copy"] = true
 	main.ui.show_toast(str(m["claim"]), 3.0)
 	main.log_line("claim", str(m["log_video"]))
+	_st("_meeting 341")
 	await _play(m["real"])
+	_st("_meeting 343")
 	await _play(m["ask"])
+	_st("_meeting 345")
 	await _facility_choice()
+	_st("_meeting 347")
 	await _play(m["gasp"])
+	_st("_meeting 349")
 	await _play(m["hameron"])
 	f["cognizo_open"] = true
 	main.ui.show_toast(str(m["cognizo_toast"]), 3.5)
 	main.log_line("lead", str(m["log_hameron"]))
 	main.ui.close()
+	_st("_meeting 355")
 	await _dufredy_scene()
+	_st("_meeting 357")
 	await _play(LINES["plan"]["lines"])
+	_st("_meeting 359")
 	await _play(LINES["plan"]["pip"] if f.has("pip_active") else LINES["plan"]["nopip"])
+	_st("_meeting 361")
 	await _play(LINES["plan"]["end"])
 	main.ui.close()
 	f["lushons_done"] = true
 	main.log_line("event", L("plan", "log"))
 	main.log_line("time", "Day 5, 23:30. Lushon's.")
 	main.ui.show_toast(L("plan", "done_toast"), 3.0)
+	_st("_meeting 368")
 	await main.ui.fade_to(1.0, 0.4)
 	p.seated = false
 	p.crouch = 0.0
 	p.position = CARL_SEAT + Vector3(0.0, 0.05, 1.2)
 	p.pitch = 0.0
+	_st("_meeting 374")
 	await main.ui.fade_to(0.0, 0.5)
 	f.erase("cinematic")
 	_in_meeting = false
@@ -2772,6 +2799,7 @@ func _kidtok() -> void:
 		var tex := await _kid_frame(k)
 		main.ui.show_picture(tex, str(m["v%d_cap" % (k + 1)]))
 		main.ui.glitch(0.25, 0.25)
+		_st("_kidtok 390")
 		await _think(str(m["v%d" % (k + 1)]))
 	main.ui.hide_picture()
 	main.play("off", -8.0, 1.3)
@@ -2827,30 +2855,49 @@ func _dufredy_scene() -> void:
 	dufredy.visible = true
 	_move(dufredy, [Vector3(LU_DOOR, 0, LU.end.y - 2.0), Vector3(LU_DOOR, 0, LU.end.y - 4.4), Vector3(LU_DOOR - 0.6, 0, -49.0), stand], 0.75)
 	_duf_track = true
+	_st("_dufredy_scene 446")
 	await _think(str(d["walk_in"]))
+	_st("_dufredy_scene 448")
 	await _think(str(d["voids"]))
+	_st("_dufredy_scene 450")
 	await _think(str(d["approach"]))
+	_st("_dufredy_scene 452")
 	await _arrive(dufredy, 40.0)
 	turn_to(dufredy, main.player.global_position, 0.8)
+	_st("_dufredy_scene 455")
 	await _think(str(d["stand"]))
+	_st("_dufredy_scene 457")
 	await _say("Dufredy", str(d["d1"]))
+	_st("_dufredy_scene 459")
 	await _think(str(d["smile"]))
+	_st("_dufredy_scene 461")
 	await _say("Dufredy", str(d["d2"]))
 	main.player.shake(0.25)
+	_st("_dufredy_scene 464")
 	await _think(str(d["rage"]))
+	_st("_dufredy_scene 466")
 	await _think(str(d["to_forner"]))
 	turn_to(dufredy, (forner.get_meta("head") as Node3D).global_position, 0.8)
+	_st("_dufredy_scene 469")
 	await _say("Dufredy", str(d["d3"]))
+	_st("_dufredy_scene 471")
 	await _think(str(d["frozen"]))
+	_st("_dufredy_scene 473")
 	await _think(str(d["turan_up"]))
+	_st("_dufredy_scene 475")
 	await _say("Turan", str(d["t1"]))
+	_st("_dufredy_scene 477")
 	await _think(str(d["to_turan"]))
 	turn_to(dufredy, (turan.get_meta("head") as Node3D).global_position, 0.8)
+	_st("_dufredy_scene 480")
 	await _say("Dufredy", str(d["d4"]))
+	_st("_dufredy_scene 482")
 	await _say("Dufredy", str(d["d5"]))
+	_st("_dufredy_scene 484")
 	await _think(str(d["left"]))
 	main.ui.close()
 	_move(dufredy, [Vector3(LU_DOOR - 0.6, 0, -49.0), Vector3(LU_DOOR, 0, LU.end.y - 4.4), Vector3(LU_DOOR, 0, LU.end.y - 2.0), door + Vector3(0, 0, 1.5)], 0.75)
+	_st("_dufredy_scene 488")
 	await _arrive(dufredy, 30.0)
 	dufredy.visible = false
 	_duf_track = false
@@ -2862,9 +2909,13 @@ func _dufredy_scene() -> void:
 	var tw := create_tween()
 	tw.tween_property(_duf_ap, "volume_db", -60.0, 2.0)
 	tw.tween_callback(_duf_ap.stop)
+	_st("_dufredy_scene 500")
 	await main.player.face((turan.get_meta("head") as Node3D).global_position, 0.8)
+	_st("_dufredy_scene 502")
 	await _think(str(d["after_1"]))
+	_st("_dufredy_scene 504")
 	await _think(str(d["after_2"]))
+	_st("_dufredy_scene 506")
 	await _think(str(d["after_3"]))
 	f["dufredy_lushons"] = true
 	main.log_line("encounter", str(d["log"]))
@@ -2932,6 +2983,7 @@ func _train_beat() -> void:
 	_busy = true
 	f["cinematic"] = true
 	var t: Dictionary = LINES["train"]
+	_st("_train_beat 574")
 	await main.ui.fade_to(1.0, 0.6)
 	_set_zone("train")
 	var p = main.player
@@ -2944,13 +2996,19 @@ func _train_beat() -> void:
 	train_speed = 16.0
 	_engine_ap.play()
 	_engine_ap.volume_db = -12.0
+	_st("_train_beat 587")
 	await main.ui.fade_to(0.0, 0.8)
+	_st("_train_beat 589")
 	await _think(str(t["board"]))
+	_st("_train_beat 591")
 	await _think(str(t["eyes"]))
+	_st("_train_beat 593")
 	await _play(t["lines"])
+	_st("_train_beat 595")
 	await _think(str(t["stop"]))
 	var tw := create_tween()
 	tw.tween_property(self, "train_speed", 0.0, 2.0)
+	_st("_train_beat 599")
 	await tw.finished
 	main.play("door", -6.0, 1.2)
 	for d in train_doors:
@@ -2967,12 +3025,15 @@ func _train_beat() -> void:
 	var cart: Node3D = get_meta("cart")
 	_move(tyson, [TRAIN + Vector3(2.6, 0, -0.9), TRAIN + Vector3(3.0, 0, -1.2)], 1.0)
 	create_tween().tween_property(cart, "position", TRAIN + Vector3(3.2, 0, -0.5), 1.6)
+	_st("_train_beat 616")
 	await _arrive(tyson, 10.0)
 	turn_to(tyson, p.global_position, 0.5)
+	_st("_train_beat 619")
 	await _say("Tyson", str(t["last"]))
 	main.ui.close()
 	_move(tyson, [TRAIN + Vector3(3.0, 0, -2.6)], 1.0)
 	create_tween().tween_property(cart, "position", TRAIN + Vector3(3.2, 0, -2.6), 1.4)
+	_st("_train_beat 624")
 	await _arrive(tyson, 10.0)
 	tyson.visible = false
 	cart.visible = false
@@ -2981,7 +3042,9 @@ func _train_beat() -> void:
 		var dm := d as MeshInstance3D
 		create_tween().tween_property(dm, "position:x", 3.0 + (0.31 if dm.position.x > 3.0 else -0.31), 0.6)
 	create_tween().tween_property(self, "train_speed", 16.0, 3.0)
+	_st("_train_beat 633")
 	await _think(str(t["door"]))
+	_st("_train_beat 635")
 	await _think(str(t["end"]))
 	main.ui.close()
 	f["tyson_subway"] = true
@@ -2989,10 +3052,12 @@ func _train_beat() -> void:
 	if not f.has("tablet_smashed") and not f.has("smash_used"):
 		card_text.text = "[center]" + str(t["smash"]) + "[/center]"
 		card_rect.visible = true
+		_st("_train_beat 643")
 		await get_tree().create_timer(3.5).timeout
 		card_rect.visible = false
 		card_text.text = ""
 		f["smash_explained"] = true
+	_st("_train_beat 648")
 	await _forner_cutscene()
 	_busy = false
 	_end()
@@ -3006,6 +3071,7 @@ func _forner_cutscene() -> void:
 	card_text.text = "[center]" + str(t["card"]) + "[/center]"
 	card_rect.visible = true
 	_engine_ap.stop()
+	_st("_forner_cutscene 662")
 	await get_tree().create_timer(2.2).timeout
 	card_text.text = ""
 	var room_l := [[FL + Vector3(0, 2.0, -2.0), Color(0.45, 0.6, 1.0), 1.6, 7.0], [FL + Vector3(-2.0, 2.2, 1.6), Color(1.0, 0.7, 0.45), 0.7, 6.0],
@@ -3019,10 +3085,13 @@ func _forner_cutscene() -> void:
 	panel_box.visible = true
 	main.ui.caption(str(t["cap"]), 4.0)
 	for k in ["l1", "l2", "l3", "l4", "l5"]:
+		_st("_forner_cutscene 676")
 		await _think(str(t[k]))
 	(trs[1] as TextureRect).modulate = Color(1, 1, 1, 1)
 	main.play("ding", -2.0, 1.0)
+	_st("_forner_cutscene 680")
 	await _think(str(t["l6"]))
+	_st("_forner_cutscene 682")
 	await _say(str(t["who"]), str(t["call"]))
 	main.ui.close()
 	f["forner_called"] = true
@@ -3476,8 +3545,15 @@ func _wait(cond: Callable, secs: float) -> void:
 func selftest() -> void:
 	var f: Dictionary = main.flags
 	var p = main.player
+	# the run checks the script, not the pixels: the main view stops drawing
+	# (the picture cameras still render their own viewports)
+	get_viewport().disable_3d = true
 	await intro()
 	print("ok intro entry=", _entry)
+	if str(main._args.get("st_from", "")) == "lush":
+		await _st_lush()
+		get_viewport().disable_3d = false
+		return
 	# the other two ways in, for the script's sake
 	for k: String in ["note", "lynx", "emmet"]:
 		if k != _entry:
@@ -3521,6 +3597,12 @@ func selftest() -> void:
 	await _by_id("smoothie")
 	_force = [0]
 	await _by_id("smoothie")
+	await _st_lush()
+
+
+func _st_lush() -> void:
+	var f: Dictionary = main.flags
+	var p = main.player
 	# Lushon's: in through the curtain
 	p.position = Vector3(LU_DOOR, 0.1, -42.5)
 	await _wait(func() -> bool: return f.has("lu_in") and not _busy, 20.0)
@@ -3550,3 +3632,4 @@ func selftest() -> void:
 	p.position = SPAWN
 	await get_tree().process_frame
 	await main.selftest_all_interactables()
+	get_viewport().disable_3d = false
