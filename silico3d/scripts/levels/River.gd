@@ -123,6 +123,7 @@ const LINES := {
 		"wallscreen": "(game) A screen set flush in the tile, the only thing in the room. One line in the ORA font: SESSION COMPLETE. THANK YOU FOR SHARING.",
 	},
 	"door": {
+		"lynx_log": "Lynx in the doorway with the stigmata: the god made hundreds of copies of Nathan",
 		"think1": "I made my way toward the white threshold where I hoped Lynx would be waiting. I walked slowly, not because of the pain, but because the intense light stung my eyes, a final insult from a sterile hell.",
 		"think2": "A shadow emerged, blocking the light, and my heart seized. It was Lynx, her hands bearing the same stigmata as my own. Her face was a mask of devastation, devoid of all life, all hope. She didn't say a word; she just hung in the doorway and stared at my hands with a terrible, knowing emptiness.",
 		"think3": "I understood. We had both endured the same violation: the humiliation, the theft of self.",
@@ -212,6 +213,7 @@ const LINES := {
 		"no_frames": "(game) I reached for the frames. There was nothing on my face but the oil.",
 	},
 	"river": {
+		"baptism_log": "the coolant river under Red Rock: the baptism",
 		"float": "I was floating, carried by the slow, inexorable current.",
 		"redrock": "The river was encapsulated by a cavern of raw sandstone. I was beneath Red Rock Plaza.",
 		"shore": "In the distance, I saw them: figures lining the shoreline, staring at me with the deep, dark voids where their eyes used to be. They were humming a quiet, triumphant song.",
@@ -303,6 +305,7 @@ var _lamps: Array = []         # [OmniLight3D, zone, flicker phase or -1, base]
 var _pool: Array = []          # lights the beach phones cast
 var _mm_up: MultiMeshInstance3D
 var _mm_low: MultiMeshInstance3D
+var _mm_halo: MultiMeshInstance3D   # the soft pool each lit device throws on the sand
 var _scr: Array = []           # per screen: [mm, index, position, base colour, k, radius, decay]
 var _scr_t := 0.0
 var _light_t := 0.0
@@ -444,7 +447,7 @@ func build(m: Node) -> void:
 	_crane_build()
 	_fall_figure()
 	_collect_lights()
-	_zone_nodes = {"up": [up, _mm_up], "low": [low, _mm_low]}
+	_zone_nodes = {"up": [up, _mm_up], "low": [low, _mm_low, _mm_halo]}
 	for r in room_eyeless:
 		_zone_nodes["up"].append(r["fig"])
 	for r in river_eyeless + beach_eyeless:
@@ -496,7 +499,7 @@ func _env_zone(z: String) -> void:
 		_env.fog_density = 0.012
 	else:
 		_env.ambient_light_color = Color(0.42, 0.3, 0.26)
-		_env.ambient_light_energy = 0.07
+		_env.ambient_light_energy = 0.15
 		_env.fog_light_color = Color(0.025, 0.02, 0.018)
 		_env.fog_density = 0.016
 
@@ -1211,7 +1214,7 @@ func _river() -> void:
 		var side := Vector3(-d.z, 0, d.x) * sd
 		box(Vector3(2.0, 0.9, 2.2), c + side * (_half(lu) - 0.8) + Vector3(0, -0.15, 0), _sand, false, low).rotation.y = atan2(d.x, d.z)
 	for lu: float in [12.0, 30.0, 58.0, 80.0]:
-		_lamp(_rp(lu) + Vector3(0, 3.5, 0), Color(0.35, 0.8, 0.5), 0.45, 14.0, "low")
+		_lamp(_rp(lu) + Vector3(0, 3.5, 0), Color(0.35, 0.8, 0.5), 0.9, 16.0, "low")
 	# "the afternoon sun crept in, a lazy, indifferent sliver of light": the
 	# only warm light underground
 	var cg := box(Vector3(0.35, 0.4, 7.0), crack + Vector3(0, YR + 20.4, 0), glow(WARM, 4.0), false, self)
@@ -1225,6 +1228,7 @@ func _river() -> void:
 	sp.spot_range = 28.0
 	sp.spot_angle = 12.0
 	sp.spot_attenuation = 0.6
+	sp.light_volumetric_fog_energy = 0.12
 	add_child(sp)
 	_lamps.append([sp, "low", -1.0, 9.0])
 	var beam := CylinderMesh.new()
@@ -1237,28 +1241,26 @@ func _river() -> void:
 	bm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	bm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	bm.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	bm.albedo_color = Color(1.0, 0.7, 0.42, 0.07)
+	bm.albedo_color = Color(1.0, 0.7, 0.42, 0.045)
 	bm.cull_mode = BaseMaterial3D.CULL_DISABLED
 	bm.no_depth_test = false
 	var bmi := mesh(beam, crack + Vector3(0, YR + 10.0, 0), bm)
 	no_batch.append(bmi)
 	var dust := CPUParticles3D.new()
 	dust.position = crack + Vector3(0, YR + 8.0, 0)
-	dust.amount = 60
+	dust.amount = 45
 	dust.lifetime = 9.0
 	dust.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
 	dust.emission_box_extents = Vector3(1.4, 8.0, 1.4)
 	dust.gravity = Vector3(0, -0.02, 0)
 	dust.initial_velocity_min = 0.02
 	dust.initial_velocity_max = 0.08
-	dust.scale_amount_min = 0.02
-	dust.scale_amount_max = 0.04
 	var dq := QuadMesh.new()
-	dq.size = Vector2(1, 1)
+	dq.size = Vector2(0.035, 0.035)
 	var dm := StandardMaterial3D.new()
 	dm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	dm.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	dm.albedo_color = Color(1.0, 0.82, 0.6)
+	dm.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	dm.albedo_color = Color(0.8, 0.62, 0.42)
 	dq.material = dm
 	dust.mesh = dq
 	add_child(dust)
@@ -1614,6 +1616,26 @@ func _chase_s(p: Vector3) -> float:
 ## came this far with Carl.
 func _drones_build() -> void:
 	var red := glow(Color(1.0, 0.12, 0.08), 3.0)
+	var ring_m := glow(Color(0.55, 0.85, 1.0), 0.9)
+	var ring_mesh := TorusMesh.new()
+	ring_mesh.inner_radius = 0.56
+	ring_mesh.outer_radius = 0.64
+	ring_mesh.rings = 16
+	ring_mesh.ring_segments = 4
+	var cone_mesh := CylinderMesh.new()
+	cone_mesh.top_radius = 0.12
+	cone_mesh.bottom_radius = 1.6
+	cone_mesh.height = 8.0
+	cone_mesh.radial_segments = 10
+	cone_mesh.rings = 1
+	cone_mesh.cap_top = false
+	cone_mesh.cap_bottom = false
+	var cone_m := StandardMaterial3D.new()
+	cone_m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	cone_m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	cone_m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	cone_m.albedo_color = Color(0.6, 0.85, 1.0, 0.022)
+	cone_m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	for i in 7:
 		var n := Node3D.new()
 		n.visible = false
@@ -1625,7 +1647,13 @@ func _drones_build() -> void:
 		else:
 			body.rotation.x = 0.45
 			n.set_meta("body", body)
-		sphere(0.07, Vector3(0, -0.15, -0.35), red, 6, n)
+		sphere(0.09, Vector3(0, -0.15, -0.35), red, 6, n)
+		# the rotor ring that sings its note, and a searchlight cone
+		# sweeping the water (additive, no light: the budget is the cavern's)
+		var ring := mesh(ring_mesh, Vector3(0, 0.12, 0), ring_m, n)
+		ring.set_meta("ring", true)
+		var cone := mesh(cone_mesh, Vector3(0, -4.2, 0), cone_m, n)
+		cone.rotation.x = 0.22
 		drones.append({"node": n, "slot": i})
 
 
@@ -1739,6 +1767,41 @@ func _screens_build() -> void:
 	for i in _xf_low.size():
 		var c := Color(0.35, 1.0, 0.85) if rng.randf() < 0.85 else Color(0.6, 0.8, 1.0)
 		_scr.append([_mm_low, i, (_xf_low[i] as Transform3D).origin, c * rng.randf_range(0.6, 1.0), 0.0, 3.0, 0.12])
+	# a phone face down still lights the sand round it: one additive pool
+	# per device, lying flat, tinted with its screen
+	var hm := MultiMesh.new()
+	hm.transform_format = MultiMesh.TRANSFORM_3D
+	hm.use_colors = true
+	var hq := QuadMesh.new()
+	hq.size = Vector2(1, 1)
+	hm.mesh = hq
+	hm.instance_count = _xf_low.size()
+	for i in _xf_low.size():
+		var o: Vector3 = (_xf_low[i] as Transform3D).origin
+		hm.set_instance_transform(i, Transform3D(Basis(Vector3.RIGHT, -PI / 2.0) * Basis.from_scale(Vector3.ONE * 2.4), Vector3(o.x, o.y + 0.02, o.z)))
+		hm.set_instance_color(i, Color(0, 0, 0))
+	_mm_halo = MultiMeshInstance3D.new()
+	_mm_halo.multimesh = hm
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1))
+	g.set_color(1, Color(0, 0, 0, 1))
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.fill = GradientTexture2D.FILL_RADIAL
+	gt.fill_from = Vector2(0.5, 0.5)
+	gt.fill_to = Vector2(0.5, 0.0)
+	gt.width = 32
+	gt.height = 32
+	var hmat := StandardMaterial3D.new()
+	hmat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	hmat.vertex_color_use_as_albedo = true
+	hmat.albedo_texture = gt
+	hmat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	hmat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	hmat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_mm_halo.material_override = hmat
+	_mm_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_mm_halo)
 
 
 func _screen_mm(xfs: Array) -> MultiMeshInstance3D:
@@ -1844,7 +1907,7 @@ func _doorway() -> void:
 	lynx_state = "follow"
 	_trail = [main.player.global_position]
 	f["rv_lynx"] = true
-	main.log_line("lynx", "Lynx in the doorway with the stigmata: the god made hundreds of copies of Nathan")
+	main.log_line("lynx", L("door", "lynx_log"))
 	f.erase("cinematic")
 	_busy = false
 	main.update_hud()
@@ -2369,7 +2432,7 @@ func _river_beats() -> void:
 			"rv_baptism":
 				_cap(L("river", "baptism"))
 				_cap(L("river", "hands"))
-				main.log_line("baptism", "the coolant river under Red Rock: the baptism")
+				main.log_line("baptism", L("river", "baptism_log"))
 			"rv_drones":
 				_form = "follow"
 				_form_t = 0.0
@@ -2412,7 +2475,7 @@ func _tick_form(delta: float) -> void:
 	var f: Dictionary = main.flags
 	_form_t += delta
 	var d := _rd(_u)
-	var c := _rp(_u + 5.0) + Vector3(0, 12.0, 0)
+	var c := _rp(_u + 11.0) + Vector3(0, 7.5, 0)
 	if _form == "leave":
 		c += (d * 9.0 + Vector3(0, 3.0, 0)) * _form_t * _form_t * 0.5
 	var k := minf(1.0, delta * (1.5 if _form != "leave" else 6.0))
@@ -2718,20 +2781,28 @@ func _tick_screens(delta: float, pp: Vector3) -> void:
 		return
 	var dt := _scr_t
 	_scr_t = 0.0
+	# on the shore one phone in two never goes dark: the beach is lit by
+	# nothing else
+	var shore: bool = main.flags.has("rv_beach")
 	for i in _scr.size():
 		var s: Array = _scr[i]
 		var pos: Vector3 = s[2]
 		var k: float = s[4]
 		var d := pos.distance_to(pp)
-		if k <= 0.0 and d > 12.0:
+		var base := 0.5 if shore and s[0] == _mm_low and i % 2 == 0 else 0.0
+		if k <= base and d > 12.0 and (k > 0.0 or base <= 0.0):
 			continue
 		var r: float = s[5] * (0.75 + 0.25 * sin(float(i) * 12.9898))
-		var nk := minf(1.0, k + dt * 4.0) if d < r and absf(pos.y - pp.y) < 3.5 else maxf(0.0, k - dt * float(s[6]))
+		var nk := minf(1.0, k + dt * 4.0) if d < r and absf(pos.y - pp.y) < 3.5 else maxf(base, k - dt * float(s[6]))
 		if nk == k and nk <= 0.0:
 			continue
 		s[4] = nk
 		var fl := 0.82 + 0.18 * sin(_t * 11.0 + i)
 		(s[0] as MultiMeshInstance3D).multimesh.set_instance_color(int(s[1]), Color(0.02, 0.02, 0.02).lerp(s[3], nk * fl))
+		if s[0] == _mm_low:
+			var hc: Color = s[3]
+			var hk := 0.6 * nk * fl
+			_mm_halo.multimesh.set_instance_color(int(s[1]), Color(hc.r * hk, hc.g * hk, hc.b * hk, 1.0))
 
 
 func _tick_lynx(delta: float, pp: Vector3) -> void:
@@ -2903,7 +2974,7 @@ func apply_args(a: Dictionary) -> void:
 				for i in drones.size():
 					var n: Node3D = drones[i]["node"]
 					n.visible = true
-					n.global_position = _slot(i, _rp(_u + 5.0) + Vector3(0, 12.0, 0), d)
+					n.global_position = _slot(i, _rp(_u + 11.0) + Vector3(0, 7.5, 0), d)
 				var b0: Node3D = drones[0]["node"].get_meta("body", null)
 				if b0:
 					b0.visible = not _ally()
@@ -2999,7 +3070,8 @@ func selftest() -> void:
 	await _wait(func(): return f.has("rv_beach") and not _busy, 300.0)
 	print("ok river u=", snappedf(_u, 0.1), " beach=", f.has("rv_beach"), " drones=", f.has("rv_drones"), " crane_left=", f.has("rv_drone_left"), " form=", _form, " falls=", f.has("rv_falls"))
 	main.toggle_frames()
-	print("ok frames refused on=", main.frames_on)
+	await _wait(func(): return not main.frames_on, 3.0)
+	print("ok frames refused, on=", main.frames_on)
 	var e: Node3D = beach_eyeless[3]["fig"]
 	_put(e.global_position + Vector3(0.45, 0.05, 0.0), PI / 2.0)
 	await _wait(func(): return _touches > 0, 8.0)
