@@ -3055,9 +3055,18 @@ func _wait_flag(flag: String, secs: float) -> void:
 func selftest() -> void:
 	var f: Dictionary = main.flags
 	await intro()
+	# Lynx follows a step behind; the eyeless walk their beat (both stand
+	# wherever the test last left them)
+	walk_ignore = [lynx]
+	var wb := Rect2(-36.0, -28.0, 58.0, 36.0)
+	for e in eyeless:
+		walk_ignore.append(e["node"])
+	await check_walk("spawn->doorway", "doorway", null, wb)
 	for id in ["mirror", "flag", "crt", "console", "doorway", "lynx"]:
 		await _by_id(id)
 	print("ok lynx found=", f.has("lynx_found"), " trust=", main.trust["lynx"])
+	await check_walk("spawn->office terminal", "terminal", null, wb)
+	await check_walk("spawn->stair_b", "stair_b", null, wb)
 	# sublevel 1: the office, the side rooms, the second stairwell
 	main.player.position = Vector3(0.0, Y1 + 0.05, -12.0)
 	_snap_lynx()
@@ -3065,6 +3074,7 @@ func selftest() -> void:
 	for id in ["office_door", "whiteboard", "desktop", "terminal", "terminal", "lynx"]:
 		await _by_id(id)
 	print("ok office read=", f.has("office_read"), " slides=", f.has("ev_darpa_slides"), " log=", f.has("ev_hameron_log_1"), " conn=", main.connection)
+	await check_walk("spawn->sublevel 2 (stair B foot)", STAIR_B_FOOT, null, wb)
 	main.player.position = Vector3(-10.0, Y1 + 0.05, -11.0)
 	for id in ["quarters", "offering", "offering", "gym", "gym_bike", "wire", "wire", "sealed", "service", "fuse", "sign1", "sign2", "stair_b"]:
 		await _by_id(id)
@@ -3079,6 +3089,10 @@ func selftest() -> void:
 	print("ok touched=", f.has("fac_touched"), " conn=", main.connection)
 	main.toggle_frames()
 	# the pens: three seen and Lynx breaks; the rest
+	for id in ["pen1", "pen3", "pen6"]:
+		await check_walk("spawn->" + id, id, null, wb)
+	await check_walk("spawn->lab", Vector3(8.3, Y2, -19.9), null, wb, 1.0)
+	await check_walk("spawn->eye_wall (pen 4)", "eye_wall", null, wb)
 	main.player.position = Vector3(-10.5, Y2 + 0.05, PZ)
 	_snap_lynx()
 	for i in 6:
@@ -3097,6 +3111,7 @@ func selftest() -> void:
 	main.toggle_frames()
 	await _by_id("eye_door")
 	print("ok lullaby=", f.has("fac_lullaby"), " frames_on=", main.frames_on, " words=", main.lexicon)
+	await check_walk("obs room (eye door)->monitor", "monitor", Vector3(EYE_DOOR.x + 0.9, Y2 + 0.05, EYE_DOOR.z), wb)
 	# the folder: two scrubs with the frames off, then the frames on
 	await _by_id("monitor")
 	await _by_id("monitor")
@@ -3106,6 +3121,8 @@ func selftest() -> void:
 	main.toggle_frames()
 	for id in ["obs_door", "obs_door", "rack", "glass", "cabinet", "records", "showers", "gowns", "generator"]:
 		await _by_id(id)
+	await check_walk("obs room->hangar_stairs (obs door pushed)", "hangar_stairs", Vector3(EYE_DOOR.x + 0.9, Y2 + 0.05, EYE_DOOR.z), wb)
+	await check_walk("spawn->hangar_stairs", "hangar_stairs", null, wb)
 	main.player.position = Vector3(17.5, Y2 + 0.05, SZ)
 	await _by_id("hangar_stairs")
 	print("ok stairs ended=", _ended, " objective=", objective())

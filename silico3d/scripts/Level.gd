@@ -1051,3 +1051,193 @@ func kit_holo(pos: Vector3, rot_y: float, title: String, tag: String, c: Color, 
 	neon_text(title, pos + fwd + Vector3(0, h * 0.12, 0), rot_y, _fit(title, w * 0.9, h * 0.32), c, 3.0)
 	neon_text(tag, pos + fwd - Vector3(0, h * 0.24, 0), rot_y, _fit(tag, w * 0.9, h * 0.1), c.lightened(0.4), 2.5)
 	neon_text(title, pos - fwd + Vector3(0, h * 0.12, 0), rot_y + PI, _fit(title, w * 0.9, h * 0.32), c, 3.0)
+
+
+# ------------------------------------------------------------------ walkability (selftest)
+
+## What the last probe_walk saw, for the selftest's line when it fails.
+var probe_info := ""
+var _probe_label := ""
+var _probe_hit: Object
+## People who walk with Carl (or step aside for him): their colliders are
+## left out of probe_walk, since the selftest leaves them wherever it last
+## put them, not a step behind him.
+var walk_ignore: Array = []
+
+
+## Can Carl walk from `from` to within `reach` metres of `to` (and see it,
+## as the interact ray must: it reaches 3.6 m from his eyes)?
+## A flood fill over a `step` grid inside `bounds` (x, z, width, depth; empty
+## = a box around both points) with a capsule a little fatter than his,
+## against layer 1. Each cell finds its floor with a ray down, so ramps and
+## stairs count; a rise of more than 0.8 of a step between cells is a wall,
+## a drop of more than 2.5 a fall, and the capsule rides 0.3 m up, over lips
+## (and at the upper height when stepping down off one). Selftests teleport
+## Carl, so only this finds a prop, a counter or a closed door standing
+## across the only way through. `--walkmap=dir` maps the failures.
+func probe_walk(from: Vector3, to: Vector3, bounds := Rect2(), step := 0.5, reach := 1.8) -> bool:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	if bounds.size == Vector2.ZERO:
+		bounds = Rect2(Vector2(minf(from.x, to.x), minf(from.z, to.z)), Vector2.ZERO)
+		bounds = bounds.expand(Vector2(maxf(from.x, to.x), maxf(from.z, to.z))).grow(40.0)
+	var space := get_world_3d().direct_space_state
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.36
+	cap.height = 1.6
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = cap
+	q.collision_mask = 1
+	var rq := PhysicsRayQueryParameters3D.new()
+	rq.collision_mask = 1
+	var ex: Array[RID] = []
+	for w in walk_ignore:
+		if is_instance_valid(w):
+			if w is CollisionObject3D:
+				ex.append((w as CollisionObject3D).get_rid())
+			for c in (w as Node).find_children("*", "CollisionObject3D", true, false):
+				ex.append((c as CollisionObject3D).get_rid())
+	q.exclude = ex
+	rq.exclude = ex
+	var nx := int(bounds.size.x / step) + 1
+	var nz := int(bounds.size.y / step) + 1
+	# a cell: [floor y] or [] (no floor, or no room); keyed by column and storey
+	var floor_at := func(ix: int, iz: int, ref_y: float) -> Array:
+		var x := bounds.position.x + ix * step
+		var z := bounds.position.y + iz * step
+		rq.from = Vector3(x, ref_y + 0.55, z)
+		rq.to = Vector3(x, ref_y - 2.6, z)
+		var hit := space.intersect_ray(rq)
+		if hit.is_empty():
+			return []
+		if hit.normal.y < 0.6:
+			_probe_hit = hit.collider
+			return []
+		var fy: float = hit.position.y
+		if fy - ref_y > step * 0.8:
+			_probe_hit = hit.collider
+		q.transform = Transform3D(Basis.IDENTITY, Vector3(x, fy + 0.3 + cap.height * 0.5, z))
+		var hits := space.intersect_shape(q, 1)
+		if not hits.is_empty() and fy < ref_y - 0.05:
+			# stepping down off a lip: he is still at the upper height
+			q.transform.origin.y = ref_y + 0.3 + cap.height * 0.5
+			hits = space.intersect_shape(q, 1)
+		if not hits.is_empty():
+			_probe_hit = hits[0].collider
+			return []
+		return [fy]
+	var sx := clampi(roundi((from.x - bounds.position.x) / step), 0, nx - 1)
+	var sz := clampi(roundi((from.z - bounds.position.y) / step), 0, nz - 1)
+	var first: Array = floor_at.call(sx, sz, from.y + 0.6)
+	if first.is_empty():
+		# spawned against something: take the nearest free cell around him
+		for r in [1, 2]:
+			for dx in range(-r, r + 1):
+				for dz in range(-r, r + 1):
+					if first.is_empty() and sx + dx >= 0 and sx + dx < nx and sz + dz >= 0 and sz + dz < nz:
+						first = floor_at.call(sx + dx, sz + dz, from.y + 0.6)
+						if not first.is_empty():
+							sx += dx
+							sz += dz
+	if first.is_empty():
+		var bn := _probe_hit as Node3D
+		probe_info = "(no room to stand at the start %s: %s)" % [from, "no floor" if bn == null else "%s at %s id=%s" % [bn.name, bn.global_position.snapped(Vector3(0.1, 0.1, 0.1)), bn.get_meta("id", "")]]
+		return false
+	var key := func(ix: int, iz: int, y: float) -> Vector3i:
+		return Vector3i(ix, iz, roundi(y * 2.0))
+	var seen := {key.call(sx, sz, first[0]): true}
+	var queue: Array = [[sx, sz, first[0]]]
+	var best := INF
+	var best_at := Vector3.ZERO
+	var dirs := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	var walls := {}
+	var blockers := {}
+	_probe_hit = null
+	while not queue.is_empty():
+		var c: Array = queue.pop_front()
+		var p := Vector3(bounds.position.x + c[0] * step, c[2], bounds.position.y + c[1] * step)
+		var d := Vector2(p.x - to.x, p.z - to.z).length()
+		if d < best:
+			best = d
+			best_at = p
+		if d <= reach and absf(to.y - p.y - 1.66) < 2.5:
+			rq.from = p + Vector3(0, 1.6, 0)
+			rq.to = to
+			var los := space.intersect_ray(rq)
+			if los.is_empty() or los.position.distance_to(to) < 1.2 or (los.collider as Object).has_meta("id"):
+				probe_info = "(cells %d)" % seen.size()
+				return true
+		for dv: Vector2i in dirs:
+			var n := Vector2i(c[0], c[1]) + dv
+			if n.x < 0 or n.y < 0 or n.x >= nx or n.y >= nz:
+				continue
+			var f: Array = floor_at.call(n.x, n.y, c[2])
+			if f.is_empty() or f[0] - c[2] > step * 0.8:
+				walls[n] = true
+				if _probe_hit:
+					blockers[_probe_hit] = blockers.get(_probe_hit, 0) + 1
+				_probe_hit = null
+				continue
+			var k: Vector3i = key.call(n.x, n.y, f[0])
+			if seen.has(k):
+				continue
+			seen[k] = true
+			queue.append([n.x, n.y, f[0]])
+	probe_info = "(cells %d, closest %.1f m at %s)" % [seen.size(), best, best_at.snapped(Vector3(0.1, 0.1, 0.1))]
+	# --walkmap=dir: the cells reached (a digit per storey), the walls met
+	# (#), start S and goal G, north up, one file per failed probe
+	if main and main._args.has("walkmap"):
+		var grid := {}
+		for k: Vector3i in seen:
+			grid[Vector2i(k.x, k.y)] = str(posmod(floori(k.z / 6.0), 10))
+		for k: Vector2i in walls:
+			if not grid.has(k):
+				grid[k] = "#"
+		grid[Vector2i(sx, sz)] = "S"
+		grid[Vector2i(roundi((to.x - bounds.position.x) / step), roundi((to.z - bounds.position.y) / step))] = "G"
+		var txt := "%s step %.2f x0 %.1f z0 %.1f %s\n" % [_probe_label, step, bounds.position.x, bounds.position.y, probe_info]
+		for b: Object in blockers:
+			if is_instance_valid(b):
+				var bn := b as Node3D
+				txt += "  blocker %s %s at %s id=%s parent=%s x%d\n" % [bn.name, bn.get_class(), bn.global_position.snapped(Vector3(0.1, 0.1, 0.1)), bn.get_meta("id", ""), bn.get_parent().name, blockers[b]]
+		for iz in nz:
+			var row := ""
+			for ix in nx:
+				row += grid.get(Vector2i(ix, iz), " ")
+			txt += row.rstrip(" ") + "\n"
+		var fa := FileAccess.open("%s/%s_%s.txt" % [main._args["walkmap"], main.level_name, _probe_label.validate_filename()], FileAccess.WRITE)
+		if fa:
+			fa.store_string(txt)
+	return false
+
+
+## The interactable with this id (a node with meta "id"), or null.
+func by_id(id: String) -> Node3D:
+	for n in main._all_with_meta(self, "id"):
+		if is_instance_valid(n) and str(n.get_meta("id")) == id:
+			return n
+	return null
+
+
+## Print `ok walkable <label>: <bool>` for Carl's way from `from` (default:
+## the spawn) to `to`, a position, a node or an interactable's id.
+func check_walk(label: String, to, from = null, bounds := Rect2(), reach := 2.5) -> bool:
+	var target := Vector3.ZERO
+	if to is String:
+		var n := by_id(to)
+		if n == null:
+			print("MISSING walkable target ", to)
+			return false
+		target = n.global_position
+	elif to is Node3D:
+		target = (to as Node3D).global_position
+	else:
+		target = to
+	var start: Vector3 = spawn if from == null else (from.global_position if from is Node3D else from)
+	_probe_label = label
+	var ok: bool = await probe_walk(start, target, bounds, 0.5, reach)
+	if not ok:
+		# a doorway narrower than the coarse grid can line up with
+		ok = await probe_walk(start, target, bounds, 0.25, reach)
+	print("ok walkable ", label, ": ", ok, "" if ok else " " + probe_info)
+	return ok

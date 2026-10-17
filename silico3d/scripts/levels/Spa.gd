@@ -688,7 +688,10 @@ func _street() -> void:
 	cyber_block(Vector3(-21.0, 0, 12.0), 0.0, 21.0, 34.0, 24.0, true)
 	cyber_block(Vector3(23.5, 0, 12.0), 0.0, 21.0, 46.0, 24.0, true)
 	cyber_block(Vector3(-43.0, 0, 12.0), 0.0, 22.0, 22.0, 24.0, true)
-	cyber_block(Vector3(45.5, 0, 12.0), 0.0, 22.0, 28.0, 24.0, true)
+	# its body ran back over the first floor's hall and Carl's room (x 50..59,
+	# z -1..8.4, built at ground level out here): solid only along the street
+	cyber_block(Vector3(45.5, 0, 12.0), 0.0, 22.0, 28.0, 24.0, false)
+	solid_box(Vector3(22.0, 28.0, 3.0), Vector3(45.5, 14.0, 10.5), s)
 	# south side, facing the spa
 	var xs := [-41.0, -19.0, 2.0, 22.0, 42.0]
 	var hs := [26.0, 52.0, 18.0, 38.0, 60.0]
@@ -2886,14 +2889,18 @@ func selftest() -> void:
 	visible = false
 	await intro()
 	print("ok intro")
+	await check_walk("spawn->spa_door", "spa_door")
 	for id in ["reader", "sign", "trees", "mist", "ad", "street"]:
 		await _by_id(id)
 	await _by_id("spa_door")
+	await check_walk("spawn->attendant (door open)", "attendant")
 	p.position = Vector3(0, 0.1, 9.0)
 	for id in ["diffuser", "eren", "violin", "kiosk", "plaque", "notice", "guestbook", "rug", "stair_door"]:
 		await _by_id(id)
 	await _by_id("attendant")
 	print("ok checkin room=", f.has("spa_room"), " area=", area)
+	for id in ["tablet", "mat", "bed", "window", "tv"]:
+		await check_walk("room->" + id, id, Vector3(55.5, 0.1, 4.4))
 	for id in ["window", "room_door", "tv", "freudbot", "vent", "mat", "tablet"]:
 		await _by_id(id)
 	print("ok prompted=", _prompted, " gas=", _gas_mode)
@@ -2904,6 +2911,7 @@ func selftest() -> void:
 	print("ok mira conn=", main.connection)
 	await _wait(func() -> bool: return area == "base" and not f.has("cinematic"), 160.0)
 	print("ok morning area=", area)
+	await check_walk("tiled room->hole", "hole", Vector3(-60.0, 0.1, 3.2))
 	for id in ["tile_door", "tiles"]:
 		await _by_id(id)
 	_frames(false)
@@ -2918,6 +2926,9 @@ func selftest() -> void:
 	await _wait(func() -> bool: return _pulse_on and not f.has("cinematic"), 60.0)
 	await _by_id("pulse")
 	print("ok lynx=", f.has("spa_lynx"))
+	walk_ignore = [lynx]
+	for id in ["trolley", "stairs"]:
+		await check_walk("room->" + id + " (door open)", id, Vector3(55.5, 0.1, 4.4))
 	p.position = Vector3(66.0, 0.1, 7.2)
 	for id in ["trolley", "hall_doors", "lynx"]:
 		await _by_id(id)
@@ -2926,6 +2937,10 @@ func selftest() -> void:
 	if not f.has("spa_route_laundry"):
 		f.erase("spa_route_front")
 		await _laundry_route()
+	# the guards walk their beats: only the walls and the carts count
+	for g: Dictionary in guards:
+		walk_ignore.append(g["fig"])
+	await check_walk("laundry->back_door", "back_door", LAUNDRY_START + Vector3(0, 0.1, 0))
 	# seen: stand in front of the first attendant
 	for id in ["washers", "carts", "shelves", "guard0"]:
 		await _by_id(id)
@@ -2939,6 +2954,7 @@ func selftest() -> void:
 		g["wait"] = 999.0
 	await _by_id("back_door")
 	print("ok out=", f.has("spa_out"), " area=", area)
+	await check_walk("alley->car", "car", ALLEY + Vector3(0, 0.1, 0))
 	await _by_id("car")
 	print("ok car done=", f.has("spa_done"), " crew=", turan.visible)
 	# the front way out, for the script's sake
@@ -2948,6 +2964,7 @@ func selftest() -> void:
 	_ended = false
 	main.learn("we")
 	await _front_route()
+	await check_walk("lobby->front_door", "front_door", Vector3(-6.0, 0.1, 1.3))
 	for id in ["lobby_reader", "lobby_guard", "attendant"]:
 		await _by_id(id)
 	await _by_id("front_door")

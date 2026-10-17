@@ -2646,6 +2646,17 @@ func selftest() -> void:
 	await main.interact(_node_by_id("right_door"))
 	await main.interact(emmet_it)
 	print("ok slap ", main.flags.has("in_slap"), " gate=", hall_gate.collision_layer)
+	# Turan's walk (her capsule is a little slimmer than Carl's): the hall,
+	# the beds, the chamber, the circle, the pond; then the run back
+	walk_ignore = [emmet]
+	var tw: Vector3 = tb.global_position
+	var wb := Rect2(-75.0, -150.0, 100.0, 160.0)
+	await check_walk("Turan->left hall talk", _path_at(20.0), tw, wb, 1.5)
+	await check_walk("Turan->beds", Vector3(-25.6, 0, -48.0), tw, wb, 1.5)
+	await check_walk("Turan->chamber door", Vector3(-25.6, 0, -98.0), tw, wb, 1.5)
+	await check_walk("Turan->circle", CC, tw, wb, 20.0)
+	await check_walk("Turan->pond", POOL, tw, wb, 4.0)
+	await check_walk("pond->chamber door (run back)", DOOR_C + Vector3(0, 0, -4.0), POOL + Vector3(0, 0, 5.0), wb, 3.0)
 	await _put(Vector3(-1.8, 0, -9.0))
 	await _wait_flag("in_walk1", 10.0)
 	await _put(Vector3(-1.8, 0, -26.0))

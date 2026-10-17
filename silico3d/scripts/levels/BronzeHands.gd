@@ -1806,12 +1806,16 @@ func selftest() -> void:
 		f["two_doors_done"] = true  # what Tunnels leaves behind
 	await intro()
 	print("ok intro void=", f.has("bh_void"), " lynx=", _lynx_way())
+	# the void: an invisible floor that goes on, so he can walk it
+	await check_walk("spawn->20 m into the void", Vector3(0, 0, -20.0), null, Rect2(-30.0, -40.0, 60.0, 60.0), 1.0)
 	await _wait(func() -> bool: return f.has("bh_spot") and not f.has("cinematic"), 180.0)
 	if not f.has("bh_spot"):
 		print("WARN void timed out t=", _void_t)
 		_phase = "void"
 		await _void_end()
 	print("ok void spot=", f.has("bh_spot"), " void_t=", snappedf(_void_t, 0.1), " screamed=", f.has("bh_screamed"))
+	await check_walk("spotlight->chair", "chair", main.player.global_position)
+	await check_walk("spotlight->hands", "hands", main.player.global_position)
 	await _void_choice(0)
 	print("ok scream logged=", f.has("bh_screamed"), " ledger=", main.ledger.size())
 	main.ui.close()

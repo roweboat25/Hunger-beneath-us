@@ -3027,6 +3027,11 @@ func selftest() -> void:
 	_put(DOOR + Vector3(0, 0.05, 1.2), 0.0)
 	await _wait(func(): return f.has("rv_lynx"), 40.0)
 	print("ok doorway lynx=", f.has("rv_lynx"), " knew=", f.has("rv_lynx_knew"))
+	# the door is open: down the hall of devices, past the beds, to the crossing
+	walk_ignore = [lynx, serpent]
+	for id in ["old_phone", "beds1", "beds2", "beds3"]:
+		await check_walk("spawn->" + id, id)
+	await check_walk("spawn->intersection", Vector3(0, Y, -48.0), null, Rect2(), 1.5)
 	if not f.has("rv_lynx_knew"):
 		await _lynx_knew()
 		main.ui.close()
@@ -3057,18 +3062,21 @@ func selftest() -> void:
 		await _wait(func(): return _cycle == k and _sstate != "gone", 20.0)
 		var b: AABB = DARK[k]
 		var c := b.get_center()
+		await check_walk("chase %d restart->dark room" % (k + 1), Vector3(c.x, Y, c.z), RESTART[k] + Vector3(0, 0.05, 0), Rect2(), 1.0)
 		_put(Vector3(c.x, Y + 0.05, c.z), RESTART_YAW[k])
 		if main.frames_on:
 			main.toggle_frames()
 		await _wait(func(): return f.has("rv_chase%d" % (k + 1)), 120.0)
 		print("ok hide ", k + 1, " passed=", f.has("rv_chase%d" % (k + 1)), " state=", _sstate, " crash=", _crash_done)
-	# the pit
+	# the pit, once the serpent has broken the chokes
+	await check_walk("intersection->pit", Vector3(-109.4, Y, 12.0), Vector3(0, Y + 0.05, -48.0), Rect2(-130.0, -60.0, 135.0, 80.0), 1.5)
 	_put(Vector3(-109.4, Y + 0.05, 12.0), PI / 2.0)
 	await _wait(func(): return _drifting, 60.0)
 	print("ok fell=", f.has("rv_fell"), " frames_lost=", f.has("rv_frames_lost"), " hud_off=", _hud_off, " fear=", f.has("rv_fear"))
 	_drift_mul = 6.0
 	await _wait(func(): return f.has("rv_beach") and not _busy, 300.0)
 	print("ok river u=", snappedf(_u, 0.1), " beach=", f.has("rv_beach"), " drones=", f.has("rv_drones"), " crane_left=", f.has("rv_drone_left"), " form=", _form, " falls=", f.has("rv_falls"))
+	await check_walk("beach->spire", "spire", Vector3(-281.5, YB + 0.05, 12.0))
 	main.toggle_frames()
 	await _wait(func(): return not main.frames_on, 3.0)
 	print("ok frames refused, on=", main.frames_on)

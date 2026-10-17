@@ -3356,6 +3356,13 @@ func selftest() -> void:
 	f["broadcast_seen"] = true
 	await intro()
 	print("ok intro knife=", f.has("ev_knife"), " lynx=", _lynx_mode)
+	# the party walks behind Carl and the eyeless walk their beats: neither
+	# stands where the test leaves them for long
+	walk_ignore = [turan, emmet, lynx, tyson]
+	for e: Dictionary in eyeless:
+		walk_ignore.append(e["fig"])
+	# Rail Cut: on foot from the car, through the depot and the 160-ft mouth
+	await check_walk("car->hub manhole (Rail Cut)", "manhole", null, Rect2(-20.0, -40.0, 260.0, 80.0))
 	# the car: the pump picks the second way, Southtown
 	await _by_id("car")
 	print("ok route ", f.get("tu_route", ""))
@@ -3363,6 +3370,7 @@ func selftest() -> void:
 	await _wait(func() -> bool: return f.has("tu_mouth"), 6.0)
 	await _idle(60.0)
 	print("ok st mouth ", f.has("tu_mouth"), " gate=", f.has("tu_st_open"))
+	await check_walk("Southtown arrival->hub manhole", "manhole", ST_ARRIVE + Vector3(0, 0.1, 0), Rect2(-40.0, -20.0, 80.0, 175.0))
 	for id in ["footprints", "st_layers", "st_drain", "st_portal", "drills", "depot", "rc_sign", "rat", "rr_station", "alley"]:
 		await _by_id(id)
 	# the other two mouths, and Tyson's way, for the script's sake
@@ -3379,6 +3387,9 @@ func selftest() -> void:
 		await _idle(30.0)
 		print("ok mouth ", r, " ", f.has("tu_mouth"))
 	tyson.visible = false
+	await check_walk("Red Rock arrival->hub manhole", "manhole", RR_ARRIVE + Vector3(0, 0.1, 0), Rect2(-185.0, -40.0, 200.0, 80.0))
+	for id in ["cache", "terminal", "forner"]:
+		await check_walk("hub->" + id, id, Vector3(0, 0.1, 3.0))
 	# the tunnel: the ringing
 	p.position = Vector3(30.0, 0.1, 0.0)
 	await _wait(func() -> bool: return f.has("tu_ringing"), 6.0)
@@ -3395,11 +3406,14 @@ func selftest() -> void:
 	await _by_id("manhole")
 	await _idle(60.0)
 	print("ok chamber ", f.has("tu_chamber"), " y=", snappedf(p.position.y, 0.1))
+	await check_walk("chamber->door_a", "door_a", CH + Vector3(0, 0.1, 1.4))
 	# the corridor: door A (the pump says sleeper: wrong), then dreamer
 	p.position = Vector3(0, LOW + 0.1, DOOR_A_Z + 1.6)
 	await _by_id("door_a")
 	await _door_word("door_a", "dreamer")
 	print("ok door a ", f.has("tu_door_a"), " hymn=", f.has("tu_hymn"))
+	for id in ["speaker", "door_c", "door_b"]:
+		await check_walk("chamber->" + id + " (door A open)", id, CH + Vector3(0, 0.1, 1.4))
 	p.position = Vector3(2.5, LOW + 0.1, LZ - 38.0)
 	if not main.frames_on:
 		_frames(true)
@@ -3422,6 +3436,7 @@ func selftest() -> void:
 	await _by_id("door_b")
 	await _idle(10.0)
 	print("ok door b ", f.has("tu_door_b"), " lynx=", _lynx_mode)
+	await check_walk("chamber->two doors (kneel)", "kneel", CH + Vector3(0, 0.1, 1.4))
 	# the two doors
 	p.position = Vector3(0, LOW + 0.1, TD.z + 2.0)
 	await _wait(func() -> bool: return f.has("tu_doors_seen"), 6.0)

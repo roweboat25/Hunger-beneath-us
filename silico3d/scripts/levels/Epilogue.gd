@@ -2522,6 +2522,7 @@ func selftest() -> void:
 
 func _play() -> void:
 	var f: Dictionary = main.flags
+	await _st_walks(["counter", "kiosk", "doors", "elevator"])
 	for id in ["counter", "citizen", "kiosk"]:
 		await _by_id(id)
 	if _psy():
@@ -2531,6 +2532,13 @@ func _play() -> void:
 	for id in ["plaque", "greeter", "elevator"]:
 		await _by_id(id)
 	print("ok rode area=", area)
+	match variant:
+		"sit", "copy":
+			await _st_walks(["wall", "chair", "table", "monica", "fridge", "window"])
+		"refuse":
+			await _st_walks(["mirror", "laptop", "man", "eyes"])
+		"burn":
+			await _st_walks(["drills", "mouth", "sign", "genny", "tyson", "mail", "home_door"])
 	match variant:
 		"sit", "copy":
 			for id in ["corridor", "lift_back", "wall", "chair", "lift_back", "table", "monica",
@@ -2543,3 +2551,29 @@ func _play() -> void:
 			for id in ["drills", "marks", "mouth", "sign", "mail", "genny", "genny", "tyson", "cairn", "mail", "home_door"]:
 				await _by_id(id)
 	await _wait(func() -> bool: return f.has("credits_done"), 20.0)
+
+
+## Walkability: from where Ezra stands when he arrives in each place to each
+## thing there he has to reach (every place is built at once, shown one at a
+## time, so the probe can look at any of them).
+func _st_walks(ids: Array) -> void:
+	var starts := {"city": spawn, "lobby": LOBBY + Vector3(0, 0.1, 4.5), "nonum": NONUM + Vector3(0, 0.1, 0.4),
+		"home": HOME + Vector3(4.4, 0.1, 3.6), "scene": SCENE + Vector3(-4.6, 0.1, 3.7),
+		"depot": DEPOT + Vector3(0, 0.1, 0.8), "town": TOWN + Vector3(0, 0.1, 11.0)}
+	for id: String in ids:
+		var found := false
+		for n in main._all_with_meta(vroot, "id"):
+			if not is_instance_valid(n) or str(n.get_meta("id")) != id or n.is_queued_for_deletion():
+				continue
+			var a := "city"
+			var q: Node = n
+			while q != null and q != self:
+				for k in sets:
+					if sets[k] == q:
+						a = k
+				q = q.get_parent()
+			found = true
+			await check_walk("%s %s->%s" % [variant, a, id], n, starts.get(a, spawn))
+			break
+		if not found:
+			print("MISSING walkable target ", id)

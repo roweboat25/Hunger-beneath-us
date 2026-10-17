@@ -3476,6 +3476,10 @@ func selftest() -> void:
 	zu.visible = false
 	zt.visible = false
 	await intro()
+	# the people who walk with Carl, or lead him (left wherever the test put them)
+	walk_ignore = [lynx, intern, crane]
+	for id in ["kiosk", "staff_door", "loading_dock", "desk", "lift"]:
+		await check_walk("spawn->" + id, id)
 	for id in ["kiosk", "doors", "art", "cogni_screen", "prayer", "staff_door", "loading_dock", "desk", "lift"]:
 		var n := _node_by_id(id)
 		if n:
@@ -3485,6 +3489,9 @@ func selftest() -> void:
 			print("MISSING ", id)
 	_hide_zones()
 	print("kind=", f.has("cz_intern_kind"), " desk=", f.has("cz_desk"), " on25=", f.has("cz_on_25"), " zone=", _zone)
+	await check_walk("lift 25->lounge stop", STOP_LOUNGE, L_25, Rect2(), 1.5)
+	await check_walk("lift 25->lab stop", STOP_LAB, L_25, Rect2(), 1.5)
+	await check_walk("lift 25->office door stop", STOP_DOOR, L_25, Rect2(), 1.5)
 	var t := 0.0
 	while _tour <= 2 and _tour >= 0 and t < 240.0:
 		if _tour_wait and not _moving(intern):
@@ -3500,6 +3507,8 @@ func selftest() -> void:
 			await main.interact(n)
 			print("ok ", id)
 	print("ok office ham=", [f.has("ev_hameron_1"), f.has("ev_hameron_6")], " drive=", f.has("ev_drive"), " ask=", f.get("cz_hameron_ask"), " done=", f.has("cz_hameron_done"))
+	await check_walk("lift 25->hameron", "hameron", L_25)
+	await check_walk("office->lift_25", "lift_25", Vector3(0, FY + 0.05, -27.0))
 	for id in ["photo", "planchette", "books", "office_window", "monitors", "hameron"]:
 		var n := _node_by_id(id)
 		if n:
@@ -3526,9 +3535,13 @@ func selftest() -> void:
 		await get_tree().process_frame
 		t += get_process_delta_time()
 	print("ok outside=", f.has("cz_outside"))
+	await check_walk("lobby lifts->street (outside)", Vector3(2.0, 0.0, 5.0), L_GROUND, Rect2(), 1.5)
+	await check_walk("lobby lifts->car", "car", L_GROUND)
 	await main.interact(_node_by_id("car"))
 	_hide_zones()
 	print("ok car choice=", f.get("cz_drive_choice"), " trust=", main.trust, " trailer=", f.has("cz_trailer"))
+	for id in ["emmet", "laptop", "bag", "car_home"]:
+		await check_walk("trailer->" + id, id, TR + Vector3(-5.6, 0.1, 8.0))
 	for id in ["trailer", "hub", "photos", "drills", "depot", "laptop", "bag", "emmet", "bag", "car_home"]:
 		var n := _node_by_id(id)
 		if n:

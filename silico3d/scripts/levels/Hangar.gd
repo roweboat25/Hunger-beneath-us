@@ -2674,6 +2674,9 @@ func _open_office() -> void:
 	create_tween().tween_property(office_door, "rotation:y", 1.9, 0.5)
 	office_door_body.collision_layer = 0
 	office_door_body.collision_mask = 0
+	# the door's own prompt stands in the doorway: still a door to look at,
+	# no longer a wall (it kept Carl in the office after the mimic)
+	office_door_it.collision_layer = 2
 	_muffle(false)
 
 
@@ -2684,6 +2687,9 @@ func _open_service() -> void:
 	for n in main._all_with_meta(self, "id"):
 		if str(n.get_meta("id")) == "service_ramp":
 			set_active(n, true)
+		elif str(n.get_meta("id")) == "service":
+			# its prompt filled the doorway: lookable, not solid, once open
+			(n as CollisionObject3D).collision_layer = 2
 
 
 func _touched(e: Dictionary) -> void:
@@ -3516,6 +3522,9 @@ func selftest() -> void:
 	var f: Dictionary = main.flags
 	await intro()
 	print("ok intro")
+	# Lynx walks a step behind (the test leaves her where it put her)
+	walk_ignore = [lynx]
+	await check_walk("spawn->recliner (down the stair)", "recliner")
 	await _by_id("lynx")
 	p.position = Vector3(0.0, 0.1, 20.0)
 	await _wait(func() -> bool: return f.has("hangar_vast"), 3.0)
@@ -3525,10 +3534,18 @@ func selftest() -> void:
 		await _by_id(id)
 	await _by_id("recliner")
 	print("ok song ", f.has("hangar_song"), " hiding=", _hiding)
+	await check_walk("recliner->office_door (hide)", "office_door", ALTAR)
+	await check_walk("recliner->drill (hide)", "drill", ALTAR)
 	for id in ["service", "drill", "lynx"]:
 		await _by_id(id)
 	await _by_id("office_door")
 	print("ok ceremony vision=", f.has("hangar_vision"), " sermon=", f.has("hangar_sermon"), " face=", f.has("hangar_1395_face"), " mimic=", f.has("hangar_mimic"), " conn=", main.connection)
+	# the walk back up: from either hiding place to the door at the top
+	await check_walk("office hide->exit door", DOOR + Vector3(0, 0, -1.0), HIDE_OFFICE, Rect2(), 3.0)
+	await check_walk("drill hide->exit door", DOOR + Vector3(0, 0, -1.0), HIDE_DRILL, Rect2(), 3.0)
+	# the second corridor: in through the service door (the box stops short
+	# of the landing, so only the door counts)
+	await check_walk("drill hide->service ramp", Vector3(-17.0, 0.0, 49.0), HIDE_DRILL, Rect2(-60.0, -30.0, 95.0, 90.0), 1.2)
 	# the walk: the frames on by an eyeless on the stair; touched
 	if not main.frames_on:
 		_frames(true)
@@ -3544,6 +3561,7 @@ func selftest() -> void:
 	_frames(true)
 	await _wait(func() -> bool: return _outside and not f.has("cinematic"), 20.0)
 	print("ok outside ", _outside)
+	await check_walk("lot->my_car", "my_car", main.player.global_position)
 	for id in ["moon", "lot", "lynx_car", "bunker", "lynx"]:
 		await _by_id(id)
 	await _by_id("my_car")

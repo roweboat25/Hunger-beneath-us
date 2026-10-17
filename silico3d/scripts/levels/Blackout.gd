@@ -2258,9 +2258,17 @@ func _by_id(id: String) -> void:
 func selftest() -> void:
 	await intro()
 	if lynx:
+		walk_ignore = [lynx]
+	await check_walk("spawn->lobby doors", "doors")
+	await check_walk("spawn->guard", "guard")
+	if lynx:
 		await _by_id("lynx")
 	for id in ["exit_sign", "fuse", "guard", "screen", "doors"]:
 		await _by_id(id)
+	# the doors open: down the garden to the vigil, across the plaza, the car
+	await check_walk("spawn->annie", "annie")
+	await check_walk("spawn->plaza (drone)", Vector3(2.0, 0.0, -30.0), null, Rect2(), 1.5)
+	await check_walk("spawn->my_car", "my_car")
 	main.player.position = VIGIL_C + Vector3(5.0, 0.2, 3.0)
 	await _by_id("annie")
 	print("ok vigil")

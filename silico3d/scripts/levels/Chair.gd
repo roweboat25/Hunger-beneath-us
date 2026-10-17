@@ -2222,7 +2222,10 @@ func _walk() -> void:
 	# the ramp up into the cutting, the portal, the depot yard at dawn
 	var dp := _sub(root, "depot")
 	var r0 := WALK + Vector3(0, 0, -203)
-	var rl := 16.0
+	# 15 m: the ramp's top meets the yard's edge (z -218) level; at 16 it
+	# ran in under the yard and left a 0.45 m step at the top no one could
+	# climb (the walk-out of Burn and Refuse ended there)
+	var rl := 15.0
 	var X := Vector3(1, 0, 0)
 	var Z := Vector3(0, DEPOT_Y, -rl).normalized() * -1.0
 	var Y := Z.cross(X)
@@ -4619,6 +4622,14 @@ func selftest() -> void:
 	await _wait(func(): return _attack_spent and _phase == "choice" and not _busy, 90.0)
 	_test_hold = false
 	print("ok attack: C ", int(m.connection), ", burn open ", _burn_ok(), ", refuse open ", _refuse_ok(), ", attacked ", f.has("chair_attacked"))
+	# the choice is made on foot: the altar, the valve, the great doors; then
+	# the stages each ending walks (all built at once, shown one at a time)
+	await check_walk("kneel->altar (sit)", Vector3(0, 0, ALTAR_Z + 0.3), KNEEL_AT, Rect2(), 1.0)
+	await check_walk("kneel->valve (burn)", "valve", KNEEL_AT)
+	await check_walk("kneel->great_doors (refuse)", "great_doors", KNEEL_AT)
+	await check_walk("tower->roof (sit)", _tp(PI * 1.5, R_MID, ROOF_Y), TOWER + Vector3(-4.0, 0.1, 0.0), Rect2(), 1.5)
+	await check_walk("shore->depot (burn, refuse)", WALK + Vector3(0.0, DEPOT_Y, -221.5), WALK + Vector3(2.0, 0.1, -1.0), Rect2(), 1.5)
+	await check_walk("86D door->chair (refuse)", "h_chair", HOME + Vector3(-0.3, 0.1, 3.9))
 	# A3-E1 Sit: drop the knife, walk to the altar (Red Rock held)
 	_teleport(Vector3(0, 0.1, ALTAR_Z + 0.3))
 	await _wait(func(): return _phase != "choice", 10.0)

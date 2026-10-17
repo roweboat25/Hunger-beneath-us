@@ -3550,6 +3550,9 @@ func selftest() -> void:
 	get_viewport().disable_3d = true
 	await intro()
 	print("ok intro entry=", _entry)
+	# up the subway stairs: the casino, the alley, the smoothie cart, Lushon's
+	for id in ["casino", "scripture", "graffiti", "smoothie", "lushons_door"]:
+		await check_walk("spawn->" + id, id)
 	if str(main._args.get("st_from", "")) == "lush":
 		await _st_lush()
 		get_viewport().disable_3d = false
@@ -3607,6 +3610,7 @@ func _st_lush() -> void:
 	p.position = Vector3(LU_DOOR, 0.1, -42.5)
 	await _wait(func() -> bool: return f.has("lu_in") and not _busy, 20.0)
 	print("ok lushons in=", f.has("lu_in"), " zone=", zone)
+	await check_walk("spawn->turan (in Lushon's)", "turan", SPAWN)
 	_force = [0]
 	await _by_id("dispenser")
 	await _by_id("dispenser")
@@ -3618,6 +3622,7 @@ func _st_lush() -> void:
 		await _facility_choice()
 		main.ui.close()
 	print("ok facility trust=", main.trust)
+	await check_walk("Lushon's->subway", "subway", Vector3(LU_DOOR, 0.1, -46.0))
 	# out into the plaza at 23:30, and the screen
 	p.position = Vector3(LU_DOOR, 0.1, -37.0)
 	await _wait(func() -> bool: return _walked_out and not _busy, 20.0)

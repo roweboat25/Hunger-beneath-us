@@ -2356,9 +2356,19 @@ func selftest() -> void:
 		await _get_out()
 		main.flags["obs_parked"] = true
 	print("ok drive")
+	# out of the car: through the gate to the three tents
+	if lynx:
+		walk_ignore = [lynx]
+	var out_at: Vector3 = main.player.global_position
+	for id in ["gate_reader", "tent_other", "tent_ezra", "tent_mira"]:
+		await check_walk("car->" + id, id, out_at)
 	if not main.flags.has("obs_camp_seen"):
 		await _camp_seen()
 	for id in ["gate_reader", "drone", "dome", "kiosk", "shuttle", "firepit", "telescope", "tent_other", "tent_ezra", "tent_mira", "brush", "candle", "edge"]:
+		if id == "brush":
+			# the song has opened the brush: the cliff edge by either way
+			await check_walk("car->cliff edge (brush open)", EDGE, out_at, Rect2(), 3.0)
+			await check_walk("car->candle path", "candle", out_at)
 		var n := _node_by_id(id)
 		if n:
 			await main.interact(n)

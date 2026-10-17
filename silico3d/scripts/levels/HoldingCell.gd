@@ -2716,6 +2716,8 @@ func selftest() -> void:
 	var f: Dictionary = main.flags
 	f["charged_observatory"] = true
 	var t := 0.0
+	# the trail through the leaves, after the family
+	await check_walk("dream spawn->trail 40 m on", DREAM + Vector3(_trail_x(-40.0), 0, -40.0), null, Rect2(), 1.5)
 	# the dream
 	_stage = "dream"
 	_dream_caps = [[1.0, LINES["dream"]["c1"]]]
@@ -2748,6 +2750,10 @@ func selftest() -> void:
 		if _stage == "wait":
 			_door_knocked = true
 	print("ok session signed=", f.has("hc_signed"), " freudbot_1=", f.has("freudbot_1"), " conn=", main.connection, " pressure=", main.pressure)
+	# the door is open: out to Monica in the hallway, and on to the lifts
+	walk_ignore = [monica, nurse, freudbot]
+	await check_walk("cell->monica (hallway)", "monica", Vector3(0, 0.05, 0))
+	await check_walk("cell->lift", "lift", Vector3(0, 0.05, 0))
 	# Monica, outside the door
 	await _monica()
 	print("ok monica hallway=", f.has("hc_hallway"), " spa=", f.has("spa_booked"))
