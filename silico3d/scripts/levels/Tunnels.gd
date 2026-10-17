@@ -309,6 +309,8 @@ const LINES := {
 		"reader": "The reader. Dried blood in layers, like the rings in a tree. The newest layer was still tacky.",
 		"kneel": "And I dropped to my knees in the center of the room, took a deep breath, and focused my intention.",
 		"pray_ask": "(the word)",
+		"reader_kneel": "An offering is required. The readers wanted a prayer, not a hand. I looked at the floor between the doors, where the dust was worn into two knee-shaped hollows.",
+		"hint": "(game) Bow. It had wanted me to bow since the mirror.",
 		"bow": "I bow to you yet again, I thought.",
 		"filter": "I shed my filter, I thought. Take what's left.",
 		"other": "I thought the word as hard as I could, into the frames, into the floor.",
@@ -2069,6 +2071,9 @@ func interact(node: Object) -> bool:
 		"reader_l", "reader_r":
 			if f.has("tu_doors_seen"):
 				await ui.think(LINES["two"]["reader"])
+				if _opened == "":
+					await ui.think(LINES["two"]["reader_kneel"])
+					await _pray()
 			else:
 				await ui.think(LINES["two"]["shut"])
 		"left_hall":
@@ -2525,11 +2530,14 @@ func _forner() -> void:
 # ------------------------------------------------------------------ the possessed doors
 
 ## Speak: a choice of the words Carl knows (the lexicon), or nothing.
-func _speak() -> String:
+func _speak(always: Array = []) -> String:
 	var ui = main.ui
 	var words: Array = []
 	for w in main.lexicon:
 		words.append(str(w))
+	for w in always:
+		words.erase(w)
+	words = always + words  # the asked-for words come first: bow is option 1
 	var opts: Array = words.duplicate()
 	if words.is_empty():
 		opts.append(LINES["corridor"]["hum"])
@@ -2662,6 +2670,14 @@ func _hack_speaker(w: String) -> void:
 		_round()
 
 
+## The quick-hack on the PA (Hack.gd): the wheel's word is the spoken one.
+func on_hack(node: Object, word: String) -> bool:
+	if str(node.get_meta("id", "")) != "speaker" or main.flags.has("tu_hushed"):
+		return false
+	await _hack_speaker(word)
+	return true
+
+
 func _hymn_start() -> void:
 	var f: Dictionary = main.flags
 	if f.has("tu_hymn"):
@@ -2764,7 +2780,9 @@ func _pray() -> void:
 	create_tween().tween_property(p, "crouch", 0.75, 0.6)
 	await ui.think(LINES["two"]["kneel"])
 	await ui.think(LINES["two"]["pray_ask"])
-	var w := await _speak()
+	var w := await _speak(["bow"])
+	if w == "bow":
+		main.learn("bow")
 	await _prayer(w)
 	_busy = false
 
@@ -2786,6 +2804,7 @@ func _prayer(w: String) -> void:
 	else:
 		await ui.think(LINES["two"]["other"])
 		await ui.think(LINES["two"]["nothing"])
+		await ui.think(LINES["two"]["hint"])
 		main.log_line("word", "Prayed '%s' at the two doors: nothing opened." % (w if w != "" else "(nothing)"))
 		await _prayer_round()
 		create_tween().tween_property(p, "crouch", 0.0, 0.5)
