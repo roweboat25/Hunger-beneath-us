@@ -384,6 +384,7 @@ var _ended := false
 var _riding := false
 var _turan_look := Vector3.ZERO
 var _turan_looking := false
+var _turan_hold := false
 var _typing_on := false
 var _type_i := 0
 var _type_errors := 0
@@ -461,11 +462,11 @@ func _env_dream() -> void:
 
 ## The tower floor: no sun, no sky, the light of panels.
 func _env_tower() -> void:
-	_env.ambient_light_color = Color(0.8, 0.84, 0.88)
-	_env.ambient_light_energy = 0.55
+	_env.ambient_light_color = Color(0.62, 0.68, 0.72)
+	_env.ambient_light_energy = 0.28
 	_env.fog_enabled = true
-	_env.fog_light_color = Color(0.5, 0.52, 0.55)
-	_env.fog_density = 0.004
+	_env.fog_light_color = Color(0.12, 0.14, 0.15)
+	_env.fog_density = 0.006
 	_env.fog_sky_affect = 0.0
 	_env.glow_bloom = 0.03
 	_env.tonemap_exposure = 1.1
@@ -512,14 +513,14 @@ func _dream() -> void:
 	dream_root.position = DREAM
 	add_child(dream_root)
 	var d := dream_root
-	var ground := pbr("grass", Vector3(1, 1, 1) / 2.5, true, Color(0.62, 0.46, 0.24))
-	box(Vector3(50, 0.2, 110), Vector3(0, -0.1, -40), ground, true, d)
-	var dirt := pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.42, 0.3, 0.2))
+	var ground := mat(Color(0.36, 0.22, 0.1), 1.0)
+	box(Vector3(160, 0.2, 180), Vector3(0, -0.1, -40), ground, true, d)
+	var dirt := mat(Color(0.26, 0.17, 0.11), 1.0)
 	for i in 36:
 		var z := 4.0 - i * 2.0
 		var seg := floor_quad(Vector2(1.7, 2.1), Vector3(_trail_x(z), 0.012, z), sin(z * 0.06) * 0.1, dirt, d)
 		seg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var bark := pbr("bark", Vector3(1, 1, 1) / 1.5, true)
+	var bark := pbr("bark", Vector3(1, 1, 1) / 1.5, true, Color(0.5, 0.42, 0.36))
 	var autumn := [mat(Color(0.86, 0.5, 0.1), 0.9), mat(Color(0.72, 0.2, 0.08), 0.9), mat(Color(0.92, 0.72, 0.2), 0.9), mat(Color(0.55, 0.16, 0.06), 0.9)]
 	var card_m := _autumn_card_mat()
 	for i in 30:
@@ -527,16 +528,16 @@ func _dream() -> void:
 		var side := -1.0 if i % 2 == 0 else 1.0
 		var x := _trail_x(z) + side * rng.randf_range(3.2, 8.5)
 		_autumn_tree(Vector3(x, 0, z + rng.randf_range(-1.0, 1.0)), rng.randf_range(5.5, 8.0), bark, autumn, card_m, d)
-	for i in 14:
-		var z := 6.0 - i * 5.0
-		_autumn_tree(Vector3(rng.randf_range(10.0, 18.0) * (-1.0 if i % 2 == 0 else 1.0), 0, z), rng.randf_range(7.0, 9.5), bark, autumn, card_m, d)
+	for i in 30:
+		var z := 10.0 - i * 3.0
+		_autumn_tree(Vector3(rng.randf_range(10.0, 30.0) * (-1.0 if i % 2 == 0 else 1.0), 0, z), rng.randf_range(7.0, 9.5), bark, autumn, card_m, d)
 	# the fallen leaves: flat cards in four colours, thick at the edges of the trail
-	for i in 420:
+	for i in 900:
 		var z := rng.randf_range(-70.0, 8.0)
 		var off := rng.randf_range(-9.0, 9.0)
 		if absf(off) < 0.7 and rng.randf() < 0.7:
 			off *= 2.4
-		var q := floor_quad(Vector2(0.16, 0.11) * rng.randf_range(0.8, 1.6), Vector3(_trail_x(z) + off, 0.02 + rng.randf() * 0.01, z), rng.randf() * TAU, autumn[i % 4], d)
+		var q := floor_quad(Vector2(0.24, 0.17) * rng.randf_range(0.8, 1.7), Vector3(_trail_x(z) + off, 0.02 + rng.randf() * 0.01, z), rng.randf() * TAU, autumn[i % 4], d)
 		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# twigs and sticks on the path, the ones he snaps
 	var twig := mat(Color(0.32, 0.22, 0.14), 0.9)
@@ -611,6 +612,24 @@ func _dream() -> void:
 	d.add_child(leaves_fx)
 
 
+## Pure white quilting: no colour in the cloth at all, just the weave's
+## bumps from the fabric scan's normal map.
+func _white_pad() -> StandardMaterial3D:
+	if _mat_cache.has("whitepad"):
+		return _mat_cache["whitepad"]
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.93, 0.94, 0.93)
+	m.roughness = 0.95
+	m.normal_enabled = true
+	m.normal_texture = load("res://assets/pbr/fabric/normal.jpg")
+	m.normal_scale = 0.6
+	m.uv1_scale = Vector3(2, 2, 2)
+	m.uv1_triplanar = true
+	m.uv1_world_triplanar = true
+	_mat_cache["whitepad"] = m
+	return m
+
+
 func _trail_x(z: float) -> float:
 	return sin(-z * 0.06) * 2.2
 
@@ -665,7 +684,7 @@ func _cell() -> void:
 	cell_root = Node3D.new()
 	add_child(cell_root)
 	var c := cell_root
-	var shell := pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.72, 0.73, 0.72))
+	var shell := pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.42, 0.43, 0.43))
 	box(Vector3(4.6, 0.2, 4.6), Vector3(0, -0.1, 0), shell, true, c)
 	box(Vector3(4.6, 0.2, 4.6), Vector3(0, 2.7, 0), shell, false, c)
 	box(Vector3(0.2, 2.8, 4.6), Vector3(-2.2, 1.4, 0), shell, true, c)
@@ -677,7 +696,7 @@ func _cell() -> void:
 	# the pads: their own node so the walls can breathe during the session
 	pads = Node3D.new()
 	c.add_child(pads)
-	var pad := pbr("fabric", Vector3(1, 1, 1) / 0.5, true, Color(1.0, 1.0, 0.98), 0.9)
+	var pad := _white_pad()
 	var seam := mat(Color(0.78, 0.79, 0.78), 0.9)
 	var button := mat(Color(0.86, 0.86, 0.85), 0.6)
 	for wall in 4:
@@ -748,9 +767,15 @@ func _cell() -> void:
 	door_body.add_child(cs)
 	c.add_child(door_body)
 	box(Vector3(0.98, 2.13, 0.08), Vector3(0, 0, 0.04), mat(Color(0.86, 0.87, 0.86), 0.5, 0.2), false, door_body)
-	for row in 4:
+	# padded below the window only; the window itself framed in steel
+	for row in 2:
 		box(Vector3(0.46, 0.49, 0.08), Vector3(-0.24, -0.78 + row * 0.52, -0.08), pad, false, door_body)
 		box(Vector3(0.46, 0.49, 0.08), Vector3(0.24, -0.78 + row * 0.52, -0.08), pad, false, door_body)
+	box(Vector3(0.96, 0.06, 0.06), Vector3(0, 0.3, -0.06), mat(Color(0.7, 0.71, 0.72), 0.4, 0.6), false, door_body)
+	for sx: float in [-0.13, 0.13]:
+		box(Vector3(0.04, 0.4, 0.05), Vector3(sx, 0.55, -0.06), mat(Color(0.3, 0.31, 0.33), 0.4, 0.6), false, door_body)
+	for sy: float in [0.35, 0.75]:
+		box(Vector3(0.3, 0.04, 0.05), Vector3(0, sy, -0.06), mat(Color(0.3, 0.31, 0.33), 0.4, 0.6), false, door_body)
 	var wire := StandardMaterial3D.new()
 	wire.albedo_color = Color(0.5, 0.55, 0.58, 0.45)
 	wire.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -803,7 +828,7 @@ func _hall() -> void:
 	box(Vector3(HALL_X - 10.0, 3.2, 0.2), Vector3(-(HALL_X + 10.0) / 2.0, 1.6, HALL_Z1), wall, true, h)
 	box(Vector3(HALL_X - 12.0, 3.2, 0.2), Vector3((HALL_X + 12.0) / 2.0, 1.6, HALL_Z1), wall, true, h)
 	var glass := StandardMaterial3D.new()
-	glass.albedo_color = Color(0.45, 0.6, 0.6, 0.18)
+	glass.albedo_color = Color(0.2, 0.3, 0.3, 0.12)
 	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	glass.roughness = 0.05
 	glass.metallic = 0.6
@@ -822,9 +847,9 @@ func _hall() -> void:
 	for i in 13:
 		var x := -18.0 + i * 3.0
 		var dead := i % 3 == 1
-		box(Vector3(1.2, 0.04, 0.5), Vector3(x, 3.18, zc), glow(Color(0.85, 0.95, 1.0), 0.2 if dead else 2.0), false, h)
+		box(Vector3(1.2, 0.04, 0.5), Vector3(x, 3.18, zc), glow(Color(0.85, 0.95, 1.0), 0.05 if dead else 1.4), false, h)
 	for x: float in [-16.0, -10.0, -4.0, 3.0, 9.0, 15.0]:
-		var l := _omni(h, Vector3(x, 2.8, zc), Color(0.82, 0.92, 1.0), 1.0, 7.5)
+		var l := _omni(h, Vector3(x, 2.8, zc), Color(0.78, 0.9, 1.0), 0.75, 6.5)
 		if x == -10.0:
 			flickers.append(l)
 	# the other suites' doors: blacked-out glass, IN SESSION
@@ -880,6 +905,23 @@ func _hall() -> void:
 	cyl(0.14, 0.14, 0.4, Vector3(12.8, 1.3, HALL_Z1 - 0.3), mat(Color(0.5, 0.6, 0.65, 1.0), 0.1), 10, h)
 	box(Vector3(0.22, 0.14, 0.02), Vector3(12.8, 0.85, HALL_Z1 - 0.48), mat(Color(0.02, 0.02, 0.025), 0.2), false, h)
 	interactable("water", "The hydration station", Vector3(12.8, 0.9, HALL_Z1 - 0.4), Vector3(0.5, 1.6, 0.5), LINES["look"]["water_scan"], false, h)
+	# a screen by the lifts for the people waiting: Psyon, and its eye
+	box(Vector3(1.8, 1.0, 0.06), Vector3(15.0, 1.75, HALL_Z1 - 0.13), mat(Color(0.01, 0.012, 0.015), 0.15, 0.3), false, h)
+	var sl := Node3D.new()
+	sl.position = Vector3(15.0, 1.75, HALL_Z1 - 0.17)
+	h.add_child(sl)
+	label("PSYON", Vector3(0, 0.15, 0), PI, 0.003, PSYON_GREEN, sl)
+	label("reconciliation is a process", Vector3(0, -0.17, 0), PI, 0.0012, Color(0.6, 0.9, 0.7), sl)
+	var heye := Sprite3D.new()
+	heye.texture = _glyph_tex
+	heye.pixel_size = 0.0032
+	heye.modulate = PSYON_GREEN
+	heye.position = Vector3(15.0, 1.75, HALL_Z1 - 0.18)
+	heye.rotation.y = PI
+	heye.visible = false
+	h.add_child(heye)
+	eye_screens.append([sl, heye])
+	_omni(h, Vector3(15.0, 1.7, HALL_Z1 - 0.8), Color(0.3, 1.0, 0.5), 0.35, 3.5)
 	_lifts()
 	_hall_cameras()
 	_batch(h, 12.0, true)
@@ -889,7 +931,7 @@ func _hall() -> void:
 ## knees on the padding with his forehead down, a FreudBot with a dark screen.
 func _neighbour() -> void:
 	var h := hall_root
-	var white := pbr("fabric", Vector3(1, 1, 1) / 0.5, true, Color(1.0, 1.0, 0.98), 0.9)
+	var white := _white_pad()
 	box(Vector3(4.0, 0.1, 4.0), Vector3(-5.0, 0.05, 0.0), white, false, h)
 	box(Vector3(4.0, 2.6, 0.1), Vector3(-5.0, 1.3, -2.0), white, false, h)
 	box(Vector3(0.1, 2.6, 4.0), Vector3(-3.0, 1.3, 0.0), white, false, h)
@@ -1053,7 +1095,10 @@ func _subway() -> void:
 	box(Vector3(2.9, 0.2, 14), Vector3(0, -0.1, 0), floor_m, true, s)
 	box(Vector3(2.9, 0.2, 14), Vector3(0, 2.45, 0), shell, false, s)
 	box(Vector3(2.0, 0.04, 13), Vector3(0, 2.33, 0), glow(Color(0.85, 0.95, 1.0), 1.8), false, s)
-	var win := mat(Color(0.01, 0.01, 0.015), 0.05, 0.6)
+	var win := StandardMaterial3D.new()
+	win.albedo_color = Color(0.02, 0.03, 0.04, 0.35)
+	win.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	win.roughness = 0.2
 	for side: float in [-1.0, 1.0]:
 		box(Vector3(0.1, 0.9, 14), Vector3(side * 1.45, 0.45, 0), shell, true, s)
 		box(Vector3(0.1, 0.5, 14), Vector3(side * 1.45, 2.15, 0), shell, false, s)
@@ -1061,6 +1106,12 @@ func _subway() -> void:
 		var seat := pbr("fabric", Vector3(1, 1, 1) / 0.5, true, Color(0.2, 0.25, 0.5))
 		box(Vector3(0.5, 0.12, 12), Vector3(side * 1.15, 0.45, 0), seat, false, s)
 		box(Vector3(0.1, 0.5, 12), Vector3(side * 1.38, 0.75, 0), seat, false, s)
+	# the tunnel walls outside: wet concrete, cable trays
+	var tun := pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.22, 0.22, 0.24))
+	for side: float in [-1.0, 1.0]:
+		box(Vector3(0.3, 4.0, 40), Vector3(side * 2.6, 1.6, 0), tun, false, s)
+		box(Vector3(0.15, 0.08, 40), Vector3(side * 2.4, 2.3, 0), mat(Color(0.12, 0.12, 0.13), 0.6, 0.5), false, s)
+	box(Vector3(5.5, 0.3, 40), Vector3(0, 3.3, 0), tun, false, s)
 	box(Vector3(2.9, 2.6, 0.1), Vector3(0, 1.3, -7.0), shell, true, s)
 	box(Vector3(2.9, 2.6, 0.1), Vector3(0, 1.3, 7.0), shell, true, s)
 	var pole := mat(Color(0.8, 0.8, 0.82), 0.2, 0.9)
@@ -1086,9 +1137,9 @@ func _subway() -> void:
 	_batch(s, 7.0)
 	# the tunnel outside: lights that stream past
 	for i in 10:
-		var l := box(Vector3(0.05, 0.08, 0.7), Vector3(-1.9, 1.5, -12.0 + i * 2.6), glow(Color(1.0, 0.75, 0.4), 3.0), false, s)
+		var l := box(Vector3(0.05, 0.08, 0.7), Vector3(-2.42, 1.5, -12.0 + i * 2.6), glow(Color(1.0, 0.75, 0.4), 3.0), false, s)
 		tunnel_lights.append(l)
-		var r := box(Vector3(0.05, 0.08, 0.7), Vector3(1.9, 1.5, -12.0 + i * 2.6 + 1.3), glow(Color(1.0, 0.75, 0.4), 3.0), false, s)
+		var r := box(Vector3(0.05, 0.08, 0.7), Vector3(2.42, 1.5, -12.0 + i * 2.6 + 1.3), glow(Color(1.0, 0.75, 0.4), 3.0), false, s)
 		tunnel_lights.append(r)
 	# commuters: contractors, frames on, faces in the glow
 	var coats := [Color(0.3, 0.32, 0.28), Color(0.45, 0.4, 0.36), Color(0.22, 0.24, 0.3)]
@@ -1113,7 +1164,7 @@ func _people() -> void:
 	add_child(turan)
 	var v: MeshInstance3D = turan.get_meta("visor")
 	if v:
-		v.material_override = glow(Color(1.0, 0.2, 0.75), 3.0)
+		v.material_override = glow(Color(1.0, 0.2, 0.75), 0.9)
 	turan.position = Vector3(1.5, 0, 4.0)
 	turan.visible = false
 	turan_it = person("turan", "Turan", turan, LINES["look"]["turan_scan"])
@@ -1193,8 +1244,10 @@ func _fb_unit(parent: Node3D, live: bool) -> Node3D:
 	box(Vector3(0.6, 0.4, 0.06), Vector3(0, 0, 0.07), mat(Color(0.1, 0.1, 0.11), 0.6), false, tv)
 	var strap := mat(Color(0.75, 0.6, 0.1), 0.8)
 	for sx: float in [-0.25, 0.25]:
-		box(Vector3(0.04, 0.62, 0.14), Vector3(sx, 0, 0.02), strap, false, tv)
-		box(Vector3(0.05, 0.06, 0.04), Vector3(sx, -0.22, -0.06), metal, false, tv)
+		box(Vector3(0.04, 0.58, 0.08), Vector3(sx, 0, 0.05), strap, false, tv)
+		for sy: float in [-0.285, 0.285]:
+			box(Vector3(0.04, 0.035, 0.1), Vector3(sx, sy, 0.0), strap, false, tv)
+		box(Vector3(0.05, 0.06, 0.04), Vector3(sx, -0.22, 0.1), metal, false, tv)
 	var dark := mat(Color(0.015, 0.018, 0.022), 0.05, 0.7)
 	var scr := box(Vector3(0.84, 0.52, 0.005), Vector3(0, 0, -0.042), dark, false, tv)
 	u.set_meta("tv", tv)
@@ -1252,14 +1305,14 @@ func _mirror() -> void:
 	mirror_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	add_child(mirror_vp)
 	mirror_cam = Camera3D.new()
-	mirror_cam.fov = 58.0
+	mirror_cam.fov = 40.0
 	mirror_cam.near = 0.05
 	mirror_cam.far = 30.0
 	mirror_vp.add_child(mirror_cam)
 	var mm := StandardMaterial3D.new()
 	mm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mm.albedo_texture = mirror_vp.get_texture()
-	mm.albedo_color = Color(0.36, 0.38, 0.42)
+	mm.albedo_color = Color(0.16, 0.17, 0.2)
 	mm.uv1_scale = Vector3(-1, 1, 1)
 	mm.uv1_offset = Vector3(1, 0, 0)
 	var mq := quad(Vector2(0.84, 0.52), Vector3(0, 0, -0.046), PI, mm, tv)
@@ -1769,11 +1822,7 @@ func _turan_kids() -> void:
 
 
 func _hold_tablet() -> void:
-	var arms: Array = turan.get_meta("arms")
-	if arms.size() > 1:
-		(arms[1] as Node3D).rotation.x = 1.1
-	if arms.size() > 0:
-		(arms[0] as Node3D).rotation.x = 0.8
+	_turan_hold = true
 	tablet.visible = true
 	tablet.position = turan.position + Vector3(0, 1.08, 0) + (main.player.position - turan.position).normalized() * 0.42
 	tablet.rotation.y = turan.rotation.y
@@ -1809,9 +1858,7 @@ func _sign() -> void:
 	await ui.think(l["pocket"] if f.has("ev_turan_note") else l["left"])
 	ui.close()
 	tablet.visible = false
-	var arms: Array = turan.get_meta("arms")
-	for a in arms:
-		(a as Node3D).rotation.x = 0.0
+	_turan_hold = false
 	_walk(turan, [Vector3(0.0, 0, 2.6), Vector3(-2.0, 0, 4.0), Vector3(-9.0, 0, 4.0)], 1.2)
 	await _wait(1.6)
 	await _door(false)
@@ -2189,6 +2236,8 @@ func _subway_ride() -> void:
 	p.rotation.y = p.yaw
 	p.pitch = -0.05
 	_env.ambient_light_energy = 0.4
+	_env.background_mode = Environment.BG_COLOR
+	_env.background_color = Color(0, 0, 0)
 	var eng: AudioStreamPlayer = main.loop("engine", -18.0)
 	eng.pitch_scale = 0.6
 	eng.play()
@@ -2366,6 +2415,10 @@ func tick(delta: float) -> void:
 			Anim.look(turan, p.global_position + Vector3(0, 1.6, 0), 1.0, 0.1)
 		if not _moving(turan):
 			Anim.idle(turan, _t, 0.4)
+			if _turan_hold:
+				var arms: Array = turan.get_meta("arms")
+				for i in arms.size():
+					(arms[i] as Node3D).rotation.x = 0.95
 	for fig in [nurse, monica]:
 		var n: Node3D = fig
 		if n and n.visible and not _moving(n):
@@ -2521,7 +2574,7 @@ func apply_args(a: Dictionary) -> void:
 		"session", "mirror":
 			freudbot.visible = true
 			freudbot.position = FB_PARK
-			freudbot.rotation.y = 0.0
+			freudbot.rotation.y = PI
 			_session_started = true
 			if st == "mirror":
 				_mirror_on(true)
@@ -2544,6 +2597,8 @@ func apply_args(a: Dictionary) -> void:
 			hall_root.visible = false
 			sub_root.visible = true
 			_riding = true
+			_env.background_mode = Environment.BG_COLOR
+			_env.background_color = Color(0, 0, 0)
 			if not a.has("at"):
 				p.position = SUBWAY + Vector3(-1.1, 0.05, -1.0)
 				p.yaw = deg_to_rad(-90.0)
@@ -2654,6 +2709,10 @@ func _note_tex() -> ImageTexture:
 ## branches the pump can't reach: the note hand-off, both lies (a glyph
 ## examined, a bow in the ledger), Monica at +1 and -1, the mezcal line.
 func selftest() -> void:
+	# llvmpipe on a shared machine renders this floor at a frame or two a
+	# second, and every line of dialogue costs a frame; the test is of the
+	# script, so the level is hidden while it runs (as Observatory.gd does)
+	visible = false
 	var f: Dictionary = main.flags
 	f["charged_observatory"] = true
 	var t := 0.0
@@ -2734,6 +2793,7 @@ func selftest() -> void:
 	main.player.crouch = 0.0
 	main.player.position = Vector3(0.0, 0.05, 3.6)
 	await main.selftest_all_interactables()
+	visible = true
 
 
 func _wake_and_turan_only() -> void:
