@@ -225,7 +225,7 @@ const GREEN := Color(0.42, 1.0, 0.58)
 const BOOK_PCT := [23, 43, 57, 73, 99]  # the readouts in the book, the reject path
 const HANDS_Z := -0.6
 const SCREEN_Z := -16.0
-const SCREEN_Y := 3.7
+const SCREEN_Y := 4.35
 const SCREEN_W := 14.4
 const SCREEN_H := 8.1
 const STAGE_TURN := 0.38  # the stage is set down turned, so he sees the hands past the chair
@@ -243,7 +243,7 @@ uniform float reveal = 1.0;
 uniform float glitch = 0.0;
 uniform float wave = 0.0;
 uniform float levels = 5.0;
-uniform float bright = 1.0;
+uniform float bright = 0.78;
 float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 float bayer2(vec2 a) { a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
 float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
@@ -528,11 +528,11 @@ func _chair() -> void:
 func _hands() -> void:
 	var bronze := pbr("rust", Vector3(2, 2, 2), true, Color(1.0, 0.72, 0.42), 0.5)
 	bronze.metallic = 0.35
-	var bronze_s := mat(Color(0.66, 0.43, 0.2), 0.3, 0.4)
+	var bronze_s := mat(Color(0.62, 0.4, 0.19), 0.55, 0.4)
 	var z := HANDS_Z
 	box(Vector3(0.62, 0.06, 0.44), Vector3(0, 0.03, z - 0.25), bronze_s, false, stage)
 	cyl(0.11, 0.16, 0.66, Vector3(0, 0.39, z - 0.25), bronze, 18, stage)
-	cyl(0.17, 0.11, 0.07, Vector3(0, 0.74, z - 0.25), bronze, 18, stage)
+	cyl(0.1, 0.12, 0.05, Vector3(0, 0.735, z - 0.25), bronze_s, 18, stage)
 	for s: float in [-1.0, 1.0]:
 		var cx := s * 0.155
 		# forearm out of the column, wrist, palm
@@ -626,8 +626,8 @@ func _screen() -> void:
 	text_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	text_l.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	text_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	text_l.width = SCREEN_W * 0.42 / 0.0068
-	text_l.position = Vector3(-SCREEN_W * 0.25, SCREEN_H / 2.0 - 0.55, 0.03)
+	text_l.width = (SCREEN_W * 0.46 + 0.15) / 0.0068
+	text_l.position = Vector3(-SCREEN_W * 0.46, SCREEN_H / 2.0 - 0.55, 0.03)
 	text_l.double_sided = false
 	sn.add_child(text_l)
 	_text_base = text_l.position
@@ -638,7 +638,7 @@ func _screen() -> void:
 	pct_l.outline_size = 0
 	pct_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	pct_l.width = SCREEN_W * 0.42 / 0.0072
-	pct_l.position = Vector3(-SCREEN_W * 0.25, -SCREEN_H / 2.0 + 0.8, 0.03)
+	pct_l.position = Vector3(-SCREEN_W * 0.46, -SCREEN_H / 2.0 + 0.8, 0.03)
 	pct_l.double_sided = false
 	sn.add_child(pct_l)
 	# the light the images throw back on the hands (and nothing else)
@@ -680,23 +680,23 @@ func _arms() -> void:
 ## black, to Carl's left as he lies on the floor.
 func _door() -> void:
 	door = Node3D.new()
-	door.position = Vector3(-15.0, 0, -6.0)
-	door.rotation.y = PI / 2.0 - 0.3
+	door.position = Vector3(-12.0, 0, 2.0)
+	door.rotation.y = 1.63
 	stage.add_child(door)
 	var dm := StandardMaterial3D.new()
 	dm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	dm.albedo_color = Color(1.6, 1.7, 1.75)
-	quad(Vector2(1.3, 2.5), Vector3(0, 1.25, 0), 0.0, dm, door)
-	var spill := StandardMaterial3D.new()
-	spill.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	spill.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	spill.albedo_color = Color(0.22, 0.23, 0.25)
-	floor_quad(Vector2(1.3, 5.0), Vector3(0, 0.01, 2.5), 0.0, spill, door)
+	dm.albedo_color = Color(0.95, 1.0, 1.05)
+	quad(Vector2(1.5, 3.0), Vector3(0, 1.5, 0), 0.0, dm, door)
+	# the frame, black against it
+	var fr := mat(Color(0.02, 0.02, 0.02))
+	box(Vector3(0.12, 3.2, 0.2), Vector3(-0.81, 1.6, 0.0), fr, false, door)
+	box(Vector3(0.12, 3.2, 0.2), Vector3(0.81, 1.6, 0.0), fr, false, door)
+	box(Vector3(1.74, 0.12, 0.2), Vector3(0, 3.06, 0.0), fr, false, door)
 	door_light = OmniLight3D.new()
 	door_light.position = Vector3(0, 1.2, 1.2)
 	door_light.light_color = Color(0.85, 0.9, 0.95)
 	door_light.light_energy = 0.0
-	door_light.omni_range = 8.0
+	door_light.omni_range = 5.0
 	door.add_child(door_light)
 	door.scale = Vector3(0.001, 1, 1)
 	door.visible = false
@@ -1053,7 +1053,7 @@ func _draw_field(img: Image, r: RandomNumberGenerator) -> void:
 		for x in 64:
 			var c: Color
 			if y < 30:
-				c = Color(0.98, 0.66, 0.74).lerp(Color(1.0, 0.86, 0.72), y / 30.0)
+				c = Color(0.86, 0.42, 0.58).lerp(Color(0.98, 0.7, 0.6), y / 30.0)
 			else:
 				c = Color(0.55, 0.62, 0.38).lerp(Color(0.3, 0.42, 0.24), (y - 30) / 34.0)
 			img.set_pixel(x, y, c)
@@ -1386,7 +1386,7 @@ func _palms(i: int) -> void:
 	ui.close()
 	_screen_power(1.0, 1.2)
 	# the spotlight gives way: from here the screen is the light
-	create_tween().tween_property(spot, "light_energy", 1.6, 2.0)
+	create_tween().tween_property(spot, "light_energy", 0.9, 2.0)
 	_cursor = true
 	_screen_clear()
 	await get_tree().create_timer(1.2).timeout
@@ -1607,7 +1607,7 @@ func _finale() -> void:
 	arms.visible = false
 	p.seated = false
 	p.velocity = Vector3.ZERO
-	p.position = stage.to_global(Vector3(0.9, 0.05, 0.7))
+	p.position = stage.to_global(Vector3(0.9, 0.05, 1.2))
 	p.crouch = 1.25
 	p.shake(1.6)
 	_snd("thud", 4.0, 0.7)
@@ -1622,7 +1622,7 @@ func _finale() -> void:
 	main.play("door", -6.0, 0.7)
 	var tw := create_tween().set_parallel(true)
 	tw.tween_property(door, "scale:x", 1.0, 1.4)
-	tw.tween_property(door_light, "light_energy", 2.2, 1.4)
+	tw.tween_property(door_light, "light_energy", 1.2, 1.4)
 	p.face(door.global_position + Vector3(0, 0.9, 0), 1.4)
 	await get_tree().create_timer(0.9).timeout
 	_snd("scream", -3.0)
@@ -1723,7 +1723,7 @@ func apply_args(a: Dictionary) -> void:
 	p.yaw = stage.rotation.y
 	p.pitch = deg_to_rad(float(a.get("pitch", "-1")))
 	p.cam.fov = 58.0
-	spot.light_energy = 1.6
+	spot.light_energy = 0.9
 	arms.visible = true
 	blood.visible = true
 	_set_power(1.0)
@@ -1761,12 +1761,12 @@ func apply_args(a: Dictionary) -> void:
 		_cursor = false
 		_screen_text = ""
 		text_l.text = ""
-		p.position = stage.to_global(Vector3(0.9, 0.05, 0.7))
+		p.position = stage.to_global(Vector3(0.9, 0.05, 1.2))
 		p.crouch = 1.25
 		p.cam.fov = 72.0
 		door.visible = true
 		door.scale.x = 1.0
-		door_light.light_energy = 2.2
+		door_light.light_energy = 1.2
 		spot.light_energy = 3.0
 		var dp := door.global_position + Vector3(0, 0.9, 0)
 		var dd: Vector3 = dp - (p.position + Vector3(0, 0.4, 0))
