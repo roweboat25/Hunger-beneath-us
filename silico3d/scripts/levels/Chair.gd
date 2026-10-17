@@ -44,7 +44,8 @@ extends "res://scripts/Level.gd"
 ## Reads: mira_dead, main.connection, main.pressure, main.trust["mira"],
 ## main.given, main.traded, main.tower_rooms, main.ledger, ezra_home.
 ## Sets: chair_grief, chair_mira, chair_attacked, chair_dropped, chair_bowed,
-## chair_valve, chair_sheathed, chair_copy, redrock_kept | redrock_dark, and
+## chair_valve, chair_sheathed, chair_copy, chair_sat, final_report (Refuse),
+## redrock_lit + redrock_kept (the ten-second hold) | redrock_dark, and
 ## one ending_* flag. Effects: +10 C for the last attack (bible).
 ## Hooks: metas "cultist" (Prophet, Eren, the congregation), "eyeless" (the
 ## congregation, Monica, the shore), "hackable" (the desk, the valve, the
@@ -448,7 +449,7 @@ void fragment() {
 	float lum = dot(f, vec3(0.3, 0.59, 0.11));
 	f = mix(f, vec3(lum) * vec3(0.55, 1.15, 0.7), copy * 0.65);
 	f *= 0.86 + 0.14 * sin(uv.y * 420.0);
-	vec3 col = mix(glass, f * 1.5, mira);
+	vec3 col = mix(glass, f * 0.82, mira);
 	ALBEDO = col * (1.0 - dark);
 }
 """
@@ -764,7 +765,7 @@ func _mountain_tex() -> ImageTexture:
 	var h := 256
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
-	var bands := [[0.35, Color(0.78, 0.66, 0.86)], [0.5, Color(0.93, 0.6, 0.62)], [0.65, Color(0.55, 0.42, 0.7)], [0.8, Color(0.36, 0.3, 0.55)]]
+	var bands := [[0.35, Color(0.62, 0.5, 0.8)], [0.5, Color(0.9, 0.5, 0.55)], [0.65, Color(0.45, 0.3, 0.62)], [0.8, Color(0.26, 0.2, 0.45)]]
 	for bi in bands.size():
 		var top: float = bands[bi][0]
 		var c: Color = bands[bi][1]
@@ -907,6 +908,7 @@ func _env(kind: String) -> void:
 	env.fog_sky_affect = 1.0
 	env.glow_enabled = true
 	env.glow_bloom = 0.04
+	env.tonemap_exposure = 1.0
 	sun.visible = false
 	sun.shadow_enabled = false
 	match kind:
@@ -928,18 +930,20 @@ func _env(kind: String) -> void:
 			env.fog_density = 0.012
 			env.tonemap_exposure = 1.2
 		"roof":
+			env.glow_enabled = false
 			env.background_mode = Environment.BG_SKY
-			env.sky = _sky(Color(0.62, 0.66, 0.92), Color(1.0, 0.78, 0.7), Color(0.75, 0.6, 0.75))
-			env.ambient_light_color = Color(0.95, 0.82, 0.86)
-			env.ambient_light_energy = 0.8
-			env.fog_light_color = Color(0.95, 0.8, 0.82)
-			env.fog_density = 0.0016
-			env.fog_sky_affect = 0.2
+			env.sky = _sky(Color(0.38, 0.42, 0.8), Color(0.96, 0.66, 0.62), Color(0.62, 0.48, 0.66))
+			env.ambient_light_color = Color(0.9, 0.78, 0.84)
+			env.ambient_light_energy = 0.55
+			env.fog_light_color = Color(0.9, 0.68, 0.74)
+			env.fog_density = 0.0007
+			env.fog_sky_affect = 0.0
 			env.glow_bloom = 0.0
+			env.tonemap_exposure = 0.9
 			sun.visible = true
-			sun.light_color = Color(1.0, 0.86, 0.75)
-			sun.light_energy = 0.9
-			sun.rotation = Vector3(deg_to_rad(-22), deg_to_rad(200), 0)
+			sun.light_color = Color(1.0, 0.84, 0.72)
+			sun.light_energy = 0.85
+			sun.rotation = Vector3(deg_to_rad(-24), deg_to_rad(105), 0)
 		"real":
 			env.background_mode = Environment.BG_SKY
 			env.sky = _sky(Color(0.01, 0.012, 0.03), Color(0.2, 0.06, 0.08), Color(0.02, 0.01, 0.02))
@@ -949,16 +953,19 @@ func _env(kind: String) -> void:
 			env.fog_density = 0.0012
 			env.fog_sky_affect = 0.3
 		"woods":
+			env.glow_enabled = false
 			env.background_mode = Environment.BG_SKY
-			env.sky = _sky(Color(0.45, 0.58, 0.8), Color(0.95, 0.78, 0.5), Color(0.4, 0.3, 0.18))
+			env.sky = _sky(Color(0.35, 0.5, 0.78), Color(0.88, 0.62, 0.36), Color(0.35, 0.24, 0.12))
 			env.ambient_light_color = Color(0.9, 0.75, 0.55)
-			env.ambient_light_energy = 0.7
-			env.fog_light_color = Color(0.85, 0.65, 0.4)
-			env.fog_density = 0.012
+			env.ambient_light_energy = 0.5
+			env.fog_light_color = Color(0.6, 0.42, 0.26)
+			env.fog_density = 0.003
+			env.fog_sky_affect = 0.25
 			env.glow_bloom = 0.0
+			env.tonemap_exposure = 0.85
 			sun.visible = true
 			sun.light_color = Color(1.0, 0.82, 0.55)
-			sun.light_energy = 1.0
+			sun.light_energy = 0.8
 			sun.rotation = Vector3(deg_to_rad(-30), deg_to_rad(40), 0)
 		"walk":
 			env.background_mode = Environment.BG_SKY
@@ -983,9 +990,10 @@ func _env(kind: String) -> void:
 			sun.rotation = Vector3(deg_to_rad(-10), deg_to_rad(-60), 0)
 		"home":
 			env.ambient_light_color = Color(0.3, 0.3, 0.34)
-			env.ambient_light_energy = 0.5
+			env.ambient_light_energy = 0.4
 			env.fog_light_color = Color(0.04, 0.04, 0.06)
 			env.fog_density = 0.004
+			env.tonemap_exposure = 0.85
 		"grid":
 			env.ambient_light_energy = 0.0
 			env.fog_density = 0.0
@@ -1473,7 +1481,7 @@ func _mira_feed() -> void:
 	st.add_child(halo)
 	var l := OmniLight3D.new()
 	l.light_color = Color(1.0, 0.95, 0.9)
-	l.light_energy = 2.2
+	l.light_energy = 0.6
 	l.omni_range = 5.0
 	l.light_cull_mask = 1 << 19
 	l.position = Vector3(0.5, 1.3, 1.4)
@@ -1802,7 +1810,7 @@ func _roof() -> void:
 		_rbox(Vector3(3.3, 0.5, 3.45), th, R_MID, y - 0.25, stone, rf, true)
 	for i in 32:
 		var th := TAU * (i + 0.5) / 32.0
-		_rbox(Vector3(0.6, 1.15, 2.7), th, R_OUT + 0.3, y + 0.57, stone, rf, true)
+		_rbox(Vector3(0.6, 0.7, 2.7), th, R_OUT + 0.3, y + 0.35, stone, rf, true)
 	for i in 14:
 		var th := 0.08 + (PI - 0.4) * (i + 0.5) / 14.0
 		_rbox(Vector3(0.3, 1.0, 1.4), th, R_IN - 0.05, y + 0.5, stone, rf, true)
@@ -1818,7 +1826,7 @@ func _roof() -> void:
 	mm.disable_fog = true
 	for i in 10:
 		var a := TAU * i / 10.0
-		var q := quad(Vector2(300, 150), _tp(a, 380, y + 25.0), atan2(-cos(a), -sin(a)), mm, fairy)
+		var q := quad(Vector2(330, 230), _tp(a, 360, y + 45.0), atan2(-cos(a), -sin(a)), mm, fairy)
 		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var haze := _unshaded(Color(0.86, 0.74, 0.9))
 	haze.disable_fog = true
@@ -1829,7 +1837,7 @@ func _roof() -> void:
 	var petal := [mat(Color(0.95, 0.6, 0.7), 0.8), mat(Color(0.95, 0.9, 0.6), 0.8), mat(Color(0.7, 0.75, 1.0), 0.8)]
 	for i in 40:
 		var th := PI + 0.1 + rng.randf() * (PI - 0.2)
-		sphere(0.09, _tp(th, R_OUT - 0.35 - rng.randf() * 0.3, y + 1.17), petal[i % 3], 5, fairy)
+		sphere(0.09, _tp(th, R_OUT - 0.35 - rng.randf() * 0.3, y + 0.72), petal[i % 3], 5, fairy)
 	# the throne
 	var tw := _tp(PI * 1.5 - 0.24, 10.0, y)
 	var throne := _sub(fairy, "throne")
@@ -1894,19 +1902,19 @@ func _real_view(rv: Node3D, y: float) -> void:
 			dr.name = "drone%d" % k
 	# the tower falling away beneath, lit green; the city; the plaza
 	var shaft := newmat(Color(0.03, 0.06, 0.05), 0.3, 0.6)
-	cyl(R_OUT + 1.0, R_OUT + 6.0, 150.0, _tp(0, 0, y - 75.2), shaft, 24, rv)
+	cyl(R_OUT + 1.0, R_OUT + 6.0, 60.0, _tp(0, 0, y - 30.2), shaft, 24, rv)
 	for k in 16:
 		var a := TAU * k / 16.0
-		_rbox(Vector3(0.2, 140.0, 0.5), a, R_OUT + 3.6, y - 76.0, glow(GREEN * 0.8, 2.2), rv, false)
-	var ground := y - 150.0
+		_rbox(Vector3(0.2, 56.0, 0.5), a, R_OUT + 3.6, y - 31.0, glow(GREEN * 0.8, 2.2), rv, false)
+	var ground := y - 60.0
 	floor_quad(Vector2(900, 900), _tp(0, 0, ground), 0.0, mat(Color(0.03, 0.03, 0.04), 0.6), rv)
-	cyl(70, 70, 0.3, _tp(0, 0, ground + 0.15), mat(Color(0.12, 0.12, 0.13), 0.7), 36, rv)
+	cyl(220, 220, 0.3, _tp(0, 0, ground + 0.15), mat(Color(0.12, 0.12, 0.13), 0.7), 36, rv)
 	var keep_parent: Node = kit_parent
 	kit_parent = rv
 	for i in 26:
 		var a := TAU * i / 26.0 + rng.randf_range(-0.05, 0.05)
-		var d := rng.randf_range(95.0, 260.0)
-		var h := rng.randf_range(30.0, 120.0)
+		var d := rng.randf_range(230.0, 380.0)
+		var h := rng.randf_range(40.0, 150.0)
 		var o := _tp(a, d, ground)
 		cyber_block(o, atan2(-cos(a), -sin(a)) + PI, rng.randf_range(16, 30), h, rng.randf_range(14, 24), false, 1)
 	kit_parent = keep_parent
@@ -1914,12 +1922,12 @@ func _real_view(rv: Node3D, y: float) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	var pm := BoxMesh.new()
-	pm.size = Vector3(0.45, 1.7, 0.35)
+	pm.size = Vector3(0.6, 1.8, 0.45)
 	mm.mesh = pm
-	mm.instance_count = 6000
+	mm.instance_count = 9000
 	for i in mm.instance_count:
 		var a := rng.randf() * TAU
-		var d := sqrt(rng.randf()) * 66.0 + 15.0
+		var d := sqrt(rng.randf()) * 190.0 + 25.0
 		mm.set_instance_transform(i, Transform3D(Basis(Vector3.UP, a), _tp(a, d, ground + 1.15)))
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
@@ -1936,7 +1944,7 @@ func _real_view(rv: Node3D, y: float) -> void:
 	cm.instance_count = 2500
 	for i in cm.instance_count:
 		var a := rng.randf() * TAU
-		var d := sqrt(rng.randf()) * 66.0 + 15.0
+		var d := sqrt(rng.randf()) * 190.0 + 25.0
 		cm.set_instance_transform(i, Transform3D(Basis(), _tp(a, d, ground + 2.2)))
 	var cmi := MultiMeshInstance3D.new()
 	cmi.multimesh = cm
@@ -2084,7 +2092,7 @@ func _woods() -> void:
 	var root: Node3D = stages["woods"]
 	var w := _sub(root, "woods_set")
 	box(Vector3(70, 0.4, 70), WOODS + Vector3(0, -0.2, -5), mat(Color(0.3, 0.22, 0.12), 0.95), true, w)
-	floor_quad(Vector2(70, 70), WOODS + Vector3(0, 0.005, -5), 0.0, pbr("grass", Vector3.ONE / 2.0, true, Color(0.62, 0.45, 0.22)), w)
+	floor_quad(Vector2(70, 70), WOODS + Vector3(0, 0.005, -5), 0.0, mat(Color(0.4, 0.25, 0.11), 0.95), w)
 	floor_quad(Vector2(2.2, 70), WOODS + Vector3(0.9, 0.012, -5), 0.0, mat(Color(0.32, 0.24, 0.16), 0.95), w)
 	var bark := pbr("bark", Vector3.ONE / 1.5, true)
 	var leaves := [mat(Color(0.85, 0.55, 0.12), 0.9), mat(Color(0.75, 0.25, 0.1), 0.9), mat(Color(0.9, 0.7, 0.2), 0.9)]
@@ -2335,7 +2343,7 @@ func _home() -> void:
 	stick(tb + Vector3(0, 2.7, 0), tb + Vector3(0, 1.9, 0), 0.01, dark, h)
 	cyl(0.08, 0.28, 0.22, tb + Vector3(0, 1.8, 0), dark, 14, h)
 	sphere(0.07, tb + Vector3(0, 1.72, 0), glow(Color(1.0, 0.86, 0.65), 4.0), 8, h)
-	_lamp(h, tb + Vector3(0, 1.6, 0), Color(1.0, 0.82, 0.6), 1.7, 8.0, 60.0)
+	_lamp(h, tb + Vector3(0, 1.6, 0), Color(1.0, 0.82, 0.6), 1.2, 7.0, 60.0)
 	_lamp(h, HOME + Vector3(2.4, 1.6, -4.0), Color(0.5, 1.0, 0.65), 0.5, 4.0, 60.0)
 	_lamp(h, HOME + Vector3(-5.0, 1.5, 0.0), Color(0.55, 0.65, 1.0), 0.6, 7.0, 60.0)
 	# Silico, eighty-six floors down
@@ -2699,7 +2707,7 @@ func _spin_fill() -> void:
 func _knife_on(on: bool) -> void:
 	if on and (_knife == null or not is_instance_valid(_knife)):
 		_knife = Node3D.new()
-		var steel := mat(Color(0.75, 0.77, 0.8), 0.15, 0.95)
+		var steel := mat(Color(0.86, 0.88, 0.9), 0.35, 0.55)
 		var grip := mat(Color(0.22, 0.13, 0.07), 0.7)
 		box(Vector3(0.032, 0.012, 0.25), Vector3(0, 0, -0.16), steel, false, _knife)
 		box(Vector3(0.02, 0.01, 0.07), Vector3(0, 0.006, -0.31), steel, false, _knife).rotation.x = -0.25
@@ -2707,7 +2715,7 @@ func _knife_on(on: bool) -> void:
 		box(Vector3(0.034, 0.032, 0.12), Vector3(0, 0, 0.035), grip, false, _knife)
 		main.player.cam.add_child(_knife)
 		_knife.position = Vector3(0.24, -0.24, -0.42)
-		_knife.rotation = Vector3(0.2, 0.18, 0.0)
+		_knife.rotation = Vector3(0.9, 0.25, 0.0)
 	if _knife and is_instance_valid(_knife):
 		_knife.visible = on
 
@@ -2786,6 +2794,10 @@ func intro() -> void:
 	main.player.crouch = 0.85
 	main.player.pitch = deg_to_rad(6.0)
 	_knife_on(false)
+	# the examine points stay out of the way of the held key (SPACE is also E)
+	for it in people_its:
+		if is_instance_valid(it):
+			set_active(it, false)
 	main.update_hud()
 	# the frozen frame: nothing moves, the captions run over it
 	for line: String in LINES["grief"]:
@@ -2833,10 +2845,9 @@ func _mira_speaks() -> void:
 		await ui.say("Mira", LINES["mira_self"])
 		await ui.think(LINES["mira_copy_turn"])
 	create_tween().tween_method(func(v: float): screen_mat.set_shader_parameter("copy", v), 0.0, 1.0, 2.0)
-	var who := "Mira" if not herself else "MIRA"
 	for l: String in LINES["mira"]:
 		_glitch_pulse(0.5)
-		await ui.say(who, l)
+		await ui.say("Mira", l)
 	for l: String in LINES["mira_after"]:
 		await ui.think(l)
 	ui.close()
@@ -3224,14 +3235,14 @@ func _roof_scene(copy: bool) -> void:
 	await ui.think(LINES["roof"])
 	ui.close()
 	var w := _walker()
-	var stand := _tp(PI * 1.5 - 0.13, R_OUT - 1.7, ROOF_Y + 0.1)
+	var stand := _tp(PI * 1.5 + 0.12, R_OUT - 0.95, ROOF_Y + 0.1)
 	var tw := create_tween()
 	tw.tween_property(w, "global_position", stand, 2.0)
 	if _copy and _cfig:
 		_anim_walk.append(_cfig)
 	await tw.finished
 	_anim_walk.erase(_cfig)
-	await _look(_tp(PI * 1.5, 200.0, ROOF_Y + 12.0), 1.0)
+	await _look(_tp(PI * 1.5 + 0.12, 130.0, ROOF_Y - 52.0), 1.4)
 	# the glitch: Psyonic Tower's roof, the city, the plaza chanting
 	main.play("glitch", 0.0, 0.8)
 	ui.glitch(1.0, 1.2)
@@ -3253,6 +3264,16 @@ func _roof_scene(copy: bool) -> void:
 	var throne: Node3D = fairy.get_node("throne")
 	await ui.say("Mira", LINES["throne"])
 	await _look(throne.global_position + Vector3(0, 1.0, 0), 1.0)
+	# for a breath the throne is the chair from the facility, wired and waiting
+	fairy.visible = false
+	real.visible = true
+	_env("real")
+	main.play("glitch", -4.0, 1.3)
+	ui.glitch(0.8, 0.5)
+	await _secs(0.4)
+	real.visible = false
+	fairy.visible = true
+	_env("roof")
 	await ui.say("Carl", LINES["honored"])
 	await ui.say("Mira", LINES["throne_2"])
 	ui.close()
@@ -3449,13 +3470,16 @@ func _grid_scene(copy: bool) -> void:
 			row0.anchor_right = 0.95
 			_credits.position.y = -h * 1.2 * ct / 16.0
 			if not _held():
-				kept = false
+				# it stays lit until he lets go; then the screen goes black
 				break
 	var f: Dictionary = main.flags
 	f.erase("redrock_kept")
 	f.erase("redrock_dark")
+	f.erase("redrock_lit")
 	if kept:
+		# the ten-second hold: Epilogue reads redrock_lit for its one line
 		f["redrock_kept"] = true
+		f["redrock_lit"] = true
 		_redrock = "kept"
 		main.log_line("grid", LINES["ledger"]["redrock_kept"])
 		await _secs(1.0)
@@ -4038,7 +4062,7 @@ func _tick_charge(delta: float) -> void:
 		p.shake(0.12 + k * 0.2)
 		if _knife:
 			_knife.position = _knife.position.lerp(Vector3(0.18, -0.08, -0.5), minf(1.0, delta * 6.0))
-			_knife.rotation.x = lerpf(_knife.rotation.x, 0.9, minf(1.0, delta * 6.0))
+			_knife.rotation.x = lerpf(_knife.rotation.x, 1.35, minf(1.0, delta * 6.0))
 		if not _said.has("charge"):
 			_said["charge"] = true
 			_hint_on("")
@@ -4048,7 +4072,7 @@ func _tick_charge(delta: float) -> void:
 			_cap(LINES["swell_cap"], 3.0)
 	elif _knife:
 		_knife.position = _knife.position.lerp(Vector3(0.24, -0.24, -0.42), minf(1.0, delta * 4.0))
-		_knife.rotation.x = lerpf(_knife.rotation.x, 0.2, minf(1.0, delta * 4.0))
+		_knife.rotation.x = lerpf(_knife.rotation.x, 0.9, minf(1.0, delta * 4.0))
 	if _hum:
 		_hum.volume_db = lerpf(-16.0, -2.0, k)
 	if _choir:
@@ -4085,7 +4109,7 @@ func _tick_choice(delta: float) -> void:
 				_hum.volume_db = -14.0
 	if _knife:
 		_knife.position = _knife.position.lerp(Vector3(0.24, -0.3, -0.4), minf(1.0, delta * 3.0))
-	if pos.z < ALTAR_Z + 1.4 and absf(pos.x) < 3.2:
+	if pos.z < ALTAR_Z + 0.6 and absf(pos.x) < 3.2:
 		_choose("drop")
 		return
 	if pos.z > DOOR_Z + 0.5 and not _turned_away and (_burn_ok() or _refuse_ok()):
@@ -4386,17 +4410,22 @@ func apply_args(a: Dictionary) -> void:
 			guide.visible = true
 			guide.global_position = _tp(PI * 1.5 + 0.5, R_MID, FH)
 			turn_to(guide, p.position)
-		"roof", "real":
+		"roof", "real", "chair":
 			_show("tower")
 			_env("roof")
-			put.call(_tp(PI * 1.5 - 0.5, R_OUT - 2.5, ROOF_Y + 0.1), 200.0, 4.0)
-			guide.visible = true
+			put.call(_tp(PI * 1.5 + 0.14, R_OUT - 2.4 if st == "roof" else R_OUT - 0.95, ROOF_Y + 0.1), 8.0, -2.0 if st == "roof" else -23.0)
+			guide.visible = st == "roof"
 			guide.global_position = _tp(PI * 1.5, R_OUT - 0.6, ROOF_Y)
 			guide.rotation.y = atan2(-cos(PI * 1.5), -sin(PI * 1.5))
-			if st == "real":
+			if st != "roof":
 				fairy.visible = false
 				real.visible = true
 				_env("real")
+			if st == "chair":
+				var cp := _tp(PI * 1.5 - 0.24, 10.0, ROOF_Y)
+				var eye := _tp(PI * 1.5 - 0.24, 6.3, ROOF_Y + 0.1)
+				var d := cp - eye
+				put.call(eye, rad_to_deg(atan2(-d.x, -d.z)), -6.0)
 		"woods":
 			_show("woods")
 			put.call(WOODS + Vector3(0.9, 0.1, 4.0), 0.0, -4.0)
@@ -4480,7 +4509,7 @@ func _reset_chapel() -> void:
 	_anim_walk.clear()
 	_capq.clear()
 	var f: Dictionary = main.flags
-	for k in ["chair_attacked", "chair_dropped", "chair_bowed", "chair_valve", "chair_sheathed", "chair_copy", "chair_sat", "redrock_kept", "redrock_dark", "final_report", "cinematic"]:
+	for k in ["chair_attacked", "chair_dropped", "chair_bowed", "chair_valve", "chair_sheathed", "chair_copy", "chair_sat", "redrock_kept", "redrock_dark", "redrock_lit", "final_report", "cinematic"]:
 		f.erase(k)
 	_show("core")
 	_black.color.a = 0.0
@@ -4591,11 +4620,11 @@ func selftest() -> void:
 	_test_hold = false
 	print("ok attack: C ", int(m.connection), ", burn open ", _burn_ok(), ", refuse open ", _refuse_ok(), ", attacked ", f.has("chair_attacked"))
 	# A3-E1 Sit: drop the knife, walk to the altar (Red Rock held)
-	_teleport(Vector3(0, 0.1, ALTAR_Z + 0.6))
+	_teleport(Vector3(0, 0.1, ALTAR_Z + 0.3))
 	await _wait(func(): return _phase != "choice", 10.0)
 	_test_hold = true
 	await _wait(func(): return _phase == "done", 1500.0)
-	print("ok SIT: ending_sit ", f.has("ending_sit"), ", bowed ", f.has("chair_bowed"), ", sat ", f.has("chair_sat"), ", redrock ", _redrock)
+	print("ok SIT: ending_sit ", f.has("ending_sit"), ", bowed ", f.has("chair_bowed"), ", sat ", f.has("chair_sat"), ", redrock ", _redrock, ", redrock_lit ", f.has("redrock_lit"))
 	# A3-E2 Burn (Ezra home)
 	_reset_chapel()
 	m.connection = 40.0
@@ -4636,7 +4665,7 @@ func selftest() -> void:
 	_test_hold = false
 	_after_mira()
 	await _wait(func(): return _phase == "done", 1500.0)
-	print("ok COPY: ending_copy ", f.has("ending_copy"), ", redrock ", _redrock, ", only one ending ", _one_ending())
+	print("ok COPY: ending_copy ", f.has("ending_copy"), ", redrock ", _redrock, ", redrock_lit ", f.has("redrock_lit"), ", only one ending ", _one_ending())
 	# every examine point, in the room after
 	_reset_chapel()
 	_phase = "done"
