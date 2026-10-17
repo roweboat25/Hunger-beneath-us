@@ -88,6 +88,9 @@ var stance_points := {"company_man": 0, "investigator": 0, "sleeper": 0}
 var lexicon: Array = []  # words known, in the order learned
 var first_typed := ""  # the first thing the player ever typed to Psyon
 var ledger: Array = []  # [{level, kind, text}], the log the fork reads
+var traded: Array = []       # memories paid for words: "drawing", "photo", "lion", "trophy"
+var given: Array = []        # people given to the god by sacrifice (names, e.g. "tyson")
+var tower_rooms: Array = []  # Carl's Tower rooms in build order: "focus", "calm", "memory", "courage"
 var glyphs_found := 0
 var outage := false
 var started := false
@@ -335,6 +338,9 @@ func _reset_story() -> void:
 	lexicon = []
 	ledger = []
 	first_typed = ""
+	traded = []
+	given = []
+	tower_rooms = []
 	ui.set_frames(0.0, 0.0)
 
 
