@@ -493,8 +493,8 @@ func build(m: Node) -> void:
 	spawn_yaw = 0.0
 	card = L("build", "card")
 	_conc = pbr("concrete", Vector3(1, 1, 1) / 2.0, true, Color(0.42, 0.42, 0.4), 0.9)
-	_green = pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.5, 0.66, 0.52), 1.0)
-	_brick = tex_mat(_brick_tex(Color(0.3, 0.37, 0.23)), Vector3(1, 1, 1) / 2.0, 0.95, true)
+	_green = pbr("plaster", Vector3(1, 1, 1) / 2.0, true, Color(0.4, 0.5, 0.4), 1.0)
+	_brick = tex_mat(_brick_tex(Color(0.22, 0.25, 0.17)), Vector3(1, 1, 1) / 2.0, 0.95, true)
 	_brick_dark = tex_mat(_brick_tex(Color(0.12, 0.12, 0.12)), Vector3(1, 1, 1) / 2.0, 0.95, true)
 	_floor1 = pbr("concrete", Vector3(1, 1, 1) / 1.5, true, Color(0.34, 0.34, 0.31), 0.7)
 	_floor2 = pbr("concrete", Vector3(1, 1, 1) / 1.5, true, Color(0.26, 0.27, 0.25), 0.5)
@@ -721,7 +721,7 @@ func _fluor(p: Vector3, rot_y := 0.0, energy := 1.0, stutter := false, c := Colo
 	prop("mounted_fluorescent_lights", p - Vector3(0, 0.06, 0), rot_y, 1.0, false)
 	var g := box(Vector3(0.9, 0.025, 0.05), p - Vector3(0, 0.05, 0), glow(Color(0.85, 1.0, 0.8), 1.6, true))
 	g.rotation.y = rot_y
-	energy *= 0.7
+	energy *= 0.6
 	var l := light(p - Vector3(0, 0.35, 0), c, energy, 6.0)
 	l.omni_attenuation = 1.0
 	if stutter:
@@ -1405,7 +1405,7 @@ func _corridor_p() -> void:
 		box(Vector3(34.6, 0.12, 0.02), Vector3(-5.85, Y2 + 0.06, z), _metal)
 	_cables(Vector3(11.2, Y2 + 2.6, PZ + 1.1), Vector3(-23.0, Y2 + 2.6, PZ + 1.1), 2)
 	for i in 6:
-		_fluor(Vector3(-20.0 + i * 6.0, Y2 + H1, PZ), 0.0, 0.85, i % 2 == 0)
+		_fluor(Vector3(-20.0 + i * 6.0, Y2 + H1, PZ), 0.0, 0.55, i % 2 == 0)
 	prop("security_camera_01", Vector3(11.2, Y2 + 2.7, PZ - 1.0), PI / 2.0, 1.0, false)
 	prop("security_camera_01", Vector3(-22.9, Y2 + 2.7, PZ + 1.0), -PI / 2.0, 1.0, false)
 	_sign("OBSERVATION\nAUTHORISED STAFF ONLY", Vector3(1.5, Y2 + 2.45, PZ - 1.13), 0.0, 0.0022)
