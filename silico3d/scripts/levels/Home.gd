@@ -3,7 +3,9 @@ extends "res://scripts/Level.gd"
 ## Psyonic Tower. Two evenings in one level, gated on main.flags. The beats,
 ## choices and effects follow the bible: design/bible-2-act1-script.md,
 ## A1-S3 (first evening), A1-S3.5 (the council chamber, Monica's cutscene),
-## A1-S7 (the ritual) and A1-S7.5 (Mira's morning, cutscene).
+## A1-S7 (the ritual) and A1-S7.5 (Mira's morning, cutscene). Act 2 adds two
+## more visits from bible-3-act2-script.md: A2-S3 (the drive back with Lynx,
+## the blackout, ch. 15) and A2-B6 (Monica's choice, the leaves dream).
 ##
 ## Book, ch. 3: badge on the door, "a mechanical sigh" (no hinges). Monica in
 ## the kitchen, arms crossed: "How can a man cut out his eyes like that?" PR
@@ -39,6 +41,7 @@ const TABLE := Vector3(2.5, 0.0, -6.0)
 const CIRCLE := Vector3(9.5, 0.0, -9.15)             # the stick circle at the foot of Mira's bed
 const MIRA_SPOT := Vector3(9.5, 0.0, -8.0)           # where she sits, back to the door
 const MIRA_DOOR := Vector3(9.5, 0.0, -7.13)
+const GARAGE := Vector3(0.0, 0.0, 620.0)             # P2, where the drive back ends (visit 3)
 const HALL_Y := 0.0
 
 ## Every line the level speaks or shows, keyed by beat and line, so the
@@ -49,6 +52,8 @@ const LINES := {
 	"card": {
 		"first": "[b]RESIDENCE HALL 45C[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86\nDay 1, late[/color]",
 		"second": "[b]RESIDENCE HALL 45C[/b]\n\n[color=#aaaaaa]Psyonic Tower, floor 86\nthat evening[/color]",
+		"third": "[b]THE DRIVE BACK[/b]\n\n[color=#aaaaaa]Day 3, 22:00\nthe tower garage, P2[/color]",
+		"fourth": "[b]RESIDENCE HALL 45C[/b]\n\n[color=#aaaaaa]Day 6, evening\nthe last real conversation[/color]",
 	},
 	"objective": {
 		"badge": "Badge in at 86D, down the hall.",
@@ -57,6 +62,11 @@ const LINES := {
 		"monica2": "Sit with Monica at the table.",
 		"mira2": "Check on Mira. Her room is off the hall, on the left.",
 		"tablet": "Take the tablet.",
+		"drive": "Lynx. The garage.",
+		"monica3": "Monica. Then Mira's room.",
+		"mira3": "Mira's room. Find anything.",
+		"monica4": "Monica is packing. Talk to her.",
+		"sleep4": "Sleep. The couch, by the glass.",
 	},
 	"prompt": {"leave": "Leave the flat"},
 	"lift": {
@@ -65,6 +75,186 @@ const LINES := {
 			["", "Residence Hall 45C. Home sweet home. Or, at least, the designated unit. I walked down the hallway to 86D, my footsteps muffled by the plush, sound-dampening carpet."]],
 		"second": [["Lift", "Welcome back, Carl."],
 			["", "The lift knew my name. It always did. I wanted the door, the table, the kids. Tonight, Monica and the kids would be the antidote. They always were."]],
+		"third": [["Lift", "Welcome back, Carl."],
+			["", "The elevator ride stretched forever. My parents would be so proud if they saw me now: top floor, executive access, trusted by the most powerful corp on Earth. If only they knew."]],
+		"fourth": [["Lift", "Welcome back, Carl."],
+			["", "It said my name the way it always had. Six days. The name felt like it belonged to someone the lift had met once."]],
+	},
+	"drive": {
+		"dash": "PSYONIC FLEET 0086\nNAV: HOME  -  P2\nARRIVED",
+		"open": [["", "Each foot of road that slipped beneath my tires pulled me closer to pain; to confrontation I wasn't ready for. The day had been endless, but also impossibly fast. Everything had changed. And I hadn't caught up."],
+			["", "Lynx didn't trust me anymore. I could feel it in the way she stared past me, not at me. I didn't blame her."],
+			["", "There's a cult, no, a religion growing in Silico like mold under polished glass. And it's spreading through Psyon. They're preparing for something they call The Glitch Day. Their initiates go blind. And somehow, they're using children to spread the message."]],
+		"mimic": "Well, Mimic. What do we do now?",
+		"exchange": [["", "The word hit like a knife to the chest. Mimic. Like I was already gone. Replaced. A thing."],
+			["Carl", "I don't know. I don't know who we can trust."],
+			["Lynx", "We must tell someone. Go to the press or something."],
+			["Carl", "I can't. I have to check on Mira. It's 9 p.m. already. My family's probably losing their minds."],
+			["Lynx", "You want to go back to the tower? After what we saw? After Eren?"],
+			["Carl", "I don't have a choice. My family's there. Mira's there. And we don't know if this goes all the way to the top."],
+			["Lynx", "I'm not going back. Their goddamn experiment killed Nathan."],
+			["", "She rolled down the window. The garage air hit us like a slap. And then her voice cracked."],
+			["Lynx", "They need to burn."],
+			["Carl", "We need more information. We must figure out who's involved. Who we can trust."],
+			["Lynx", "Can we trust anyone? What about HQ? What about Turan?"],
+			["Carl", "We have to play ball. We've learned a lot tonight, but they're just pieces. Fragments. We can't exactly waltz into a Corp-owned media outlet and share our story about our employer starting a cult. They'd sedate us harder than they did Dufredy."],
+			["Lynx", "So what? We spy on them?"],
+			["Carl", "No. We embed. We stop the cult from within. From inside Psyonic."],
+			["Lynx", "Shit, you're kind of making sense. We need to see how far the rot goes."],
+			["Lynx", "What about you? They seem to think you're important in all of this. What is the Mimic?"]],
+		"choices": ["Tell her about the mirror, and the double.", "I'm the guy hallucinating his own reflection and humming cult songs in his sleep. And I'm the plan?", "Say nothing."],
+		"mirror": [["Carl", "Before you found me, I had to perform a ritual to get inside the facility. I looked in the mirror and it wasn't me. My reflection changed. I think it's been following me through the glasses."],
+			["Lynx", "Shit. Maybe you really do need FreudBot."],
+			["", "Her smile cracked the tension like sunlight through thick glass."]],
+		"the_plan": [["Carl", "I'm the guy hallucinating his own reflection and humming cult songs in his sleep. And I'm the plan?"],
+			["Lynx", "You're involved somehow. We have to find out why. If they've got Mira too, maybe you're the only one who can get her out."],
+			["", "She was right. Her words landed like a jolt to the spine."]],
+		"nothing": "I said nothing. She let it sit there between us, and that was worse than any answer.",
+		"spoons": [["Lynx", "You're going to hate this. But you need to stay on the path you're on. Keep going."],
+			["Carl", "But if I start reaching for the spoons..."],
+			["Lynx", "I'll stop you. I promise."],
+			["Lynx", "I'll use my access to pry deeper into the corporate records, try to find allies. You keep doing your job, keep investigating the cult to avoid suspicion. We need to find out what the fuck they meant by Glitch Day."],
+			["", "The insurgency has formed."]],
+		"gone": "She got out at the lift without looking back. From here she was out of reach, and she meant to be.",
+		"tower": "The tower loomed over the garage, a biomechanical monolith almost a mile high. Standing at its base made my resolve feel like a paper shield. I would have to become a double agent. I would have to lean into the strange.",
+	},
+	"home3": {
+		"door": "The door slid open to my apartment. Familiar hallway. Familiar air. For a brief second, I let myself believe I'd left the nightmare outside.",
+		"im_home": "Monica, I'm ho—",
+		"gone": "She was on 108, honouring Marcus in an hour-long call. I was on my own with the house.",
+		"where": "Where the fuck have you been?",
+		"retreat": [["", "Her voice hit like a sniper round. Tight. Controlled. Deadly."],
+			["Monica", "I've been calling you for hours, Carl. Do you even care? So much has happened."],
+			["Carl", "I didn't get any calls. I was out in the desert. Part of the investigation. I need to see Mira—"],
+			["Monica", "Mira's not here. Ezra and Mira are at the corporate mindfulness retreat with BreathBot at the observation site, remember? The stargazing trip, she was so excited about. She's gone until after the meteor shower ends this weekend."],
+			["", "The bottom dropped out of my gut."],
+			["Carl", "Oh. Right."]],
+		"furious": "And she's furious with you for smashing her tablet. You haven't even apologized. Carl, what's going on? You're not... you're not you.",
+		"furious_alt": "And she still won't talk to you about that night. Carl, what's going on? You're not... you're not you.",
+		"marcus": [["Carl", "I'm sorry. I'll talk to her when she's back. I'll fix it."],
+			["Monica", "Did you hear about the accident?"],
+			["Carl", "What accident?"],
+			["Monica", "Marcus Elontiel is dead."],
+			["Carl", "What?"],
+			["Monica", "Drone malfunction. A squadron of delivery bots rerouted mid-flight and swarmed his personal copter. Shredded it mid-air. They're saying it was a weather anomaly."],
+			["Carl", "But you don't buy it."],
+			["Monica", "No. I think it was an assassination."],
+			["Monica", "Eren's been circling the throne for years. And now? It's his."],
+			["Carl", "I think you need to sit down and hear me out."],
+			["Monica", "Okay... You're scaring me, Carl. What's going on?"]],
+		"choices": ["Everything. The facility, the ceremony, Eren at the altar.", "The cult, the rituals, the fork. Leave Eren out of it.", "Only the rituals. Mira's tablet."],
+		"tell_all": "I saw something. Out past the Southtown fringe. Lynx and I found a facility. Old DARPA tech, black-site level. It's organized. Coordinated. Psyonic is at the center of it. They're performing rituals. Real ones. Hundreds of them. They call it 'The Path'. They use the forked Psyon to infect devices, Mira's tablet included. And Eren was there. He was one of the leaders.",
+		"tell_cult": "I saw something. Lynx and I found a facility past the Southtown fringe. They're performing rituals, hundreds of them. They call it 'The Path'. They use the forked Psyon to infect devices. Mira's tablet included.",
+		"tell_rituals": "The rituals. The circle Mira made, the chant, the tablet that had never spoken. They're everywhere now. It's spreading through the devices.",
+		"twig": [["", "At that, her eyes flicked upward, just for a second. A silent twig snapped in her mind."],
+			["Monica", "What exactly are you saying?"],
+			["Carl", "I think Mira might already be part of it. And I think Psyonic let it happen."],
+			["", "Monica exhaled, slowly. Not like someone who had just been blindsided, but like someone confirming a fear she'd already had."]],
+		"admits": [["Carl", "You knew. Didn't you? How much, Monica?"],
+			["", "She walked past me, grabbing a glass from the cupboard like this was a conversation about work, not our daughter."],
+			["Monica", "I know they were exploring some kind of interface. Not a religion. Not rituals. Just a symbolic framework. Something to build trust between users and the system. They called it a belief layer."],
+			["Carl", "They called it belief optimization."],
+			["Monica", "That's what Marcus called it. He told me it was like gamifying belief. You know how Psyon speaks differently depending on your mood? They wanted to expand on that. More responsive. More immersive."],
+			["Monica", "I was trying to protect you. I knew if you found out, you'd do exactly this. Spiral. Burn it all down. And we have kids, Carl. It's Psyonic. If they know we know—"],
+			["", "She stopped herself."]],
+		"deflects": [["Monica", "No. Carl, you've been under so much pressure. These outages, the travel, the stress. You're connecting dots that don't belong together. This is not Psyonic."],
+			["Carl", "You knew. Didn't you?"],
+			["", "Her eyes flashed. She didn't answer."],
+			["Monica", "I don't think that was us. There's some splinter group, doing way too much ketamine."]],
+		"eren_office": [["Monica", "And Eren? That's impossible. He was in the office all day. We were in a meeting that lasted five hours this morning."],
+			["Carl", "It must've been a faked video call, because he was there. He watched it happen."]],
+		"overreacting": "You're overreacting, babe. It's just an algorithmic tweak to increase engagement. This happens all the time.",
+		"notes": "While she talked she hummed, under her breath, three notes. I knew them. Not from the city. From the NICU, the glass, the song she sang to Mira through it, the first week.",
+		"song_word": "the song: Monica's",
+		"path": "Just stay on your path, Carl. Trust me. Everything is under control.",
+		"mouthed": "She mouthed her next words to me like a silent artillery shell.",
+		"watched": "[i]I think we're being watched.[/i]",
+		"inside": "A small tear forming in her eye. Silence settled between us. The Eye wasn't just watching us now. It was inside the house.",
+		"upstairs": [["Carl", "Honey, I think you're right. I think I just need a walk to clear my mind. Would you like to join me?"],
+			["Monica", "I would love to, but I really can't. I'm needed for another call, to discuss how we're going to honor Marcus. In an hour."],
+			["Monica", "I'm needed upstairs. Please just get some rest, babe. It's going to be okay."]],
+		"never_leaves": "She left me, and silence filled the room. The silence of emptiness, the silence of fading hope. I knew she knew more; I knew she was scared to tell me. She never leaves this tower. Is she being monitored?",
+		"lynx_call": [["", "I sat on my couch full of emotion, rage, fear, dread, when my glasses chimed with a call. Lynx."],
+			["Lynx", "I assume you heard the news about Eren. Our new god king. All my systems are on lockdown. How's Mira?"],
+			["Carl", "On a corporate wellness retreat in the desert, at the observation site past the south side of town. With Ezra."],
+			["Lynx", "That's such bullshit. How did Monica let her go?"],
+			["Carl", "She knows more than she's telling me. She's acting alien. She said we're being watched."],
+			["Lynx", "I wasn't going to sleep tonight anyway. Let's meet at the parking garage in thirty."],
+			["Carl", "Agreed. I'm going to go through Mira's room and see if I can find anything."],
+			["Lynx", "She's going to be okay, Carl. See you in thirty."]],
+	},
+	"sketch": {
+		"ransack": "I ransacked Mira's room. The pink wallpaper suddenly fell out of place, like I had disturbed a deer sipping water at a pond. Her desk held the usual suspects for a ten-year-old: dolls and school books in piles.",
+		"drawer": "I opened a drawer on the underside of her desk. An AI marble sketchpad rested calmly in the center. Like an eye in a hurricane that tore through her room.",
+		"cap0": "Her sketchbook. 'The Tower.'",
+		"early": "The early pages were filled with what I expected: digital and AI-generated renderings of horses and her friend. Halfway through, the tone shifted.",
+		"tower": "A drawing labeled her 'Tower'. A series of characters sitting around a round table, reminiscent of King Arthur, in reverence, like they were praying. A knight, a bear, a girl with blond pigtails. At the center, Mira, curly-haired and freckled.",
+		"cap1": "Ten pages on.",
+		"darker": "I turned the page, and the tower got darker; the faces shifted from quiet reverence to anxiety. After about ten iterations, a shadow replaced Mira's spot within the drawing.",
+		"cap2": "The last page.",
+		"shadow": "The shadow slowly formed into... an eye.",
+		"buzzed": "My smart glasses buzzed and roared to life.",
+		"help": "[i]Help.[/i]",
+		"dark": "The power went out. Not just here. Everywhere.",
+		"cap_tower": "The tower went dark.",
+		"tower_dark": "[i]A mile of jade and sinew, and not one light on it. The ring at the top, that never went out, went out.[/i]",
+		"cap_city": "The city went dark with it. The only lights were candles.",
+		"city_dark": "[i]Eighty-six floors down the grid was gone. In the windows across the dark, one by one, candles.[/i]",
+		"out": "Darkness filled the room, stirring me to motion. I grabbed Dufredy's laptop, my jacket, and turned my infected smart glasses' flashlight on and headed out the door, into the void.",
+	},
+	"home4": {
+		"door": "The apartment at sunset. The west glass did what it always did, and the room let it. Something was missing from every surface I looked at. I knew what, and I didn't look twice.",
+		"door_whole": "The apartment at sunset. The west glass did what it always did, and the room let it. Nothing was missing. I checked.",
+		"packing": "Monica was packing. A small bag, the kind you take for one night. She was humming while she did it: the whole melody, for the first time in a human voice.",
+		"gone": "She'd gone. The bag had gone with her. The hum stayed in the room a while after.",
+		"broadcast": "You saw the broadcast.",
+		"not_wrong": "He's not wrong, Carl. That's the part I can't say upstairs.",
+		"pr_handling": "PR's handling it.",
+		"ask_layer": "Tell me about the belief layer. All of it, this time.",
+		"whole_thing": [["Monica", "Marcus called it gamifying belief. Eren calls it the belief layer."],
+			["Monica", "I wrote the scripture, Carl. Some of it."],
+			["", "She said it to the bag, not to me. It was the first true thing she'd said in the flat in a week."]],
+		"denies": "There is no belief layer. There's a splinter group and a PR problem, and one of them is my job.",
+		"present_tablet": "Present the second tablet.",
+		"present_drawing": "Present Mira's drawing.",
+		"let_go": "Let it go.",
+		"presented_tablet": "I put the second tablet on the table between us. The one she'd given Mira. The one with the Tower on it.",
+		"presented_drawing": "I put Mira's drawing on the table between us. The council round the table, ten pages on. The eye where our daughter had been.",
+		"broken": [["Monica", "Where did you get that."],
+			["", "It wasn't a question. She sat down."],
+			["Monica", "Fine. Marcus called it gamifying belief. Eren calls it the belief layer. I wrote the scripture, Carl. Some of it."]],
+		"let_it": "I let it go. There was a bag on the table and one night left, and I wanted the night.",
+		"ask_song": "The song. The one you hum. Where did it come from?",
+		"mother_sang": "My mother sang it. In the orphan wing they said it was hers.",
+		"not_hers": "It wasn't hers. It was on the tablets they gave us. All of us.",
+		"zipped": "She zipped the bag. 108 first, she said, and then the chapel.",
+		"keep_her": "We can keep her, Carl. Both of us. That's the deal they offered me.",
+		"dont_come": "Don't come under. Please.",
+		"said_nothing": "She said nothing. She picked up the bag.",
+		"choices": ["I'll see you there.", "I'm going to stop it.", "I'll write the report."],
+		"see_you": "I'll see you there.",
+		"stop_it": "I'm going to stop it.",
+		"report": "I'll write the report.",
+		"kiss": "She kissed me. It tasted like a goodbye she had rehearsed, and meant anyway.",
+		"no_kiss": "She didn't kiss me. She looked at the door, and then at me, and chose the door.",
+		"after": "The door sighed shut behind her. The sunset went on without her, which seemed wrong.",
+		"ezra": [["Ezra", "Is Mom going to work?"],
+			["Carl", "Yes, buddy. Go play VR. Thirty minutes."],
+			["Ezra", "You always say thirty."]],
+	},
+	"leaves": {
+		"asleep": "I lay down on the couch with the city going orange and then grey in the glass. I didn't mean to sleep. I slept.",
+		"cap1": "the leaves",
+		"pile": [["", "The crunch of leaves underfoot woke me. I was in a familiar wood. Autumn. The trees towered overhead, their leaves a brilliant canopy of gold and red."],
+			["", "Laughter. Far away, but getting closer. And there they were. Monica and Mira. Holding hands, spinning in a joyous circle before tumbling into a massive pile of leaves."],
+			["", "I ran toward them, tears of relief already falling. But something was wrong. I was already with them."]],
+		"cap2": "another me",
+		"other": [["", "Another me. An imposter. Smiling, laughing, holding them. My family."],
+			["", "The copy turned and looked at me with my own eyes. He walked toward me slowly, his expression calm and radiant."]],
+		"keeping_company": "Don't mind me, Carl. I was just keeping them company while they waited for you.",
+		"believed": [["", "And I believed him. Of course I did. Where had I been? Why did I ever leave? His words made perfect, simple sense."],
+			["", "He shook my hand, smiled again, and strolled peacefully down the path behind me, vanishing into the trees. I turned to run to my girls, to finally hold them—"]],
+		"day7": "[b]Day 7[/b]\n\n[color=#aaaaaa]Glitch Day.[/color]",
 	},
 	"arrive1": {
 		"door": "Badge on the door. It slid open with a mechanical sigh. I still didn't know what was wrong with hinges. But I chose this. We all did.",
@@ -274,6 +464,12 @@ const LINES := {
 		"watched": "watched the ritual complete",
 		"kept": "kept the tablet",
 		"ritual": "Mira's ritual",
+		"monica_knew": "Monica knew about the belief layer. She said so, Day 3 night.",
+		"drawing": "Mira's sketchbook: the Tower, ten times, then a shadow, then the eye",
+		"help": "the eye said Help",
+		"claim_complete": "Monica knew: complete. 'I wrote the scripture, Carl. Some of it.'",
+		"song_claim": "the song is the god's: it was on the orphan wing's tablets",
+		"leaves": "dreamed of the leaves, and the other one",
 	},
 	"examine": {
 		"exit1": "It was late. The kids were at the table. I wasn't going anywhere tonight.",
@@ -309,6 +505,18 @@ const LINES := {
 		"vent": "Exposed vents ran along the ceiling like metallic arteries. Designed to look modern, cutting-edge. It felt like a high-budget waiting room.",
 		"stair_door": "The service stair. Badge-locked at every landing below 86. Nobody used it. The lift knew your name; the stairs didn't want to.",
 		"stair_bottom": "85, service. My badge opened my flat, my office, and my car. Not this. Whoever came up these stairs came up from somewhere I wasn't cleared for.",
+		"fridge_drawing": "Mira's drawing, on the fridge since the spring: her Tower, five figures round a table and her in the middle with the curls. The AI corrected the horses. It left her alone.",
+		"photo": "Red Rock Plaza, the summer the kids were small. Monica squinting, Ezra holding the lion before it was Mira's. The one photo in the flat that was ever printed.",
+		"trophy": "Ezra's recess trophy. Conflict Leadership, grade 5. He polished it with his sleeve every night for a week.",
+		"traded": "A clean shape in the dust where it had been. I knew what had been there. I had paid with it.",
+		"lynx": "She was looking at the lift, not at me.",
+		"garage_lift": "The residents' lift. It would say my name on the way up. It always did.",
+		"mira_door3": "Her door, open. She'd be at the observation site tonight, under GalileoBot's stars. The room smelled of her anyway.",
+		"mira_door4": "Her door. Six nights since the circle. The room hadn't changed. I had.",
+		"circle3": "The circle was still there. Nobody had wanted to be the one to sweep it up.",
+		"tablet3": "Her tablet, still in the circle, dark. I had put it down and held her instead. She keeps the Tower.",
+		"couch3": "Not now. Mira's room first.",
+		"ezra_dark": "Ezra's room, dark. The observatory had him too.",
 		"neighbour": "Another designated unit. Residence Hall 45C ran A to G on this floor and I'd never seen one of these doors open. Everyone was home. Nobody was in.",
 	},
 	"scan": {
@@ -316,6 +524,7 @@ const LINES := {
 		"mira1": "DRAKE, MIRA\nPsyon Junior  -  sync 94%",
 		"mira2": "DRAKE, MIRA\nPsyon Junior  -  sync 100%  -  DREAMING",
 		"ezra": "DRAKE, EZRA\nPsyon Junior  -  sync 62%\nfree-thought pass: ACTIVE",
+		"monica4": "DRAKE, MONICA\nPsyon 4.1  -  sync 100%\nmood: RESOLVED",
 	},
 	"phone": {
 		"home1": "[color=#7fe6b0]Psyon:[/color] Welcome home, Carl. 86D is at 21 degrees. Monica is on 350.\n\n",
@@ -323,11 +532,34 @@ const LINES := {
 		"council": "[color=#7fe6b0]Psyon:[/color] Mira's council session has been logged for BreathBot review. Well done, Dad.\n\n",
 		"offline": "[color=#7fe6b0]Psyon:[/color] Mira's tablet has been offline since 15:52.\n\n",
 		"never": "[color=#e08080]Psyon:[/color] We have never spoken before.\n\n",
+		"home3": "[color=#7fe6b0]Psyon:[/color] Welcome home, Carl. 86D is at 21 degrees. Mira and Ezra are at the observation site. Monica is home.\n\n",
+		"home4": "[color=#7fe6b0]Psyon:[/color] Welcome home, Carl. Day 6. Monica is home.\n\n",
 	},
 }
 
 
 var second := false        # the second evening (ch. 6)
+var third := false         # Act 2: the drive back and the blackout (ch. 15)
+var fourth := false        # Act 2: Monica's choice and the leaves
+var _env: Environment
+var garage: Node3D
+var car3: Node3D
+var lynx: Node3D
+var drawing: Node3D        # the four memories the fork can take in trade
+var photo: Node3D
+var trophy: Node3D
+var lion_node: Node3D
+var autumn: Node3D
+var other_carl: Node3D
+var eye_rig: Node3D
+var eye_sprite: Sprite3D
+var cage: Node3D
+var torch: OmniLight3D
+var monica_bag: Node3D
+var ezra_lights: Array = []
+var _blacked := false
+var _eye_cam := Vector3.ZERO
+var _hum_t := 0.0
 var _wall: StandardMaterial3D
 var _trim: StandardMaterial3D
 var _stick_m: StandardMaterial3D
@@ -371,12 +603,19 @@ var _saved := {}
 func build(m: Node) -> void:
 	main = m
 	rng.seed = 86
-	second = main.flags.has("southtown_done")
+	var f: Dictionary = main.flags
+	fourth = f.has("broadcast_seen") and not f.has("home4_done")
+	third = not fourth and f.has("hangar_done") and not f.has("home3_done")
+	second = not fourth and not third and f.has("southtown_done")
 	kit_day = false
 	spawn = Vector3(30.0, 0.05, 0.6)
 	spawn_yaw = 90.0
+	if third:
+		# the drive back ends in the car, in the garage
+		spawn = GARAGE + Vector3(-0.42, 0.05, -3.9)
+		spawn_yaw = 0.0
 	step_db = -21.0
-	card = LINES["card"]["second" if second else "first"]
+	card = LINES["card"]["fourth" if fourth else ("third" if third else ("second" if second else "first"))]
 	_wall = pbr("plaster", Vector3(1, 1, 1) / 2.2, true, Color(0.82, 0.8, 0.76))
 	_trim = mat(Color(0.32, 0.26, 0.2), 0.55)
 	_stick_m = mat(Color(0.42, 0.33, 0.22), 0.9)
@@ -393,7 +632,40 @@ func build(m: Node) -> void:
 	_corridor()
 	_city_outside()
 	_hidden_scenes()
+	_memories()
+	if third:
+		_garage()
 	_family()
+	# the eye off the sketchbook page, and its cage; the frames' flashlight
+	eye_rig = Node3D.new()
+	eye_rig.visible = false
+	add_child(eye_rig)
+	eye_sprite = Sprite3D.new()
+	eye_sprite.texture = _glyph_tex
+	eye_sprite.pixel_size = 0.0022
+	eye_sprite.modulate = Color(1.0, 0.15, 0.1)
+	eye_sprite.double_sided = true
+	eye_rig.add_child(eye_sprite)
+	cage = Node3D.new()
+	cage.visible = false
+	eye_rig.add_child(cage)
+	var bar := glow(Color(0.9, 0.95, 1.0), 1.6)
+	for i in 8:
+		var a := i * TAU / 8.0
+		box(Vector3(0.012, 0.42, 0.012), Vector3(cos(a) * 0.2, 0, sin(a) * 0.2), bar, false, cage)
+	for y: float in [-0.21, 0.21]:
+		var ring := TorusMesh.new()
+		ring.inner_radius = 0.195
+		ring.outer_radius = 0.21
+		ring.rings = 24
+		ring.ring_segments = 6
+		mesh(ring, Vector3(0, y, 0), bar, cage)
+	torch = OmniLight3D.new()
+	torch.light_color = Color(0.85, 0.9, 1.0)
+	torch.light_energy = 0.0
+	torch.omni_range = 7.0
+	torch.visible = false
+	add_child(torch)
 	_batch(self, 6.0, true)
 
 
@@ -411,12 +683,22 @@ func setup_env(env: Environment, sun: DirectionalLight3D) -> void:
 	env.sky.sky_material = _sky
 	env.ambient_light_color = Color(0.22, 0.18, 0.26)
 	env.ambient_light_energy = 0.3
+	_env = env
+	if third:
+		# 22:00: the sunset is long gone; the city lights the sky from below
+		_sky.sky_horizon_color = Color(0.14, 0.07, 0.1)
+		_sky.ground_horizon_color = Color(0.1, 0.05, 0.08)
+		_sky.sky_top_color = Color(0.01, 0.01, 0.03)
+		env.ambient_light_color = Color(0.18, 0.17, 0.26)
+		env.ambient_light_energy = 0.22
 	env.fog_light_color = Color(0.12, 0.07, 0.09)
 	env.fog_density = 0.0012
 	env.fog_sky_affect = 0.25
 	env.glow_hdr_threshold = 0.95
-	sun.light_color = Color(1.0, 0.5, 0.25)
+	sun.light_color = Color(1.0, 0.5, 0.25) if not third else Color(0.45, 0.5, 0.8)
 	sun.light_energy = 0.32 if not second else 0.22
+	if third:
+		sun.light_energy = 0.07
 	sun.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_AND_SKY
 	sun.rotation = Vector3(deg_to_rad(-9), deg_to_rad(-88), 0)
 	# 80 m so the stairwell's far wall still casts a shadow from the lift lobby;
@@ -705,7 +987,7 @@ func _mira_room() -> void:
 	interactable("mira_door", "Mira's door", Vector3(0.5, 1.02, 0), Vector3(1.0, 2.05, 0.1), "", true, mira_door)
 	for c in mira_door.get_children():
 		no_batch.append(c)
-	mira_door.rotation.y = -1.85 if not second else -0.85   # open before bed; ajar, "a sliver of dim light", "a sliver of dim light"
+	mira_door.rotation.y = -0.85 if (second or fourth) else -1.85   # open before bed; ajar, "a sliver of dim light", "a sliver of dim light"
 	# the bed against the north wall, the lion on the pillow
 	var bp := Vector3(9.5, 0, -11.05)
 	var frame := mat(Color(0.9, 0.88, 0.85), 0.6)
@@ -718,17 +1000,19 @@ func _mira_room() -> void:
 	var lion := mat(Color(0.85, 0.62, 0.25), 0.9)
 	var mane := mat(Color(0.5, 0.3, 0.12), 0.9)
 	var lp := bp + Vector3(0.3, 0.68, -0.6)
-	sphere(0.09, lp, lion, 10).scale = Vector3(1.0, 0.8, 1.3)
-	sphere(0.07, lp + Vector3(0, 0.08, -0.1), lion, 10)
-	sphere(0.095, lp + Vector3(0, 0.08, -0.08), mane, 10).scale = Vector3(1.0, 1.0, 0.5)
+	lion_node = Node3D.new()
+	add_child(lion_node)
+	sphere(0.09, lp, lion, 10, lion_node).scale = Vector3(1.0, 0.8, 1.3)
+	sphere(0.07, lp + Vector3(0, 0.08, -0.1), lion, 10, lion_node)
+	sphere(0.095, lp + Vector3(0, 0.08, -0.08), mane, 10, lion_node).scale = Vector3(1.0, 1.0, 0.5)
 	for x: float in [-0.03, 0.03]:
-		box(Vector3(0.012, 0.012, 0.005), lp + Vector3(x, 0.1, -0.17), mat(Color(0.02, 0.02, 0.02), 0.2))
+		box(Vector3(0.012, 0.012, 0.005), lp + Vector3(x, 0.1, -0.17), mat(Color(0.02, 0.02, 0.02), 0.2), false, lion_node)
 	interactable("mira_bed", "Mira's bed", bp + Vector3(0, 0.6, 0), Vector3(1.1, 0.5, 1.9), "", false)
 	# the moon nightlight on the east wall, amber. "In case something looks at me."
 	var np := Vector3(11.42, 0.9, -10.2)
 	sphere(0.09, np, glow(Color(1.0, 0.62, 0.25), 1.6, true), 12)
 	sphere(0.085, np + Vector3(-0.015, 0.04, 0.06), mat(Color(0.86, 0.85, 0.82), 0.6), 12)
-	night_light = light(np + Vector3(-0.3, -0.1, 0), Color(1.0, 0.6, 0.3), 1.3 if second else 0.7, 6.5, false)
+	night_light = light(np + Vector3(-0.3, -0.1, 0), Color(1.0, 0.6, 0.3), 1.3 if (second or third) else 0.7, 6.5, false)
 	interactable("nightlight", "Look at the nightlight", np, Vector3(0.3, 0.3, 0.3), "", false)
 	# her desk on the west wall, the shelf with what a child keeps
 	var desk := mat(Color(0.92, 0.9, 0.86), 0.5)
@@ -740,7 +1024,13 @@ func _mira_room() -> void:
 	for i in 5:
 		box(Vector3(0.05, 0.22, 0.03), Vector3(7.72, 1.73, -10.9 + i * 0.1), mat(Color(0.3 + i * 0.1, 0.4, 0.8 - i * 0.1), 0.8))
 	sphere(0.07, Vector3(7.72, 1.69, -9.8), mat(Color(0.9, 0.3, 0.5), 0.7), 8)
-	if not second:
+	if third:
+		# the drawer under her desk, and what is in it
+		box(Vector3(0.42, 0.08, 0.3), Vector3(7.8, 0.64, -8.3), desk)
+		box(Vector3(0.1, 0.01, 0.01), Vector3(7.8, 0.64, -8.14), mat(Color(0.3, 0.3, 0.32), 0.4, 0.5))
+		interactable("sketchbook", "The drawer under her desk", Vector3(7.8, 0.6, -8.3), Vector3(0.5, 0.3, 0.5),
+			"AI MARBLE SKETCHPAD\nPsyonic Education\npages: 31  -  last edit: Day 2", false)
+	if not second and not third and not fourth:
 		# a bundle of twigs on her shelf, tied with a hair-tie; her tablet on the desk
 		for i in 6:
 			var a := Vector3(7.72, 1.64, -9.6 + rng.randf_range(-0.02, 0.02))
@@ -754,6 +1044,10 @@ func _mira_room() -> void:
 			"MIRA'S TABLET\nPsyonic Education - grade 6\nlast app: PSYON (THE TOWER)", false).set_meta("hackable", true)
 	else:
 		_circle()
+		if not second:
+			# from Day 3: the circle, the tablet or its absence, the shards
+			tablet.visible = main.flags.has("mira_keeps_tower")
+			shards.visible = main.flags.has("tablet_smashed")
 	# a dim ceiling light, off in the second evening ("the low amber light")
 	light(Vector3(9.5, H - 0.2, -9.6), Color(1.0, 0.9, 0.8), 0.0 if second else 0.6, 4.5)
 
@@ -870,7 +1164,7 @@ func _ezra_room() -> void:
 	box(Vector3(0.9, 1.2, 0.03), Vector3(11.44, 1.5, -3.2), mat(Color(0.05, 0.06, 0.1), 0.6))
 	neon_text("PSYON\nJUNIOR", Vector3(11.42, 1.6, -3.2), -PI / 2.0, 0.17, Color(0.3, 0.95, 0.7), 1.6, self)
 	neon_text("dream big, little dreamer", Vector3(11.42, 1.1, -3.2), -PI / 2.0, 0.05, Color(0.9, 0.9, 0.9), 1.3, self)
-	light(Vector3(11.0, 1.5, -3.2), Color(0.3, 0.9, 0.75), 0.55, 4.0)
+	ezra_lights.append(light(Vector3(11.0, 1.5, -3.2), Color(0.3, 0.9, 0.75), 0.55, 4.0))
 	var robot := mat(Color(0.85, 0.3, 0.2), 0.5, 0.3)
 	box(Vector3(0.14, 0.18, 0.1), Vector3(8.0, 0.09, -4.4), robot)
 	box(Vector3(0.1, 0.1, 0.1), Vector3(8.0, 0.23, -4.4), robot)
@@ -878,7 +1172,10 @@ func _ezra_room() -> void:
 	box(Vector3(0.3, 0.03, 1.4), Vector3(7.72, 1.6, -3.0), mat(Color(0.92, 0.9, 0.86), 0.5))
 	for i in 6:
 		box(Vector3(0.05, 0.24, 0.03), Vector3(7.72, 1.74, -3.6 + i * 0.09), mat(Color(0.2, 0.25 + i * 0.08, 0.45), 0.8))
-	light(Vector3(9.5, H - 0.2, -3.4), Color(1.0, 0.9, 0.8), 0.5, 4.5)
+	ezra_lights.append(light(Vector3(9.5, H - 0.2, -3.4), Color(1.0, 0.9, 0.8), 0.5, 4.5))
+	if fourth and not main.flags.has("ezra_home"):
+		for l in ezra_lights:
+			(l as OmniLight3D).light_energy = 0.0
 
 
 # ------------------------------------------------------------------ the balcony
@@ -913,7 +1210,7 @@ func _balcony() -> void:
 				stick(a, a + Vector3(0, 0.02, 0), 0.006, _stick_m)
 	planter_body = interactable("planters", "Look at the planters", Vector3(-7.4, 0.5, -6.85), Vector3(0.8, 0.6, 4.0), "", false)
 	light(Vector3(-7.2, 1.6, -4.5), Color(1.0, 0.45, 0.6), 0.6, 7.0, false)
-	sun_light = light(Vector3(-6.8, 1.8, -4.0), Color(1.0, 0.6, 0.35), 0.55 if not second else 0.35, 8.0, false)
+	sun_light = light(Vector3(-6.8, 1.8, -4.0), Color(1.0, 0.6, 0.35), 0.0 if third else (0.55 if not second else 0.35), 8.0, false)
 
 
 # ------------------------------------------------------------------ the residence corridor
@@ -1232,6 +1529,8 @@ func _hidden_scenes() -> void:
 	_set_350()
 	_set_alley()
 	_set_mira_morning()
+	if fourth:
+		_set_autumn()
 
 
 ## An omni light only the cutscene camera's layer sees.
@@ -1581,7 +1880,25 @@ func _family() -> void:
 	# seated at the table: Mira north-west, Ezra north-east, facing the glass
 	_seat(mira, TABLE + Vector3(-0.45, 0, -0.75), PI)
 	_seat(ezra, TABLE + Vector3(0.45, 0, -0.75), PI)
-	if second:
+	if third or fourth:
+		# the kids are at the observation site. Ezra is home on Day 6 only if the flags say so
+		_hide(mira)
+		if not (fourth and main.flags.has("ezra_home")):
+			_hide(ezra)
+	if fourth:
+		# packing a small bag on the table, humming
+		monica.position = TABLE + Vector3(-0.2, 0, 1.25)
+		monica.rotation.y = 0.0
+		for a in monica.get_meta("arms"):
+			(a as Node3D).rotation.x = 1.0
+		monica.set_meta("packing", true)
+		monica_bag = Node3D.new()
+		monica_bag.position = TABLE + Vector3(-0.2, 0.78, 0.35)
+		add_child(monica_bag)
+		box(Vector3(0.5, 0.28, 0.26), Vector3.ZERO, mat(Color(0.14, 0.13, 0.15), 0.8), false, monica_bag)
+		box(Vector3(0.3, 0.03, 0.03), Vector3(0, 0.16, 0), mat(Color(0.1, 0.1, 0.1), 0.6), false, monica_bag)
+		box(Vector3(0.22, 0.04, 0.2), Vector3(0.36, -0.12, 0.05), mat(Color(0.55, 0.18, 0.28), 0.9), false, monica_bag)
+	elif second:
 		_seat(monica, TABLE + Vector3(0.45, 0, 0.75), 0.0)
 	else:
 		# in the kitchen, arms crossed, before Carl can shut the door
@@ -1717,6 +2034,16 @@ func tick(delta: float) -> void:
 			# the measured rhythm: she rocks, very slightly, over the circle
 			(mira_floor.get_meta("body") as Node3D).rotation.x = -0.22 + sin(_t * 1.7) * 0.03
 			hd.rotation.x = -0.4 + sin(_t * 1.7) * 0.02
+	# the frames' flashlight, in the dark
+	if _blacked and torch:
+		var cam: Node3D = main.player.cam
+		torch.global_position = cam.global_position - cam.global_transform.basis.z * 0.4
+	# Monica hums the lullaby while she packs
+	if fourth and monica.visible and monica.has_meta("packing"):
+		_hum_t -= delta
+		if _hum_t <= 0.0:
+			_hum_t = rng.randf_range(4.0, 7.0)
+			main.play("hum", -20.0, rng.randf_range(1.6, 2.1))
 	# the lens: a red pinprick that is not always there
 	if lens_dot:
 		lens_dot.visible = fmod(_t, 7.0) < 0.12 or (second and fmod(_t, 2.3) < 0.08)
@@ -1745,8 +2072,22 @@ func _play(beat: String, key: String) -> void:
 func objective() -> String:
 	var f: Dictionary = main.flags
 	var o: Dictionary = LINES["objective"]
+	if third and not f.has("drive3_done"):
+		return o["drive"]
 	if not f.has("home_in"):
 		return o["badge"]
+	if third:
+		if f.has("home3_done"):
+			return ""
+		if f.has("home_monica3"):
+			return o["mira3"]
+		return o["monica3"]
+	if fourth:
+		if f.has("home4_done"):
+			return ""
+		if f.has("monica_choice_done"):
+			return o["sleep4"]
+		return o["monica4"]
 	if second:
 		if _ended:
 			return ""
@@ -1764,9 +2105,12 @@ func objective() -> String:
 
 func intro() -> void:
 	var ui = main.ui
+	if third:
+		await _drive()
+		return
 	await get_tree().create_timer(0.5).timeout
 	main.play("ding", -10.0, 1.2)
-	await _play("lift", "second" if second else "first")
+	await _play("lift", "fourth" if fourth else ("second" if second else "first"))
 	ui.close()
 
 
@@ -1776,7 +2120,7 @@ func _enter() -> void:
 	var f: Dictionary = main.flags
 	var p = main.player
 	if f.has("home_in"):
-		await ui.think(L("examine", "exit2" if second else "exit1"))
+		await ui.think(L("examine", "exit2" if (second or third) else "exit1"))
 		return
 	f["home_in"] = true
 	f["cinematic"] = true
@@ -1792,7 +2136,11 @@ func _enter() -> void:
 	p.seated = false
 	_slide_door(false)
 	f.erase("cinematic")
-	if second:
+	if fourth:
+		await _intro_fourth()
+	elif third:
+		await _intro_third()
+	elif second:
 		await _intro_second()
 	else:
 		await _intro_first()
@@ -1802,7 +2150,9 @@ func scan_people() -> Array:
 	var out := []
 	var sc: Dictionary = LINES["scan"]
 	if monica.visible:
-		out.append([monica, sc["monica"]])
+		out.append([monica, sc["monica4"] if fourth else sc["monica"]])
+	if lynx and lynx.visible:
+		out.append([lynx, "LYNX (ANALYST, PSYONIC)\nORA gen 6\nsync: 71%  -  AWAKE"])
 	if mira.visible:
 		out.append([mira, sc["mira2"] if second else sc["mira1"]])
 	if ezra.visible:
@@ -1815,7 +2165,7 @@ func scan_people() -> Array:
 func phone() -> String:
 	var f: Dictionary = main.flags
 	var ph: Dictionary = LINES["phone"]
-	var t: String = ph["home2" if second else "home1"]
+	var t: String = ph["home4" if fourth else ("home3" if third else ("home2" if second else "home1"))]
 	if not second and f.has("home_mira1"):
 		t += ph["council"]
 	if second:
@@ -1832,10 +2182,23 @@ func interact(node: Object) -> bool:
 	var id := str(node.get_meta("id"))
 	match id:
 		"monica":
-			if second:
+			if fourth:
+				await _monica_fourth()
+			elif third:
+				await _monica_third()
+			elif second:
 				await _monica_second()
 			else:
 				await _monica_first()
+		"lynx", "garage_lift":
+			await ui.think(ex[id])
+		"fridge_drawing", "photo", "trophy":
+			var traded := {"fridge_drawing": "traded_drawing", "photo": "traded_photo", "trophy": "traded_trophy"}
+			await ui.think(ex["traded"] if f.has(traded[id]) else ex[id])
+		"mira_bed":
+			await ui.think(ex["traded"] if f.has("traded_lion") else ex["mira_bed"])
+		"sketchbook":
+			await _sketchbook()
 		"mira":
 			if second:
 				await ui.say("Mira", L("dinner2", "nothing"))
@@ -1847,7 +2210,9 @@ func interact(node: Object) -> bool:
 			else:
 				await ui.think(ex["mira_back"])
 		"ezra":
-			if second:
+			if fourth:
+				await _play("home4", "ezra")
+			elif second:
 				await _ezra_second()
 			else:
 				await _ezra_first()
@@ -1871,6 +2236,10 @@ func interact(node: Object) -> bool:
 		"mira_door":
 			if second and not _ritual_started:
 				await _ritual()
+			elif fourth:
+				await ui.think(ex["mira_door4"])
+			elif third:
+				await ui.think(ex["mira_door3"])
 			elif second:
 				await ui.think(ex["mira_door2"])
 			else:
@@ -1880,14 +2249,28 @@ func interact(node: Object) -> bool:
 			if second:
 				main.add_connection(1.0, L("toast", "nightlight"))
 		"tablet":
-			if f.has("ritual_in_room") and not _ended:
+			if second and f.has("ritual_in_room") and not _ended:
 				await _take_tablet()
+			elif not second:
+				await ui.think(ex["tablet3"])
+		"circle":
+			await ui.think(ex["circle3" if not second else "circle"])
+		"ezra_door", "ezra_bed":
+			await ui.think(ex["ezra_dark"] if (fourth and not f.has("ezra_home")) else ex["ezra_bed"])
 		"bedroom_door":
 			await ui.think(ex["bedroom2" if second else "bedroom1"])
 		"front_door":
 			await _enter()
 		"couch":
-			await _couch()
+			if fourth:
+				if f.has("monica_choice_done") and not _ended:
+					await _leaves_dream()
+				else:
+					await ui.think(L("home4", "packing") if not f.has("monica_choice_done") else L("home4", "gone"))
+			elif third:
+				await ui.think(ex["couch3"])
+			else:
+				await _couch()
 		"flat_86A", "flat_86B", "flat_86C", "flat_86E", "flat_86F", "flat_86G":
 			await ui.think(ex["neighbour"])
 		_:
@@ -2385,6 +2768,763 @@ func _take_tablet() -> void:
 		await ui.fade_to(0.0, 0.3)
 
 
+# ------------------------------------------------------------------ Act 2: the garage, the memories, the sets
+
+## The tower garage, P2, where the drive back ends (A2-S3). Carl's company
+## car facing the residents' lift; Lynx in the passenger seat until she
+## isn't. Far east of everything else, at ground level.
+func _garage() -> void:
+	garage = Node3D.new()
+	garage.position = GARAGE
+	add_child(garage)
+	var conc := pbr("concrete", Vector3(1, 1, 1) / 2.5, true, Color(0.55, 0.55, 0.56))
+	var dark := mat(Color(0.2, 0.2, 0.22), 0.8)
+	var steel := mat(Color(0.5, 0.52, 0.55), 0.4, 0.7)
+	floor_quad(Vector2(44, 30), Vector3(0, 0, 0), 0.0, pbr("asphalt", Vector3(1, 1, 1) / 2.5, true, Color(0.6, 0.6, 0.62), 0.6), garage)
+	solid_box(Vector3(44, 1, 30), Vector3(0, -0.5, 0), garage)
+	box(Vector3(44, 0.3, 30), Vector3(0, 2.85, 0), dark, false, garage)
+	box(Vector3(44, 2.7, 0.3), Vector3(0, 1.35, -15), conc, true, garage)
+	box(Vector3(44, 2.7, 0.3), Vector3(0, 1.35, 15), conc, true, garage)
+	box(Vector3(0.3, 2.7, 30), Vector3(-22, 1.35, 0), conc, true, garage)
+	box(Vector3(0.3, 2.7, 30), Vector3(22, 1.35, 0), conc, true, garage)
+	for x: float in [-16.0, -8.0, 8.0, 16.0]:
+		for z: float in [-8.0, 0.0, 8.0]:
+			box(Vector3(0.6, 2.7, 0.6), Vector3(x, 1.35, z), conc, true, garage)
+	for x: float in [-14.0, -6.0, 2.0, 10.0]:
+		for z: float in [-10.0, -2.0, 6.0]:
+			box(Vector3(2.6, 0.04, 0.14), Vector3(x + 2.0, 2.68, z), glow(Color(0.85, 0.9, 1.0), 0.9, true), false, garage)
+			light(Vector3(x + 2.0, 2.4, z), Color(0.85, 0.9, 1.0), 0.45, 7.0)
+	# bay lines, a few parked fleet cars, the exhaust fans
+	var paint := mat(Color(0.9, 0.85, 0.3), 0.8)
+	for x: float in [-13.0, -10.0, -7.0, 7.0, 10.0, 13.0]:
+		box(Vector3(0.08, 0.005, 5.5), Vector3(x, 0.004, -9.5), paint, false, garage)
+	for s: Array in [[-11.5, Color(0.75, 0.78, 0.8)], [-8.5, Color(0.2, 0.22, 0.25)], [8.5, Color(0.6, 0.15, 0.12)], [11.5, Color(0.75, 0.78, 0.8)]]:
+		var c: Node3D = Car.build(self, s[1], {"plate": "VLT %d" % int(4400 + absf(s[0]) * 3)})
+		c.position = Vector3(s[0], 0, -9.5)
+		garage.add_child(c)
+	for z: float in [-6.0, 6.0]:
+		cyl(0.6, 0.6, 0.2, Vector3(21.7, 1.8, z), dark, 12, garage).rotation.z = PI / 2.0
+	# the residents' lift on the north wall, a sign over it, a badge reader
+	var lx := Vector3(0, 0, -14.8)
+	box(Vector3(2.2, 2.4, 0.1), lx + Vector3(0, 1.2, 0), steel, false, garage)
+	box(Vector3(0.04, 2.3, 0.12), lx + Vector3(0, 1.15, 0), dark, false, garage)
+	box(Vector3(2.4, 0.12, 0.2), lx + Vector3(0, 2.45, 0.05), dark, false, garage)
+	neon_text("RESIDENCE 45C   -   LIFT", lx + Vector3(0, 2.62, 0.08), 0.0, 0.09, Color(0.3, 0.9, 0.6), 1.5, garage)
+	neon_text("P2", Vector3(-3.0, 2.3, -14.8), 0.0, 0.5, Color(0.9, 0.6, 0.2), 1.4, garage)
+	box(Vector3(0.08, 0.12, 0.03), lx + Vector3(1.35, 1.3, 0.06), mat(Color(0.9, 0.9, 0.88), 0.3, 0.2), false, garage)
+	box(Vector3(0.015, 0.015, 0.015), lx + Vector3(1.35, 1.32, 0.08), glow(Color(0.3, 0.9, 1.0), 2.0, true), false, garage)
+	light(lx + Vector3(0, 2.3, 1.0), Color(0.4, 0.95, 0.7), 0.5, 4.0)
+	interactable("garage_lift", "The residents' lift", lx + Vector3(0, 1.2, 0.1), Vector3(2.2, 2.4, 0.3), "", false, garage)
+	# Carl's car: the inside of it, built round the driver's seat, nose to the lift
+	car3 = Node3D.new()
+	car3.position = Vector3(0, 0, -4.0)
+	garage.add_child(car3)
+	var trim := mat(Color(0.12, 0.12, 0.13), 0.6)
+	var body := mat(Color(0.75, 0.78, 0.8), 0.25, 0.6)
+	box(Vector3(1.9, 0.25, 1.8), Vector3(0, 0.75, -1.9), body, false, car3)
+	box(Vector3(1.7, 0.22, 0.55), Vector3(0, 0.88, -0.75), trim, false, car3)
+	box(Vector3(1.7, 0.06, 0.3), Vector3(0, 1.0, -0.62), mat(Color(0.18, 0.18, 0.2), 0.5), false, car3)
+	var wheel := TorusMesh.new()
+	wheel.inner_radius = 0.15
+	wheel.outer_radius = 0.18
+	wheel.rings = 20
+	wheel.ring_segments = 6
+	mesh(wheel, Vector3(-0.42, 0.98, -0.42), trim, car3).rotation.x = PI / 2.0 - 0.45
+	box(Vector3(0.04, 0.04, 0.3), Vector3(-0.42, 0.93, -0.55), trim, false, car3)
+	for x: float in [-0.82, 0.82]:
+		stick(Vector3(x, 0.98, -0.95), Vector3(x, 1.8, -0.2), 0.035, trim, car3)
+		stick(Vector3(x, 0.98, 0.85), Vector3(x, 1.8, 0.65), 0.04, trim, car3)
+		box(Vector3(0.06, 0.06, 0.9), Vector3(x, 1.8, 0.22), trim, false, car3)
+		box(Vector3(0.08, 0.5, 2.0), Vector3(x * 1.02, 0.7, 0.0), mat(Color(0.2, 0.2, 0.22), 0.7), false, car3)
+	box(Vector3(1.7, 0.05, 0.9), Vector3(0, 1.82, 0.22), mat(Color(0.25, 0.25, 0.26), 0.9), false, car3)
+	box(Vector3(1.7, 0.6, 0.1), Vector3(0, 1.0, 1.0), trim, false, car3)
+	for x: float in [-0.42, 0.42]:
+		box(Vector3(0.55, 0.12, 0.55), Vector3(x, 0.42, 0.1), trim, false, car3)
+		box(Vector3(0.55, 0.7, 0.12), Vector3(x, 0.8, 0.4), trim, false, car3)
+	var scr := quad(Vector2(0.3, 0.17), Vector3(0.12, 1.06, -0.6), 0.0, newglow(Color(0.25, 0.55, 0.5), 1.0), car3)
+	scr.rotation.x = -0.5
+	var dl := label(L("drive", "dash"), Vector3(0.12, 1.06, -0.592), 0.0, 0.00045, Color(0.05, 0.08, 0.08), car3, false)
+	dl.rotation.x = -0.5
+	dl.font_size = 48
+	box(Vector3(0.02, 0.02, 0.01), Vector3(-0.05, 1.04, -0.6), glow(Color(1, 0.1, 0.1), 3.0), false, car3).rotation.x = -0.5
+	# Lynx in the passenger seat, arms folded, looking at the lift and not at him
+	lynx = figure(Color(0.09, 0.08, 0.1), Color(0.88, 0.74, 0.62),
+		{"hair": Color(0.12, 0.08, 0.06), "long_hair": true, "legs": Color(0.1, 0.1, 0.12), "arms": true, "knees": true, "visor": true, "long_coat": true})
+	add_child(lynx)
+	_seat(lynx, GARAGE + Vector3(0.42, 0, -3.9), 0.0)
+	for a in lynx.get_meta("arms"):
+		(a as Node3D).rotation.x = 1.3
+		(a as Node3D).rotation.z = (-0.5 if (a as Node3D).position.x > 0.0 else 0.5)
+	person("lynx", "Lynx", lynx, "LYNX (ANALYST, PSYONIC)\nORA gen 6\nsync: 71%  -  AWAKE")
+	_batch(garage, 12.0, true)
+
+
+## A figure out of a chair and onto its feet.
+func _unseat(f: Node3D) -> void:
+	if f.has_meta("seated"):
+		f.remove_meta("seated")
+	(f.get_meta("body") as Node3D).rotation.x = 0.0
+	for l in f.get_meta("legs"):
+		(l as Node3D).rotation.x = 0.0
+	for k in f.get_meta("knees"):
+		(k as Node3D).rotation.x = 0.0
+	for a in f.get_meta("arms"):
+		(a as Node3D).rotation.x = 0.0
+		(a as Node3D).rotation.z = 0.0
+	f.position.y = 0.0
+
+
+## The four memories the fork can take in trade (bible, "The open city"):
+## Mira's drawing on the fridge, the Red Rock photo, the toy lion, Ezra's
+## recess trophy. Each is gone from the next visit when its flag is set,
+## and leaves a clean rectangle in the dust.
+func _memories() -> void:
+	var f: Dictionary = main.flags
+	# the fridge at the east end of the kitchen run, her Tower drawing on it
+	var steel := mat(Color(0.82, 0.83, 0.85), 0.35, 0.6)
+	box(Vector3(0.8, 1.9, 0.66), Vector3(1.3, 0.95, -8.7), steel, true)
+	box(Vector3(0.03, 0.4, 0.03), Vector3(1.62, 1.3, -8.35), mat(Color(0.3, 0.3, 0.32), 0.4, 0.5))
+	var marks := Node3D.new()
+	add_child(marks)
+	drawing = Node3D.new()
+	add_child(drawing)
+	var dq := quad(Vector2(0.21, 0.28), Vector3(1.22, 1.35, -8.36), 0.0, tex_mat(_sketch_page(0), Vector3.ONE, 0.9), drawing)
+	(dq.material_override as StandardMaterial3D).cull_mode = BaseMaterial3D.CULL_DISABLED
+	box(Vector3(0.025, 0.025, 0.012), Vector3(1.22, 1.5, -8.355), mat(Color(0.9, 0.2, 0.2), 0.5), false, drawing)
+	var dmk := quad(Vector2(0.21, 0.28), Vector3(1.22, 1.35, -8.365), 0.0, mat(Color(0.9, 0.9, 0.92), 0.3, 0.6), marks)
+	dmk.visible = false
+	drawing.set_meta("mark", dmk)
+	interactable("fridge_drawing", "Mira's drawing", Vector3(1.22, 1.35, -8.36), Vector3(0.3, 0.35, 0.1), "", false)
+	# the Red Rock photo, printed and framed, on the side table by the couch
+	var fp := Vector3(-4.2, 0.5, -3.3)
+	photo = Node3D.new()
+	add_child(photo)
+	box(Vector3(0.24, 0.19, 0.02), fp, mat(Color(0.25, 0.2, 0.15), 0.6), false, photo).rotation.y = 0.5
+	quad(Vector2(0.2, 0.15), fp + Vector3(0.006, 0, 0.011), 0.5, tex_mat(_photo_tex(), Vector3.ONE, 0.7), photo)
+	var pm := floor_quad(Vector2(0.14, 0.1), Vector3(-4.2, 0.421, -3.3), 0.5, mat(Color(0.62, 0.5, 0.38), 0.6), marks)
+	pm.visible = false
+	photo.set_meta("mark", pm)
+	interactable("photo", "The photo on the table", fp, Vector3(0.3, 0.25, 0.3), "", false)
+	# Ezra's recess trophy on his shelf
+	var gold := mat(Color(0.85, 0.7, 0.3), 0.35, 0.8)
+	trophy = Node3D.new()
+	trophy.position = Vector3(7.72, 1.62, -2.5)
+	add_child(trophy)
+	box(Vector3(0.12, 0.03, 0.12), Vector3(0, 0.015, 0), mat(Color(0.1, 0.1, 0.1), 0.5), false, trophy)
+	cyl(0.012, 0.012, 0.08, Vector3(0, 0.07, 0), gold, 8, trophy)
+	cyl(0.05, 0.025, 0.08, Vector3(0, 0.15, 0), gold, 10, trophy)
+	for x: float in [-0.06, 0.06]:
+		box(Vector3(0.02, 0.05, 0.01), Vector3(x, 0.15, 0), gold, false, trophy)
+	var tm := floor_quad(Vector2(0.12, 0.12), Vector3(7.72, 1.621, -2.5), 0.0, mat(Color(0.96, 0.95, 0.92), 0.4), marks)
+	tm.visible = false
+	trophy.set_meta("mark", tm)
+	interactable("trophy", "Ezra's trophy", Vector3(7.72, 1.7, -2.5), Vector3(0.25, 0.25, 0.25), "", false)
+	# what has been traded away is gone; from the fourth visit a clean shape marks it
+	var lm := floor_quad(Vector2(0.2, 0.3), Vector3(9.8, 0.621, -11.65), 0.0, mat(Color(0.99, 0.99, 0.97), 0.5), marks)
+	lm.visible = false
+	lion_node.set_meta("mark", lm)
+	for pair: Array in [["traded_drawing", drawing], ["traded_photo", photo], ["traded_lion", lion_node], ["traded_trophy", trophy]]:
+		if f.has(pair[0]):
+			var n: Node3D = pair[1]
+			n.visible = false
+			if n.has_meta("mark"):
+				(n.get_meta("mark") as Node3D).visible = fourth
+
+
+## A page of Mira's sketchbook, in coloured pencil, AI-corrected. 0: the
+## Tower, her council round a table with her in the middle. 1: the same,
+## darker, her place a shadow. 2: the shadow has become the eye.
+func _sketch_page(kind: int) -> ImageTexture:
+	var n := 160
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var r := RandomNumberGenerator.new()
+	r.seed = 61 + kind
+	var paper := 0.9 - kind * 0.12
+	for y in n:
+		for x in n:
+			var v := paper + r.randf_range(-0.05, 0.04)
+			img.set_pixel(x, y, Color(v, v * 0.98, v * 0.93, 1.0))
+	var c := Vector2(n / 2.0, n / 2.0 + 10)
+	var blob := func(p: Vector2, rad: float, col: Color) -> void:
+		for yy in range(int(p.y - rad), int(p.y + rad) + 1):
+			for xx in range(int(p.x - rad), int(p.x + rad) + 1):
+				if xx >= 0 and yy >= 0 and xx < n and yy < n and Vector2(xx, yy).distance_to(p) <= rad + r.randf_range(-0.8, 0.8):
+					img.set_pixelv(Vector2i(xx, yy), col)
+	# the round table, brown, seen from above and a little in front
+	var table := Color(0.5, 0.3, 0.15) if kind < 2 else Color(0.25, 0.18, 0.12)
+	for i in 1400:
+		var a := r.randf() * TAU
+		var d := r.randf()
+		var p := c + Vector2(cos(a) * 46.0 * sqrt(d), sin(a) * 22.0 * sqrt(d))
+		img.set_pixelv(Vector2i(int(p.x), int(p.y)), table)
+	# the council round it: the knight, the bear, the girl with pigtails, two more
+	var cols := [Color(0.5, 0.55, 0.65), Color(0.45, 0.3, 0.15), Color(0.95, 0.8, 0.2), Color(0.3, 0.5, 0.35), Color(0.6, 0.35, 0.55)]
+	for i in 5:
+		var a := -PI * 0.15 - i * PI * 0.7 / 4.0 - PI * 0.25
+		var p := c + Vector2(cos(a) * 54.0, sin(a) * 30.0 - 8.0)
+		var col: Color = cols[i] if kind == 0 else cols[i].darkened(0.35 + kind * 0.15)
+		blob.call(p + Vector2(0, 8), 7.0, col)
+		blob.call(p, 5.0, Color(0.9, 0.75, 0.6) if kind == 0 else Color(0.55, 0.5, 0.45))
+		if i == 2:
+			for s: float in [-6.0, 6.0]:
+				blob.call(p + Vector2(s, 2), 2.5, Color(0.95, 0.85, 0.3))
+	# her, in the middle: curls and freckles. Then a shadow. Then the eye.
+	var mp := c + Vector2(0, -6)
+	if kind == 0:
+		blob.call(mp + Vector2(0, 9), 8.0, Color(0.82, 0.6, 0.75))
+		blob.call(mp, 6.0, Color(0.9, 0.75, 0.6))
+		for i in 9:
+			var a := i * TAU / 9.0
+			blob.call(mp + Vector2(cos(a) * 6.5, sin(a) * 6.5 - 1.5), 2.6, Color(0.08, 0.06, 0.06))
+		for i in 6:
+			img.set_pixelv(Vector2i(int(mp.x + r.randf_range(-3, 3)), int(mp.y + r.randf_range(-1, 3))), Color(0.6, 0.35, 0.25))
+	elif kind == 1:
+		blob.call(mp + Vector2(0, 6), 11.0, Color(0.12, 0.1, 0.12))
+		blob.call(mp, 7.0, Color(0.08, 0.07, 0.09))
+	else:
+		blob.call(mp + Vector2(0, 4), 13.0, Color(0.1, 0.06, 0.07))
+		var red := Color(0.85, 0.08, 0.05, 1.0)
+		for i in 300:
+			var a := i * TAU / 300.0
+			var p := mp + Vector2(cos(a) * 24.0, sin(a) * 13.0) + Vector2(r.randf_range(-1.0, 1.0), r.randf_range(-1.0, 1.0))
+			img.set_pixelv(Vector2i(int(p.x), int(p.y)), red)
+		var t := 0.0
+		while t < 7.0 * TAU:
+			var p := mp + Vector2(cos(t), sin(t)) * t * 0.28
+			if p.x >= 0 and p.y >= 0 and p.x < n and p.y < n:
+				img.set_pixelv(Vector2i(int(p.x), int(p.y)), red)
+			t += 0.04
+	# the caption in her hand, a wobbly line of pencil at the top
+	for x in range(30, 130):
+		if r.randf() < 0.6:
+			img.set_pixelv(Vector2i(x, 18 + int(sin(x * 0.4) * 1.5)), Color(0.2, 0.2, 0.25))
+	img.generate_mipmaps()
+	return ImageTexture.create_from_image(img)
+
+
+## The one printed photo in the flat: Red Rock Plaza, the summer the kids
+## were small, four small figures against the orange rock.
+func _photo_tex() -> ImageTexture:
+	var w := 160
+	var h := 120
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var r := RandomNumberGenerator.new()
+	r.seed = 7
+	for y in h:
+		for x in w:
+			var t := float(y) / h
+			var col := Color(0.95, 0.75, 0.45).lerp(Color(0.55, 0.3, 0.2), t) if y < 70 else Color(0.8, 0.45, 0.25).lerp(Color(0.5, 0.28, 0.18), (y - 70) / 50.0)
+			if y > 40 and y < 70 and absf(sin(x * 0.11) * 14.0 + 55.0 - y) < 3.0:
+				col = Color(0.6, 0.3, 0.2)
+			img.set_pixel(x, y, col + Color(r.randf_range(-0.03, 0.03), 0, 0, 0))
+	for s: Array in [[52.0, 18.0, Color(0.55, 0.18, 0.28)], [70.0, 19.0, Color(0.2, 0.22, 0.26)], [88.0, 11.0, Color(0.82, 0.6, 0.75)], [102.0, 9.0, Color(0.2, 0.45, 0.32)]]:
+		for yy in range(int(100 - s[1] * 2.0), 100):
+			for xx in range(int(s[0] - 3), int(s[0] + 3)):
+				img.set_pixelv(Vector2i(xx, yy), s[2])
+		for yy in range(int(100 - s[1] * 2.0 - 5), int(100 - s[1] * 2.0)):
+			for xx in range(int(s[0] - 2), int(s[0] + 2)):
+				img.set_pixelv(Vector2i(xx, yy), Color(0.86, 0.68, 0.56))
+	img.generate_mipmaps()
+	return ImageTexture.create_from_image(img)
+
+
+## The leaves (A2-B6's dream): the woods in autumn, gold and red, a pile of
+## leaves with Monica and Mira in it, and a second Carl beside them who
+## carries whatever was traded. Layer 20.
+func _set_autumn() -> void:
+	var f: Dictionary = main.flags
+	autumn = Node3D.new()
+	autumn.position = Vector3(0, -60, 580)
+	add_child(autumn)
+	floor_quad(Vector2(40, 40), Vector3.ZERO, 0.0, pbr("grass", Vector3(1, 1, 1) / 2.0, true, Color(0.55, 0.42, 0.22)), autumn)
+	var bark := pbr("bark", Vector3(1, 1, 1) / 1.5, true)
+	var leaves := [mat(Color(0.85, 0.55, 0.12), 0.9), mat(Color(0.75, 0.25, 0.1), 0.9), mat(Color(0.9, 0.7, 0.2), 0.9)]
+	for p: Vector3 in [Vector3(-4, 0, -6), Vector3(4.5, 0, -7), Vector3(-6, 0, 1), Vector3(6, 0, 2), Vector3(0, 0, -11), Vector3(-2, 0, -15), Vector3(5, 0, -13), Vector3(-8, 0, -9)]:
+		tree(p, rng.randf_range(5.0, 7.0), bark, leaves, autumn)
+	# the pile, and leaves on the ground
+	for i in 90:
+		var a := rng.randf() * TAU
+		var d := rng.randf()
+		var lm: Material = leaves[i % 3]
+		var s := sphere(rng.randf_range(0.14, 0.3), Vector3(cos(a) * 1.6 * d, 0.1 + (1.0 - d) * 0.5 + rng.randf_range(0, 0.15), -3.2 + sin(a) * 1.2 * d), lm, 6, autumn)
+		s.scale = Vector3(1.0, 0.55, 1.0)
+	for i in 80:
+		var s := sphere(rng.randf_range(0.06, 0.12), Vector3(rng.randf_range(-8, 8), 0.02, rng.randf_range(-12, 3)), leaves[i % 3], 5, autumn)
+		s.scale = Vector3(1.0, 0.3, 1.0)
+	# Monica and Mira, half-sunk in it, laughing; the other Carl, standing
+	var mon := figure(Color(0.55, 0.18, 0.28), Color(0.86, 0.68, 0.56), {"hair": Color(0.06, 0.05, 0.05), "long_hair": true, "legs": Color(0.12, 0.12, 0.14), "arms": true, "knees": true, "long_coat": false})
+	mon.position = Vector3(-0.5, -0.25, -3.3)
+	autumn.add_child(mon)
+	turn_to(mon, autumn.position + Vector3(0.4, 0, 2.0))
+	for a in mon.get_meta("arms"):
+		(a as Node3D).rotation.x = 2.4
+		(a as Node3D).rotation.z = (-0.6 if (a as Node3D).position.x > 0.0 else 0.6)
+	(mon.get_meta("head") as Node3D).rotation.x = -0.3
+	var mi := figure(Color(0.82, 0.6, 0.75), Color(0.86, 0.68, 0.56), {"hair": Color(0.06, 0.05, 0.05), "long_hair": true, "legs": Color(0.82, 0.6, 0.75), "arms": true, "knees": true, "scale": 0.62, "long_coat": false})
+	mi.position = Vector3(0.45, -0.3, -3.0)
+	autumn.add_child(mi)
+	turn_to(mi, autumn.position + Vector3(0, 0, 2.0))
+	for a in mi.get_meta("arms"):
+		(a as Node3D).rotation.x = 2.6
+	other_carl = figure(Color(0.2, 0.22, 0.27), Color(0.86, 0.7, 0.58), {"hair": Color(0.35, 0.22, 0.12), "arms": true, "knees": true, "long_coat": true})
+	other_carl.position = Vector3(1.9, 0, -2.4)
+	autumn.add_child(other_carl)
+	turn_to(other_carl, autumn.position + Vector3(0.6, 0, -3.2))
+	for a in other_carl.get_meta("arms"):
+		(a as Node3D).rotation.x = 0.9
+	# what he carries is what was traded
+	var hand := Vector3(0.0, 0.95, -0.32)
+	var traded := 0
+	if f.has("traded_lion"):
+		sphere(0.09, hand + Vector3(-0.1, 0, 0), mat(Color(0.85, 0.62, 0.25), 0.9), 8, other_carl).scale = Vector3(1.0, 0.8, 1.3)
+		traded += 1
+	if f.has("traded_photo"):
+		box(Vector3(0.24, 0.19, 0.02), hand + Vector3(0.1, 0.05, 0), mat(Color(0.25, 0.2, 0.15), 0.6), false, other_carl)
+		traded += 1
+	if f.has("traded_drawing"):
+		quad(Vector2(0.21, 0.28), hand + Vector3(0.0, 0.1, 0.02), 0.0, tex_mat(_sketch_page(0), Vector3.ONE, 0.9), other_carl)
+		traded += 1
+	if f.has("traded_trophy"):
+		cyl(0.05, 0.025, 0.08, hand + Vector3(0.12, -0.02, 0), mat(Color(0.85, 0.7, 0.3), 0.35, 0.8), 8, other_carl)
+		traded += 1
+	other_carl.set_meta("carries", traded)
+	_set_light(autumn, Vector3(2, 6, -2), Color(1.0, 0.85, 0.6), 2.2, 18.0)
+	_set_light(autumn, Vector3(-3, 3, 0), Color(1.0, 0.6, 0.3), 1.2, 9.0)
+	_batch(autumn, 20.0)
+	_set_layer(autumn, 1 << 19)
+
+
+# ------------------------------------------------------------------ visit 3 (A2-S3, ch. 15): the drive, the blackout
+
+## The drive back from the hangar, in the garage. Lynx: "Well, Mimic, what
+## do we do now?" The insurgency forms; she gets out at the lift.
+func _drive() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	f["cinematic"] = true
+	p.seated = true
+	p.crouch = 0.45
+	await get_tree().create_timer(0.8).timeout
+	await _play("drive", "open")
+	ui.close()
+	await p.face(lynx.global_position + Vector3(0, 1.25, 0), 0.9)
+	await ui.say("Lynx", L("drive", "mimic"))
+	await _play("drive", "exchange")
+	var pick: int = await ui.choose(LINES["drive"]["choices"])
+	match pick:
+		0:
+			await _play("drive", "mirror")
+			main.add_trust("lynx", 1)
+		1:
+			await _play("drive", "the_plan")
+			main.add_trust("lynx", 1)
+			main.add_stance("investigator")
+		2:
+			await ui.think(L("drive", "nothing"))
+	await _play("drive", "spoons")
+	ui.close()
+	f["drive3_done"] = true
+	if int(main.trust.get("lynx", 0)) >= 2:
+		f["lynx_calls_day5"] = true
+	# she gets out, and walks to the lift without looking back
+	main.play("door", -10.0, 0.9)
+	_unseat(lynx)
+	lynx.position = GARAGE + Vector3(1.3, 0, -3.6)
+	_walk(lynx, [GARAGE + Vector3(1.6, 0, -8.0), GARAGE + Vector3(0.3, 0, -13.9)], 1.2)
+	await p.face(GARAGE + Vector3(0.3, 1.5, -13.9), 1.2)
+	await ui.think(L("drive", "gone"))
+	ui.close()
+	await _arrived(lynx)
+	main.play("ding", -14.0, 1.1)
+	_hide(lynx)
+	await ui.think(L("drive", "tower"))
+	ui.close()
+	await ui.fade_to(1.0, 1.2)
+	p.crouch = 0.0
+	p.seated = false
+	p.position = Vector3(30.0, 0.05, 0.6)
+	p.yaw = deg_to_rad(90.0)
+	p.rotation.y = p.yaw
+	p.pitch = 0.0
+	f.erase("cinematic")
+	main.update_hud()
+	await ui.fade_to(0.0, 1.0)
+	main.play("ding", -10.0, 1.2)
+	await _play("lift", "third")
+	ui.close()
+
+
+func _intro_third() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	f["cinematic"] = true
+	await ui.think(L("home3", "door"))
+	await ui.say("Carl", L("home3", "im_home"))
+	ui.close()
+	await p.face(monica.global_position + Vector3(0, 1.55, 0), 0.8)
+	f.erase("cinematic")
+	await _monica_third()
+
+
+## "Where the fuck have you been?" Marcus is dead; the belief-layer
+## confrontation; the three hummed notes; "I think we're being watched."
+func _monica_third() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	if f.has("home_monica3"):
+		await ui.think(L("home3", "gone"))
+		return
+	f["home_monica3"] = true
+	f["cinematic"] = true
+	await ui.say("Monica", L("home3", "where"))
+	await _play("home3", "retreat")
+	await ui.say("Monica", L("home3", "furious" if f.has("tablet_smashed") else "furious_alt"))
+	await _play("home3", "marcus")
+	ui.close()
+	var pick: int = await ui.choose(LINES["home3"]["choices"])
+	match pick:
+		0:
+			await ui.say("Carl", L("home3", "tell_all"))
+			f["told_monica_everything"] = true
+		1:
+			await ui.say("Carl", L("home3", "tell_cult"))
+			f["told_monica_cult"] = true
+		2:
+			await ui.say("Carl", L("home3", "tell_rituals"))
+			f["told_monica_rituals"] = true
+	await _play("home3", "twig")
+	if int(main.trust.get("monica", 0)) >= 1:
+		await _play("home3", "admits")
+		f["monica_knew_clue"] = true
+		main.log_line("clue", L("toast", "monica_knew"))
+	else:
+		await _play("home3", "deflects")
+		if pick == 0:
+			await _play("home3", "eren_office")
+		await ui.say("Monica", L("home3", "overreacting"))
+	# the three notes, under her breath. The NICU song.
+	main.play("hum", -14.0, 1.9)
+	await ui.think(L("home3", "notes"))
+	f["lullaby_monica"] = true
+	main.learn(L("home3", "song_word"))
+	await ui.say("Monica", L("home3", "path"))
+	await ui.think(L("home3", "mouthed"))
+	ui.glitch(0.3, 0.6)
+	await ui.say("Monica", L("home3", "watched"))
+	await ui.think(L("home3", "inside"))
+	await _play("home3", "upstairs")
+	ui.close()
+	_walk(monica, [Vector3(-0.6, 0, -4.6), Vector3(-0.4, 0, -1.3), Vector3(0, 0, 0.6), Vector3(0, 0, 3.2), Vector3(5.2, 0, 3.6)], 1.2)
+	await get_tree().create_timer(2.6).timeout
+	_slide_door(true)
+	await _arrived(monica)
+	_slide_door(false)
+	_hide(monica)
+	await ui.think(L("home3", "never_leaves"))
+	ui.close()
+	# Lynx, on the frames
+	main.play("ding", -12.0, 1.4)
+	await _play("home3", "lynx_call")
+	ui.close()
+	f.erase("cinematic")
+	main.update_hud()
+
+
+## Mira's room, ransacked: the sketchbook in the drawer under her desk, the
+## Tower drawn ten times, then a shadow, then the eye. The eye lifts off
+## the page with the frames on. "Help." Then the power goes.
+func _sketchbook() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	if _ended:
+		return
+	_ended = true
+	f["cinematic"] = true
+	await ui.think(L("sketch", "ransack"))
+	await ui.think(L("sketch", "drawer"))
+	ui.close()
+	var pages := [_sketch_page(0), _sketch_page(1), _sketch_page(2)]
+	ui.show_picture(pages[0], L("sketch", "cap0"))
+	await ui.think(L("sketch", "early"))
+	await ui.think(L("sketch", "tower"))
+	ui.show_picture(pages[1], L("sketch", "cap1"))
+	await ui.think(L("sketch", "darker"))
+	main.play("whisper", -12.0, 0.5)
+	ui.show_picture(pages[2], L("sketch", "cap2"))
+	await ui.think(L("sketch", "shadow"))
+	ui.hide_picture()
+	ui.close()
+	f["ev_mira_drawing"] = true
+	main.log_line("evidence", L("toast", "drawing"))
+	# the frames come on by themselves
+	if not main.frames_on:
+		main.toggle_frames()
+	main.play("glitch", -4.0, 0.8)
+	ui.glitch(0.6, 1.0)
+	await ui.think(L("sketch", "buzzed"))
+	ui.close()
+	# the eye lifts off the page, spirals the room, stops in front of him, caged
+	eye_rig.visible = true
+	eye_rig.global_position = Vector3(8.1, 0.76, -8.6)
+	_eye_cam = p.global_position + Vector3(0, 1.45, 0)
+	var fwd: Vector3 = -p.global_transform.basis.z
+	var stop: Vector3 = _eye_cam + fwd * 0.9
+	var tw := create_tween()
+	tw.tween_method(_eye_spiral, 0.0, 1.0, 3.2)
+	await tw.finished
+	var tw2 := create_tween()
+	tw2.tween_property(eye_rig, "global_position", stop, 1.0).set_trans(Tween.TRANS_SINE)
+	await tw2.finished
+	eye_rig.look_at(_eye_cam, Vector3.UP)
+	cage.visible = true
+	main.play("sting", -8.0, 0.6)
+	await ui.say("", L("sketch", "help"))
+	main.add_connection(2.0, L("toast", "help"))
+	ui.close()
+	await get_tree().create_timer(0.6).timeout
+	await _power_out()
+
+
+## Every light in the flat, the hall, the garage and the city outside, off.
+func _darken() -> void:
+	set_power(false, 0.4)
+	_blacked = true
+	for n in find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.layers == (1 << 19):
+			continue
+		var m := mi.material_override as StandardMaterial3D
+		if m and m.emission_enabled:
+			m.emission_energy_multiplier = 0.0
+		if mi.mesh and mi.material_override == null:
+			for i in mi.mesh.get_surface_count():
+				var sm := mi.mesh.surface_get_material(i) as StandardMaterial3D
+				if sm and sm.emission_enabled:
+					sm.emission_energy_multiplier = 0.0
+	for n in find_children("*", "Light3D", true, false):
+		var l := n as Light3D
+		if l.light_cull_mask == (1 << 19):
+			continue
+		l.light_energy = 0.0
+	for n in find_children("*", "Label3D", true, false):
+		(n as Label3D).modulate = Color(0.03, 0.03, 0.035)
+	for n in find_children("*", "Sprite3D", true, false):
+		if n != eye_sprite and not n.has_meta("candle"):
+			(n as Sprite3D).visible = false
+	if _sun:
+		_sun.light_energy = 0.02
+	if _env:
+		_env.ambient_light_energy = 0.03
+		_env.fog_light_color = Color(0.01, 0.01, 0.012)
+	if _sky:
+		_sky.sky_horizon_color = Color(0.02, 0.015, 0.02)
+		_sky.ground_horizon_color = Color(0.015, 0.012, 0.015)
+		_sky.sky_top_color = Color(0.004, 0.004, 0.01)
+	# the candles, across the dark city
+	var cm := StandardMaterial3D.new()
+	cm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	cm.albedo_color = Color(1.0, 0.7, 0.35)
+	for i in 90:
+		var c := box(Vector3(0.5, 0.5, 0.5), Vector3(rng.randf_range(-220, 220), GROUND + rng.randf_range(2.0, 110.0), rng.randf_range(-220, 220)), cm)
+		c.set_meta("candle", true)
+	cage.visible = false
+	eye_rig.visible = false
+	torch.visible = true
+	torch.light_energy = 0.9
+
+
+## The power goes. Then the two panels: the tower dark, the city dark, candles.
+func _power_out() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	main.play("outage", -4.0)
+	_darken()
+	await ui.think(L("sketch", "dark"))
+	ui.close()
+	var img1: Texture2D = await _picture(Vector3(-20.0, -140.0, 40.0), Vector3(-150.0, 20.0, -70.0), 70.0)
+	ui.show_picture(img1, L("sketch", "cap_tower"))
+	await ui.say("", L("sketch", "tower_dark"))
+	var img2: Texture2D = await _picture(Vector3(-7.5, 1.2, -4.5), Vector3(-90.0, -180.0, -30.0), 74.0)
+	ui.show_picture(img2, L("sketch", "cap_city"))
+	await ui.say("", L("sketch", "city_dark"))
+	ui.hide_picture()
+	ui.close()
+	await ui.think(L("sketch", "out"))
+	ui.close()
+	f["home3_done"] = true
+	f.erase("cinematic")
+	main.update_hud()
+	if not main._selftest:
+		main.load_level("Blackout")
+
+
+# ------------------------------------------------------------------ visit 4 (A2-B6): Monica's choice, the leaves
+
+func _intro_fourth() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	f["cinematic"] = true
+	var gone := 0
+	for k in ["traded_drawing", "traded_photo", "traded_lion", "traded_trophy"]:
+		if f.has(k):
+			gone += 1
+	await ui.think(L("home4", "door" if gone > 0 else "door_whole"))
+	ui.close()
+	await p.face(monica.global_position + Vector3(0, 1.55, 0), 0.8)
+	await ui.think(L("home4", "packing"))
+	ui.close()
+	f.erase("cinematic")
+	main.update_hud()
+
+
+## The last real conversation. Four exchanges; her lines read trust.
+func _monica_fourth() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	if f.has("monica_choice_done"):
+		await ui.think(L("home4", "gone"))
+		return
+	f["cinematic"] = true
+	var t := int(main.trust.get("monica", 0))
+	# 1: the broadcast
+	await ui.say("Monica", L("home4", "broadcast"))
+	await ui.say("Monica", L("home4", "not_wrong" if t >= 1 else "pr_handling"))
+	# 2: the belief layer
+	await ui.say("Carl", L("home4", "ask_layer"))
+	if t >= 1:
+		await _play("home4", "whole_thing")
+		f["monica_knew_claim"] = true
+		main.log_line("claim", L("toast", "claim_complete"))
+	else:
+		await ui.say("Monica", L("home4", "denies"))
+		var opts := []
+		var keys := []
+		if f.has("ev_second_tablet"):
+			opts.append(L("home4", "present_tablet"))
+			keys.append("tablet")
+		if f.has("ev_mira_drawing"):
+			opts.append(L("home4", "present_drawing"))
+			keys.append("drawing")
+		opts.append(L("home4", "let_go"))
+		keys.append("none")
+		var pick: int = await ui.choose(opts)
+		if keys[pick] != "none":
+			await ui.think(L("home4", "presented_" + keys[pick]))
+			await _play("home4", "broken")
+			main.add_trust("monica", -1)
+			t -= 1
+			f["monica_knew_claim"] = true
+			main.log_line("claim", L("toast", "claim_complete"))
+		else:
+			await ui.think(L("home4", "let_it"))
+	# 3: the song
+	await ui.say("Carl", L("home4", "ask_song"))
+	await ui.say("Monica", L("home4", "mother_sang"))
+	if t >= 2:
+		await ui.say("Monica", L("home4", "not_hers"))
+		f["song_is_gods"] = true
+		main.log_line("claim", L("toast", "song_claim"))
+	# 4: her choice, and his
+	await ui.think(L("home4", "zipped"))
+	if t >= 2:
+		await ui.say("Monica", L("home4", "keep_her"))
+	elif t >= 0:
+		await ui.say("Monica", L("home4", "dont_come"))
+	else:
+		await ui.think(L("home4", "said_nothing"))
+	var reply: int = await ui.choose(LINES["home4"]["choices"])
+	match reply:
+		0:
+			await ui.say("Carl", L("home4", "see_you"))
+			main.add_stance("sleeper")
+			main.add_trust("monica", 1)
+			t += 1
+		1:
+			await ui.say("Carl", L("home4", "stop_it"))
+			main.add_stance("investigator")
+		2:
+			await ui.say("Carl", L("home4", "report"))
+			main.add_stance("company_man")
+	await ui.think(L("home4", "kiss" if t >= 1 else "no_kiss"))
+	ui.close()
+	f["monica_choice_done"] = true
+	# the bag, the door
+	monica_bag.visible = false
+	for a in monica.get_meta("arms"):
+		(a as Node3D).rotation.x = 0.0
+	monica.remove_meta("packing")
+	_walk(monica, [Vector3(-0.6, 0, -4.6), Vector3(-0.4, 0, -1.3), Vector3(0, 0, 0.6), Vector3(0, 0, 3.2), Vector3(5.2, 0, 3.6)], 1.1)
+	await get_tree().create_timer(2.6).timeout
+	_slide_door(true)
+	await _arrived(monica)
+	_slide_door(false)
+	_hide(monica)
+	await ui.think(L("home4", "after"))
+	ui.close()
+	if ezra.visible:
+		await _play("home4", "ezra")
+		ui.close()
+	f.erase("cinematic")
+	main.update_hud()
+
+
+## The leaves. Forced tonight; no choice. Then Day 7.
+func _leaves_dream() -> void:
+	var ui = main.ui
+	var f: Dictionary = main.flags
+	var p = main.player
+	_ended = true
+	f["cinematic"] = true
+	p.seated = true
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(p, "position", Vector3(-2.3, 0.0, -2.6), 1.0)
+	tw.tween_property(p, "crouch", 1.15, 1.2).set_trans(Tween.TRANS_SINE)
+	await tw.finished
+	await p.face(Vector3(-7.0, 1.4, -2.6), 1.0)
+	await ui.think(L("leaves", "asleep"))
+	ui.close()
+	await ui.fade_to(1.0, 2.0)
+	_blackout(true)
+	await ui.fade_to(0.0, 0.05)
+	await get_tree().create_timer(0.6).timeout
+	main.play("step", -16.0, 0.6)
+	var img1: Texture2D = await _picture(autumn.global_position + Vector3(0.5, 1.4, 1.8), autumn.global_position + Vector3(0, 0.5, -3.2), 64.0)
+	ui.show_picture(img1, L("leaves", "cap1"))
+	await _play("leaves", "pile")
+	var img2: Texture2D = await _picture(autumn.global_position + Vector3(1.6, 1.45, 0.2), autumn.global_position + Vector3(1.9, 1.3, -2.4), 50.0)
+	ui.show_picture(img2, L("leaves", "cap2"))
+	await _play("leaves", "other")
+	await ui.say("Carl", L("leaves", "keeping_company"))
+	await _play("leaves", "believed")
+	ui.hide_picture()
+	ui.close()
+	main.log_line("dream", L("toast", "leaves"))
+	await get_tree().create_timer(0.4).timeout
+	await ui.show_card(L("leaves", "day7"), 3.0)
+	f.erase("cinematic")
+	f["home4_done"] = true
+	await ui.fade_to(1.0, 0.5)
+	_blackout(false)
+	if not main._selftest:
+		ui.show_title(true)
+	else:
+		await ui.fade_to(0.0, 0.3)
+
+
+## The eye off the page: a widening spiral round her room, rising.
+func _eye_spiral(t: float) -> void:
+	var a := t * TAU * 1.5
+	var ctr := Vector3(9.5, 1.3, -9.4)
+	var sp := ctr + Vector3(cos(a) * 1.4, 0.0, sin(a) * 1.4) * (1.0 - t * 0.5) + Vector3(0, t * 0.5, 0)
+	eye_rig.global_position = Vector3(8.1, 0.76, -8.6).lerp(sp, clampf(t * 3.0, 0.0, 1.0)) if t < 0.33 else sp
+	eye_rig.look_at(_eye_cam, Vector3.UP)
+
+
 # ------------------------------------------------------------------ dev and test
 
 func apply_args(a: Dictionary) -> void:
@@ -2408,6 +3548,13 @@ func apply_args(a: Dictionary) -> void:
 		_sun.light_energy = float(a["sun"])
 	if a.has("panel"):
 		_show_panel(str(a["panel"]))
+	if a.has("dark"):
+		_darken()
+	if a.has("eye"):
+		eye_rig.visible = true
+		cage.visible = true
+		eye_rig.global_position = main.player.global_position + Vector3(0, 1.45, 0) - main.player.global_transform.basis.z * 0.9
+		eye_rig.look_at(main.player.global_position + Vector3(0, 1.45, 0), Vector3.UP)
 
 
 ## Dev: show one cutscene panel for a screenshot (--panel=lift|board|alley|pillow|door|council).
@@ -2419,8 +3566,15 @@ func _show_panel(name: String) -> void:
 		"pillow": [pillow, Vector3(0.0, 0.42, 0.6), Vector3(0.2, 0.26, -0.05), 46.0],
 		"door": [doorway, Vector3(0.35, 0.55, 0.7), Vector3(0, 1.25, -2.1), 68.0],
 		"council": [council, Vector3(2.2, 2.6, 2.8), Vector3(0, 1.0, -0.5), 70.0],
+		"autumn": [autumn, Vector3(0.5, 1.4, 1.8), Vector3(0, 0.5, -3.2), 64.0],
+		"autumn2": [autumn, Vector3(1.6, 1.45, 0.2), Vector3(1.9, 1.3, -2.4), 50.0],
+		"tower_dark": [self, Vector3(-20.0, -140.0, 40.0), Vector3(-150.0, 20.0, -70.0), 70.0],
+		"city_dark": [self, Vector3(-7.5, 1.2, -4.5), Vector3(-90.0, -180.0, -30.0), 74.0],
 	}
-	if not shots.has(name):
+	if name.begins_with("sketch"):
+		main.ui.show_picture(_sketch_page(int(name.substr(6))), name)
+		return
+	if not shots.has(name) or shots[name][0] == null:
 		return
 	var sh: Array = shots[name]
 	var at: Node3D = sh[0]
@@ -2440,7 +3594,15 @@ func selftest() -> void:
 	await intro()
 	await _enter()
 	print("ok enter")
-	if second:
+	if fourth:
+		for id in ["fridge_drawing", "photo", "trophy", "monica", "ezra", "couch"]:
+			await _by_id(id)
+		print("ok monica's choice")
+	elif third:
+		for id in ["monica", "mira_door", "circle", "sketchbook"]:
+			await _by_id(id)
+		print("ok blackout")
+	elif second:
 		for id in ["monica", "ezra", "mira_door"]:
 			await _by_id(id)
 		while main.flags.has("cinematic"):
