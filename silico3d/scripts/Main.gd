@@ -313,7 +313,7 @@ func pick(i: int) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	started = true
 	_reset_story()
-	if i == 1:
+	if i == 1 or i == 2:
 		# Act 2 on its own: what Act 1 leaves behind
 		for f in ["home1_done", "home2_done", "warroom1_done", "act1_done", "southtown_done", "ritual_seen", "mirror_done"]:
 			flags[f] = true
@@ -321,7 +321,18 @@ func pick(i: int) -> void:
 		for w in ["dreamer", "convene"]:
 			if not lexicon.has(w):
 				lexicon.append(w)
-	load_level(["Dufredy", "Facility", "Spine"][i])
+	if i == 2:
+		# Act 3 on its own: a middle path through Act 2
+		for f in ["facility_done", "hangar_done", "home3_done", "blackout_done", "observatory_done", "watched_observatory",
+				"freudbot_1", "pip_active", "lushons_done", "forner_called", "spa_done", "broadcast_seen", "drone_ally",
+				"ev_drive", "ev_knife", "ev_flashlight", "monica_choice_done", "home4_done"]:
+			flags[f] = true
+		connection = 60.0
+		pressure = 40.0
+		for w in ["hush", "look away", "sleeper", "we", "mimic", "bow"]:
+			if not lexicon.has(w):
+				lexicon.append(w)
+	load_level(["Dufredy", "Facility", "Tunnels", "Spine"][i])
 
 
 func _reset_story() -> void:
