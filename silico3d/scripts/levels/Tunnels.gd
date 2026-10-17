@@ -458,6 +458,7 @@ var _under := -1                    # 0 outside, 1 underground (env switched on 
 var _trail: Array = []
 var _busy := false
 var _shot := false
+var _shot_posed := false
 var _eye_vis := false
 var _touch_cd := 0.0
 var _checkpoint := Vector3.ZERO
@@ -2963,10 +2964,15 @@ func tick(delta: float) -> void:
 	# Emmet's flashlight in Carl's hand
 	var cam: Camera3D = p.cam
 	torch.global_transform = cam.global_transform.translated_local(Vector3(0.18, -0.2, 0.1))
+	if _shot:
+		# --at/--yaw land after apply_args: pose the party once, here
+		if not _shot_posed and str(main._args.get("scene", "")) != "":
+			_shot_posed = true
+			_pose_party()
+		_tick_lights()
+		return
 	_tick_party(delta, pp)
 	_tick_lights()
-	if _shot:
-		return
 	_touch_cd = maxf(0.0, _touch_cd - delta)
 	_tick_hymn(delta, pp)
 	_tick_eyeless(delta, pp)
@@ -3242,8 +3248,6 @@ func apply_args(a: Dictionary) -> void:
 	_shot = a.has("shot")
 	var f: Dictionary = main.flags
 	var sc := str(a.get("scene", ""))
-	var p = main.player
-	var pp: Vector3 = p.position
 	if sc == "":
 		_eye_layer()
 		return
@@ -3279,19 +3283,25 @@ func apply_args(a: Dictionary) -> void:
 		lynx.visible = true
 		lynx.position = Vector3(DOOR_X - 0.2, LOW, DOOR_Z + 0.3)
 		lynx.rotation.y = 0.0
+	_eye_layer()
+	main.update_hud()
+
+
+## Shots only: the party ahead of the camera, off to the sides and
+## looking where it looks, so a frame is not all backs of heads.
+func _pose_party() -> void:
+	var p = main.player
+	var pp: Vector3 = p.position
+	var fwd := _fwd(p.yaw)
+	var right := Vector3(-fwd.z, 0, fwd.x)
 	var k := 0
 	for pd: Dictionary in party:
 		var fg: Node3D = pd["fig"]
-		var fwd := _fwd(p.yaw)
-		var right := Vector3(-fwd.z, 0, fwd.x)
-		# off to the sides so a shot is not all backs of heads
-		fg.position = Vector3(pp.x, pp.y, pp.z) + fwd * (3.6 + k * 1.8) + right * (2.3 if k % 2 == 0 else -2.4)
+		fg.position = pp + fwd * (3.4 + k * 2.2) + right * (2.6 if k % 2 == 0 else -2.8)
 		fg.position.y = pp.y
 		turn_to(fg, fg.position + fwd * 5.0)
 		Anim.idle(fg, 0.0, float(k))
 		k += 1
-	_eye_layer()
-	main.update_hud()
 
 
 func _by_id(id: String) -> void:
