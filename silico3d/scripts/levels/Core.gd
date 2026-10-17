@@ -914,7 +914,11 @@ func _veins() -> void:
 	var arc := []
 	for k in 15:
 		var a := lerpf(VALVE_A, PI - VALVE_A, k / 14.0)
-		arc.append(Vector3(cos(a) * ARC_R, 0.5, DESK.z - sin(a) * ARC_R))
+		# the crown of the horseshoe is lifted into an arch: the only way from the
+		# desk to the far doors runs under it (a solid wall of pipe across the whole
+		# hall otherwise shuts the way, since the mains join the arc at both ends)
+		var ay := 3.4 if (k >= 6 and k <= 8) else 0.5
+		arc.append(Vector3(cos(a) * ARC_R, ay, DESK.z - sin(a) * ARC_R))
 	_tube(arc, 0.5, true)
 	for e: Vector3 in [arc[0], arc[14]]:
 		sphere(0.62, e, _vein_m, 10)
@@ -2789,6 +2793,52 @@ func _wait(cond: Callable, secs: float) -> void:
 		t += get_process_delta_time()
 
 
+## Flood-fill the cathedral floor with Carl's capsule from just south of the
+## desk to the far doors: the way must exist (it did not, once: the manifold
+## and the mains made a wall of pipe from side wall to side wall).
+func _probe_walk() -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var space := get_world_3d().direct_space_state
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.4
+	cap.height = 1.8
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = cap
+	q.collision_mask = 1
+	var step := 0.5
+	var x0 := -6.0
+	var nx := 25
+	var z0 := 4.0
+	var nz := 60
+	var free := {}
+	var blocked := 0
+	for ix in nx:
+		for iz in nz:
+			q.transform = Transform3D(Basis.IDENTITY, Vector3(x0 + ix * step, 0.95, z0 - iz * step))
+			var hit := space.intersect_shape(q, 1).size() > 0
+			if hit:
+				blocked += 1
+			else:
+				free[Vector2i(ix, iz)] = true
+	var start := Vector2i(int((0.0 - x0) / step), 0)
+	var goal_z := int((z0 - (NORTH_Z + 1.5)) / step)
+	var seen := {start: true}
+	var queue: Array = [start]
+	var reached := false
+	while not queue.is_empty():
+		var c: Vector2i = queue.pop_front()
+		if c.y >= goal_z:
+			reached = true
+			break
+		for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n := c + d
+			if free.has(n) and not seen.has(n):
+				seen[n] = true
+				queue.append(n)
+	print("ok walkable desk->far doors: ", reached, " (blocked cells ", blocked, ", reached ", seen.size(), ")")
+
+
 func selftest() -> void:
 	var p = main.player
 	var f: Dictionary = main.flags
@@ -2811,6 +2861,7 @@ func selftest() -> void:
 		await _by_id(id)
 	await _by_id("valve")
 	print("ok valve coolant_seen=", f.has("coolant_seen"))
+	await _probe_walk()
 	# the main path: Carl has the drive; Lynx; the growl (choice 1)
 	await _by_id("desk")
 	await _wait(func() -> bool: return f.has("core_knife"), 90.0)
