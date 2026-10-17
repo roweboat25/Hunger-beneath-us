@@ -489,6 +489,7 @@ const LINES := {
 		"planters2b": "I knew where they'd gone before I knew that I knew.",
 		"kitchen": "Synth-dispenser, synth-oven. Everything in here was synth-something.",
 		"table": "Soy-loaf and synthetic chicken thighs. The plasticky aftertaste was the taste of home.",
+		"table3": "One glass on the table, Monica's. Nobody had cooked. Nobody was going to.",
 		"tv": "TOKZ had Dufredy on a loop. A hundred and twelve thousand views in four hours. Monica's day, in a number.",
 		"hub": "ORA Home. It knew who was in, who was out, and what the oven was doing. Surveillance: none, per HR policy. It said so right there on the screen.",
 		"lens": "A small, barely perceptible lens, embedded in the corner of the ceiling. Psyon HR swore there was no home surveillance. We joked about it. Everyone did. It was the only way to cope.",
@@ -932,13 +933,18 @@ func _kitchen_and_table() -> void:
 	var plate := mat(Color(0.95, 0.95, 0.93), 0.3)
 	var loaf := mat(Color(0.5, 0.35, 0.22), 0.8)
 	var thigh := mat(Color(0.75, 0.55, 0.35), 0.6)
-	for c: Array in [[-0.45, -0.25], [0.45, -0.25], [-0.45, 0.25], [0.45, 0.25]]:
+	# from Day 3 the kids are away and nobody sits down to dinner: one glass
+	for c: Array in ([[0.45, 0.25]] if (third or fourth) else [[-0.45, -0.25], [0.45, -0.25], [-0.45, 0.25], [0.45, 0.25]]):
 		var pp := TABLE + Vector3(c[0], 0.78, c[1])
+		if third or fourth:
+			cyl(0.03, 0.025, 0.1, pp + Vector3(0.18, 0.05, -0.12), _glass, 8)
+			continue
 		cyl(0.13, 0.11, 0.015, pp, plate, 14)
 		box(Vector3(0.08, 0.03, 0.06), pp + Vector3(-0.04, 0.025, 0.0), loaf).rotation.y = rng.randf()
 		sphere(0.03, pp + Vector3(0.05, 0.03, 0.03), thigh, 8).scale = Vector3(1.4, 0.8, 1.0)
 		cyl(0.03, 0.025, 0.1, pp + Vector3(0.18, 0.05, -0.12), _glass, 8)
-	box(Vector3(0.3, 0.05, 0.2), TABLE + Vector3(0, 0.79, 0), mat(Color(0.75, 0.55, 0.35), 0.6))
+	if not (third or fourth):
+		box(Vector3(0.3, 0.05, 0.2), TABLE + Vector3(0, 0.79, 0), mat(Color(0.75, 0.55, 0.35), 0.6))
 	interactable("table", "Look at the table", TABLE + Vector3(0, 0.85, 0), Vector3(1.7, 0.25, 0.95), "", false)
 
 
@@ -2247,6 +2253,8 @@ func interact(node: Object) -> bool:
 				await _ezra_second()
 			else:
 				await _ezra_first()
+		"table":
+			await ui.think(ex["table3" if (third or fourth) else "table"])
 		"window":
 			await ui.think(ex["window"])
 			if second:
@@ -3329,13 +3337,13 @@ func _darken() -> void:
 		if mi.layers == (1 << 19):
 			continue
 		var m := mi.material_override as StandardMaterial3D
-		if m and m.emission_enabled:
-			m.emission_energy_multiplier = 0.0
+		if m:
+			_unlight(m)
 		if mi.mesh and mi.material_override == null:
 			for i in mi.mesh.get_surface_count():
 				var sm := mi.mesh.surface_get_material(i) as StandardMaterial3D
-				if sm and sm.emission_enabled:
-					sm.emission_energy_multiplier = 0.0
+				if sm:
+					_unlight(sm)
 	for n in find_children("*", "Light3D", true, false):
 		var l := n as Light3D
 		if l.light_cull_mask == (1 << 19):
@@ -3366,6 +3374,16 @@ func _darken() -> void:
 	eye_rig.visible = false
 	torch.visible = true
 	torch.light_energy = 0.9
+
+
+## One material with the grid gone: no glow, and the unshaded ones (the
+## holograms over the gulf, the lit signs) dimmed to their own shadow.
+func _unlight(m: StandardMaterial3D) -> void:
+	if m.emission_enabled:
+		m.emission_energy_multiplier = 0.0
+	if m.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED:
+		var c := m.albedo_color
+		m.albedo_color = Color(c.r * 0.04, c.g * 0.04, c.b * 0.04, c.a * 0.3)
 
 
 ## The power goes. Then the two panels: the tower dark, the city dark, candles.
@@ -3593,8 +3611,11 @@ func apply_args(a: Dictionary) -> void:
 	if a.has("eye"):
 		eye_rig.visible = true
 		cage.visible = true
-		eye_rig.global_position = main.player.global_position + Vector3(0, 1.45, 0) - main.player.global_transform.basis.z * 0.9
-		eye_rig.look_at(main.player.global_position + Vector3(0, 1.45, 0), Vector3.UP)
+		# --at/--yaw are not in the player's transform until his first physics step
+		var yw: float = main.player.yaw
+		var head: Vector3 = main.player.position + Vector3(0, 1.45, 0)
+		eye_rig.global_position = head + Vector3(-sin(yw), -0.12, -cos(yw)) * 1.1
+		eye_rig.look_at(head, Vector3.UP)
 
 
 ## Dev: show one cutscene panel for a screenshot (--panel=lift|board|alley|pillow|door|council).
@@ -3650,6 +3671,9 @@ func selftest() -> void:
 
 
 func _selftest_path() -> void:
+	if main._args.has("monica"):
+		# dev: --monica=N runs the visit at T:monica N, for her other branches
+		main.trust["monica"] = int(main._args["monica"])
 	await intro()
 	await _enter()
 	print("ok enter")
