@@ -385,6 +385,9 @@ func load_level(lname: String) -> void:
 	level_name = lname
 	add_child(level)
 	level.build(self)
+	var merged: int = level.late_batch()
+	if merged > 0:
+		print("late_batch ", lname, ": ", merged, " meshes merged")
 	level.setup_env(env, sun)
 	retro.tune(level.kit_day)
 	if hifi:
@@ -703,6 +706,31 @@ func _run_test() -> void:
 	if _args.has("say"):
 		ui.say("", "[i]" + str(_args["say"]) + "[/i]")
 		await get_tree().create_timer(2.0).timeout
+	if _args.has("count"):
+		var c := {"mesh": 0, "visible_mesh": 0, "multimesh": 0, "omni": 0, "spot": 0}
+		for n in level.find_children("*", "VisualInstance3D", true, false):
+			if n is MeshInstance3D:
+				c["mesh"] += 1
+				if n.is_visible_in_tree():
+					c["visible_mesh"] += 1
+			elif n is MultiMeshInstance3D:
+				c["multimesh"] += 1
+			elif n is OmniLight3D and n.is_visible_in_tree():
+				c["omni"] += 1
+			elif n is SpotLight3D and n.is_visible_in_tree():
+				c["spot"] += 1
+		print("COUNT ", level_name, " ", c)
+		if _args.has("countdetail"):
+			var by := {}
+			for n in level.find_children("*", "MeshInstance3D", true, false):
+				if not n.is_visible_in_tree():
+					continue
+				var k := "%s|%s|ovr=%s|depth=%d" % [n.get_parent().name if n.get_parent() != level else "<level>", n.mesh.get_class() if n.mesh else "none", n.material_override != null, str(n.get_path()).count("/")]
+				by[k] = by.get(k, 0) + 1
+			var ks := by.keys()
+			ks.sort_custom(func(a, b): return by[a] > by[b])
+			for k in ks.slice(0, 25):
+				print("  ", by[k], "  ", k)
 	if _args.has("shot"):
 		var img := get_viewport().get_texture().get_image()
 		img.save_png(str(_args["shot"]))

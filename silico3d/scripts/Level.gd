@@ -529,6 +529,134 @@ func _batch(parent: Node, chunk: float, by_x := false) -> void:
 			mi.free()
 
 
+## The browser renderer goes blank past ~1000 draw calls. After build(), if a
+## level still shows more than LATE_BATCH_AT meshes, merge the ones nothing can
+## touch again: unnamed, no script, no meta, no children, not held by any of
+## the level's variables (arrays and dictionaries included), and with no
+## ancestor carrying a script or meta (figures, interactables). Merged meshes
+## stay under the same parent, so area groups still show and hide together.
+const LATE_BATCH_AT := 700
+var _held_mats := {}
+
+
+func late_batch(chunk := 200.0) -> int:
+	var all := find_children("*", "MeshInstance3D", true, false)
+	if all.size() <= LATE_BATCH_AT:
+		return 0
+	var held := {}
+	for pr in get_property_list():
+		if pr["usage"] & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			_collect_held(get(pr["name"]), held, 0)
+	var groups := {}
+	var sigs := {}
+	for n in all:
+		var mi := n as MeshInstance3D
+		if held.has(mi) or mi.mesh == null or mi.material_override == null or not mi.visible:
+			continue
+		if not str(mi.name).begins_with("@") or mi.get_script() != null or mi.get_child_count() > 0 or mi.get_meta_list().size() > 0:
+			continue
+		if mi.mesh.get_surface_count() != 1:
+			continue
+		var ok := true
+		var a := mi.get_parent()
+		while a != self:
+			if a == null or a.get_script() != null or a.get_meta_list().size() > 0 or not (a is Node3D) or a is MultiMeshInstance3D:
+				ok = false
+				break
+			a = a.get_parent()
+		if not ok:
+			continue
+		var par := mi.get_parent()
+		var key := "%d:%s:%d:%d" % [par.get_instance_id(), _mat_sig(mi.material_override, sigs), int(floor(mi.position.x / chunk)), int(floor(mi.position.z / chunk))]
+		if not groups.has(key):
+			groups[key] = []
+		groups[key].append(mi)
+	if OS.get_cmdline_user_args().has("--batchdiag"):
+		var single := 0
+		var mats := {}
+		for key in groups:
+			if groups[key].size() == 1:
+				single += 1
+			mats[groups[key][0].material_override] = true
+		var nheld := 0
+		for n in all:
+			if held.has(n):
+				nheld += 1
+		var sigset := {}
+		var tex := 0
+		for m in sigs:
+			sigset[sigs[m]] = true
+			if m is StandardMaterial3D and (m.albedo_texture != null or m.emission_texture != null):
+				tex += 1
+		var ycount := {}
+		for key in groups:
+			if groups[key].size() == 1:
+				var parts: PackedStringArray = key.split(":")
+				var k2 := parts[0] + ":" + parts[1]
+				ycount[k2] = ycount.get(k2, 0) + 1
+		var multi := 0
+		for k2 in ycount:
+			if ycount[k2] > 1:
+				multi += ycount[k2]
+		print("batchdiag sigs=", sigset.size(), " textured=", tex, " singles sharing a sig with another single=", multi)
+		print("batchdiag all=", all.size(), " held=", nheld, " groups=", groups.size(), " singles=", single, " materials=", mats.size())
+	var freed := 0
+	for key in groups:
+		var list: Array = groups[key]
+		if list.size() < 2:
+			continue
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for mi in list:
+			st.append_from(mi.mesh, 0, mi.transform)
+		var merged := MeshInstance3D.new()
+		merged.mesh = st.commit()
+		merged.material_override = list[0].material_override
+		merged.cast_shadow = list[0].cast_shadow
+		var par: Node = list[0].get_parent()
+		par.add_child(merged)
+		for mi in list:
+			par.remove_child(mi)
+			mi.free()
+		freed += list.size() - 1
+	return freed
+
+
+## Materials made one per call with the same settings draw the same, so
+## they merge as one. Anything held elsewhere (tweens, power_mats) keeps its
+## own identity through the instance id of held materials in the signature.
+func _mat_sig(m: Material, sigs: Dictionary) -> String:
+	if sigs.has(m):
+		return sigs[m]
+	var sig := str(m.get_instance_id())
+	if m is StandardMaterial3D and not _held_mats.has(m):
+		var parts := PackedStringArray()
+		for pr in m.get_property_list():
+			if pr["usage"] & PROPERTY_USAGE_STORAGE:
+				var v = m.get(pr["name"])
+				parts.append(str(v.get_instance_id()) if v is Object else str(v))
+		sig = "S" + str(hash("|".join(parts)))
+	sigs[m] = sig
+	return sig
+
+
+func _collect_held(v, held: Dictionary, depth: int) -> void:
+	if depth > 4:
+		return
+	if v is Object:
+		if is_instance_valid(v) and v is Node:
+			held[v] = true
+		elif is_instance_valid(v) and v is Material:
+			_held_mats[v] = true
+	elif v is Array:
+		for x in v:
+			_collect_held(x, held, depth + 1)
+	elif v is Dictionary:
+		for k in v:
+			_collect_held(k, held, depth + 1)
+			_collect_held(v[k], held, depth + 1)
+
+
 # ------------------------------------------------------------------ glyphs
 
 func _glyph_on(pos: Vector3, rot_y: float, px: float, id: String, deep: bool, always: bool, desc: String, flat := false, tint := Color(0, 0, 0, 0)) -> Area3D:
