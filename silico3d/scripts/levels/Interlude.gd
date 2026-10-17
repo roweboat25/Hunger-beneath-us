@@ -2533,7 +2533,8 @@ func _stage(stage: String) -> void:
 	var order := ["hall", "bed", "chamber", "circle", "eyes", "door", "bow"]
 	var n := order.find(stage)
 	f["in_start"] = true
-	_ctl = true
+	# door and bow are held poses for shots: no walking, no prompts
+	_ctl = n < 5
 	if n >= 0:
 		f["in_slap"] = true
 		f["in_walk1"] = true
