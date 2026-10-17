@@ -600,8 +600,8 @@ func build(m: Node) -> void:
 	_asphalt = pbr("asphalt", Vector3(1, 1, 1) / 6.0, true, Color(0.55, 0.55, 0.6), 0.55)
 	_paving = pbr("paving", Vector3(1, 1, 1) / 2.5, true, Color(0.6, 0.6, 0.66), 0.6)
 	_carpet = pbr("carpet", Vector3(1, 1, 1) / 2.0, true, Color(0.42, 0.42, 0.45))
-	_rosewood = pbr("woodfloor", Vector3(1, 1, 1) / 1.6, true, Color(0.62, 0.27, 0.18), 0.7)
-	_wood_dark = pbr("woodfloor", Vector3(1, 1, 1) / 2.0, true, Color(0.4, 0.22, 0.15), 0.6)
+	_rosewood = pbr("woodfloor", Vector3(1, 1, 1) / 1.6, true, Color(0.5, 0.31, 0.21), 0.7)
+	_wood_dark = pbr("woodfloor", Vector3(1, 1, 1) / 2.0, true, Color(0.34, 0.24, 0.18), 0.6)
 	_plaster = pbr("plaster", Vector3(1, 1, 1) / 3.0, true, Color(0.75, 0.74, 0.72))
 	_metal = mat(Color(0.32, 0.33, 0.35), 0.45, 0.7)
 	_sand = pbr("plaster", Vector3(1, 1, 1) / 4.0, true, Color(0.62, 0.5, 0.38))
@@ -1372,7 +1372,38 @@ func _lab() -> void:
 	cyl(0.4, 0.4, 0.05, CRANE_STAND + Vector3(0, 0.86, 0), _gold, 16, zu)
 	neon_text("P7  ·  GRUS", CRANE_STAND + Vector3(0, 0.5, 0.46), 0.0, 0.08, GOLD, 1.8, zu)
 	solid_box(Vector3(0.8, 0.9, 0.8), CRANE_STAND + Vector3(0, 0.45, 0), zu)
-	var lt := _lt("up", Vector3(11.5, FY + 3.2, -16.0), Color(0.85, 0.92, 1.0), 1.3, 11.0)
+	# the lab floor: dark epoxy, hazard tape round the stand and the test bay
+	floor_quad(Vector2(12.4, 14.6), Vector3(11.6, FY + 0.012, -16.2), 0.0, mat(Color(0.06, 0.07, 0.08), 0.22, 0.3), zu)
+	var tape := mat(Color(0.95, 0.75, 0.1), 0.6)
+	for e: Array in [[Vector3(0, 0, -1.3), Vector3(2.6, 0.006, 0.08)], [Vector3(0, 0, 1.3), Vector3(2.6, 0.006, 0.08)], [Vector3(-1.3, 0, 0), Vector3(0.08, 0.006, 2.6)], [Vector3(1.3, 0, 0), Vector3(0.08, 0.006, 2.6)]]:
+		box(e[1], CRANE_STAND + Vector3(0, 0.02, 0) + e[0], tape, false, zu)
+	# the drone wall: Psyon's and the police's own machines, hung up and gutted
+	for k in 3:
+		prop("police_drone" if k != 1 else "delivery_drone", Vector3(17.2, FY + 2.5, -10.5 - k * 3.2), -PI / 2.0, 0.9, false, zu)
+		box(Vector3(0.04, 0.8, 0.04), Vector3(17.2, FY + 3.3, -10.5 - k * 3.2), _metal, false, zu)
+	# a quadruped on the floor, legs folded like a fawn's
+	var dog := Node3D.new()
+	dog.position = Vector3(10.2, FY, -19.6)
+	dog.rotation.y = 0.7
+	zu.add_child(dog)
+	var shell := mat(Color(0.86, 0.84, 0.8), 0.35)
+	var db := box(Vector3(0.36, 0.22, 0.8), Vector3(0, 0.38, 0), shell, false, dog)
+	db.rotation.x = 0.06
+	box(Vector3(0.2, 0.16, 0.24), Vector3(0, 0.52, -0.5), shell, false, dog)
+	box(Vector3(0.16, 0.03, 0.02), Vector3(0, 0.53, -0.63), glow(Color(0.3, 0.8, 1.0), 1.4), false, dog)
+	for lx: float in [-0.2, 0.2]:
+		for lz: float in [-0.32, 0.32]:
+			stick(Vector3(lx, 0.32, lz), Vector3(lx * 1.3, 0.14, lz + 0.18), 0.035, carbon, dog)
+			stick(Vector3(lx * 1.3, 0.14, lz + 0.18), Vector3(lx * 1.3, 0.02, lz - 0.1), 0.03, carbon, dog)
+	# wing studies pinned along the bench: feathers in carbon, in order of size
+	for k in 9:
+		var fz := -16.4 - k * 0.22
+		var fe := box(Vector3(0.03, 0.02, 0.2 + k * 0.05), Vector3(16.35, FY + 0.95, fz), mat(Color(0.92, 0.92, 0.95), 0.4), false, zu)
+		fe.rotation.y = 0.5
+	# a test monitor on the bench: the crane's gait, frame by frame
+	box(Vector3(0.06, 0.5, 0.8), Vector3(16.95, FY + 1.25, -17.5), _black, false, zu)
+	quad(Vector2(0.72, 0.42), Vector3(16.91, FY + 1.25, -17.5), -PI / 2.0, glow(Color(0.35, 0.95, 1.0), 1.1), zu)
+	var lt := _lt("up", Vector3(11.5, FY + 3.2, -16.0), Color(0.8, 0.9, 1.0), 0.85, 11.0)
 	lab_lights.append(lt)
 	lab_lights.append(_lt("up", Vector3(12.6, FY + 2.6, -16.6), Color(1.0, 0.86, 0.6), 0.7, 4.0))
 
@@ -1386,8 +1417,8 @@ func _lab() -> void:
 func _office() -> void:
 	var oy := FY
 	floor_quad(Vector2(22, 12), Vector3(0, oy + 0.01, -30), 0.0, _wood_dark, zu)
-	box(Vector3(7.0, 0.02, 4.6), Vector3(0, oy + 0.025, -30.0), pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.55, 0.12, 0.09)), false, zu)
-	box(Vector3(6.6, 0.025, 4.2), Vector3(0, oy + 0.03, -30.0), pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.3, 0.08, 0.06)), false, zu)
+	box(Vector3(7.0, 0.02, 4.6), Vector3(0, oy + 0.025, -30.0), pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.38, 0.2, 0.12)), false, zu)
+	box(Vector3(6.6, 0.025, 4.2), Vector3(0, oy + 0.03, -30.0), pbr("carpet", Vector3(1, 1, 1) / 1.0, true, Color(0.2, 0.15, 0.1)), false, zu)
 	box(Vector3(22, 0.2, 12), Vector3(0, oy + 4.3, -30), _wood_dark, false, zu)
 	for k in 5:
 		box(Vector3(0.25, 0.25, 12), Vector3(-8.0 + k * 4.0, oy + 4.1, -30), _rosewood, false, zu)
@@ -1478,7 +1509,7 @@ func _office() -> void:
 	stick(Vector3(-0.1, oy + 0.835, dz + 0.1), Vector3(0.05, oy + 0.835, dz + 0.25), 0.006, _gold, zu)
 	cyl(0.035, 0.03, 0.11, Vector3(-0.7, oy + 0.88, dz + 0.2), _glass, 8, zu)
 	# his chair: the back rises six inches above his head
-	var leather := mat(Color(0.05, 0.035, 0.03), 0.4)
+	var leather := mat(Color(0.05, 0.035, 0.03), 0.85)
 	box(Vector3(0.7, 0.12, 0.65), Vector3(0, oy + 0.48, HAM_AT.z), leather, false, zu)
 	box(Vector3(0.78, 1.25, 0.16), Vector3(0, oy + 1.1, HAM_AT.z - 0.38), leather, false, zu)
 	box(Vector3(0.82, 0.06, 0.2), Vector3(0, oy + 1.74, HAM_AT.z - 0.38), _gold, false, zu)
@@ -1498,10 +1529,10 @@ func _office() -> void:
 	sphere(0.3, Vector3(8.6, oy + 1.25, -34.6), mat(Color(0.5, 0.45, 0.3), 0.6), 12, zu)
 	cyl(0.04, 0.12, 0.9, Vector3(8.6, oy + 0.45, -34.6), _wood_dark, 8, zu)
 	# the light: lamp-warm, wood-warm
-	_lt("up", Vector3(0.55, oy + 1.3, dz - 0.1), Color(1.0, 0.6, 0.28), 1.5, 6.0)
-	_lt("up", Vector3(-8.5, oy + 3.0, -28.0), Color(1.0, 0.62, 0.32), 1.1, 9.0)
-	_lt("up", Vector3(8.5, oy + 3.0, -32.0), Color(1.0, 0.62, 0.32), 1.1, 9.0)
-	_lt("up", Vector3(0, oy + 3.8, -27.0), Color(1.0, 0.7, 0.45), 0.8, 10.0)
+	_lt("up", Vector3(0.55, oy + 1.3, dz - 0.1), Color(1.0, 0.76, 0.48), 0.9, 5.0)
+	_lt("up", Vector3(-8.5, oy + 3.0, -28.0), Color(1.0, 0.78, 0.52), 1.0, 9.0)
+	_lt("up", Vector3(8.5, oy + 3.0, -32.0), Color(1.0, 0.78, 0.52), 1.0, 9.0)
+	_lt("up", Vector3(0, oy + 3.8, -27.0), Color(1.0, 0.82, 0.6), 0.7, 10.0)
 	for sx: float in [-10.7, 10.7]:
 		box(Vector3(0.08, 0.3, 0.2), Vector3(sx, oy + 3.0, -26.0), _gold, false, zu)
 		sphere(0.09, Vector3(sx * 0.98, oy + 3.2, -26.0), glow(Color(1.0, 0.7, 0.4), 2.2), 8, zu)
@@ -1591,7 +1622,7 @@ func _trailer_zone() -> void:
 	box(Vector3(7.0, 0.06, 120.0), o + Vector3(-12.0, 0.02, -10.0), pbr("asphalt", Vector3(1, 1, 1) / 5.0, true, Color(0.42, 0.4, 0.38)), false, zt)
 	# the trailer: aluminium, ribbed, rusting at the seams
 	var t := o + Vector3(0, 0, -2.0)
-	var alu := mat(Color(0.62, 0.62, 0.6), 0.5, 0.6)
+	var alu := mat(Color(0.44, 0.44, 0.43), 0.62, 0.45)
 	box(Vector3(8.4, 2.5, 2.6), t + Vector3(0, 1.75, 0), alu, true, zt)
 	for k in 9:
 		box(Vector3(8.42, 0.05, 2.62), t + Vector3(0, 0.8 + k * 0.27, 0), mat(Color(0.5, 0.5, 0.48), 0.6, 0.5), false, zt)
@@ -1619,8 +1650,8 @@ func _trailer_zone() -> void:
 	for k in 9:
 		var bx := -1.4 + k * 0.6
 		sphere(0.05, t + Vector3(bx, 2.62 - sin(k / 8.0 * PI) * 0.18, 3.7), bulb, 6, zt)
-	_lt("trailer", t + Vector3(1.0, 2.4, 3.2), Color(1.0, 0.75, 0.42), 1.5, 10.0)
-	_lt("trailer", t + Vector3(-2.6, 2.0, 2.4), Color(1.0, 0.7, 0.4), 0.9, 6.0)
+	_lt("trailer", t + Vector3(1.0, 2.4, 3.2), Color(1.0, 0.75, 0.42), 0.9, 8.0)
+	_lt("trailer", t + Vector3(-2.6, 2.0, 2.4), Color(1.0, 0.7, 0.4), 0.5, 5.0)
 	# lawn chairs, a grill, a water barrel, old tyres, crates
 	for k in 2:
 		var cp := t + Vector3(2.6 + k * 1.1, 0, 4.6)
@@ -1776,7 +1807,7 @@ func _rooftop_set() -> void:
 		cyl(0.35, 0.3, 0.6, cp + Vector3(0, 0.3, 0), mat(Color(0.6, 0.35, 0.25), 0.8), 10, zset)
 		cyl(0.18, 0.2, 1.4, cp + Vector3(0, 1.3, 0), mat(Color(0.2, 0.42, 0.25), 0.7), 8, zset)
 	# the lectern with the Psyonic mark
-	box(Vector3(0.7, 1.15, 0.45), o + Vector3(0, 0.58, 0.9), mat(Color(0.9, 0.9, 0.88), 0.4), false, zset)
+	box(Vector3(0.7, 1.15, 0.45), o + Vector3(0, 0.58, 0.9), mat(Color(0.5, 0.5, 0.49), 0.6), false, zset)
 	var mk := TorusMesh.new()
 	mk.inner_radius = 0.12
 	mk.outer_radius = 0.17
@@ -1784,11 +1815,12 @@ func _rooftop_set() -> void:
 	mk.ring_segments = 6
 	var mark := mesh(mk, o + Vector3(0, 0.75, 1.13), glow(PSYON_GREEN, 3.0), zset)
 	mark.rotation.x = PI / 2.0
-	eren = _person_fig(zset, Color(0.82, 0.82, 0.8), Color(0.84, 0.7, 0.6), {"arms": true, "knees": true, "hair": Color(0.6, 0.6, 0.6), "legs": Color(0.8, 0.8, 0.78), "long_coat": false}, o, PI)
+	eren = _person_fig(zset, Color(0.68, 0.67, 0.64), Color(0.84, 0.7, 0.6), {"arms": true, "knees": true, "hair": Color(0.6, 0.6, 0.6), "legs": Color(0.66, 0.65, 0.62), "long_coat": false}, o, PI)
 	var eh: Node3D = eren.get_meta("head")
 	var void_m := mat(Color(0.0, 0.0, 0.0), 0.05, 0.4)
 	for sx: float in [-1.0, 1.0]:
-		box(Vector3(0.036, 0.022, 0.012), Vector3(sx * 0.042, 0.022, -0.106), void_m, false, eh)
+		var ev := sphere(0.017, Vector3(sx * 0.042, 0.022, -0.1), void_m, 10, eh)
+		ev.scale = Vector3(1.15, 0.78, 0.55)
 	eren_glasses = Node3D.new()
 	eh.add_child(eren_glasses)
 	box(Vector3(0.23, 0.058, 0.02), Vector3(0, 0.024, -0.118), mat(Color(0.01, 0.01, 0.015), 0.05, 0.6), false, eren_glasses)
@@ -1797,10 +1829,10 @@ func _rooftop_set() -> void:
 	var mh: Node3D = mira.get_meta("head")
 	box(Vector3(0.075, 0.02, 0.012), Vector3(0, -0.062, -0.1), mat(Color(0.25, 0.04, 0.04), 0.6), false, mh)
 	box(Vector3(0.062, 0.009, 0.012), Vector3(0, -0.062, -0.104), mat(Color(0.95, 0.94, 0.9), 0.4), false, mh)
-	var key := light(o + Vector3(1.8, 2.8, 3.0), Color(1.0, 0.85, 0.65), 2.4, 10.0, false)
+	var key := light(o + Vector3(1.8, 2.8, 3.0), Color(1.0, 0.85, 0.65), 1.3, 10.0, false)
 	key.light_cull_mask = LAYER_PSYON
 	_zl["set"].append(key)
-	var rim := light(o + Vector3(-1.0, 2.4, -2.5), Color(1.0, 0.75, 0.5), 2.0, 6.0, false)
+	var rim := light(o + Vector3(-1.0, 2.4, -2.5), Color(1.0, 0.75, 0.5), 1.2, 6.0, false)
 	rim.light_cull_mask = LAYER_PSYON
 	_zl["set"].append(rim)
 
@@ -2783,9 +2815,9 @@ func _bframe(n: int) -> ImageTexture:
 			at = head
 			fov = 32.0
 		2:
-			from = o + Vector3(0.6, 1.45, 3.0)
-			at = o + Vector3(0.3, 1.35, 0)
-			fov = 46.0
+			from = o + Vector3(0.9, 1.75, 2.7)
+			at = o + Vector3(0.25, 1.45, -0.4)
+			fov = 40.0
 		3:
 			from = o + Vector3(0.0, 1.8, 8.5)
 			at = o + Vector3(0, 2.4, -3.0)
@@ -2829,7 +2861,7 @@ func _broadcast_look(src: Image, mark: Vector2, n: int) -> ImageTexture:
 	img.resize(w, h, Image.INTERPOLATE_BILINEAR)
 	var cx := mark.x * w
 	var cy := mark.y * h
-	var strength: float = [1.0, 0.0, 0.7, 0.55][n]
+	var strength: float = [0.8, 0.0, 0.42, 0.4][n]
 	for y in h:
 		var sl := 0.86 if y % 3 == 0 else 1.0
 		var dark := 1.0
@@ -3280,7 +3312,7 @@ func _tick_crane(delta: float, pp: Vector3) -> void:
 				tgt = CAR_AT + Vector3(0, 0.6, 0)
 				_crane_fold(lerpf(0.0, 1.0, clampf(1.0 - crane.position.distance_to(tgt) / 4.0, 0.0, 1.0)))
 			else:
-				tgt = pp + Basis(Vector3.UP, p.yaw) * Vector3(1.2, 2.3, 1.0) + Vector3(0, sin(_t * 1.6) * 0.12, 0)
+				tgt = pp + Basis(Vector3.UP, p.yaw) * Vector3(2.4, 2.6, -4.2) + Vector3(0, sin(_t * 1.6) * 0.12, 0)
 				_crane_fold(0.0)
 				for i in wings.size():
 					var sx := -1.0 if i == 0 else 1.0
