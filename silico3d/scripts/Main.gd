@@ -26,6 +26,7 @@ const LEVELS := {
 	"Drive": preload("res://scripts/levels/Drive.gd"),
 	"Park": preload("res://scripts/levels/Park.gd"),
 	"Spine": preload("res://scripts/levels/Spine.gd"),
+	"LookTest": preload("res://scripts/levels/LookTest.gd"),
 	"Home": preload("res://scripts/levels/Home.gd"),
 	"WarRoom": preload("res://scripts/levels/WarRoom.gd"),
 	"Hospital": preload("res://scripts/levels/Hospital.gd"),
@@ -81,6 +82,7 @@ var level_name := ""
 var player: CharacterBody3D
 var ui: CanvasLayer
 var retro: CanvasLayer
+var cine: CanvasLayer
 var crowd: Node3D
 var env: Environment
 var sun: DirectionalLight3D
@@ -150,6 +152,13 @@ func _ready() -> void:
 	retro = preload("res://scripts/Retro.gd").new()
 	add_child(retro)
 	retro.apply(_args)
+	if str(_args.get("look", "")) == "cine":
+		# prototype: the cinematic look in place of the PS1 layer
+		Body.cine = true
+		retro.visible = false
+		cine = preload("res://scripts/Cine.gd").new()
+		add_child(cine)
+		cine.set_grade(str(_args.get("grade", "silico")))
 	city = CityS.new()
 	add_child(city)
 	city.setup(self)
@@ -471,6 +480,8 @@ func load_level(lname: String) -> void:
 	retro.tune(level.kit_day)
 	if hifi:
 		_apply_hifi()
+	if cine:
+		cine.apply_env(env, sun, player.cam, level.kit_day)
 	_rain.visible = level.rain
 	_rain.emitting = level.rain
 	player.seated = false

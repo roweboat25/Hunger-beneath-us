@@ -70,3 +70,12 @@ van), `levels/` (`Dufredy.gd`, `Drive.gd`, `Park.gd`, `Spine.gd`, `Lineup.gd`
 for checking people and cars), `Crowd.gd`, `Traffic.gd`, `Player.gd`,
 `UI.gd` (frames overlay, dialogue, laptop, pictures, phone), `Synth.gd`
 (sounds), `Tex.gd` (small procedural textures).
+
+Prototype (branch `claude/project-thread-2qfcm6`): `look=cine` swaps the PS1
+layer for `Cine.gd` (full-resolution HDR frame, ACES, bloom, SSAO, volumetric
+fog, depth of field, a split-tone grade, grain, vignette; `grade=silico|day|psyon`)
+and gives people `Face.gd` heads (a sculpted head with sockets, brow, nose,
+lips and chin, a 1024 px face, 3D eyes that blink and follow the camera, a
+mouth that opens for speech). `level=LookTest` is the Spine with Monica and a
+guard in front of Carl; `talk=1` (or 0-1 to hold the mouth), `dlg=1` (letterbox
+and push-in), `norain=1`.
