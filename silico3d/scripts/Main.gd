@@ -20,6 +20,7 @@ const HackS := preload("res://scripts/Hack.gd")
 const StealthS := preload("res://scripts/Stealth.gd")
 const MeleeS := preload("res://scripts/Melee.gd")
 const EncountersS := preload("res://scripts/Encounters.gd")
+const NightS := preload("res://scripts/Night.gd")
 
 const LEVELS := {
 	"Dufredy": preload("res://scripts/levels/Dufredy.gd"),
@@ -52,6 +53,10 @@ const LEVELS := {
 	"Epilogue": preload("res://scripts/levels/Epilogue.gd"),
 	# the open city: a district street (City.district picks which)
 	"Street": preload("res://scripts/levels/Street.gd"),
+	# deregistered: an encampment for a home (Standing.gd)
+	"Encampment": preload("res://scripts/levels/Encampment.gd"),
+	# a side case: Forner's flat in Lamplight (SideCases.gd)
+	"FornerFlat": preload("res://scripts/levels/FornerFlat.gd"),
 	# the hack / stealth / melee test room (--hacks=1); not in the story
 	"HackTest": preload("res://scripts/levels/HackTest.gd"),
 }
@@ -162,7 +167,7 @@ func _ready() -> void:
 	hack = HackS.new()
 	add_child(hack)
 	hack.setup(self)
-	if _args.has("shot") or _args.has("selftest") or _args.has("level") or _args.has("systems") or _args.has("hacks"):
+	if _args.has("shot") or _args.has("selftest") or _args.has("level") or _args.has("systems") or _args.has("hacks") or _args.has("night") or _args.has("cases"):
 		_dev_start.call_deferred()
 
 
@@ -560,6 +565,9 @@ func toggle_frames() -> void:
 
 func add_connection(v: float, why: String) -> void:
 	var old := connection
+	# Carl's Tower, Calm: in the open city the frames take one less of him (never under 1)
+	if v > 1.0 and tower_rooms.has("calm") and city.in_hub():
+		v -= 1.0
 	connection = minf(100.0, connection + v)
 	ui.show_toast("Connection +%d   %s" % [int(v), why], 2.5)
 	ui.set_frames(1.0 if frames_on else 0.0, connection)
@@ -621,7 +629,8 @@ func log_line(kind: String, text: String) -> void:
 func update_hud() -> void:
 	if not level:
 		return
-	ui.objective.text = level.objective()
+	# past 50 the objective sometimes reads "gather, sleeper" (Night.objective_text)
+	ui.objective.text = NightS.objective_text(self, level.objective())
 	ui.clock.text = city.clock_text()
 	ui.clock.visible = level_name != "Epilogue"
 	if frames_on:
@@ -692,11 +701,12 @@ func scan() -> void:
 	for n in _all_with_meta(level, "scan"):
 		var p: Vector3 = (n as Node3D).global_position
 		if p.distance_to(me) < reach:
-			_card(p + Vector3(0, 1.5, 0), str(n.get_meta("scan")))
+			# past 50, 30% of people's cards are Carl's (Night.scan_text)
+			_card(p + Vector3(0, 1.5, 0), NightS.scan_text(self, str(n.get_meta("scan")), n.get_parent() != null and n.get_parent().has_meta("head")))
 	for pair in level.scan_people():
 		var n: Node3D = pair[0]
 		if n.global_position.distance_to(me) < reach:
-			_card(n.global_position + Vector3(0, 2.2, 0), str(pair[1]))
+			_card(n.global_position + Vector3(0, 2.2, 0), NightS.scan_text(self, str(pair[1])))
 	get_tree().create_timer(7.0).timeout.connect(func():
 		for l in _scan_labels:
 			if is_instance_valid(l):
@@ -783,6 +793,16 @@ func _dev_start() -> void:
 	if _args.has("systems"):
 		_selftest = true
 		await city.selftest_systems()
+		return
+	if _args.has("cases"):
+		# the open city's side cases, each to each ending (SideCases.gd)
+		_selftest = true
+		await city.cases.selftest()
+		return
+	if _args.has("night"):
+		# the night layer and the confrontations (Night.gd)
+		_selftest = true
+		await NightS.selftest(self)
 		return
 	if _args.has("selftest"):
 		_selftest_all()

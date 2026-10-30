@@ -288,5 +288,10 @@ static func interact(main: Node, node: Node) -> void:
 				await ui.think(S[str(node.get_meta("faction", "company"))])
 				main.log_line("evidence", S["log"] % main.city.district_name(str(main.city.district)))
 				main.city.add_devotion(1, "witness")
+		"night":
+			# the night layer's people (Night.gd): the eyeless, the follower, the crowd, the preacher, the double
+			var nl = node.get_meta("night_node", null)
+			if nl and is_instance_valid(nl):
+				await nl.examine(node)
 		_:
 			await ui.think("...")

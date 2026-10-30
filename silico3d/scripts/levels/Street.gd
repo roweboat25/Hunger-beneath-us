@@ -13,6 +13,7 @@ extends "res://scripts/Level.gd"
 
 const TrafficS := preload("res://scripts/Traffic.gd")
 const EncountersS := preload("res://scripts/Encounters.gd")
+const NightS := preload("res://scripts/Night.gd")
 
 const N := -110.0
 const S := 70.0
@@ -111,6 +112,8 @@ var _incident_id := ""
 var _beat: Dictionary = {}
 var _door_marker: Node3D
 var _lines_i := 0
+## The night layer: the eyeless, the follower, the crowd, the preacher, the double (Night.gd).
+var night_layer: Node3D
 
 
 func build(m: Node) -> void:
@@ -142,8 +145,16 @@ func build(m: Node) -> void:
 	_incident()
 	_beat_door()
 	_people()
+	main.city.standing.street_build(self)     # PIP / deregistered: the lift, the encampment's way in
 	# the hack and stealth layer: devices, the scene hold at tier 2, addicts (Encounters.gd)
 	EncountersS.street(self)
+	# the side cases: their places, props and people, gated on each case's step (SideCases.gd)
+	main.city.cases.dress(self)
+	# the night layer and the confrontations (Night.gd, Confront.gd)
+	var nl := NightS.new()
+	add_child(nl)
+	nl.setup(self)
+	night_layer = nl
 	_batch(self, 30.0)
 	var traffic: Node = TrafficS.new()
 	traffic.lanes = [[-4.0, 6.0, 1.0], [-1.5, 9.5, 1.0], [1.5, 9.5, -1.0], [4.0, 6.0, -1.0], [0.0, 15.0, 1.0]]
@@ -453,6 +464,7 @@ func _landmark() -> void:
 				var wq := quad(Vector2(1.6, 1.2), Vector3(-7.0 + i * 2.8, 5.5, lz - 2.78), 0.0, glow(Color(0.5, 0.75, 1.0) if faith >= 1 else Color(0.9, 0.85, 0.7), 1.0, true))
 				if faith >= 1 and i % 2 == 0:
 					flickers.append(wq)
+					no_batch.append(wq)  # a flicker the batch would free
 		"hill_road":
 			box(Vector3(16, 10, 1), Vector3(-3.0, 5, lz - 3.0), mat(Color(0.88, 0.9, 0.88), 0.5), true)
 			box(Vector3(5, 4, 0.2), Vector3(-3.0, 2, lz - 2.4), glow(Color(0.5, 1.0, 0.6), 1.0, true))
@@ -757,6 +769,7 @@ func tick(delta: float) -> void:
 	if _door_marker:
 		_door_marker.position.y += sin(_t * 3.0) * 0.004
 		_door_marker.rotation.y += delta * 1.5
+	main.city.cases.tick(self, delta)
 
 
 ## After waiting in place the street may have something new open.
@@ -772,6 +785,8 @@ func phone() -> String:
 	var t: String = LINES["phone"] % [main.city.district_name(did), main.city.clock_text(), faith]
 	if main.connection >= 25.0:
 		t += LINES["phone_fork"] % main.city.district_name(did)
+	t += main.city.standing.remember()     # Carl's Tower, Memory
+	t += main.city.cases.phone_text()      # the side cases (SideCases.gd)
 	return t
 
 
@@ -781,6 +796,7 @@ func scan_people() -> Array:
 		out.append([w["node"], LINES["scan"]["person"] % [90 + (w["node"] as Node3D).get_instance_id() % 10, "THE TOWER" if faith >= 1 else "THE STREET"]])
 	for k in kneelers:
 		out.append([k, LINES["scan"]["kneel"]])
+	out.append_array(main.city.cases.scan_people(self))
 	return out
 
 
@@ -790,6 +806,10 @@ func interact(node: Object) -> bool:
 	var ui = main.ui
 	var ex: Dictionary = LINES["examine"]
 	var id := str(node.get_meta("id"))
+	if await main.city.standing.street_interact(self, id):
+		return true
+	if id.begins_with("case_"):
+		return await main.city.cases.interact(self, node)
 	match id:
 		"kiosk":
 			if not main.frames_on and main.connection >= 25.0:
@@ -830,6 +850,11 @@ func interact(node: Object) -> bool:
 	return true
 
 
+## The quick-hack on a side-case device: the charge post, the substation gate (SideCases.gd).
+func on_hack(node: Object, word: String) -> bool:
+	return await main.city.cases.on_hack(self, node, word)
+
+
 ## What the street says: a stance line when Carl has one, a Faith line when the district has it.
 func _street_line() -> String:
 	var P: Dictionary = LINES["people"]
@@ -838,6 +863,8 @@ func _street_line() -> String:
 	var pool: Array = P["undecided"]
 	if faith >= 2 and _lines_i % 2 == 0:
 		pool = P["faith"]
+	elif main.city.standing.dereg():
+		return main.city.standing.street_line(_lines_i)
 	elif st != "undecided" and P.has(st):
 		pool = P[st]
 	return str(pool[(_lines_i + absi(hash(did))) % pool.size()])

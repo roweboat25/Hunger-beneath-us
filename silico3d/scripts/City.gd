@@ -22,6 +22,9 @@ extends Node
 
 const TerminalS := preload("res://scripts/Terminal.gd")
 const MapS := preload("res://scripts/CityMap.gd")
+const StandingS := preload("res://scripts/Standing.gd")
+const NightS := preload("res://scripts/Night.gd")
+const CasesS := preload("res://scripts/SideCases.gd")
 
 const LINES := {
 	"glitch": ["", "Six days to Glitch Day.", "Five days to Glitch Day.", "Four days to Glitch Day.", "Three days to Glitch Day.",
@@ -113,6 +116,7 @@ const LINES := {
 		"beat_home": "(game) I lay down and didn't sleep. The door went before I did.",
 		"no_sleep": "(game) I hadn't slept. The frames counted it for me.",
 		"lie": "(game) I lay down on the couch facing the glass. The city kept its lights on for me.",
+		"lie_camp": "(game) I lay down on the cot with my coat for a pillow. Somebody banked the fire. Nobody's glasses glowed.",
 	},
 	# the dream pool (bible-1 "Dreams"); the leaves are forced on Day 6 by Home
 	"dreams": [
@@ -313,6 +317,9 @@ const PEOPLE := {
 var main: Node
 var map: Control
 var terminal: Control
+var standing: Node
+## The side cases: Forner, Nathan, the vigil, Agata, Annie, Tyson's exit (SideCases.gd).
+var cases: Node
 ## Where Carl is in the open city: a district id, or "home".
 var district := "spine"
 ## The next Home load is the free visit (the hub), not a story visit.
@@ -332,6 +339,8 @@ var _forcing := false
 var sys_test := false     # --systems=1 runs with the scheduler on
 var _frames_t := 0.0
 var rng := RandomNumberGenerator.new()
+## The street Carl walked in from: a confrontation's Run sends him back there (Night.street_back).
+var came_from := ""
 
 
 func setup(m: Node) -> void:
@@ -346,6 +355,13 @@ func setup(m: Node) -> void:
 	# the map and the terminal draw under the fade, the title and the end card
 	main.ui.root.move_child(map, main.ui.fade.get_index())
 	main.ui.root.move_child(terminal, main.ui.fade.get_index())
+	# Standing 60 / 80 / 100: the audit, the PIP, deregistered (Standing.gd)
+	standing = StandingS.new()
+	add_child(standing)
+	standing.setup(main, self)
+	cases = CasesS.new()
+	add_child(cases)
+	cases.setup(main, self)
 	reset()
 
 
@@ -392,6 +408,7 @@ func set_time(d: int, h: int) -> void:
 		_new_day(d, h)
 	else:
 		main.hour = h
+	NightS.nightfall(main)
 	main.update_hud()
 
 
@@ -405,6 +422,8 @@ func advance(h: int) -> void:
 		_spawn_incident()
 	_open_authored()
 	_expire_incidents()
+	# 20:00: the feed names the follower's street tonight (Night.gd)
+	NightS.nightfall(main)
 	main.update_hud()
 
 
@@ -441,6 +460,10 @@ func day_card_text(headline := "") -> String:
 		rows.append("[color=#f5d6a0]%s[/color]   %s  ·  %s" % [c["story"], LINES["beats"][b["step"]][0], when])
 	elif d >= 7:
 		rows.append("[color=#f5d6a0]%s[/color]   %s" % [c["story"], c["tunnels"]])
+	# one side-case step (SideCases.gd)
+	var cr: String = cases.day_row()
+	if cr != "":
+		rows.append(cr)
 	if _faith_changed.size() > 0:
 		var first: String = _faith_changed[0]
 		rows.append("[color=#ff4fd8]%s[/color]   %s  %s" % [c["faith"], district_name(first), _faith_line(first)])
@@ -494,6 +517,8 @@ func _morning(d: int) -> void:
 	if d >= 4:
 		_spawn_incident()
 	_expire_incidents()
+	# the side cases that opened overnight; Tyson's Day 6 rule (SideCases.gd)
+	cases.morning(d)
 
 
 # ------------------------------------------------------------------ districts and Faith
@@ -599,18 +624,27 @@ func can_travel(to: String) -> bool:
 
 ## True while Carl is in the open city (a street or the free visit home).
 func in_hub() -> bool:
-	return main.level_name == "Street" or (main.level_name == "Home" and free_home)
+	return main.level_name in ["Street", "Encampment"] or (main.level_name == "Home" and free_home)
+
+
+## The open-city level Carl is in now, to reload after a night or a wait.
+func hub_level() -> String:
+	if main.level_name == "Encampment":
+		return "Encampment"
+	return "Home" if district == "home" else "Street"
 
 
 ## Travel on the map: hours pass, a beat may force itself, then the place.
 func travel(to: String) -> void:
 	if not can_travel(to) or not in_hub():
 		return
-	var r := route(to)
+	# deregistered, home is the encampment at Harmony Green (Standing.gd)
+	var r := route("harmony_green" if to == "home" and standing.dereg() and beat_at("home").is_empty() else to)
 	advance(int(r[0]))
 	main.log_line("travel", "%s -> %s (%s, %dh)" % [district_name(district), district_name(to), r[1], int(r[0])])
 	if await check_forced():
 		return
+	came_from = district
 	go(to)
 
 
@@ -622,6 +656,9 @@ func go(to: String) -> void:
 		var hb := beat_at("home")
 		if not hb.is_empty():
 			enter_beat(hb)
+			return
+		if standing.dereg():
+			standing.enter_camp("harmony_green")
 			return
 		free_home = true
 		main.load_level("Home")
@@ -779,7 +816,7 @@ func check_forced() -> bool:
 		main.ui.close()
 		await day_card(int(main.day) + 1)
 		_forcing = false
-		main.load_level("Home" if district == "home" else "Street")
+		main.load_level(hub_level())
 		return true
 	return false
 
@@ -790,6 +827,9 @@ func objective() -> String:
 	var here := beat_at(district)
 	if not here.is_empty():
 		return o["here"] % LINES["beats"][here["step"]][2]
+	var cs: String = cases.objective_here(district) if district != "home" else ""
+	if cs != "":
+		return cs
 	var p := pending()
 	if p.is_empty():
 		return o["home"] if district == "home" else o["open"]
@@ -887,7 +927,7 @@ func run_incident(id: String) -> void:
 	var inc: Dictionary = main.incidents[id]
 	var L: Dictionary = LINES["incident"]
 	await ui.think(incident_text(inc, "found"))
-	var pick: int = await ui.choose(LINES["calls"])
+	var pick: int = await ui.choose(standing.calls())
 	ui.close()
 	var outcome := ""
 	match pick:
@@ -910,9 +950,13 @@ func run_incident(id: String) -> void:
 			add_faith(inc["district"], -1, "fixed")
 			outcome = "fixed"
 		1:
-			await ui.think(incident_text(inc, "report"))
-			ui.close()
-			main.add_pressure(-3.0, LINES["toast"]["reported"])
+			if standing.dereg():
+				# no company to report to: Tyson is the handler now (Standing.gd)
+				await standing.report_to_tyson(inc)
+			else:
+				await ui.think(incident_text(inc, "report"))
+				ui.close()
+				main.add_pressure(-3.0, LINES["toast"]["reported"])
 			outcome = "reported"
 		2:
 			await ui.think(incident_text(inc, "bury"))
@@ -958,7 +1002,7 @@ func sleep() -> void:
 				if is_instance_valid(main.level) and main.level.has_method("refresh_city"):
 					main.level.refresh_city()
 			return
-	await ui.think(S["lie"])
+	await ui.think(S["lie_camp"] if main.level_name == "Encampment" else S["lie"])
 	var c: int = await ui.choose([S["yes"], S["no"]])
 	ui.close()
 	if c != 0:
@@ -972,7 +1016,7 @@ func sleep_now() -> void:
 	await day_card(int(main.day) + 1)
 	main.log_line("sleep", "slept to Day %d, 07:00" % int(main.day))
 	if in_hub():
-		main.load_level("Home" if district == "home" else "Street")
+		main.load_level(hub_level())
 
 
 ## One dream from the pool: a picture in words, then Bow (+3, a chant line)
@@ -1043,6 +1087,8 @@ func home_interact(id: String) -> bool:
 		"front_door":
 			await ui.think(V["leave"])
 			ui.close()
+			# deregistered: the tower locks behind him (Standing.gd)
+			await standing.lock_on_exit()
 			go("spine")
 		"couch":
 			await sleep()
@@ -1056,6 +1102,9 @@ func home_interact(id: String) -> bool:
 		"mira_door", "tablet", "circle":
 			await ui.think(V["kids_away"])
 		_:
+			# Carl's Tower, Memory: the room behind the bedroom door (MemoryRoom.gd)
+			if id.begins_with("mem_"):
+				return await standing.memory_interact(id)
 			return false
 	return true
 
@@ -1094,6 +1143,12 @@ func apply_args(a: Dictionary) -> void:
 			free_home = true
 	if a.has("devotion"):
 		main.devotion = int(a["devotion"])
+	if a.has("rooms"):      # Carl's Tower, for shots: --rooms=focus,memory
+		main.tower_rooms = Array(str(a["rooms"]).split(","))
+	if a.has("traded"):     # --traded=photo,lion
+		for k: String in str(a["traded"]).split(","):
+			main.traded.append(k)
+			main.flags["traded_" + k] = true
 	if a.has("faith"):
 		for d in DISTRICT_IDS:
 			main.faith[d] = int(a["faith"])
@@ -1267,6 +1322,8 @@ func selftest_systems() -> void:
 	await _sys("forced", func(): res["forced"] = await check_forced(), 30.0)
 	var in_rr := await _await_level("RedRock", 120.0)
 	_ok("forced at 23:00", res["forced"] and in_rr, "%s %s" % [main.level_name, clock_text()])
+	# 11. Carl's Tower on the street, the Memory room, Standing 60 / 80 / 100, the encampments (Standing.gd)
+	await _sys("standing and the tower", func(): await standing.selftest(), 1100.0)
 	print("SYSTEMS DONE fails=", _fails, " clock=", clock_text(), " faith=", main.faith, " devotion=", main.devotion,
 		" rooms=", main.tower_rooms, " traded=", main.traded, " hacks=", main.hacks, " given=", main.given,
 		" incidents=", main.incidents.size(), " pressure=", int(main.pressure), " conn=", int(main.connection))

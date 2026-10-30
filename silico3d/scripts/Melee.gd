@@ -189,8 +189,14 @@ func hit_carl(a: Dictionary) -> void:
 	main.hack.say_line(H[touches % H.size()])
 	touches += 1
 	_last_touch = main.stealth.now
-	if touches >= 3:
+	if touches >= overwhelm_at():
 		overwhelmed()
+
+
+## Hits taken before the god carries Carl off: three, or four with Carl's
+## Tower's Courage room (the hands stay steady when someone puts theirs on him).
+func overwhelm_at() -> int:
+	return 4 if main.tower_rooms.has("courage") else 3
 
 
 func _down(a: Dictionary) -> void:
@@ -274,7 +280,8 @@ func talk(n: Node3D) -> void:
 	var i: int = await ui.choose(LINES["talk"])
 	match i:
 		0:
-			if main.frames_on and rng.randf() < 0.6:
+			# Courage: a steadier voice; he hears it through the frames half as often
+			if main.frames_on and rng.randf() < (0.3 if main.tower_rooms.has("courage") else 0.6):
 				await ui.think(LINES["talk_frames"])
 				a["aggro"] = "always"
 				a["state"] = "approach"

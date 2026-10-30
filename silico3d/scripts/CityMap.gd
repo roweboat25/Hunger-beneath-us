@@ -267,6 +267,11 @@ func _draw() -> void:
 			draw_arc(p, r + 15.0 * _scale, 0, TAU, 40, Color(1, 1, 1, 0.9), 1.5 * _scale)
 		if marks.has(id):
 			_eye(p + Vector2(r * 0.95, -r * 0.95), 9.0 * _scale)
+		# a side-case step here: a small cyan diamond (SideCases.gd)
+		if id != "home" and city.cases.map_has(id):
+			var dp := p + Vector2(-r * 0.95, -r * 0.95)
+			var dr := 7.0 * _scale
+			draw_colored_polygon(PackedVector2Array([dp + Vector2(0, -dr), dp + Vector2(dr, 0), dp + Vector2(0, dr), dp + Vector2(-dr, 0)]), Color(0.5, 0.9, 1.0, 0.95))
 		var nm: String = names[id]
 		var w := f.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 		var lc := INK if not locked else DIM
@@ -348,6 +353,12 @@ func _panel(names: Dictionary, marks: Dictionary, beat_places: Dictionary) -> vo
 				_text(Vector2(x, y), ln, 15, Color(1.0, 0.45, 0.4))
 				y += 20
 		y += 6
+	if sel != "home":
+		for cl: String in city.cases.map_lines(sel):
+			for ln in _wrap(cl, 34):
+				_text(Vector2(x, y), ln, 14, Color(0.5, 0.9, 1.0))
+				y += 19
+			y += 4
 	y = maxf(y, 380.0)
 	var keys: String = LINES["keys"]
 	if sel == city.district:

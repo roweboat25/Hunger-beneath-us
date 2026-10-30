@@ -35,6 +35,7 @@ extends "res://scripts/Level.gd"
 ## the east end (Carl arrives there), neighbours' doors 86A-86G, and the
 ## service stair at the west end, a flight down to a badge-locked landing.
 
+const MemoryRoomS := preload("res://scripts/MemoryRoom.gd")   # Carl's Tower, Memory (open city)
 const H := 2.7
 const GROUND := -292.0                               # the street, 86 floors down
 const TABLE := Vector3(2.5, 0.0, -6.0)
@@ -971,14 +972,19 @@ func _hall() -> void:
 	_wb(Vector3(1.0, H - 2.05, 0.14), Vector3(9.5, 2.05 + (H - 2.05) / 2, -5.8))
 	_wb(Vector3(1.2, H - 2.05, 0.14), Vector3(12.0, 2.05 + (H - 2.05) / 2, -5.8))
 	_wb(Vector3(0.6, H, 0.14), Vector3(12.7, H / 2, -5.8))
-	_wb(Vector3(0.14, H, 1.6), Vector3(13.0, H / 2, -6.5))
+	var mem_room: bool = free and main.tower_rooms.has("memory")
+	if mem_room:
+		MemoryRoomS.build(self)     # Carl's Tower: the bedroom door opens on the frames
+	else:
+		_wb(Vector3(0.14, H, 1.6), Vector3(13.0, H / 2, -6.5))
 	box(Vector3(7.2, 0.2, 1.6), Vector3(9.6, H + 0.1, -6.5), mat(Color(0.68, 0.67, 0.64), 0.95))
 	light(Vector3(8.5, H - 0.2, -6.5), Color(1.0, 0.85, 0.7), 0.55, 4.5)
 	light(Vector3(12.0, H - 0.2, -6.5), Color(1.0, 0.85, 0.7), 0.4, 3.5)
 	# the doors we do not go through: ours, and the sonic shower
 	var dm := mat(Color(0.86, 0.85, 0.82), 0.5)
-	box(Vector3(0.06, 2.05, 1.0), Vector3(12.95, 1.02, -6.5), dm)
-	interactable("bedroom_door", "Our bedroom", Vector3(12.9, 1.0, -6.5), Vector3(0.15, 2.0, 1.0), "", true)
+	if not mem_room:
+		box(Vector3(0.06, 2.05, 1.0), Vector3(12.95, 1.02, -6.5), dm)
+		interactable("bedroom_door", "Our bedroom", Vector3(12.9, 1.0, -6.5), Vector3(0.15, 2.0, 1.0), "", true)
 	box(Vector3(1.0, 2.05, 0.06), Vector3(12.0, 1.02, -5.78), dm)
 	neon_text("SONIC", Vector3(12.0, 1.6, -5.74), 0.0, 0.05, Color(0.3, 0.9, 1.0), 1.2, self)
 	interactable("shower", "The sonic shower", Vector3(12.0, 1.0, -5.75), Vector3(1.0, 2.0, 0.15), "", true)
@@ -1012,6 +1018,8 @@ func _mira_room() -> void:
 	for c in mira_door.get_children():
 		no_batch.append(c)
 	mira_door.rotation.y = -0.85 if (second or fourth) else -1.85   # open before bed; ajar, "a sliver of dim light", "a sliver of dim light"
+	if free:
+		mira_door.rotation.y = 1.45     # open into her room, so the hall is clear to its end (the Memory room)
 	# the bed against the north wall, the lion on the pillow
 	var bp := Vector3(9.5, 0, -11.05)
 	var frame := mat(Color(0.9, 0.88, 0.85), 0.6)
@@ -2241,8 +2249,10 @@ func interact(node: Object) -> bool:
 		"fridge_drawing", "photo", "trophy":
 			var traded := {"fridge_drawing": "traded_drawing", "photo": "traded_photo", "trophy": "traded_trophy"}
 			await ui.think(ex["traded"] if f.has(traded[id]) else ex[id])
+			MemoryRoomS.note(main, {"fridge_drawing": "drawing", "photo": "photo", "trophy": "trophy"}[id])
 		"mira_bed":
 			await ui.think(ex["traded"] if f.has("traded_lion") else ex["mira_bed"])
+			MemoryRoomS.note(main, "lion")
 		"sketchbook":
 			await _sketchbook()
 		"mira":
@@ -2981,7 +2991,7 @@ func _memories() -> void:
 			var n: Node3D = pair[1]
 			n.visible = false
 			if n.has_meta("mark"):
-				(n.get_meta("mark") as Node3D).visible = fourth
+				(n.get_meta("mark") as Node3D).visible = fourth or free
 
 
 ## A page of Mira's sketchbook, in coloured pencil, AI-corrected. 0: the

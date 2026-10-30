@@ -87,6 +87,8 @@ const LINES := {
 		"They waited.",
 		"I didn't keep them waiting.",
 	],
+	# Carl's Tower, Courage: "A fire that gave no heat. You will need it at the end."
+	"fire_courage": "The fire on the plinth in my tower had given no heat. It gave it now. My hands did not shake.",   # (game)
 	"charge_cap": "I ran, murder in my heart, the knife raised high.",
 	"swell_cap": "The hum swelled into a discordant chorus—half mechanical, half human, all madness.",
 	"stopped": "Ten feet from him, I was stopped—not by force, but by a voice.",
@@ -162,6 +164,8 @@ const LINES := {
 		"sheathe": "I put the knife away. It went back into the sheath like it had never left it.",
 		"nobody": "Nobody moved.",
 		"waits": "The congregation waited. Every socket in the room on my back, patient as furniture.",
+		# deregistered: no name to walk out under (Standing.gd)
+		"no_dereg": "The doors were open. Beyond them there was nowhere left with my name on it. The company had already taken that, and the man the company lets walk away is a man it still owns.",   # (game)
 	},
 	"burn": [
 		"I leaned into the wheel. It gave.",
@@ -2755,11 +2759,18 @@ func _given_tyson() -> bool:
 
 
 func _burn_ok() -> bool:
-	return main.connection < 90.0 and not _given_tyson() and not _attack_spent
+	# burn_closed: Tyson gone (given to the god, or left the city: SideCases.gd "tyson")
+	return (main.connection < 90.0 or _tyson_way()) and not _given_tyson() and not _attack_spent and not main.flags.has("burn_closed")
+
+
+## Deregistered with Tyson alive: he walked Carl in, so the valve stays in
+## reach whatever the Connection (bible: Standing 100).
+func _tyson_way() -> bool:
+	return main.flags.has("deregistered") and main.city != null and main.city.standing.tyson_alive()
 
 
 func _refuse_ok() -> bool:
-	return main.pressure <= 40.0 and not _attack_spent
+	return main.pressure <= 40.0 and not _attack_spent and not main.flags.has("deregistered")
 
 
 func _acts_text() -> String:
@@ -2816,6 +2827,8 @@ func intro() -> void:
 	_fade_snd(_choir, -12.0, 4.0)
 	for i in range(2, LINES["fire"].size()):
 		await ui.think(LINES["fire"][i])
+	if main.tower_rooms.has("courage"):
+		await ui.think(LINES["fire_courage"])
 	ui.close()
 	_phase = "charge"
 	_charge_t = 0.0
@@ -4247,7 +4260,7 @@ func interact(node: Object) -> bool:
 		"valve":
 			if _phase != "choice" or _busy:
 				await ui.think(L["valve"]["look"])
-			elif main.connection >= 90.0 or _attack_spent:
+			elif (main.connection >= 90.0 and not _tyson_way()) or _attack_spent:
 				await ui.think(L["valve"]["no_conn"])
 			elif _given_tyson():
 				await ui.think(L["valve"]["no_tyson"])
@@ -4258,7 +4271,7 @@ func interact(node: Object) -> bool:
 			if _phase != "choice" or _busy:
 				await ui.think(L["doors"]["look"])
 			elif not _refuse_ok():
-				await ui.think(L["doors"]["no"])
+				await ui.think(L["doors"]["no_dereg" if main.flags.has("deregistered") else "no"])
 			else:
 				_choose("refuse")
 			return true

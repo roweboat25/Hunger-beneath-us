@@ -61,9 +61,9 @@ const LINES := {
 	# the rooms: name, cost, what it is (Chair.gd's ROOMS, for the climb), and what it does on the street
 	"rooms": {
 		"focus": ["FOCUS", 3, "A desk, a lamp, every paper squared to the edge. The council floated over it, waiting for a question.", "(game) The frames read further: scans reach half again as far."],
-		"calm": ["CALM", 4, "Still water in a stone ring. Nothing moved on it. The council floated over it like breath held.", "(game) Sleep costs the company less of you: a night is +2 pressure, not +3."],
-		"memory": ["MEMORY", 4, "Frames on every wall. Some of them empty, the hooks still there.", "(game) What you gave stays hung up here, where you can visit it."],
-		"courage": ["COURAGE", 5, "A plinth with a knife on it, and a fire that gave no heat. The council stood back from it.", "(game) A fire that gives no heat. You will need it at the end."],
+		"calm": ["CALM", 4, "Still water in a stone ring. Nothing moved on it. The council floated over it like breath held.", "(game) Sleep costs the company less of you: a night is +2 pressure, not +3. On the street the frames take you slower."],
+		"memory": ["MEMORY", 4, "Frames on every wall. Some of them empty, the hooks still there.", "(game) What you gave stays hung up here, where you can visit it: a door at the end of the hall at home. The frames replay the last things you were told."],
+		"courage": ["COURAGE", 5, "A plinth with a knife on it, and a fire that gave no heat. The council stood back from it.", "(game) A fire that gives no heat. You will need it at the end. Your hands stay steadier when it comes to blows."],
 	},
 	"trade": {
 		"none": "(game) Nothing you know that we haven't already given you.",
@@ -93,7 +93,9 @@ const LINES := {
 		"trophy": "Ezra's recess trophy",
 	},
 	# words in the ledger that belong to a memory, blanked when it is traded
-	"memory_keys": {"drawing": ["drawing", "sketch"], "photo": ["photo"], "lion": ["lion"], "trophy": ["trophy", "recess"]},
+	# (narrow on purpose: "photo" alone would take Hameron's framed photograph,
+	# "sketch" the sketchbook evidence, "lion" every million)
+	"memory_keys": {"drawing": ["drawing on the fridge", "mira's drawing"], "photo": ["red rock photo"], "lion": ["toy lion"], "trophy": ["recess trophy", "ezra's trophy"]},
 	"give": {
 		"intro": "(game) There are others who would come home with you. Name one and they come.",
 		"intro_corp": "(game) Psyon cannot help with that request.",
@@ -412,6 +414,7 @@ func trade(word: String, mem: String) -> void:
 		var t: String = str(e.get("text", "")).to_lower()
 		for k: String in keys:
 			if k in t:
+				e["was"] = e["text"]      # the Memory room in Carl's Tower keeps it
 				e["text"] = TR["blank"]
 				break
 	main.play("glitch", -6.0, 0.6)
