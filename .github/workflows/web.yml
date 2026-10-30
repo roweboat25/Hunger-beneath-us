@@ -25,6 +25,11 @@ jobs:
           godot --headless --path . --import
           godot --headless --path . --export-release Web build/web/index.html
           rm -f build/web/*.import
+          OUT="$PWD/build/web/3d"
+          mkdir -p "$OUT"
+          godot --headless --path silico3d --import
+          godot --headless --path silico3d --export-release Web "$OUT/index.html"
+          rm -f "$OUT"/*.import
           touch build/web/.nojekyll
       - name: Publish to the gh-pages branch
         uses: peaceiris/actions-gh-pages@v4

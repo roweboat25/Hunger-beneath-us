@@ -1,0 +1,30 @@
+Silico 3D prop kit: sources and licences
+
+Poly Haven models (CC0 1.0, https://polyhaven.com/license), cut to PS1 budgets by tools/asset_pipeline/ph_clean.py:
+  Barrel_01  https://polyhaven.com/a/Barrel_01
+  cardboard_box_01  https://polyhaven.com/a/cardboard_box_01
+  concrete_road_barrier  https://polyhaven.com/a/concrete_road_barrier
+  exterior_aircon_unit  https://polyhaven.com/a/exterior_aircon_unit
+  fire_hydrant  https://polyhaven.com/a/fire_hydrant
+  metal_office_desk  https://polyhaven.com/a/metal_office_desk
+  metal_trash_can  https://polyhaven.com/a/metal_trash_can
+  modular_airduct_circular_01  https://polyhaven.com/a/modular_airduct_circular_01
+  modular_electric_cables  https://polyhaven.com/a/modular_electric_cables
+  mounted_fluorescent_lights  https://polyhaven.com/a/mounted_fluorescent_lights
+  old_gas_mask  https://polyhaven.com/a/old_gas_mask
+  old_tyre  https://polyhaven.com/a/old_tyre
+  plastic_crate_03  https://polyhaven.com/a/plastic_crate_03
+  power_box_01  https://polyhaven.com/a/power_box_01
+  rollershutter_door  https://polyhaven.com/a/rollershutter_door
+  security_camera_01  https://polyhaven.com/a/security_camera_01
+  security_light  https://polyhaven.com/a/security_light
+  steel_frame_shelves_01  https://polyhaven.com/a/steel_frame_shelves_01
+  street_lamp_01  https://polyhaven.com/a/street_lamp_01
+  street_rat  https://polyhaven.com/a/street_rat
+  utility_box_01  https://polyhaven.com/a/utility_box_01
+  utility_box_02  https://polyhaven.com/a/utility_box_02
+
+AI-generated (references by SDXL-Turbo, Stability AI Community Licence; meshes by TripoSR, MIT):
+  police_drone, delivery_drone  (TripoSR mesh, vertex colours)
+  vending_kiosk, server_rack, atm, arcade_cabinet, fuse_panel  (photo box: front image on a box)
+These count as pre-generated AI content for a store's AI disclosure.
