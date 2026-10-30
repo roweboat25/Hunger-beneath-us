@@ -83,6 +83,7 @@ var player: CharacterBody3D
 var ui: CanvasLayer
 var retro: CanvasLayer
 var cine: CanvasLayer
+var look := "cine"
 var crowd: Node3D
 var env: Environment
 var sun: DirectionalLight3D
@@ -152,13 +153,13 @@ func _ready() -> void:
 	retro = preload("res://scripts/Retro.gd").new()
 	add_child(retro)
 	retro.apply(_args)
-	if str(_args.get("look", "")) == "cine":
-		# prototype: the cinematic look in place of the PS1 layer
-		Body.cine = true
-		retro.visible = false
-		cine = preload("res://scripts/Cine.gd").new()
-		add_child(cine)
-		cine.set_grade(str(_args.get("grade", "silico")))
+	# the look: cinematic by default (ian, 2026-10-30), the PS1 layer as the
+	# option. look=ps1|cine on the command line or URL wins over the saved
+	# choice; F4 switches in game and remembers it.
+	cine = preload("res://scripts/Cine.gd").new()
+	add_child(cine)
+	cine.set_grade(str(_args.get("grade", "silico")))
+	_set_look(str(_args.get("look", _saved_look())))
 	city = CityS.new()
 	add_child(city)
 	city.setup(self)
@@ -207,6 +208,7 @@ func _setup_input() -> void:
 	_key("crouch", [KEY_C, KEY_CTRL])
 	_key("attack", [KEY_V])
 	_key("recorder", [KEY_R])
+	_key("look", [KEY_F4])
 
 
 func _setup_env() -> void:
@@ -439,6 +441,38 @@ func _apply_hifi() -> void:
 	level.hifi(env, sun)
 
 
+## Cinematic (Cine.gd grade, bloom, depth of field, Face heads) or the PS1
+## layer (Retro.gd). Switched live, the screen and lighting change at once;
+## people pick up the new heads from the next place Carl goes.
+func _set_look(l: String, save := false) -> void:
+	look = "ps1" if l in ["ps1", "retro", "0"] else "cine"
+	Body.cine = look == "cine"
+	cine.visible = look == "cine"
+	retro.visible = look == "ps1" and str(_args.get("style", "ps1")) not in ["0", "off", "none"]
+	if save:
+		var cf := ConfigFile.new()
+		cf.set_value("video", "look", look)
+		cf.save("user://settings.cfg")
+		ui.show_toast("Look: " + ("cinematic" if look == "cine" else "PS1") + " (F4 to switch)", 2.5)
+	if level and not loading:
+		_reset_env()
+		level.setup_env(env, sun)
+		retro.tune(level.kit_day)
+		if hifi:
+			_apply_hifi()
+		if look == "cine":
+			cine.apply_env(env, sun, player.cam, level.kit_day)
+		else:
+			player.cam.attributes = null
+
+
+func _saved_look() -> String:
+	var cf := ConfigFile.new()
+	if cf.load("user://settings.cfg") == OK:
+		return str(cf.get_value("video", "look", "cine"))
+	return "cine"
+
+
 func load_level(lname: String) -> void:
 	if loading:
 		return
@@ -480,8 +514,10 @@ func load_level(lname: String) -> void:
 	retro.tune(level.kit_day)
 	if hifi:
 		_apply_hifi()
-	if cine:
+	if look == "cine":
 		cine.apply_env(env, sun, player.cam, level.kit_day)
+	else:
+		player.cam.attributes = null
 	_rain.visible = level.rain
 	_rain.emitting = level.rain
 	player.seated = false
@@ -517,6 +553,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if e.is_action_pressed("map") and not ui.title.visible and not ui.busy and not loading and level:
 		city.open_map()
+		return
+	if e.is_action_pressed("look") and level and not loading:
+		_set_look("ps1" if look == "cine" else "cine", true)
 		return
 	if e.is_action_pressed("release"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

@@ -23,12 +23,15 @@ uniform float grain = 0.035;
 uniform float vignette = 0.42;
 uniform float letterbox = 0.0;
 uniform float time_s = 0.0;
+uniform float lift = 1.0;
 
 float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 
 void fragment() {
 	vec2 uv = SCREEN_UV;
 	vec3 col = textureLod(screen_tex, uv, 0.0).rgb;
+	// lift the shadows (like Retro's curve, gentler) so night rooms keep their shapes
+	col = col * (1.0 + lift) / (col + lift);
 	// a touch of lens: colour fringe only at the very edges
 	vec2 cc = uv - 0.5;
 	float fr = dot(cc, cc) * 0.0035;
@@ -104,6 +107,7 @@ func set_letterbox(on: bool) -> void:
 ## player's camera so the far city softens like a lens would.
 func apply_env(env: Environment, sun: DirectionalLight3D, cam: Camera3D, day: bool) -> void:
 	set_grade("day" if day else grade)
+	mat.set_shader_parameter("lift", 6.0 if day else 2.0)
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	env.tonemap_white = 6.0
 	env.glow_enabled = true
