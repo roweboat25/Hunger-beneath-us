@@ -20,7 +20,7 @@ The title menu offers two things:
    eye at 50.
 
 Controls: Q hold = quick-hack wheel (frames on, Connection 25), C/Ctrl crouch, V or left mouse strike, R recorder; mouse or arrow keys look, WASD walk, Shift hurry, E examine/talk,
-G frames, F scan (frames on), P Psyon, M menu, Esc frees the mouse.
+G frames, F scan (frames on), P Psyon, M menu, F4 cinematic/PS1 look, Esc frees the mouse.
 
 Dev arguments (after `--` on the command line, or `?key=value` in the URL):
 `level=Dufredy|Drive|Park|Spine flags=a,b conn=N frames=1 at=x,y,z yaw=deg
@@ -70,3 +70,14 @@ van), `levels/` (`Dufredy.gd`, `Drive.gd`, `Park.gd`, `Spine.gd`, `Lineup.gd`
 for checking people and cars), `Crowd.gd`, `Traffic.gd`, `Player.gd`,
 `UI.gd` (frames overlay, dialogue, laptop, pictures, phone), `Synth.gd`
 (sounds), `Tex.gd` (small procedural textures).
+
+The look (ian, 2026-10-30: cinematic by default, PS1 as the option): `Cine.gd`
+is a full-resolution grade (split tone, filmic curve, vignette, grain) over
+ACES, bloom, SSAO, volumetric fog and depth of field (`grade=silico|day|psyon`),
+and people get `Face.gd` heads (a sculpted head with sockets, brow, nose, lips
+and chin, a 1024 px face, 3D eyes that blink and follow the camera, a mouth
+that opens for speech; `Face.talking`). `Retro.gd` is the PS1 layer. F4
+switches in game and saves to `user://settings.cfg`; `look=ps1|cine` on the
+command line or URL wins. `level=LookTest` is the Spine with Monica and a
+guard in front of Carl for comparing the two: `talk=1` (or 0-1 to hold the
+mouth open), `dlg=1` (letterbox and push-in), `norain=1`.

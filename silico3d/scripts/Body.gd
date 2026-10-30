@@ -10,6 +10,8 @@ class_name Body
 
 const SEG := 16
 static var _tex := {}
+## Prototype: look=cine swaps in Face's 1024 px face and its 3D eyes and mouth.
+static var cine := false
 static var _noise: Image
 static var _strands: Image
 
@@ -122,7 +124,7 @@ static func build(lvl: Node, coat: Color, skin: Color, opts: Dictionary) -> Node
 	var hivis := coat.g > 0.8 and coat.r > 0.6 and coat.b < 0.35
 	var long_coat: bool = opts.get("long_coat", not uniform and not hivis and seed % 3 != 0)
 	var cloth := clothes_mat(coat, legs_c, skin, seed, uniform, hivis, long_coat)
-	var face := face_mat(skin, hair_c, fem, seed)
+	var face := Face.face_mat_hd(skin, hair_c, fem, seed) if cine else face_mat(skin, hair_c, fem, seed)
 	var w := 0.92 if fem else 1.0
 	var hipw := 1.06 if fem else 1.0
 
@@ -189,6 +191,8 @@ static func build(lvl: Node, coat: Color, skin: Color, opts: Dictionary) -> Node
 	# head: skull, jaw, neck, nose, ears and hair as one mesh
 	var head := Node3D.new()
 	head.position = Vector3(0, 1.72, 0)
+	if cine:
+		head.scale = Vector3.ONE * 1.1  # prototype: a touch larger, so faces read
 	root.add_child(head)
 	var hs := 0.96 if fem else 1.0
 	var skull := [[-0.2, 0.055, 0.055, 0.012], [-0.125, 0.057 * hs, 0.058, 0.012], [-0.1, 0.05 * hs, 0.07, -0.022],
@@ -197,30 +201,38 @@ static func build(lvl: Node, coat: Color, skin: Color, opts: Dictionary) -> Node
 		[0.135, 0.06 * hs, 0.078, 0.01], [0.155, 0.032 * hs, 0.046, 0.01]]
 	var hst := SurfaceTool.new()
 	hst.begin(Mesh.PRIMITIVE_TRIANGLES)
-	loft(hst, skull, Rect2(0, 0, 1, 1), Transform3D(), true, false, 20)
 	var skin_uv := Rect2(0.46, 0.955, 0.08, 0.03)
+	if cine:
+		Face.sculpt(hst, skull)  # prototype: sockets, brow, a real nose, lips, chin
+	else:
+		loft(hst, skull, Rect2(0, 0, 1, 1), Transform3D(), true, false, 20)
 	# nose: a wedge off the face
-	var fz := -0.104
+	var fz := -0.104 if not cine else 1.0
 	var nose := [[Vector3(0, 0.03, fz + 0.012), skin_uv.position], [Vector3(0, -0.022, fz - 0.026), skin_uv.position],
 		[Vector3(-0.02, -0.03, fz + 0.004), skin_uv.end], [Vector3(0.02, -0.03, fz + 0.004), skin_uv.end],
 		[Vector3(0, -0.032, fz - 0.012), skin_uv.end]]
-	_tri(hst, nose[0], nose[1], nose[2])
-	_tri(hst, nose[0], nose[3], nose[1])
-	_tri(hst, nose[1], nose[4], nose[2])
-	_tri(hst, nose[1], nose[3], nose[4])
+	if not cine:
+		_tri(hst, nose[0], nose[1], nose[2])
+		_tri(hst, nose[0], nose[3], nose[1])
+		_tri(hst, nose[1], nose[4], nose[2])
+		_tri(hst, nose[1], nose[3], nose[4])
 	for side: float in [-1.0, 1.0]:
 		loft(hst, [[-0.026, 0.006, 0.012], [-0.01, 0.009, 0.019], [0.018, 0.009, 0.02], [0.03, 0.005, 0.012]], skin_uv,
-			Transform3D(Basis(Vector3(0, 1, 0), side * 0.3), Vector3(side * 0.088 * hs, 0.0, 0.014)), true, true, 6)
+			Transform3D(Basis(Vector3(0, 1, 0), side * 0.3), Vector3(side * 0.088 * hs * (Face.WIDE if cine else 1.0), 0.0, 0.014)), true, true, 6)
 	# hair: a cap with some volume over the painted hairline, and a fall at the back
 	var hair_uv := Rect2(0.0, 0.0, 1.0, 0.08)
 	var cap := []
 	for r: Array in skull.slice(7):
-		cap.append([r[0] + 0.006, r[1] * 1.08, r[2] * 1.08, r[3] + 0.006])
+		cap.append([r[0] + 0.006, r[1] * 1.08 * (Face.WIDE if cine else 1.0), r[2] * 1.08, r[3] + 0.006])
 	loft(hst, cap, hair_uv, Transform3D(), true, false, 20)
 	if fem:
 		loft(hst, [[-0.26, 0.105, 0.05, 0.075], [-0.1, 0.1, 0.065, 0.06], [0.02, 0.098, 0.085, 0.04], [0.1, 0.086, 0.085, 0.02]],
 			hair_uv, Transform3D(), true, true)
+	if cine:
+		hst.index()  # shared vertices, so the sculpt shades smooth
 	_mi(_commit(hst), face, head)
+	if cine and not opts.get("visor", false):
+		root.set_meta("face", Face.rig(head, skin, hair_c, seed, skull))
 	var v: MeshInstance3D = null
 	if opts.get("visor", false):
 		v = lvl.box(Vector3(0.2, 0.034, 0.03), Vector3(0, 0.025, -0.112), lvl.glow(Color(0.3, 0.95, 1.0), 3.0), false, head)
